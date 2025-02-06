@@ -1,11 +1,7 @@
 """Wallet Helpers"""
 
 from django.utils import timezone
-from esi.errors import TokenError
-from esi.models import Token
 from eveuniverse.models import EveEntity
-
-from allianceauth.eveonline.models import EveCharacter
 
 from taxsystem.errors import DatabaseError
 from taxsystem.hooks import get_extension_logger
@@ -18,56 +14,12 @@ from taxsystem.models.wallet import (
 )
 from taxsystem.providers import esi
 from taxsystem.task_helpers.etag_helpers import NotModifiedError, etag_results
+from taxsystem.task_helpers.general_helpers import get_corp_token
 
 logger = get_extension_logger(__name__)
 
 
-def get_corp_token(corp_id, scopes, req_roles):
-    """
-    Helper method to get a token for a specific character from a specific corp with specific scopes
-
-    Parameters
-    ----------
-    corp_id: `int`
-    scopes: `int`
-    req_roles: `list`
-
-    Returns
-    ----------
-    `class`: esi.models.Token or False
-
-    """
-    if "esi-characters.read_corporation_roles.v1" not in scopes:
-        scopes.append("esi-characters.read_corporation_roles.v1")
-
-    char_ids = EveCharacter.objects.filter(corporation_id=corp_id).values(
-        "character_id"
-    )
-    tokens = Token.objects.filter(character_id__in=char_ids).require_scopes(scopes)
-
-    for token in tokens:
-        try:
-            roles = esi.client.Character.get_characters_character_id_roles(
-                character_id=token.character_id, token=token.valid_access_token()
-            ).result()
-
-            has_roles = False
-            for role in roles.get("roles", []):
-                if role in req_roles:
-                    has_roles = True
-
-            if has_roles:
-                return token
-        except TokenError as e:
-            logger.error(
-                "Token ID: %s (%s)",
-                token.pk,
-                e,
-            )
-    return False
-
-
-def update_corp_wallet_division(corp_id, force_refresh=False):
+def update_corporation_wallet_division(corp_id, force_refresh=False):
     audit_corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
 
     req_scopes = [
@@ -222,10 +174,12 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
                     items.append(wallet_item)
 
             logger.debug(
-                "Corp %s Div %s, Page: %s, New Transactions! {len(items)}, New Names {_new_names}",
+                "Corp %s Div %s, Page: %s, New Transactions! %s, New Names %s",
                 corp_id,
                 wallet_division,
                 current_page,
+                len(items),
+                _new_names,
             )
 
             # Create Entities
@@ -247,4 +201,4 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
             audit_corp.corporation.corporation_name,
             wallet_division,
         )
-    return True
+    return ("Finished wallet journal for: %s", audit_corp.corporation.corporation_name)

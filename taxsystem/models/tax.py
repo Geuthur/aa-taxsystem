@@ -9,7 +9,7 @@ from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveAllianceInfo, EveCorporationInfo
 
 from taxsystem.managers.tax_manager import OwnerAuditManager, TaxSystemManager
-
+from taxsystem.managers.payment_manager import PaymentManager
 
 class OwnerAudit(models.Model):
     """Tax System Audit model for app"""
@@ -17,11 +17,11 @@ class OwnerAudit(models.Model):
     objects = OwnerAuditManager()
 
     name = models.CharField(
-        max_length=100,
+        max_length=255,
     )
 
     corporation = models.OneToOneField(
-        EveCorporationInfo, on_delete=models.CASCADE, related_name="corporation"
+        EveCorporationInfo, on_delete=models.CASCADE, related_name="+"
     )
 
     alliance = models.ForeignKey(
@@ -35,6 +35,8 @@ class OwnerAudit(models.Model):
     active = models.BooleanField(default=False)
 
     last_update_wallet = models.DateTimeField(null=True, blank=True)
+
+    last_update_members = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.corporation.corporation_name} - Audit Data"
@@ -61,24 +63,24 @@ class OwnerAudit(models.Model):
 class Members(models.Model):
     """Tax System Member model for app"""
 
-    name = models.CharField(
-        max_length=100,
-    )
+    class States(models.TextChoices):
+        ACTIVE = "active", _("Active")
+        MISSING = "missing", _("Missing")
+
+    character_name = models.CharField(max_length=100, db_index=True)
+
+    character_id = models.PositiveIntegerField(primary_key=True)
 
     audit = models.ForeignKey(
-        OwnerAudit, on_delete=models.CASCADE, related_name="audit"
+        OwnerAudit, on_delete=models.CASCADE, related_name="owner"
     )
 
-    member = models.ForeignKey(
-        UserProfile,
-        on_delete=models.CASCADE,
-        related_name="member",
+    status = models.CharField(
+        _("Status"), max_length=10,
+        choices=States.choices,
+        blank=True,
+        default='active'
     )
-
-    status = models.CharField(max_length=50, null=True, blank=True)
-
-    active = models.BooleanField(default=False)
-    payment_notification = models.BooleanField(default=False)
 
     notice = models.TextField(null=True, blank=True)
 
@@ -88,31 +90,82 @@ class Members(models.Model):
         verbose_name_plural = _("Tax Member Systems")
 
     def __str__(self):
-        return f"{self.member.main_character.character_name} - {self.member.main_character.character_id}"
+        return f"{self.member.character_name} - {self.member.character_id}"
 
     objects = TaxSystemManager()
 
+class PaymentSystem(models.Model):
+    """Tax Payment System model for app"""
 
-class Payments(models.Model):
-    """Tax Payments model for app"""
+    class States(models.TextChoices):
+        ACTIVE = "active", _("Active")
+        INACTIVE = "inactive", _("Inactive")
 
     name = models.CharField(
         max_length=100,
     )
 
-    payment_member = models.ForeignKey(
-        Members, on_delete=models.CASCADE, related_name="member_payment"
+    user = models.OneToOneField(
+        UserProfile, on_delete=models.CASCADE, related_name="+"
     )
 
-    context_id = models.AutoField(primary_key=True)
+    date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    status = models.CharField(
+        _("Status"), max_length=10,
+        choices=States.choices,
+        blank=True,
+        default=''
+    )
+
+    notice = models.TextField(null=True, blank=True)
+
+    class Meta:
+        default_permissions = ()
+        verbose_name = _("Tax Payment System")
+        verbose_name_plural = _("Tax Payment Systems")
+
+    def __str__(self):
+        return f"{self.name} - {self.date} - {self.status}"
+
+    objects = PaymentManager()
+
+
+class Payments(models.Model):
+    """Tax Payments model for app"""
+
+    class States(models.TextChoices):
+        PAID = "paid", _("Paid")
+        PENDING = "pending", _("Pending")
+        FAILED = "failed", _("Failed")
+
+    name = models.CharField(
+        max_length=100,
+    )
+    
+    context_id = models.AutoField(
+        primary_key=True
+    )
+
+    payment_user = models.ForeignKey(
+        PaymentSystem, on_delete=models.CASCADE, related_name="payment_user"
+    )
 
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
-    payment_status = models.CharField(max_length=50, null=True, blank=True)
+    payment_status = models.CharField(
+        _("Status"), max_length=10,
+        choices=States.choices,
+        blank=True,
+        default=''
+    )
 
-    payment_date = models.DateTimeField(null=True, blank=True)
+    payment_date = models.DateTimeField(
+        null=True, 
+        blank=True
+    )
 
     approved = models.BooleanField(default=False)
 
@@ -122,6 +175,6 @@ class Payments(models.Model):
         verbose_name_plural = _("Tax Payments")
 
     def __str__(self):
-        return f"{self.payment_member.member.main_character.character_name} - {self.date} - {self.amount}"
+        return f"{self.payment_user.name} - {self.date} - {self.amount} - {self.payment_status}"
 
-    objects = TaxSystemManager()
+    objects = PaymentManager()
