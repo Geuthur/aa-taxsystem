@@ -1,0 +1,80 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+    "hatchling",
+]
+
+[project]
+name = "aa-taxsystem"
+description = "Tax System module for Alliance Auth"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Geuthur", email = "devgeuthur@gmail.com" },
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dynamic = [
+    "version",
+]
+dependencies = [
+    "allianceauth>=4.6,<5",
+    "allianceauth-app-utils>=1.19",
+    "django-eveuniverse>=1.3",
+    "django-ninja",
+]
+optional-dependencies.tests-allianceauth-latest = [
+    "coverage",
+    "django-webtest",
+]
+urls.Changelog = "https://github.com/Geuthur/aa-taxsystem/blob/master/CHANGELOG.md"
+urls.Homepage = "https://github.com/Geuthur/aa-taxsystem"
+urls.Source = "https://github.com/Geuthur/aa-taxsystem"
+urls.Tracker = "https://github.com/Geuthur/aa-taxsystem/issues"
+
+[tool.hatch.build]
+include = [
+    "/taxsystem",
+]
+
+[tool.hatch.version]
+path = "taxsystem/__init__.py"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+sections = [
+    "FUTURE",
+    "STDLIB",
+    "THIRDPARTY",
+    "DJANGO",
+    "ALLIANCEAUTH",
+    "FIRSTPARTY",
+    "LOCALFOLDER",
+]
+known_allianceauth = [
+    "allianceauth",
+    "app_utils",
+]
+known_django = [
+    "django",
+    "django_webtest",
+    "esi",
+    "eveuniverse",
+]

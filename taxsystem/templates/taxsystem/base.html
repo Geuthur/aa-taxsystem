@@ -1,0 +1,38 @@
+{% extends 'allianceauth/base-bs5.html' %}
+{% load i18n %}
+{% block main_css %}
+{% endblock main_css %}
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block page_title %} Tax System {% endblock %}
+
+{% block header_nav_brand %}
+    <a class="nav-link text-white link-light link-underline link-underline-opacity-0" href="{% url 'taxsystem:index' %}">Tax System</a>
+{% endblock header_nav_brand %}
+
+{% block header_nav_collapse_left %}
+    {% include 'taxsystem/partials/menu/navigation.html' %}
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+    {% include 'taxsystem/partials/menu/administration.html' %}
+{% endblock header_nav_collapse_right %}
+
+{% block content %}
+    {% include 'bundles/datatables-css-bs5.html' %}
+    <div class="allianceauth-taxsystem-plugin">
+        <div class="card" id="taxsystem_block">
+        {% block taxsystem_block %}
+            <!-- Your content goes here -->
+        {% endblock %}
+        </div>
+        <br>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

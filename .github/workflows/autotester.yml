@@ -1,0 +1,138 @@
+name: Checks
+
+on:
+  push:
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
+
+    branches:
+      - '**'
+
+    tags-ignore:
+      - '**'
+
+  pull_request:
+    paths-ignore:
+      - "**.css"
+      - "**.js"
+      - "**.md"
+
+    branches:
+      - '**'
+
+jobs:
+  # Run pre-commit Checks
+  pre-commit:
+    name: Pre Commit Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: 'pyproject.toml' # Read the Python version from the pyproject.toml file
+
+      # Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+
+      - name: Run Pre Commit Checks
+        uses: pre-commit/action@v3.0.1
+
+  # Run Test Coverage
+  test-coverage:
+    needs: [pre-commit]
+    name: AA Latest (Python ${{ matrix.python-version }} with ${{ matrix.database }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Set Python versions to test against
+      matrix:
+        python-version:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+        # MySQL versions to test against
+        database:
+          # https://endoflife.date/mysql
+          - mysql:8.4     # [LTS] Maintained until: April 2032
+          # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
+          - mariadb:10.11 # [LTS] Maintained until: February 2028
+
+#    continue-on-error: ${{ matrix.python-version == '3.12' }}
+
+    # Set up services
+    services:
+      database:
+        image: ${{ matrix.database }}
+        env:
+          MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
+          MYSQL_DATABASE: alliance_auth
+        ports:
+          - 3306:3306
+        options: --tmpfs /var/lib/mysql
+
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Set up Python
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install Tox and any other packages
+      - name: Install Tox and any other packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade tox tox-gh-actions
+
+      # Run Tox with the specified environment
+      - name: Run Tox
+        env:
+          TOX_ENV: allianceauth-latest
+        run: tox -v -e ${{ env.TOX_ENV }}
+
+      # Upload coverage to Codecov
+      - name: Upload Coverage
+        if: ${{
+              (
+                github.event_name == 'pull_request'
+                || (
+                  github.event_name == 'push'
+                  && github.ref == 'refs/heads/master'
+                )
+              )
+              && (
+                matrix.python-version == '3.10'
+                && matrix.database == 'mariadb:10.11'
+              )
+            }}
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          verbose: true
