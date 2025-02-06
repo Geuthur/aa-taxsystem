@@ -4,7 +4,7 @@ function initTooltip() {
     $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
         trigger: 'hover',
     });
-    if (entityType !== 'character') {
+    if (taxsystemsettings.entity_type !== 'character') {
         $('[data-bs-toggle="taxsystem-popover"]').popover({
             trigger: 'hover',
             html: true,
@@ -23,10 +23,12 @@ function generateTable(TableName, url) {
         url: url,
         type: 'GET',
         success: function(data) {
+            var membersData = Object.values(data[0].corporation); // Extract the members data
+
             window[table] = $('#members').DataTable({
-                data: data[0].corporation,
+                data: membersData,
                 columns: [
-                    { 
+                    {
                         data: 'character_id',
                         render: function (data, _, row) {
                             var imageUrl = 'https://images.evetech.net/';
@@ -38,27 +40,28 @@ function generateTable(TableName, url) {
                                 src='${imageUrl}'
                                 class="rounded-circle">
                             `;
-                        return imageHTML;
+                            return imageHTML;
                         }
                     },
-                    { 
+                    {
                         data: 'character_name',
                         render: function (data, _, row) {
                             return data;
                         }
                     },
-                    { 
+                    {
                         data: 'status',
                         render: function (data, _, row) {
                             return data;
                         }
                     },
-                ],    
+                ],
                 order: [[1, 'asc']],
                 columnDefs: [
                     { orderable: false, targets: [0] },
                 ],
                 initComplete: function () {
+                    $('#members').removeClass('d-none');
                     initTooltip();
                 },
                 drawCallback: function () {
@@ -67,20 +70,21 @@ function generateTable(TableName, url) {
             });
         },
         error: function(xhr, _, __) {
-            window[table] = $('#members').DataTable();
+            var table = $('#members').DataTable();
             table.clear().draw(); // Clear the table
-        
+
             var errorMessage = '';
             if (xhr.status === 403) {
                 errorMessage = 'You have no permission to view this page';
             } else if (xhr.status === 404) {
                 errorMessage = 'No data found';
             }
-        
+
             if (errorMessage) {
                 table.rows.add([
-                    { 0: errorMessage }
+                    { character_id: '', character_name: errorMessage, status: '' }
                 ]).draw();
+                $('#members').removeClass('d-none');
             }
         }
     });

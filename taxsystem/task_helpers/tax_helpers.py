@@ -1,19 +1,21 @@
 """Tax Helpers"""
-from django.utils import timezone
 
+from django.utils import timezone
 from eveuniverse.models import EveEntity
 
 from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import (
+    Members,
     OwnerAudit,
 )
 from taxsystem.providers import esi
 from taxsystem.task_helpers.etag_helpers import NotModifiedError, etag_results
 from taxsystem.task_helpers.general_helpers import get_corp_token
-from taxsystem.models.tax import Members
 
 logger = get_extension_logger(__name__)
 
+
+# pylint: disable=too-many-locals
 def update_corporation_members(corp_id, force_refresh=False):
     audit_corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
 
@@ -30,16 +32,21 @@ def update_corporation_members(corp_id, force_refresh=False):
 
     token = get_corp_token(corp_id, req_scopes, req_roles)
 
+    # pylint: disable=duplicate-code
     if not token:
         logger.debug("No valid token for: %s", audit_corp.corporation.corporation_name)
         return "No Tokens"
 
     try:
         _current_members_ids = set(
-            Members.objects.filter(audit=audit_corp).values_list("character_id", flat=True)
+            Members.objects.filter(audit=audit_corp).values_list(
+                "character_id", flat=True
+            )
         )
-        members_ob = esi.client.Corporation.get_corporations_corporation_id_membertracking(
-            corporation_id=audit_corp.corporation.corporation_id,
+        members_ob = (
+            esi.client.Corporation.get_corporations_corporation_id_membertracking(
+                corporation_id=audit_corp.corporation.corporation_id,
+            )
         )
 
         members = etag_results(members_ob, token, force_refresh=force_refresh)
@@ -63,7 +70,7 @@ def update_corporation_members(corp_id, force_refresh=False):
                 _old_members.append(member_item)
             else:
                 _new_members.append(member_item)
-        
+
         # Set missing members
         old_member_ids = {member.character_id for member in _old_members}
         missing_members_ids = _current_members_ids - old_member_ids
@@ -91,14 +98,19 @@ def update_corporation_members(corp_id, force_refresh=False):
                 len(_new_members),
                 audit_corp.corporation.corporation_name,
             )
-        
+
         audit_corp.last_update_members = timezone.now()
         audit_corp.save()
 
-        logger.debug("Corp %s - Old Members: %s, New Members: %s, Missing: %s", audit_corp.name, len(_old_members), len(_new_members), len(missing_members_ids))
+        logger.debug(
+            "Corp %s - Old Members: %s, New Members: %s, Missing: %s",
+            audit_corp.name,
+            len(_old_members),
+            len(_new_members),
+            len(missing_members_ids),
+        )
     except NotModifiedError:
         logger.debug(
-            "No changes detected for: %s", 
-            audit_corp.corporation.corporation_name
+            "No changes detected for: %s", audit_corp.corporation.corporation_name
         )
     return ("Corp Task finished for %s", audit_corp.corporation.corporation_name)

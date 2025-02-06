@@ -1,9 +1,8 @@
 from ninja import NinjaAPI
 
-from taxsystem.hooks import get_extension_logger
-from taxsystem.models.tax import OwnerAudit
-from taxsystem.models.tax import Members
 from taxsystem.api.helpers import get_corporation
+from taxsystem.hooks import get_extension_logger
+from taxsystem.models.tax import Members
 
 logger = get_extension_logger(__name__)
 

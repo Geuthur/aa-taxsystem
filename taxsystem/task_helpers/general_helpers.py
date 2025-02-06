@@ -7,13 +7,14 @@ from functools import wraps
 # pylint: disable=no-name-in-module
 from celery import signature
 from celery_once import AlreadyQueued
+
 from esi.errors import TokenError
 from esi.models import Token
 
 from allianceauth.eveonline.models import EveCharacter
 
-from taxsystem.providers import esi
 from taxsystem.hooks import get_extension_logger
+from taxsystem.providers import esi
 
 logger = get_extension_logger(__name__)
 
@@ -41,6 +42,7 @@ def get_token(character_id: int, scopes: list) -> Token:
     if token:
         return token
     return False
+
 
 def get_corp_token(corp_id, scopes, req_roles):
     """
@@ -85,6 +87,7 @@ def get_corp_token(corp_id, scopes, req_roles):
                 e,
             )
     return False
+
 
 def enqueue_next_task(chain):
     """

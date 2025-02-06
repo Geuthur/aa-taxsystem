@@ -29,7 +29,7 @@ function generateTable(TableName, url) {
             window[table] = $('#members').DataTable({
                 data: membersData,
                 columns: [
-                    { 
+                    {
                         data: 'character_id',
                         render: function (data, _, row) {
                             var imageUrl = 'https://images.evetech.net/';
@@ -44,19 +44,19 @@ function generateTable(TableName, url) {
                             return imageHTML;
                         }
                     },
-                    { 
+                    {
                         data: 'character_name',
                         render: function (data, _, row) {
                             return data;
                         }
                     },
-                    { 
+                    {
                         data: 'status',
                         render: function (data, _, row) {
                             return data;
                         }
                     },
-                ],    
+                ],
                 order: [[1, 'asc']],
                 columnDefs: [
                     { orderable: false, targets: [0] },
@@ -67,7 +67,6 @@ function generateTable(TableName, url) {
                 },
                 drawCallback: function () {
                     initTooltip();
-                    $()
                 },
             });
         },
@@ -81,7 +80,7 @@ function generateTable(TableName, url) {
             } else if (xhr.status === 404) {
                 errorMessage = 'No data found';
             }
-        
+
             if (errorMessage) {
                 table.rows.add([
                     { character_id: '', character_name: errorMessage, status: '' }

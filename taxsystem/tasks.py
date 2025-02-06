@@ -1,17 +1,20 @@
 """App Tasks"""
+
 import datetime
+
 from celery import shared_task
+
 from django.utils import timezone
 
 from allianceauth.services.tasks import QueueOnce
 
+from taxsystem import app_settings
 from taxsystem.decorators import when_esi_is_available
 from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import OwnerAudit
 from taxsystem.task_helpers.general_helpers import enqueue_next_task, no_fail_chain
-from taxsystem.task_helpers.wallet_helpers import update_corporation_wallet_division
 from taxsystem.task_helpers.tax_helpers import update_corporation_members
-from taxsystem import app_settings
+from taxsystem.task_helpers.wallet_helpers import update_corporation_wallet_division
 
 logger = get_extension_logger(__name__)
 
@@ -29,8 +32,13 @@ def update_all_taxsytem(runs: int = 0):
 def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-argument
     class SkipDates:
         """Skip Dates for Updates"""
-        wallet = timezone.now() - datetime.timedelta(hours=app_settings.TAXSYSTEM_CORP_WALLET_SKIP_DATE)
-        members = timezone.now() - datetime.timedelta(days=app_settings.TAXSYSTEM_CORP_MEMBERS_SKIP_DATE)
+
+        wallet = timezone.now() - datetime.timedelta(
+            hours=app_settings.TAXSYSTEM_CORP_WALLET_SKIP_DATE
+        )
+        members = timezone.now() - datetime.timedelta(
+            days=app_settings.TAXSYSTEM_CORP_MEMBERS_SKIP_DATE
+        )
 
     corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
     logger.debug("Processing Audit Updates for %s", corp.corporation.corporation_name)
@@ -60,6 +68,7 @@ def update_corp_wallet(
 ):  # pylint: disable=unused-argument, dangerous-default-value
     return update_corporation_wallet_division(corp_id, force_refresh=force_refresh)
 
+
 @shared_task(
     bind=True,
     base=QueueOnce,
@@ -71,4 +80,3 @@ def update_corp_members(
     self, corp_id, force_refresh=False, chain=[]
 ):  # pylint: disable=unused-argument, dangerous-default-value
     return update_corporation_members(corp_id, force_refresh=force_refresh)
-

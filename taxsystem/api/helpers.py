@@ -1,5 +1,6 @@
 from taxsystem import models
 
+
 def get_corporation(
     request, corporation_id
 ) -> tuple[bool | None, list[models.tax.OwnerAudit] | None]:
@@ -7,9 +8,7 @@ def get_corporation(
     perms = True
 
     try:
-        corp = models.OwnerAudit.objects.get(
-            corporation__corporation_id=corporation_id
-        )
+        corp = models.OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
     except models.OwnerAudit.DoesNotExist:
         return None, None
 
