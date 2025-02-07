@@ -27,13 +27,13 @@ def index(request):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def corporation(request, corporation_pk):
+def members(request, corporation_pk):
     """Corporation View"""
 
     context = {"entity_pk": corporation_pk, "entity_type": "corporation"}
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/view/corporation.html", context=context)
+    return render(request, "taxsystem/view/members.html", context=context)
 
 
 @login_required

@@ -67,12 +67,14 @@ class Members(models.Model):
     class States(models.TextChoices):
         ACTIVE = "active", _("Active")
         MISSING = "missing", _("Missing")
+        NOACCOUNT = "noaccount", _("Unregistered")
+        IS_ALT = "is_alt", _("Is Alt")
 
     character_name = models.CharField(max_length=100, db_index=True)
 
     character_id = models.PositiveIntegerField(primary_key=True)
 
-    audit = models.ForeignKey(
+    corporation = models.ForeignKey(
         OwnerAudit, on_delete=models.CASCADE, related_name="owner"
     )
 
@@ -88,9 +90,29 @@ class Members(models.Model):
         verbose_name_plural = _("Tax Member Systems")
 
     def __str__(self):
-        return f"{self.member.character_name} - {self.member.character_id}"
+        return f"{self.character_name} - {self.character_id}"
 
     objects = TaxSystemManager()
+
+    @property
+    def is_active(self) -> bool:
+        return self.status == self.States.ACTIVE
+
+    @property
+    def is_missing(self) -> bool:
+        return self.status == self.States.MISSING
+
+    @property
+    def is_noaccount(self) -> bool:
+        return self.status == self.States.NOACCOUNT
+
+    @property
+    def is_alt(self) -> bool:
+        return self.status == self.States.IS_ALT
+
+    @property
+    def is_faulty(self) -> bool:
+        return self.status in [self.States.MISSING, self.States.NOACCOUNT]
 
 
 class PaymentSystem(models.Model):
@@ -99,9 +121,14 @@ class PaymentSystem(models.Model):
     class States(models.TextChoices):
         ACTIVE = "active", _("Active")
         INACTIVE = "inactive", _("Inactive")
+        DEACTIVATED = "deactivated", _("Deactivated")
 
     name = models.CharField(
         max_length=100,
+    )
+
+    corporation = models.ForeignKey(
+        OwnerAudit, on_delete=models.CASCADE, related_name="+"
     )
 
     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name="+")
@@ -109,7 +136,7 @@ class PaymentSystem(models.Model):
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     status = models.CharField(
-        _("Status"), max_length=10, choices=States.choices, blank=True, default=""
+        _("Status"), max_length=16, choices=States.choices, blank=True, default=""
     )
 
     notice = models.TextField(null=True, blank=True)
@@ -121,6 +148,14 @@ class PaymentSystem(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.date} - {self.status}"
+
+    def get_payment_status(self) -> str:
+        return self.status
+
+    def get_alt_ids(self) -> list[int]:
+        return self.user.character_ownerships.all().values_list(
+            "character__character_id", flat=True
+        )
 
     objects = PaymentManager()
 

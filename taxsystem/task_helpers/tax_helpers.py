@@ -3,10 +3,13 @@
 from django.utils import timezone
 from eveuniverse.models import EveEntity
 
+from allianceauth.authentication.models import UserProfile
+
 from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import (
     Members,
     OwnerAudit,
+    PaymentSystem,
 )
 from taxsystem.providers import esi
 from taxsystem.task_helpers.etag_helpers import NotModifiedError, etag_results
@@ -17,6 +20,7 @@ logger = get_extension_logger(__name__)
 
 # pylint: disable=too-many-locals
 def update_corporation_members(corp_id, force_refresh=False):
+    """Update corporation members"""
     audit_corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
 
     logger.debug(
@@ -39,7 +43,7 @@ def update_corporation_members(corp_id, force_refresh=False):
 
     try:
         _current_members_ids = set(
-            Members.objects.filter(audit=audit_corp).values_list(
+            Members.objects.filter(corporation=audit_corp).values_list(
                 "character_id", flat=True
             )
         )
@@ -61,7 +65,7 @@ def update_corporation_members(corp_id, force_refresh=False):
             character_id = member.get("character_id")
             character_name = characters.to_name(character_id)
             member_item = Members(
-                audit=audit_corp,
+                corporation=audit_corp,
                 character_id=character_id,
                 character_name=character_name,
                 status=Members.States.ACTIVE,
@@ -77,7 +81,7 @@ def update_corporation_members(corp_id, force_refresh=False):
 
         if missing_members_ids:
             Members.objects.filter(
-                audit=audit_corp, character_id__in=missing_members_ids
+                corporation=audit_corp, character_id__in=missing_members_ids
             ).update(status=Members.States.MISSING)
             logger.debug(
                 "Marked %s missing members for: %s",
@@ -99,6 +103,9 @@ def update_corporation_members(corp_id, force_refresh=False):
                 audit_corp.corporation.corporation_name,
             )
 
+        # Update payment users
+        update_payment_users(corp_id, _esi_members_ids)
+
         audit_corp.last_update_members = timezone.now()
         audit_corp.save()
 
@@ -113,4 +120,101 @@ def update_corporation_members(corp_id, force_refresh=False):
         logger.debug(
             "No changes detected for: %s", audit_corp.corporation.corporation_name
         )
-    return ("Corp Task finished for %s", audit_corp.corporation.corporation_name)
+    return ("Finished Members for %s", audit_corp.corporation.corporation_name)
+
+
+# pylint: disable=too-many-branches
+def update_payment_users(corp_id, members_ids):
+    """Update payment users for a corporation."""
+    audit_corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
+
+    logger.debug(
+        "Updating payment system for: %s",
+        audit_corp.corporation.corporation_name,
+    )
+
+    accounts = UserProfile.objects.filter(
+        main_character__isnull=False,
+        main_character__corporation_id=audit_corp.corporation.corporation_id,
+    ).select_related(
+        "user__profile__main_character",
+        "main_character__character_ownership",
+        "main_character__character_ownership__user__profile",
+        "main_character__character_ownership__user__profile__main_character",
+    )
+
+    members = Members.objects.filter(corporation=audit_corp)
+
+    if not accounts:
+        logger.debug(
+            "No valid accounts for: %s", audit_corp.corporation.corporation_name
+        )
+        return "No Accounts"
+
+    items = []
+    for account in accounts:
+        alts = account.user.character_ownerships.all().values_list(
+            "character__character_id", flat=True
+        )
+        main = account.main_character
+
+        if any(alt in members_ids for alt in alts):
+            # Remove alts from list
+            for alt in alts:
+                if alt in members_ids:
+                    members_ids.remove(alt)
+                    if alt != main.character_id:
+                        # Update the status of the member to alt
+                        members.filter(character_id=alt).update(
+                            status=Members.States.IS_ALT
+                        )
+            try:
+                existing_payment_system = PaymentSystem.objects.get(user=account)
+                if existing_payment_system.status != PaymentSystem.States.DEACTIVATED:
+                    existing_payment_system.status = PaymentSystem.States.ACTIVE
+                    existing_payment_system.save()
+            except PaymentSystem.DoesNotExist:
+                items.append(
+                    PaymentSystem(
+                        name=main.character_name,
+                        corporation=audit_corp,
+                        user=account,
+                        status=PaymentSystem.States.ACTIVE,
+                    )
+                )
+        else:
+            # Set the account to inactive if none of the conditions are met
+            try:
+                existing_payment_system = PaymentSystem.objects.get(user=account)
+                existing_payment_system.status = PaymentSystem.States.INACTIVE
+                existing_payment_system.save()
+            except PaymentSystem.DoesNotExist:
+                pass
+
+    if members_ids:
+        # Mark members without accounts
+        for member_id in members_ids:
+            members.filter(character_id=member_id).update(
+                status=Members.States.NOACCOUNT
+            )
+
+        logger.debug(
+            "Marked %s members without accounts for: %s",
+            len(members_ids),
+            audit_corp.corporation.corporation_name,
+        )
+
+    if items:
+        PaymentSystem.objects.bulk_create(items, ignore_conflicts=True)
+        logger.debug(
+            "Added %s new payment users for: %s",
+            len(items),
+            audit_corp.corporation.corporation_name,
+        )
+    else:
+        logger.debug(
+            "No new payment user for: %s",
+            audit_corp.corporation.corporation_name,
+        )
+
+    return ("Finished payment system for %s", audit_corp.corporation.corporation_name)
