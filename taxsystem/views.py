@@ -21,7 +21,9 @@ logger = get_extension_logger(__name__)
 @login_required
 @permission_required("taxsystem.basic_access")
 def index(request):
-    context = {}
+    context = {
+        "title": "Tax System",
+    }
     return render(request, "taxsystem/index.html", context=context)
 
 
@@ -30,7 +32,11 @@ def index(request):
 def members(request, corporation_pk):
     """Corporation View"""
 
-    context = {"entity_pk": corporation_pk, "entity_type": "corporation"}
+    context = {
+        "entity_pk": corporation_pk,
+        "entity_type": "corporation",
+        "title": "Members",
+    }
     context = add_info_to_context(request, context)
 
     return render(request, "taxsystem/view/members.html", context=context)

@@ -17,7 +17,7 @@
         var table = TableName;
 
         if (window[TableName]) {
-            $('#members').DataTable().destroy();
+            $('#' + TableName).DataTable().destroy();
         }
 
         $.ajax({
@@ -26,7 +26,7 @@
             success: function(data) {
                 var membersData = Object.values(data[0].corporation); // Extract the members data
 
-                window[table] = $('#members').DataTable({
+                window[table] = $('#' + TableName).DataTable({
                     data: membersData,
                     columns: [
                         {
@@ -58,13 +58,24 @@
                     columnDefs: [
                         { orderable: false, targets: [0, 2] },
                     ],
+                    filterDropDown: {
+                        columns: [
+                        {
+                            idx: 2,
+                            maxWidth: '200px',
+                        }
+                        ],
+                        autoSize: false,
+                        bootstrap: true,
+                        bootstrap_version: 5
+                    },
                     rowCallback: function(row, data) {
                         if (data.is_faulty) {
                             $(row).css('background-color', 'rgba(255, 0, 0, 0.1)');
                         }
                     },
                     initComplete: function () {
-                        $('#members').removeClass('d-none');
+                        $('#' + TableName).removeClass('d-none');
                         initTooltip();
                     },
                     drawCallback: function () {
@@ -73,7 +84,7 @@
                 });
             },
             error: function(xhr, _, __) {
-                var table = $('#members').DataTable();
+                var table = $('#' + TableName).DataTable();
                 table.clear().draw(); // Clear the table
 
                 var errorMessage = '';
@@ -87,7 +98,7 @@
                     table.rows.add([
                         { character_portrait: '', character_name: errorMessage, is_active, status: '' }
                     ]).draw();
-                    $('#members').removeClass('d-none');
+                    $('#' + TableName).removeClass('d-none');
                 }
             }
         });
@@ -95,5 +106,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         generateTable('members', taxsystemsettings.corporationMembersUrl);
+
+        generateTable('payment', taxsystemsettings.corporationPaymentUsersUrl);
     });
     </script>

@@ -5,12 +5,12 @@
 {% load taxsystem %}
 
 {% block page_title %}
-    {% translate "Tax System" %}
+    {{ title }}
 {% endblock %}
 
 {% block page_topic %}
     <h1 class="page-header text-center">
-        {% translate "Tax System" %}
+        {{ title }}
     </h1>
 {% endblock page_topic %}
 
@@ -28,7 +28,7 @@
 
 {% block taxsystem_block %}
     <div class="card-body bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Tax System" %}</h3>
+        <h3 class="me-3">{% translate "Members" %}</h3>
     </div>
     <div class="card-body rounded-bottom">
         <!-- Corporation Content-->
@@ -47,6 +47,27 @@
             </tbody>
         </table>
     </div>
+
+    <div class="card-body bg-primary rounded-top d-flex align-items-center">
+        <h3 class="me-3">{% translate "Payment System" %}</h3>
+    </div>
+    <div class="card-body rounded-bottom">
+        <!-- Payment System Content -->
+        <table class="table table-striped table-hover w-100 d-none" id="payment">
+            <thead>
+                <tr>
+                    <th scope="col">{% translate "" %}</th>
+                    <th scope="col">{% translate "Character Name" %}</th>
+                    <th scope="col">{% translate "Status" %}</th>
+                    <th scope="col">{% translate "Actions" %}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- Payment Users -->
+            </tbody>
+        </table>
+    </div>
 <!-- Tab Session -->
 {% include 'taxsystem/modals/modal.html' with name="ViewCorporation" %}
 {% endblock %}
@@ -56,9 +77,11 @@
 
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
+    {% include "bundles/filterdropdown-js.html" %}
     <script type="application/javascript">
         let taxsystemsettings = {
             corporationMembersUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/members/",
+            corporationPaymentUsersUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/payment/",
             entity_pk: {{ entity_pk }},
             entity_type: "{{ entity_type }}",
         };

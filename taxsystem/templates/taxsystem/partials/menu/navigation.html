@@ -4,9 +4,3 @@
 <li class="nav-item">
     <a class="nav-link" href="{% url 'taxsystem:index' %}">{% translate 'Payments' %}</a>
 </li>
-
-{% if perms.taxsystem.manage_access %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'taxsystem:overview' %}">{% translate 'Manage Tax System' %}</a>
-    </li>
-{% endif %}

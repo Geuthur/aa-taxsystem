@@ -8,3 +8,11 @@
         </a>
     </li>
 {% endif %}
+
+{% if perms.taxsystem.manage_access %}
+    <li class="nav-item">
+        <a class="nav-link py-0" href="{% url 'taxsystem:overview' %}">
+            <span class="btn btn-success">{% translate 'Manage Tax System' %}</span>
+        </a>
+    </li>
+{% endif %}

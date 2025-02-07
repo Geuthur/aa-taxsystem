@@ -150,12 +150,18 @@ class PaymentSystem(models.Model):
         return f"{self.name} - {self.date} - {self.status}"
 
     def get_payment_status(self) -> str:
-        return self.status
+        return self.get_status_display()
 
     def get_alt_ids(self) -> list[int]:
-        return self.user.character_ownerships.all().values_list(
-            "character__character_id", flat=True
+        return list(
+            self.user.user.character_ownerships.all().values_list(
+                "character__character_id", flat=True
+            )
         )
+
+    @property
+    def is_active(self) -> bool:
+        return self.status == self.States.ACTIVE
 
     objects = PaymentManager()
 
