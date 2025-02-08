@@ -42,9 +42,10 @@
                         <th scope="col">{% translate "" %}</th>
                         <th scope="col">{% translate "Character Name" %}</th>
                         <th scope="col">{% translate "Amount" %}</th>
+                        <th scope="col">{% translate "Date" %}</th>
                         <th scope="col">{% translate "Status" %}</th>
                         <th scope="col">{% translate "Approved" %}</th>
-                        <th scope="col">{% translate "Date" %}</th>
+                        <th scope="col">{% translate "System" %}</th>
                         <th scope="col">{% translate "Actions" %}</th>
                     </tr>
                 </thead>
@@ -56,7 +57,8 @@
         </div>
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/modal.html' with name="ViewPayments" %}
+{% include 'taxsystem/modals/confirm.html' with name="ApprovePayment" %}
+
 {% endblock %}
 
 {% block extra_css %}
