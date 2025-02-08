@@ -30,8 +30,9 @@ def update_corporation_members(corp_id, force_refresh=False):
 
     req_scopes = [
         "esi-corporations.read_corporation_membership.v1",
-        "esi-corporations.read_titles.v1",
+        "esi-corporations.track_members.v1",
     ]
+
     req_roles = ["CEO", "Director"]
 
     token = get_corp_token(corp_id, req_scopes, req_roles)
@@ -63,11 +64,17 @@ def update_corporation_members(corp_id, force_refresh=False):
 
         for member in members:
             character_id = member.get("character_id")
+            joined = member.get("start_date")
+            logon_date = member.get("logon_date")
+            logged_off = member.get("logoff_date")
             character_name = characters.to_name(character_id)
             member_item = Members(
                 corporation=audit_corp,
                 character_id=character_id,
                 character_name=character_name,
+                joined=joined,
+                logon=logon_date,
+                logged_off=logged_off,
                 status=Members.States.ACTIVE,
             )
             if character_id in _current_members_ids:
@@ -89,7 +96,10 @@ def update_corporation_members(corp_id, force_refresh=False):
                 audit_corp.corporation.corporation_name,
             )
         if _old_members:
-            Members.objects.bulk_update(_old_members, ["character_name", "status"])
+            Members.objects.bulk_update(
+                _old_members,
+                ["character_name", "status", "logon", "logged_off"],
+            )
             logger.debug(
                 "Updated %s members for: %s",
                 len(_old_members),
