@@ -7,12 +7,23 @@ from taxsystem.hooks import get_extension_logger
 logger = get_extension_logger(__name__)
 
 
-class PaymentQuerySet(models.QuerySet):
+class PaymentSystemQuerySet(models.QuerySet):
     pass
 
 
-class PaymentManagerBase(models.Manager):
+class PaymentSystemManagerBase(models.Manager):
     pass
 
 
-PaymentManager = PaymentManagerBase.from_queryset(PaymentQuerySet)
+PaymentSystemManager = PaymentSystemManagerBase.from_queryset(PaymentSystemQuerySet)
+
+
+class PaymentsQuerySet(models.QuerySet):
+    pass
+
+
+class PaymentsManagerBase(models.Manager):
+    pass
+
+
+PaymentsManager = PaymentsManagerBase.from_queryset(PaymentsQuerySet)

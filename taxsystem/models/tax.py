@@ -8,8 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveAllianceInfo, EveCorporationInfo
 
-from taxsystem.managers.payment_manager import PaymentManager
-from taxsystem.managers.tax_manager import OwnerAuditManager, TaxSystemManager
+from taxsystem.managers.payment_manager import PaymentsManager, PaymentSystemManager
+from taxsystem.managers.tax_manager import MembersManager, OwnerAuditManager
 
 
 class OwnerAudit(models.Model):
@@ -92,7 +92,7 @@ class Members(models.Model):
     def __str__(self):
         return f"{self.character_name} - {self.character_id}"
 
-    objects = TaxSystemManager()
+    objects = MembersManager()
 
     @property
     def is_active(self) -> bool:
@@ -163,7 +163,7 @@ class PaymentSystem(models.Model):
     def is_active(self) -> bool:
         return self.status == self.States.ACTIVE
 
-    objects = PaymentManager()
+    objects = PaymentSystemManager()
 
 
 class Payments(models.Model):
@@ -194,6 +194,8 @@ class Payments(models.Model):
 
     payment_date = models.DateTimeField(null=True, blank=True)
 
+    reason = models.TextField(null=True, blank=True)
+
     approved = models.BooleanField(default=False)
 
     class Meta:
@@ -204,4 +206,4 @@ class Payments(models.Model):
     def __str__(self):
         return f"{self.payment_user.name} - {self.date} - {self.amount} - {self.payment_status}"
 
-    objects = PaymentManager()
+    objects = PaymentsManager()
