@@ -29,17 +29,32 @@ def index(request):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def members(request, corporation_pk):
-    """Corporation View"""
+def administration(request, corporation_pk):
+    """Manage View"""
 
     context = {
         "entity_pk": corporation_pk,
         "entity_type": "corporation",
-        "title": "Members",
+        "title": "Administration",
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/view/members.html", context=context)
+    return render(request, "taxsystem/view/manage.html", context=context)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def payments(request, corporation_pk):
+    """Payments View"""
+
+    context = {
+        "entity_pk": corporation_pk,
+        "entity_type": "corporation",
+        "title": "Payments",
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/view/payments.html", context=context)
 
 
 @login_required

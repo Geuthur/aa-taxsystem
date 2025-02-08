@@ -3,7 +3,8 @@ from ninja import NinjaAPI
 from taxsystem.api.helpers import get_corporation
 from taxsystem.helpers.lazy import get_character_portrait_url
 from taxsystem.hooks import get_extension_logger
-from taxsystem.models.tax import Members, PaymentSystem
+from taxsystem.models.filters import SmartGroup
+from taxsystem.models.tax import Members, Payments, PaymentSystem
 
 logger = get_extension_logger(__name__)
 
@@ -48,11 +49,11 @@ class CorporationApiEndpoints:
             return output
 
         @api.get(
-            "corporation/{corporation_id}/view/payment/",
+            "corporation/{corporation_id}/view/administration/",
             response={200: list, 403: str, 404: str},
             tags=self.tags,
         )
-        def get_payment_users(request, corporation_id: int):
+        def get_administration(request, corporation_id: int):
             perms, corp = get_corporation(request, corporation_id)
 
             if perms is False:
@@ -82,5 +83,45 @@ class CorporationApiEndpoints:
 
             output = []
             output.append({"corporation": payment_dict})
+
+            return output
+
+        @api.get(
+            "corporation/{corporation_id}/view/payments/",
+            response={200: list, 403: str, 404: str},
+            tags=self.tags,
+        )
+        def get_payments(request, corporation_id: int):
+            perms, corp = get_corporation(request, corporation_id)
+
+            if perms is False:
+                return 403, "Permission Denied"
+
+            if corp is None:
+                return 404, "Corporation Not Found"
+
+            payment_system = Payments.objects.filter(payment_user__corporation=corp)
+
+            # Apply filters
+            try:
+                filters = SmartGroup.objects.get(corporation=corp)
+                payment_system = filters.apply_filters(payment_system)
+            except SmartGroup.DoesNotExist:
+                pass
+
+            payments_dict = {}
+
+            for payment in payment_system:
+                payments_dict[payment.name] = {
+                    "date": payment.date,
+                    "character_name": payment.payment_user.name,
+                    "amount": payment.amount,
+                    "status": payment.payment_status.get_status_display(),
+                    "approved": payment.approved,
+                    "payment_date": payment.payment_date,
+                }
+
+            output = []
+            output.append({"corporation": payments_dict})
 
             return output

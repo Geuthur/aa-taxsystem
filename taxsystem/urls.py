@@ -14,8 +14,8 @@ urlpatterns = [
     # -- Tax System
     path("corporation/overview/", views.overview, name="overview"),
     path(
-        "corporation/<int:corporation_pk>/view/members/",
-        views.members,
+        "corporation/<int:corporation_pk>/view/administration/",
+        views.administration,
         name="corporation",
     ),
     # -- Tax Administration
