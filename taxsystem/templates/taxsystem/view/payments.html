@@ -32,7 +32,7 @@
     </div>
     <div class="card-body">
         <div class="card-header bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Payments" %}</h3>
+        <h3 class="me-3">{% translate "Incoming Payments" %}</h3>
         </div>
         <div class="card-body bg-secondary rounded-bottom">
             <!-- Payments Content-->
@@ -40,10 +40,11 @@
                 <thead>
                     <tr>
                         <th scope="col">{% translate "" %}</th>
+                        <th scope="col">{% translate "Character Name" %}</th>
                         <th scope="col">{% translate "Amount" %}</th>
-                        <th scope="col">{% translate "Date" %}</th>
                         <th scope="col">{% translate "Status" %}</th>
                         <th scope="col">{% translate "Approved" %}</th>
+                        <th scope="col">{% translate "Date" %}</th>
                         <th scope="col">{% translate "Actions" %}</th>
                     </tr>
                 </thead>
@@ -55,7 +56,7 @@
         </div>
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/modal.html' with name="ViewPayment" %}
+{% include 'taxsystem/modals/modal.html' with name="ViewPayments" %}
 {% endblock %}
 
 {% block extra_css %}
@@ -64,15 +65,9 @@
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include "bundles/filterdropdown-js.html" %}
-    <script type="application/javascript">
-        let taxsystemsettings = {
-            corporationMembersUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/members/",
-            corporationadministrationUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/administration/",
-            entity_pk: {{ entity_pk }},
-            entity_type: "{{ entity_type }}",
-        };
-    </script>
-    {% include 'taxsystem/bundles/tax-js.html' %}
+    <!-- load the settings-js.html bundle -->
+    {% include 'taxsystem/bundles/settings-js.html' %}
+    {% include 'taxsystem/bundles/payments-js.html' %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}

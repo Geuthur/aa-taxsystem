@@ -3,7 +3,6 @@ from ninja import NinjaAPI
 from taxsystem.api.helpers import get_corporation
 from taxsystem.helpers.lazy import get_character_portrait_url
 from taxsystem.hooks import get_extension_logger
-from taxsystem.models.filters import SmartGroup
 from taxsystem.models.tax import Members, Payments, PaymentSystem
 
 logger = get_extension_logger(__name__)
@@ -102,23 +101,25 @@ class CorporationApiEndpoints:
 
             payment_system = Payments.objects.filter(payment_user__corporation=corp)
 
-            # Apply filters
-            try:
-                filters = SmartGroup.objects.get(corporation=corp)
-                payment_system = filters.apply_filters(payment_system)
-            except SmartGroup.DoesNotExist:
-                pass
-
             payments_dict = {}
 
             for payment in payment_system:
+                try:
+                    character_id = payment.payment_user.user.main_character.character_id
+                except AttributeError:
+                    character_id = 0
+
                 payments_dict[payment.name] = {
                     "date": payment.date,
+                    "character_portrait": get_character_portrait_url(
+                        character_id, size=32, as_html=True
+                    ),
                     "character_name": payment.payment_user.name,
                     "amount": payment.amount,
-                    "status": payment.payment_status.get_status_display(),
-                    "approved": payment.approved,
-                    "payment_date": payment.payment_date,
+                    "status": payment.get_payment_status(),
+                    "approved": payment.get_approval_status(),
+                    "payment_date": payment.formatted_payment_date(),
+                    "actions": "",
                 }
 
             output = []

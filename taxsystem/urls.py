@@ -16,7 +16,12 @@ urlpatterns = [
     path(
         "corporation/<int:corporation_pk>/view/administration/",
         views.administration,
-        name="corporation",
+        name="administration",
+    ),
+    path(
+        "corporation/<int:corporation_pk>/view/payments/",
+        views.payments,
+        name="payments",
     ),
     # -- Tax Administration
     path("corporation/add/", views.add_corp, name="add_corp"),

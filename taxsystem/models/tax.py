@@ -2,6 +2,7 @@
 
 # Django
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -38,6 +39,8 @@ class OwnerAudit(models.Model):
     last_update_wallet = models.DateTimeField(null=True, blank=True)
 
     last_update_members = models.DateTimeField(null=True, blank=True)
+
+    last_update_payments = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.corporation.corporation_name} - Audit Data"
@@ -174,17 +177,20 @@ class Payments(models.Model):
         PENDING = "pending", _("Pending")
         FAILED = "failed", _("Failed")
 
-    name = models.CharField(
-        max_length=100,
-    )
+    class Approval(models.TextChoices):
+        APPROVED = "approved", _("Approved")
+        PENDING = "pending", _("Pending")
+        REJECTED = "rejected", _("Rejected")
 
-    context_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+
+    entry_id = models.BigIntegerField()
 
     payment_user = models.ForeignKey(
         PaymentSystem, on_delete=models.CASCADE, related_name="payment_user"
     )
 
-    date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    date = models.DateTimeField(default=timezone.now, null=True, blank=True)
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
@@ -196,7 +202,9 @@ class Payments(models.Model):
 
     reason = models.TextField(null=True, blank=True)
 
-    approved = models.BooleanField(default=False)
+    approved = models.CharField(
+        _("Pending"), max_length=16, choices=Approval.choices, blank=True, default=""
+    )
 
     class Meta:
         default_permissions = ()
@@ -205,5 +213,16 @@ class Payments(models.Model):
 
     def __str__(self):
         return f"{self.payment_user.name} - {self.date} - {self.amount} - {self.payment_status}"
+
+    def get_payment_status(self) -> str:
+        return self.get_payment_status_display()
+
+    def get_approval_status(self) -> str:
+        return self.get_approved_display()
+
+    def formatted_payment_date(self) -> str:
+        if self.payment_date:
+            return timezone.localtime(self.payment_date).strftime("%Y-%m-%d %H:%M:%S")
+        return _("No payment date")
 
     objects = PaymentsManager()

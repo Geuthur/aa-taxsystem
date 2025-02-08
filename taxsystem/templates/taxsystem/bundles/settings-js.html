@@ -1,0 +1,9 @@
+<script type="application/javascript">
+    let taxsystemsettings = {
+        corporationPaymentsUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/payments/",
+        corporationMembersUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/members/",
+        corporationAdministrationUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/administration/",
+        entity_pk: {{ entity_pk }},
+        entity_type: "{{ entity_type }}",
+    };
+</script>

@@ -24,6 +24,7 @@ def index(request):
     context = {
         "title": "Tax System",
     }
+    context = add_info_to_context(request, context)
     return render(request, "taxsystem/index.html", context=context)
 
 
@@ -46,6 +47,12 @@ def administration(request, corporation_pk):
 @permission_required("taxsystem.basic_access")
 def payments(request, corporation_pk):
     """Payments View"""
+
+    if corporation_pk == 0:
+        try:
+            corporation_pk = request.user.profile.main_character.corporation_id
+        except AttributeError:
+            messages.error(request.user, "No Main Character found")
 
     context = {
         "entity_pk": corporation_pk,

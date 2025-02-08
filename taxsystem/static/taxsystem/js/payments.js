@@ -1,15 +1,19 @@
 /* global taxsystemsettings */
 
 $(document).ready(() => {
-    const adminstationTableVar = $('#administration');
+    const adminstationTableVar = $('#payments');
 
-    const tableAdministration = adminstationTableVar.DataTable({
+    const tablePayments = adminstationTableVar.DataTable({
         ajax: {
-            url: taxsystemsettings.corporationAdministrationUrl,
+            url: taxsystemsettings.corporationPaymentsUrl,
             type: 'GET',
             dataSrc: function (data) {
                 return Object.values(data[0].corporation);
             },
+            error: function (xhr, error, thrown) {
+                console.error('Error loading data:', error);
+                tablePayments.clear().draw();
+            }
         },
         columns: [
             {
@@ -25,7 +29,26 @@ $(document).ready(() => {
                 }
             },
             {
+                data: 'amount',
+                render: function (data, _, row) {
+                    const amount = parseFloat(data);
+                    return amount.toLocaleString('de-DE') + ' ISK';
+                }
+            },
+            {
                 data: 'status',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'approved',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'payment_date',
                 render: function (data, _, row) {
                     return data;
                 }
@@ -41,24 +64,13 @@ $(document).ready(() => {
         columnDefs: [
             { orderable: false, targets: [0, 2] },
         ],
-        filterDropDown: {
-            columns: [
-                {
-                    idx: 2,
-                    maxWidth: '200px',
-                }
-            ],
-            autoSize: false,
-            bootstrap: true,
-            bootstrap_version: 5
-        },
     });
 
-    tableAdministration.on('init.dt', function () {
+    tablePayments.on('init.dt', function () {
         adminstationTableVar.removeClass('d-none');
     });
 
-    tableAdministration.on('draw', function (row, data) {
+    tablePayments.on('draw', function (row, data) {
         $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
             trigger: 'hover',
         });

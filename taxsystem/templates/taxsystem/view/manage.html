@@ -74,7 +74,7 @@
         </div>
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/modal.html' with name="ViewCorporation" %}
+{% include 'taxsystem/modals/modal.html' with name="ViewAdministration" %}
 {% endblock %}
 
 {% block extra_css %}
@@ -83,15 +83,9 @@
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include "bundles/filterdropdown-js.html" %}
-    <script type="application/javascript">
-        let taxsystemsettings = {
-            corporationMembersUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/members/",
-            corporationadministrationUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/administration/",
-            entity_pk: {{ entity_pk }},
-            entity_type: "{{ entity_type }}",
-        };
-    </script>
-    {% include 'taxsystem/bundles/tax-js.html' %}
+    <!-- load the settings-js.html bundle -->
+    {% include 'taxsystem/bundles/settings-js.html' %}
+    {% include 'taxsystem/bundles/administration-js.html' %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}
