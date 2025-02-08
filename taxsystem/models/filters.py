@@ -23,7 +23,8 @@ class SmartFilter(models.Model):
     def __str__(self):
         try:
             return f"{self.filter_object.name}: {self.filter_object.description}"
-        except AttributeError:
+        # pylint: disable=broad-exception-caught
+        except Exception:
             return f"Error: {self.content_type.app_label}:{self.content_type} {self.object_id} Not Found"
 
 
@@ -53,9 +54,7 @@ class FilterAmount(FilterBase):
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
     def filter(self, payments: Payments):
-        return payments.objects.filter(
-            amount__gte=self.amount, payment_user__corporation=self.corporation
-        )
+        return payments.filter(amount__gte=self.amount)
 
 
 class FilterReason(FilterBase):
@@ -68,9 +67,7 @@ class FilterReason(FilterBase):
     reason = models.CharField(max_length=255)
 
     def filter(self, payments: Payments):
-        return payments.objects.filter(
-            reason__contains=self.reason, payment_user__corporation=self.corporation
-        )
+        return payments.filter(reason__contains=self.reason)
 
 
 class SmartGroup(models.Model):
@@ -83,12 +80,18 @@ class SmartGroup(models.Model):
     name = models.CharField(max_length=100)
     filters = models.ManyToManyField(SmartFilter)
     last_update = models.DateTimeField(auto_now=True)
+    enabled = models.BooleanField(default=True)
 
     def apply_filters(self, payments: Payments):
-        filter_set_filters = SmartFilter.objects.filter(
-            content_type=ContentType.objects.get_for_model(SmartGroup),
-            object_id=self.id,
-        )
-        for filter_set_filter in filter_set_filters:
-            payments = filter_set_filter.filter_object.filter(payments)
+        if self.enabled is True:
+            for smart_filter in self.filters.all():
+                payments = smart_filter.filter_object.filter(payments)
         return payments
+
+    def display_filters(self):
+        return ", ".join([str(f) for f in self.filters.all()])
+
+    display_filters.short_description = "Filters"
+
+    def __str__(self):
+        return f"{self.name}: {self.description}"

@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth import hooks
 from allianceauth.services.hooks import MenuItemHook, UrlHook
 
+from taxsystem.models.filters import FilterAmount, FilterReason
+
 from . import app_settings, urls
 
 
@@ -39,3 +41,8 @@ def register_urls():
     """Register app urls"""
 
     return UrlHook(urls, "taxsystem", r"^taxsystem/")
+
+
+@hooks.register("taxsystem_filters")
+def filters():
+    return [FilterAmount, FilterReason]
