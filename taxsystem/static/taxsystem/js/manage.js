@@ -12,7 +12,7 @@ $(document).ready(function() {
             $('#last_update_wallet').text(data.last_update_wallet);
             $('#last_update_members').text(data.last_update_members);
             $('#last_update_payments').text(data.last_update_payments);
-            $('#last_update_paymentsystem').text(data.last_update_filters);
+            $('#last_update_paymentsystem').text(data.last_update_payment_system);
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
 

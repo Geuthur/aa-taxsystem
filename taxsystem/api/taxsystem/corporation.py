@@ -192,7 +192,7 @@ class CorporationApiEndpoints:
             last_update_wallet = corp.last_update_wallet
             last_update_members = corp.last_update_members
             last_update_payments = corp.last_update_payments
-            last_update_filters = corp.last_update_filters
+            last_update_payment_system = corp.last_update_payment_system
             corporation_tax_amount = corp.tax_amount
             corporation_tax_period = corp.tax_period
 
@@ -203,7 +203,7 @@ class CorporationApiEndpoints:
                 "last_update_wallet": last_update_wallet,
                 "last_update_members": last_update_members,
                 "last_update_payments": last_update_payments,
-                "last_update_filters": last_update_filters,
+                "last_update_payment_system": last_update_payment_system,
                 "tax_amount": corporation_tax_amount,
                 "tax_period": corporation_tax_period,
             }
