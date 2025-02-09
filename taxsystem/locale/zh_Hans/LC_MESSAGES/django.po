@@ -1,0 +1,290 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-09 01:27+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: api/taxsystem/corporation.py:130
+msgid "Are you sure to Confirm"
+msgstr ""
+
+#: api/taxsystem/corporation.py:132
+msgid "from"
+msgstr ""
+
+#: api/taxsystem/corporation.py:142
+msgid "Approve Payment"
+msgstr ""
+
+#: models/filters.py:18
+msgid "Smart Filter Binding"
+msgstr ""
+
+#: models/filters.py:19
+msgid "Smart Filters Catalog"
+msgstr ""
+
+#: models/filters.py:56
+msgid "Filter Amount"
+msgstr ""
+
+#: models/filters.py:57
+msgid "Filter Amounts"
+msgstr ""
+
+#: models/filters.py:72
+msgid "Filter Reason"
+msgstr ""
+
+#: models/filters.py:73
+msgid "Filter Reasons"
+msgstr ""
+
+#: models/filters.py:87
+msgid "Filter Date"
+msgstr ""
+
+#: models/filters.py:88
+msgid "Filter Dates"
+msgstr ""
+
+#: models/general.py:13
+msgid "Can access this app"
+msgstr ""
+
+#: models/general.py:14
+msgid "Can manage Tax System"
+msgstr ""
+
+#: models/general.py:15
+msgid "Can add Corporation"
+msgstr ""
+
+#: models/tax.py:51
+msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
+msgstr ""
+
+#: models/tax.py:57
+msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
+msgstr ""
+
+#: models/tax.py:80
+msgid "Tax System Audit"
+msgstr ""
+
+#: models/tax.py:81
+msgid "Tax System Audits"
+msgstr ""
+
+#: models/tax.py:88 models/tax.py:148
+msgid "Active"
+msgstr ""
+
+#: models/tax.py:89
+msgid "Missing"
+msgstr ""
+
+#: models/tax.py:90
+msgid "Unregistered"
+msgstr ""
+
+#: models/tax.py:91
+msgid "Is Alt"
+msgstr ""
+
+#: models/tax.py:102 models/tax.py:165 models/tax.py:249
+#: templates/taxsystem/view/manage.html:44
+#: templates/taxsystem/view/manage.html:65
+#: templates/taxsystem/view/payments.html:46
+msgid "Status"
+msgstr ""
+
+#: models/tax.py:115
+msgid "Tax Member System"
+msgstr ""
+
+#: models/tax.py:116
+msgid "Tax Member Systems"
+msgstr ""
+
+#: models/tax.py:149
+msgid "Inactive"
+msgstr ""
+
+#: models/tax.py:150
+msgid "Deactivated"
+msgstr ""
+
+#: models/tax.py:172
+msgid "Payment Pool in ISK that is set for the corporation. Max 16 Digits"
+msgstr ""
+
+#: models/tax.py:182
+msgid "Tax Payment System"
+msgstr ""
+
+#: models/tax.py:183
+msgid "Tax Payment Systems"
+msgstr ""
+
+#: models/tax.py:222
+msgid "Paid"
+msgstr ""
+
+#: models/tax.py:223 models/tax.py:229 models/tax.py:257
+msgid "Pending"
+msgstr ""
+
+#: models/tax.py:224
+msgid "Failed"
+msgstr ""
+
+#: models/tax.py:225
+msgid "Needs Approval"
+msgstr ""
+
+#: models/tax.py:228 templates/taxsystem/view/payments.html:47
+msgid "Approved"
+msgstr ""
+
+#: models/tax.py:230
+msgid "Rejected"
+msgstr ""
+
+#: models/tax.py:233
+msgid "Automatic"
+msgstr ""
+
+#: models/tax.py:234
+msgid "Manual"
+msgstr ""
+
+#: models/tax.py:261 templates/taxsystem/view/payments.html:48
+msgid "System"
+msgstr ""
+
+#: models/tax.py:268 models/tax.py:269
+msgid "Tax Payments"
+msgstr ""
+
+#: models/tax.py:291
+msgid "No payment date"
+msgstr ""
+
+#: templates/taxsystem/admin/overview.html:9
+msgid "Corporation Overview"
+msgstr ""
+
+#: templates/taxsystem/admin/overview.html:18
+#: templates/taxsystem/view/manage.html:67
+#: templates/taxsystem/view/payments.html:49
+msgid "Actions"
+msgstr ""
+
+#: templates/taxsystem/admin/overview.html:64
+msgid "Show"
+msgstr ""
+
+#: templates/taxsystem/admin/overview.html:86
+msgid "No Permission"
+msgstr ""
+
+#: templates/taxsystem/modals/confirm.html:22
+msgid "Cancel"
+msgstr ""
+
+#: templates/taxsystem/modals/confirm.html:23
+msgid "Confirm"
+msgstr ""
+
+#: templates/taxsystem/modals/modal.html:27
+msgid "Close"
+msgstr ""
+
+#: templates/taxsystem/partials/menu/administration.html:7
+msgid "Add Corporation"
+msgstr ""
+
+#: templates/taxsystem/partials/menu/administration.html:15
+msgid "Manage Tax System"
+msgstr ""
+
+#: templates/taxsystem/partials/menu/navigation.html:5
+#: templates/taxsystem/view/payments.html:31
+msgid "Payments"
+msgstr ""
+
+#: templates/taxsystem/view/manage.html:31
+msgid "Administration"
+msgstr ""
+
+#: templates/taxsystem/view/manage.html:35
+msgid "Members"
+msgstr ""
+
+#: templates/taxsystem/view/manage.html:43
+#: templates/taxsystem/view/manage.html:64
+#: templates/taxsystem/view/payments.html:43
+msgid "Character Name"
+msgstr ""
+
+#: templates/taxsystem/view/manage.html:45
+msgid "Joined"
+msgstr ""
+
+#: templates/taxsystem/view/manage.html:56
+msgid "Payment System"
+msgstr ""
+
+#: templates/taxsystem/view/manage.html:66
+msgid "Wallet"
+msgstr ""
+
+#: templates/taxsystem/view/payments.html:35
+msgid "Incoming Payments"
+msgstr ""
+
+#: templates/taxsystem/view/payments.html:44
+msgid "Amount"
+msgstr ""
+
+#: templates/taxsystem/view/payments.html:45
+msgid "Date"
+msgstr ""
+
+#: views.py:96
+#, python-brace-format
+msgid "{corporation_name} successfully added/updated to Tax System"
+msgstr ""
+
+#: views.py:123
+msgid "Permission Denied"
+msgstr ""
+
+#: views.py:147
+#, python-format
+msgid "Payment ID: %s successfully approved"
+msgstr ""
+
+#: views.py:149
+#, python-format
+msgid "Payment ID: %s is already edited"
+msgstr ""
+
+#: views.py:151
+msgid "Transaction failed. Please try again."
+msgstr ""
