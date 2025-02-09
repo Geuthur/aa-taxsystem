@@ -2,9 +2,8 @@
 
 ## [0.5.0] - 2025-02-09
 
-[!NOTE]
-
-> If you have usen 0.0.1 you need to reinstall complete Tax System Migrations are changed
+> [!NOTE]
+> If you were using version 0.0.1, you must reinstall the entire tax system as the migrations have been changed.
 
 ### Added
 
