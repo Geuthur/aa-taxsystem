@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 20:46+0100\n"
+"POT-Creation-Date: 2025-02-09 23:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +20,33 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: taxsystem/api/taxsystem/corporation.py:132
+#: taxsystem/api/taxsystem/corporation.py:83
+#: taxsystem/api/taxsystem/corporation.py:93
+#: taxsystem/api/taxsystem/corporation.py:174
 msgid "Are you sure to Confirm"
 msgstr ""
 
-#: taxsystem/api/taxsystem/corporation.py:134
+#: taxsystem/api/taxsystem/corporation.py:85
+msgid "Deactivate User"
+msgstr ""
+
+#: taxsystem/api/taxsystem/corporation.py:95
+msgid "Activate User"
+msgstr ""
+
+#: taxsystem/api/taxsystem/corporation.py:116
+msgid "Yes"
+msgstr ""
+
+#: taxsystem/api/taxsystem/corporation.py:116
+msgid "No"
+msgstr ""
+
+#: taxsystem/api/taxsystem/corporation.py:176
 msgid "from"
 msgstr ""
 
-#: taxsystem/api/taxsystem/corporation.py:144
+#: taxsystem/api/taxsystem/corporation.py:186
 msgid "Approve Payment"
 msgstr ""
 
@@ -211,7 +229,7 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/base.html:9
 #: taxsystem/templates/taxsystem/base.html:13
-#: taxsystem/templates/taxsystem/index.html:6 taxsystem/views.py:34
+#: taxsystem/templates/taxsystem/index.html:6 taxsystem/views.py:35
 msgid "Tax System"
 msgstr ""
 
@@ -232,7 +250,8 @@ msgid "Internal Server Error"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/bundles/settings-js.html:24
-msgid "Negative value is not allowed"
+#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:15
+msgid "Tax Paid"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/confirm.html:22
@@ -256,7 +275,7 @@ msgid "Manage Tax System"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/menu/navigation.html:5
-#: taxsystem/templates/taxsystem/view/payments.html:31 taxsystem/views.py:69
+#: taxsystem/templates/taxsystem/view/payments.html:31 taxsystem/views.py:70
 msgid "Payments"
 msgstr ""
 
@@ -311,15 +330,11 @@ msgstr ""
 msgid "Wallet"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:15
-msgid "Tax Paid"
-msgstr ""
-
 #: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:16
 msgid "Last Paid"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/view/manage.html:31 taxsystem/views.py:48
+#: taxsystem/templates/taxsystem/view/manage.html:31 taxsystem/views.py:49
 msgid "Administration"
 msgstr ""
 
@@ -335,34 +350,45 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: taxsystem/views.py:101
+#: taxsystem/views.py:102
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
 msgstr ""
 
-#: taxsystem/views.py:128 taxsystem/views.py:181 taxsystem/views.py:213
+#: taxsystem/views.py:129 taxsystem/views.py:171 taxsystem/views.py:213
+#: taxsystem/views.py:245
 msgid "Permission Denied"
 msgstr ""
 
-#: taxsystem/views.py:152
+#: taxsystem/views.py:153
 #, python-format
 msgid "Payment ID: %s successfully approved"
 msgstr ""
 
-#: taxsystem/views.py:154
+#: taxsystem/views.py:155
 #, python-format
 msgid "Payment ID: %s is already edited"
 msgstr ""
 
-#: taxsystem/views.py:156
+#: taxsystem/views.py:157 taxsystem/views.py:188
 msgid "Transaction failed. Please try again."
 msgstr ""
 
-#: taxsystem/views.py:170 taxsystem/views.py:174 taxsystem/views.py:188
+#: taxsystem/views.py:182
+#, python-format
+msgid "Payment System User: %s successfully deactivated"
+msgstr ""
+
+#: taxsystem/views.py:185
+#, python-format
+msgid "Payment System User: %s successfully activated"
+msgstr ""
+
 #: taxsystem/views.py:202 taxsystem/views.py:206 taxsystem/views.py:220
+#: taxsystem/views.py:234 taxsystem/views.py:238 taxsystem/views.py:252
 msgid "Please enter a valid number"
 msgstr ""
 
-#: taxsystem/views.py:191 taxsystem/views.py:223
+#: taxsystem/views.py:223 taxsystem/views.py:255
 msgid "Invalid request method"
 msgstr ""
