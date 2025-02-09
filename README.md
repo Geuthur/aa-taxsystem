@@ -80,19 +80,22 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Tax System
 
-| ID                 | Description                      |                                                            |
-| :----------------- | :------------------------------- | :--------------------------------------------------------- |
-| `basic_access`     | Can access the Tax System module | All Members with the Permission can access the Tax System. |
-| `manage_access   ` | Can manage Tax System            | Can modify/remove tax settings.                            |
-| `create_access`    | Can add Corporation              | Users with this permission can add corporation.            |
+| ID              | Description                      |                                                            |
+| :-------------- | :------------------------------- | :--------------------------------------------------------- |
+| `basic_access`  | Can access the Tax System module | All Members with the Permission can access the Tax System. |
+| `manage_access` | Can manage Tax System            | Can modify/remove tax settings.                            |
+| `create_access` | Can add Corporation              | Users with this permission can add corporation.            |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 
 The Following Settings can be setting up in the `local.py`
 
 - TAXSYSTEM_APP_NAME: `"YOURNAME"` - Set the name of the APP
-
 - TAXSYSTEM_LOGGER_USE: `True / False` - Set to use own Logger File
+- TAXSYSTEM_CORP_MEMBERS_SKIP_DATE: `1` - Set Skip Task Time in Days
+- TAXSYSTEM_CORP_WALLET_SKIP_DATE: `1` - Set Skip Task Time in Hours
+- TAXSYSTEM_CORP_PAYMENTS_SKIP_DATE: `1` - Set Skip Task Time in Hours
+- TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE: `1` - Set Skip Task Time in Hours
 
 If you set up TAXSYSTEM_LOGGER_USE to `True` you need to add the following code below and ensure you have permission on logs folder:
 

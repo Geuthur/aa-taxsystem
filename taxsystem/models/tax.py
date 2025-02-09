@@ -43,7 +43,7 @@ class OwnerAudit(models.Model):
 
     last_update_payments = models.DateTimeField(null=True, blank=True)
 
-    last_update_filters = models.DateTimeField(null=True, blank=True)
+    last_update_payment_system = models.DateTimeField(null=True, blank=True)
 
     tax_amount = models.DecimalField(
         max_digits=16,

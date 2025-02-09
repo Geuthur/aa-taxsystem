@@ -68,13 +68,16 @@ def update_corporation_payments(corp_id):
 
     Payments.objects.bulk_create(items, ignore_conflicts=True)
 
+    audit_corp.last_update_payments = timezone.now()
+    audit_corp.save()
+
     logger.debug(
         "Finished %s Payments for %s",
         len(items),
         audit_corp.corporation.corporation_name,
     )
 
-    return ("Finished Members for %s", audit_corp.corporation.corporation_name)
+    return ("Finished Payments for %s", audit_corp.corporation.corporation_name)
 
 
 def update_corporation_payments_filter(corp_id, runs=0):
@@ -149,8 +152,13 @@ def update_corporation_payments_filter(corp_id, runs=0):
             payment.save()
             runs = runs + 1
 
+    audit_corp.last_update_payment_system = timezone.now()
+    audit_corp.save()
+
     logger.debug(
-        "Finished %s:  for %s",
+        "Finished %s: Payment System entrys for %s",
         runs,
         audit_corp.corporation.corporation_name,
     )
+
+    return ("Finished Payment System for %s", audit_corp.corporation.corporation_name)
