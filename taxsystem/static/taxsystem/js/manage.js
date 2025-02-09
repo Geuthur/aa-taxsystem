@@ -193,16 +193,20 @@ $(document).ready(function() {
             },
             {
                 data: 'wallet',
-                render: function (data, _, row) {
+                render: function (data, type, row) {
                     const amount = parseFloat(data);
-                    return amount.toLocaleString('de-DE') + ' ISK';
+                    if (type === 'display') {
+                        return amount.toLocaleString('de-DE') + ' ISK';
+                    }
+                    return amount;
                 }
             },
             {
                 data: 'has_paid',
-                render: function (data, _, row) {
-                    return data;
-                }
+                render: {
+                    display: 'display',
+                    _: 'sort'
+                },
             },
             {
                 data: 'last_paid',
@@ -216,17 +220,35 @@ $(document).ready(function() {
                     return data;
                 }
             },
+            // Hidden columns
+            {
+                data: 'has_paid_filter',
+            },
         ],
         order: [[1, 'asc']],
         columnDefs: [
-            { orderable: false, targets: [0, 2] },
+            {
+                orderable: false,
+                targets: [0, 4]
+            },
+            // Filter Has Paid column
+            {
+                visible: false,
+                targets: [7]
+            },
         ],
         filterDropDown: {
             columns: [
                 {
                     idx: 2,
                     maxWidth: '200px',
-                }
+                },
+                // has_paid
+                {
+                    idx: 7,
+                    maxWidth: '200px',
+                    title: taxsystemsettings.translations.hasPaid,
+                },
             ],
             autoSize: false,
             bootstrap: true,
@@ -234,9 +256,11 @@ $(document).ready(function() {
         },
         rowCallback: function(row, data) {
             if (!data.is_active) {
-                $(row).css('background-color', 'rgba(255, 0, 0, 0.1)');
-            } else if (data.is_active && !data.has_paid) {
+                $(row).css('background-color', 'rgba(255, 238, 0, 0.1)');
+            } else if (data.is_active && data.has_paid_raw) {
                 $(row).css('background-color', 'rgba(0, 255, 42, 0.1)');
+            } else if (data.is_active && !data.has_paid_raw) {
+                $(row).css('background-color', 'rgba(255, 0, 0, 0.1)');
             }
         },
     });

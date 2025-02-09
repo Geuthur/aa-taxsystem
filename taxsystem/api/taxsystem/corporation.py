@@ -59,6 +59,7 @@ class CorporationApiEndpoints:
             response={200: list, 403: str, 404: str},
             tags=self.tags,
         )
+        # pylint: disable=too-many-locals
         def get_paymentsystem(request, corporation_id: int):
             perms, corp = get_corporation(request, corporation_id)
 
@@ -113,8 +114,11 @@ class CorporationApiEndpoints:
                             request=request,
                         ),
                     )
-
-                has_paid = lazy.get_bool_icon_html(value=user.has_paid)
+                has_paid_filter = _("Yes") if user.has_paid else _("No")
+                has_paid = {
+                    "display": lazy.get_bool_icon_html(value=user.has_paid),
+                    "sort": has_paid_filter,
+                }
                 character_id = user.user.main_character.character_id
                 payment_dict[character_id] = {
                     "character_id": character_id,
@@ -128,6 +132,8 @@ class CorporationApiEndpoints:
                     "status": user.get_payment_status(),
                     "wallet": user.payment_pool,
                     "has_paid": has_paid,
+                    "has_paid_filter": has_paid_filter,
+                    "has_paid_raw": user.has_paid,
                     "last_paid": lazy.str_normalize_time(user.last_paid, hours=True),
                     "is_active": user.is_active,
                     "actions": actions,
