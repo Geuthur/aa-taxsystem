@@ -1,4 +1,4 @@
-/* global taxsystemsettings */
+/* global taxsystemsettings, bootstrap */
 $(document).ready(function() {
     const manageDashboardTableVar = $('#manage-dashboard');
 
@@ -204,6 +204,12 @@ $(document).ready(function() {
                 }
             },
             {
+                data: 'last_paid',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
                 data: 'actions',
                 render: function (data, _, row) {
                     return data;
@@ -225,6 +231,13 @@ $(document).ready(function() {
             bootstrap: true,
             bootstrap_version: 5
         },
+        rowCallback: function(row, data) {
+            if (!data.is_active) {
+                $(row).css('background-color', 'rgba(255, 0, 0, 0.1)');
+            } else if (data.is_active && !data.has_paid) {
+                $(row).css('background-color', 'rgba(0, 255, 42, 0.1)');
+            }
+        },
     });
 
     tablePaymentSystem.on('init.dt', function () {
@@ -235,5 +248,27 @@ $(document).ready(function() {
         $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
             trigger: 'hover',
         });
+    });
+
+    // Initialize the confirm modal for switch user
+    var confirmModal = document.getElementById('modalPaymentSystemContainer');
+    var confirmTextSpan = document.getElementById('confirmText');
+    var confirmButton = document.getElementById('confirmButton');
+    var confirmTitleSpan = document.getElementById('confirmTitle');
+
+    confirmModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var formId = button.getAttribute('data-form-id');
+        var confirmText = button.getAttribute('data-confirm-text');
+        var title = button.getAttribute('data-title');
+
+        confirmTextSpan.innerHTML = confirmText;
+        confirmTitleSpan.innerHTML = title;
+
+        confirmButton.onclick = function () {
+            document.getElementById(formId).submit();
+            var modal = bootstrap.Modal.getInstance(confirmModal);
+            modal.hide();
+        };
     });
 });

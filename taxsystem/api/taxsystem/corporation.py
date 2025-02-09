@@ -2,7 +2,6 @@ from ninja import NinjaAPI
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.template.loader import render_to_string
-from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -38,8 +37,6 @@ class CorporationApiEndpoints:
             members = Members.objects.filter(corporation=corp)
 
             for member in members:
-                joined = timezone.localtime(member.joined).strftime("%Y-%m-%d")
-
                 corporation_dict[member.character_id] = {
                     "character_id": member.character_id,
                     "character_portrait": lazy.get_character_portrait_url(
@@ -48,7 +45,7 @@ class CorporationApiEndpoints:
                     "character_name": member.character_name,
                     "is_faulty": member.is_faulty,
                     "status": member.get_status_display(),
-                    "joined": joined,
+                    "joined": lazy.str_normalize_time(member.joined, hours=False),
                     "actions": "",
                 }
 
@@ -77,24 +74,64 @@ class CorporationApiEndpoints:
 
             payment_dict = {}
 
-            for payment in payment_system:
-                if payment.is_active:
-                    has_paid = lazy.get_bool_icon_html(value=payment.has_paid)
+            for user in payment_system:
+                actions = ""
+                if perms is True:
+                    url = "taxsystem/forms/paymentsystem/switchuser.html"
+                    if user.is_active:
+                        confirm_text = ""
+                        confirm_text += _("Are you sure to Confirm")
+                        confirm_text += f"?<br><span class='fw-bold'>Deactivate {user.name} (ID: {user.pk}) "
+                        title = _("Deactivate User")
+                        settings = {
+                            "icon": "fas fa-eye-low-vision",
+                            "color": "warning",
+                            "title": title,
+                        }
+                    else:
+                        confirm_text = ""
+                        confirm_text += _("Are you sure to Confirm")
+                        confirm_text += f"?<br><span class='fw-bold'>Activate {user.name} (ID: {user.pk}) "
+                        title = _("Activate User")
+                        settings = {
+                            "icon": "fas fa-eye",
+                            "color": "success",
+                            "title": title,
+                        }
 
-                    payment_dict[payment.user.user.username] = {
-                        "character_id": payment.user.main_character.character_id,
-                        "character_portrait": lazy.get_character_portrait_url(
-                            payment.user.main_character.character_id,
-                            size=32,
-                            as_html=True,
+                    actions = format_html(
+                        "<td>{}</td>",
+                        render_to_string(
+                            template_name=url,
+                            context={
+                                "corporation_id": corporation_id,
+                                "payment_system": user,
+                                "title": title,
+                                "confirm_text": confirm_text,
+                                "settings": settings,
+                            },
+                            request=request,
                         ),
-                        "character_name": payment.user.main_character.character_name,
-                        "alts": payment.get_alt_ids(),
-                        "status": payment.get_payment_status(),
-                        "has_paid": has_paid,
-                        "wallet": payment.payment_pool,
-                        "actions": "",
-                    }
+                    )
+
+                has_paid = lazy.get_bool_icon_html(value=user.has_paid)
+                character_id = user.user.main_character.character_id
+                payment_dict[character_id] = {
+                    "character_id": character_id,
+                    "character_portrait": lazy.get_character_portrait_url(
+                        character_id=character_id,
+                        size=32,
+                        as_html=True,
+                    ),
+                    "character_name": user.user.main_character.character_name,
+                    "alts": user.get_alt_ids(),
+                    "status": user.get_payment_status(),
+                    "wallet": user.payment_pool,
+                    "has_paid": has_paid,
+                    "last_paid": lazy.str_normalize_time(user.last_paid, hours=True),
+                    "is_active": user.is_active,
+                    "actions": actions,
+                }
 
             output = []
             output.append({"corporation": payment_dict})
@@ -189,10 +226,18 @@ class CorporationApiEndpoints:
             corporation_logo = lazy.get_corporation_logo_url(
                 corporation_id, size=64, as_html=True
             )
-            last_update_wallet = corp.last_update_wallet
-            last_update_members = corp.last_update_members
-            last_update_payments = corp.last_update_payments
-            last_update_payment_system = corp.last_update_payment_system
+            last_update_wallet = lazy.str_normalize_time(
+                corp.last_update_wallet, hours=True
+            )
+            last_update_members = lazy.str_normalize_time(
+                corp.last_update_members, hours=True
+            )
+            last_update_payments = lazy.str_normalize_time(
+                corp.last_update_payments, hours=True
+            )
+            last_update_payment_system = lazy.str_normalize_time(
+                corp.last_update_payment_system, hours=True
+            )
             corporation_tax_amount = corp.tax_amount
             corporation_tax_period = corp.tax_period
 

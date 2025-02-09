@@ -158,10 +158,56 @@ def approve_payment(request, corporation_id: int, payment_pk: int):
     return redirect(previous_url)
 
 
+@login_required
+@permission_required("taxsystem.manage_access")
+@require_POST
+def switch_user(request, corporation_id: int, user_pk: int):
+    # Check Permission
+    perms, corp = get_corporation(request, corporation_id)
+    previous_url = request.headers.get("referer", "taxsystem:payments")
+
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return redirect(previous_url)
+
+    try:
+        with transaction.atomic():
+            payment_system = PaymentSystem.objects.get(corporation=corp, pk=user_pk)
+            if payment_system.is_active:
+                payment_system.status = PaymentSystem.States.DEACTIVATED
+                msg = (
+                    _("Payment System User: %s successfully deactivated")
+                    % payment_system.name
+                )
+            else:
+                payment_system.status = PaymentSystem.States.ACTIVE
+                msg = (
+                    _("Payment System User: %s successfully activated")
+                    % payment_system.name
+                )
+            payment_system.save()
+    except IntegrityError:
+        msg = _("Transaction failed. Please try again.")
+
+    messages.info(request, msg)
+    return redirect(previous_url)
+
+
 @csrf_exempt
 def update_tax_amount(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
-        new_value = request.POST.get("value")
+        value = float(request.POST.get("value"))
+
+        try:
+            if value < 0:
+                return JsonResponse(
+                    {"message": _("Please enter a valid number")}, status=400
+                )
+        except ValueError:
+            return JsonResponse(
+                {"message": _("Please enter a valid number")}, status=400
+            )
 
         # Check Permission
         perms, corp = get_corporation(request, corporation_id)
@@ -170,7 +216,7 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
             return JsonResponse({"message": _("Permission Denied")}, status=403)
 
         try:
-            corp.tax_amount = new_value
+            corp.tax_amount = value
             corp.save()
         except ValidationError:
             return JsonResponse(
@@ -183,7 +229,17 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
 @csrf_exempt
 def update_tax_period(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
-        new_value = request.POST.get("value")
+        value = float(request.POST.get("value"))
+
+        try:
+            if value < 0:
+                return JsonResponse(
+                    {"message": _("Please enter a valid number")}, status=400
+                )
+        except ValueError:
+            return JsonResponse(
+                {"message": _("Please enter a valid number")}, status=400
+            )
 
         # Check Permission
         perms, corp = get_corporation(request, corporation_id)
@@ -192,7 +248,7 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             return JsonResponse({"message": _("Permission Denied")}, status=403)
 
         try:
-            corp.tax_period = new_value
+            corp.tax_period = value
             corp.save()
         except ValidationError:
             return JsonResponse(

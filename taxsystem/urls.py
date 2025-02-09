@@ -42,4 +42,10 @@ urlpatterns = [
         views.update_tax_period,
         name="update_tax_period",
     ),
+    # -- Tax Payment System
+    path(
+        "corporation/<int:corporation_id>/manage/user/<int:user_pk>/switch_user/",
+        views.switch_user,
+        name="switch_user",
+    ),
 ]

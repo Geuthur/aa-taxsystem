@@ -1,5 +1,6 @@
 """This module provides lazy loading of some common functions and objects that are not needed for every request."""
 
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -88,3 +89,10 @@ def get_bool_icon_html(
         state,
         icon,
     )
+
+
+def str_normalize_time(evetime, hours: bool = False) -> str:
+    """Normalize time to a string."""
+    if hours:
+        return timezone.localtime(evetime).strftime("%Y-%m-%d %H:%M")
+    return timezone.localtime(evetime).strftime("%Y-%m-%d")
