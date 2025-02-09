@@ -133,7 +133,7 @@ def update_corporation_payments_filter(corp_id, runs=0):
         payment.payment_status = Payments.States.NEEDS_APPROVAL
         payment.approved = Payments.Approval.PENDING
         payment.save()
-        runs += 1
+        runs = runs + 1
 
     # Check approved payments
     approved = Payments.objects.filter(
@@ -142,7 +142,6 @@ def update_corporation_payments_filter(corp_id, runs=0):
         approved=Payments.Approval.APPROVED,
     )
 
-    # Process approved payments
     for payment in approved:
         with transaction.atomic():
             payment.payment_status = Payments.States.PAID
@@ -151,6 +150,23 @@ def update_corporation_payments_filter(corp_id, runs=0):
             ).update(payment_pool=payment.payment_user.payment_pool + payment.amount)
             payment.save()
             runs = runs + 1
+
+    # Check Payment Period
+    payday = PaymentSystem.objects.filter(
+        corporation=audit_corp, status=PaymentSystem.States.ACTIVE
+    )
+
+    for user in payday:
+        if user.last_paid is None:
+            # First Period is free
+            user.last_paid = timezone.now()
+        if timezone.now() - user.last_paid >= timezone.timedelta(
+            days=audit_corp.tax_period
+        ):
+            user.payment_pool -= audit_corp.tax_amount
+            user.last_paid = timezone.now()
+            runs = runs + 1
+        user.save()
 
     audit_corp.last_update_payment_system = timezone.now()
     audit_corp.save()
