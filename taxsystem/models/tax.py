@@ -1,7 +1,7 @@
 """Models for Tax System."""
 
 # Django
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -174,7 +174,10 @@ class PaymentSystem(models.Model):
         help_text=_(
             "Payment Pool in ISK that is set for the corporation. Max 16 Digits"
         ),
-        validators=[MaxValueValidator(9999999999999999)],
+        validators=[
+            MaxValueValidator(9999999999999999),
+            MinValueValidator(-9999999999999999),
+        ],
     )
 
     last_paid = models.DateTimeField(null=True, blank=True)
