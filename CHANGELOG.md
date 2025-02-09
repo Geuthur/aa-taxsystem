@@ -9,7 +9,9 @@
 
 - API System
   - Administration
+  - Dashboard
   - Payments
+  - Payment System
 - Filter System with Hook Feature
   - Amount Filter
   - Reason Filter
@@ -37,6 +39,7 @@
 - Modal
   - Modal System
   - Approve Modal
+  - Confirm Modal
   - Table Modal
 
 ## [0.0.1] - 2025-02-06
