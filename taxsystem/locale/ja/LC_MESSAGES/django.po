@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 20:09+0100\n"
+"POT-Creation-Date: 2025-02-09 20:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: taxsystem/api/taxsystem/corporation.py:133
+#: taxsystem/api/taxsystem/corporation.py:132
 msgid "Are you sure to Confirm"
 msgstr ""
 
-#: taxsystem/api/taxsystem/corporation.py:135
+#: taxsystem/api/taxsystem/corporation.py:134
 msgid "from"
 msgstr ""
 
-#: taxsystem/api/taxsystem/corporation.py:145
+#: taxsystem/api/taxsystem/corporation.py:144
 msgid "Approve Payment"
 msgstr ""
 
@@ -194,7 +194,7 @@ msgid "Corporation Overview"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/admin/overview.html:18
-#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:16
+#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:17
 #: taxsystem/templates/taxsystem/view/payments.html:49
 msgid "Actions"
 msgstr ""
@@ -311,6 +311,10 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:15
 msgid "Tax Paid"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:16
+msgid "Last Paid"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/view/manage.html:31 taxsystem/views.py:48

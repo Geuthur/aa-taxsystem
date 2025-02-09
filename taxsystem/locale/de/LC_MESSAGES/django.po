@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 20:09+0100\n"
+"POT-Creation-Date: 2025-02-09 20:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: taxsystem/api/taxsystem/corporation.py:133
+#: taxsystem/api/taxsystem/corporation.py:132
 msgid "Are you sure to Confirm"
 msgstr "Sind Sie sicher, dass Sie bestätigen möchten"
 
-#: taxsystem/api/taxsystem/corporation.py:135
+#: taxsystem/api/taxsystem/corporation.py:134
 msgid "from"
 msgstr "von"
 
-#: taxsystem/api/taxsystem/corporation.py:145
+#: taxsystem/api/taxsystem/corporation.py:144
 msgid "Approve Payment"
 msgstr "Bestätige Zahlung"
 
@@ -197,7 +197,7 @@ msgid "Corporation Overview"
 msgstr "Corporation Übersicht"
 
 #: taxsystem/templates/taxsystem/admin/overview.html:18
-#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:16
+#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:17
 #: taxsystem/templates/taxsystem/view/payments.html:49
 msgid "Actions"
 msgstr "Aktionen"
@@ -222,11 +222,11 @@ msgstr "tage"
 
 #: taxsystem/templates/taxsystem/bundles/settings-js.html:21
 msgid "Enter Tax Amount"
-msgstr "Gib Steuermenge ein"
+msgstr "Steuermenge eingeben"
 
 #: taxsystem/templates/taxsystem/bundles/settings-js.html:22
 msgid "Enter Tax Period"
-msgstr "Gib Steuerzeitraum ein"
+msgstr "Steuerzeitraum eingeben"
 
 #: taxsystem/templates/taxsystem/bundles/settings-js.html:23
 msgid "Internal Server Error"
@@ -234,7 +234,7 @@ msgstr "Interner Server Fehler"
 
 #: taxsystem/templates/taxsystem/bundles/settings-js.html:24
 msgid "Negative value is not allowed"
-msgstr "Negative zahlen nicht erlaubt"
+msgstr "Negative Beträge nicht erlaubt"
 
 #: taxsystem/templates/taxsystem/modals/confirm.html:22
 msgid "Cancel"
@@ -284,7 +284,7 @@ msgstr "Steuer Menge:"
 #: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:33
 #: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:40
 msgid "Click on the value to edit"
-msgstr "Klicke auf die zahl um den Betrag zu editieren"
+msgstr "Klicke auf den Betrag um ihn zu editieren"
 
 #: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:38
 msgid "Tax Period:"
@@ -315,6 +315,10 @@ msgstr "Konto"
 #: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:15
 msgid "Tax Paid"
 msgstr "Steuer Gezahlt"
+
+#: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:16
+msgid "Last Paid"
+msgstr "Letzte Zahlung"
 
 #: taxsystem/templates/taxsystem/view/manage.html:31 taxsystem/views.py:48
 msgid "Administration"
@@ -358,7 +362,7 @@ msgstr "Transcation fehlgeschlagen. Versuche es später erneut."
 #: taxsystem/views.py:170 taxsystem/views.py:174 taxsystem/views.py:188
 #: taxsystem/views.py:202 taxsystem/views.py:206 taxsystem/views.py:220
 msgid "Please enter a valid number"
-msgstr "Bitte gib eine gültige zahl ein"
+msgstr "Bitte gib einen gültigen Betrag ein"
 
 #: taxsystem/views.py:191 taxsystem/views.py:223
 msgid "Invalid request method"
