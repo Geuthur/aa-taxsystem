@@ -3,7 +3,7 @@ from taxsystem import models
 
 def get_corporation(
     request, corporation_id
-) -> tuple[bool | None, list[models.tax.OwnerAudit] | None]:
+) -> tuple[bool | None, models.tax.OwnerAudit | None]:
     """Get Corporation and check permissions"""
     perms = True
 
