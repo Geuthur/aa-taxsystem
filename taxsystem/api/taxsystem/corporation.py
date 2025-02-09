@@ -17,6 +17,7 @@ logger = get_extension_logger(__name__)
 class CorporationApiEndpoints:
     tags = ["Corporation Tax System"]
 
+    # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
             "corporation/{corporation_id}/view/members/",
@@ -57,11 +58,11 @@ class CorporationApiEndpoints:
             return output
 
         @api.get(
-            "corporation/{corporation_id}/view/administration/",
+            "corporation/{corporation_id}/view/paymentsystem/",
             response={200: list, 403: str, 404: str},
             tags=self.tags,
         )
-        def get_administration(request, corporation_id: int):
+        def get_paymentsystem(request, corporation_id: int):
             perms, corp = get_corporation(request, corporation_id)
 
             if perms is False:
@@ -166,5 +167,45 @@ class CorporationApiEndpoints:
 
             output = []
             output.append({"corporation": payments_dict})
+
+            return output
+
+        @api.get(
+            "corporation/{corporation_id}/view/dashboard/",
+            response={200: dict, 403: str, 404: str},
+            tags=self.tags,
+        )
+        def get_dashboard(request, corporation_id: int):
+            perms, corp = get_corporation(request, corporation_id)
+
+            if perms is False:
+                return 403, "Permission Denied"
+
+            if corp is None:
+                return 404, "Corporation Not Found"
+
+            corporation_name = corp.name
+            corporation_id = corp.corporation.corporation_id
+            corporation_logo = lazy.get_corporation_logo_url(
+                corporation_id, size=64, as_html=True
+            )
+            last_update_wallet = corp.last_update_wallet
+            last_update_members = corp.last_update_members
+            last_update_payments = corp.last_update_payments
+            last_update_filters = corp.last_update_filters
+            corporation_tax_amount = corp.tax_amount
+            corporation_tax_period = corp.tax_period
+
+            output = {
+                "corporation_name": corporation_name,
+                "corporation_id": corporation_id,
+                "corporation_logo": corporation_logo,
+                "last_update_wallet": last_update_wallet,
+                "last_update_members": last_update_members,
+                "last_update_payments": last_update_payments,
+                "last_update_filters": last_update_filters,
+                "tax_amount": corporation_tax_amount,
+                "tax_period": corporation_tax_period,
+            }
 
             return output

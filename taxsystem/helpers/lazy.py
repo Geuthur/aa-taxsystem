@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from allianceauth.eveonline.evelinks.eveimageserver import (
     character_portrait_url,
+    corporation_logo_url,
     type_render_url,
 )
 
@@ -26,6 +27,26 @@ def get_character_portrait_url(
     return render_url
 
 
+def get_corporation_logo_url(
+    corporation_id: int,
+    size: int = 32,
+    corporation_name: str = None,
+    as_html: bool = False,
+) -> str:
+    """Get the corporation logo for a corporation ID."""
+
+    render_url = corporation_logo_url(corporation_id=corporation_id, size=size)
+
+    if as_html:
+        render_html = format_html(
+            '<img class="corporation-logo rounded-circle" src="{}" alt="{}">',
+            render_url,
+            corporation_name,
+        )
+        return render_html
+    return render_url
+
+
 def get_type_render_url(
     type_id: int, size: int = 32, type_name: str = None, as_html: bool = False
 ) -> str:
@@ -35,7 +56,7 @@ def get_type_render_url(
 
     if as_html:
         render_html = format_html(
-            '<img class="type-render rounded-circle" src="{}}" alt="{}">',
+            '<img class="type-render rounded-circle" src="{}" alt="{}">',
             render_url,
             type_name,
         )
