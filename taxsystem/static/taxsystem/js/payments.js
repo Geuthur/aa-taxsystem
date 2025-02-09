@@ -15,6 +15,7 @@ $(document).ready(() => {
                 tablePayments.clear().draw();
             }
         },
+        stateSave: true, // Enable state saving
         columns: [
             {
                 data: 'character_portrait',
