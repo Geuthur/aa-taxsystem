@@ -31,6 +31,18 @@ $(document).ready(() => {
                 }
             },
             {
+                data: 'wallet',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'has_paid',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
                 data: 'actions',
                 render: function (data, _, row) {
                     return data;

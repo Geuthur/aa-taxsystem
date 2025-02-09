@@ -31,7 +31,7 @@ $(document).ready(() => {
                 }
             },
             {
-                data: 'actions',
+                data: 'joined',
                 render: function (data, _, __) {
                     return data;
                 }
