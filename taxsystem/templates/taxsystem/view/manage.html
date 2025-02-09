@@ -39,10 +39,10 @@
             <table class="table table-dark table-striped table-hover w-100 d-none" id="members">
                 <thead>
                     <tr>
-                        <th scope="col">{% translate "" %}</th>
+                        <th scope="col"></th>
                         <th scope="col">{% translate "Character Name" %}</th>
                         <th scope="col">{% translate "Status" %}</th>
-                        <th scope="col">{% translate "Actions" %}</th>
+                        <th scope="col">{% translate "Joined" %}</th>
                     </tr>
                 </thead>
 
@@ -60,9 +60,10 @@
             <table class="table table-dark table-striped table-hover w-100 d-none" id="administration">
                 <thead>
                     <tr>
-                        <th scope="col">{% translate "" %}</th>
+                        <th scope="col"></th>
                         <th scope="col">{% translate "Character Name" %}</th>
                         <th scope="col">{% translate "Status" %}</th>
+                        <th scope="col">{% translate "Wallet" %}</th>
                         <th scope="col">{% translate "Actions" %}</th>
                     </tr>
                 </thead>
@@ -74,7 +75,6 @@
         </div>
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/modal.html' with name="ViewAdministration" %}
 {% endblock %}
 
 {% block extra_css %}
