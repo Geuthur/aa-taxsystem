@@ -171,6 +171,7 @@ $(document).ready(function() {
                 return Object.values(data[0].corporation);
             },
         },
+        stateSave: true, // Enable state saving
         columns: [
             {
                 data: 'character_portrait',
