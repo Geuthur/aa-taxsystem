@@ -1,9 +1,11 @@
 """Models for Filters."""
 
 # Django
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from taxsystem.models.tax import OwnerAudit, Payments
@@ -16,7 +18,9 @@ class SmartFilter(models.Model):
         verbose_name = _("Smart Filter Binding")
         verbose_name_plural = _("Smart Filters Catalog")
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, related_name="+"
+    )
     object_id = models.PositiveIntegerField()
     filter_object = GenericForeignKey("content_type", "object_id")
 
@@ -40,8 +44,11 @@ class FilterBase(models.Model):
     def __str__(self):
         return f"{self.name}: {self.description}"
 
-    def filter(self, payments: Payments):
+    def filter(self):
         raise NotImplementedError("Please Create a filter!")
+
+    def filter_containts(self):
+        raise NotImplementedError("Please Create a contains filter!")
 
 
 class FilterAmount(FilterBase):
@@ -53,8 +60,11 @@ class FilterAmount(FilterBase):
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
-    def filter(self, payments: Payments):
-        return payments.filter(amount__gte=self.amount)
+    def filter(self):
+        return {"amount": self.amount}
+
+    def filter_containts(self):
+        return {"amount__gte": self.amount}
 
 
 class FilterReason(FilterBase):
@@ -66,8 +76,27 @@ class FilterReason(FilterBase):
 
     reason = models.CharField(max_length=255)
 
-    def filter(self, payments: Payments):
-        return payments.filter(reason__contains=self.reason)
+    def filter(self):
+        return {"reason": self.reason}
+
+    def filter_containts(self):
+        return {"reason__contains": self.reason}
+
+
+class FilterDate(FilterBase):
+    """Filter for Date"""
+
+    class Meta:
+        verbose_name = _("Filter Date")
+        verbose_name_plural = _("Filter Dates")
+
+    date = models.DateTimeField()
+
+    def filter(self):
+        return {"date": self.date}
+
+    def filter_containts(self):
+        return {"date__gte": self.date}
 
 
 class SmartGroup(models.Model):
@@ -82,10 +111,20 @@ class SmartGroup(models.Model):
     last_update = models.DateTimeField(auto_now=True)
     enabled = models.BooleanField(default=True)
 
-    def apply_filters(self, payments: Payments):
+    def filter(self, payments: Payments) -> models.QuerySet[Payments]:
         if self.enabled is True:
+            q_objects = Q()
             for smart_filter in self.filters.all():
-                payments = smart_filter.filter_object.filter(payments)
+                q_objects &= Q(**smart_filter.filter_object.filter())
+            payments = payments.filter(q_objects)
+        return payments
+
+    def filter_containts(self, payments: Payments) -> models.QuerySet[Payments]:
+        if self.enabled is True:
+            q_objects = Q()
+            for smart_filter in self.filters.all():
+                q_objects |= Q(**smart_filter.filter_object.filter_containts())
+            payments = payments.filter(q_objects)
         return payments
 
     def display_filters(self):
