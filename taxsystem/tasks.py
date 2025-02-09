@@ -13,7 +13,10 @@ from taxsystem.decorators import when_esi_is_available
 from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import OwnerAudit
 from taxsystem.task_helpers.general_helpers import enqueue_next_task, no_fail_chain
-from taxsystem.task_helpers.payment_helpers import update_corporation_payments_filter
+from taxsystem.task_helpers.payment_helpers import (
+    update_corporation_payments,
+    update_corporation_payments_filter,
+)
 from taxsystem.task_helpers.tax_helpers import update_corporation_members
 from taxsystem.task_helpers.wallet_helpers import update_corporation_wallet_division
 
@@ -52,7 +55,9 @@ def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-a
     if (corp.last_update_members or mindt) <= SkipDates.members or force_refresh:
         que.append(update_corp_members.si(corp_id, force_refresh=force_refresh))
     if (corp.last_update_payments or mindt) <= SkipDates.wallet or force_refresh:
-        que.append(update_payments_filter.si(corp_id))
+        que.append(update_corp_payments.si(corp_id))
+    if (corp.last_update_filters or mindt) <= SkipDates.wallet or force_refresh:
+        que.append(update_corp_payments_filter.si(corp_id))
 
     enqueue_next_task(que)
 
@@ -89,10 +94,23 @@ def update_corp_members(
     bind=True,
     base=QueueOnce,
     once={"graceful": False, "keys": ["corp_id"]},
-    name="taxsystem.tasks.update_payments_filter",
+    name="taxsystem.tasks.update_corp_payments",
 )
 @no_fail_chain
-def update_payments_filter(
+def update_corp_payments(
+    self, corp_id, chain=[]
+):  # pylint: disable=unused-argument, dangerous-default-value
+    return update_corporation_payments(corp_id)
+
+
+@shared_task(
+    bind=True,
+    base=QueueOnce,
+    once={"graceful": False, "keys": ["corp_id"]},
+    name="taxsystem.tasks.update_corp_payments_filter",
+)
+@no_fail_chain
+def update_corp_payments_filter(
     self, corp_id, chain=[]
 ):  # pylint: disable=unused-argument, dangerous-default-value
     return update_corporation_payments_filter(corp_id)
