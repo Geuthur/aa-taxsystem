@@ -1,5 +1,11 @@
 from ninja import NinjaAPI
 
+from django.contrib.humanize.templatetags.humanize import intcomma
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as trans
+
 from taxsystem.api.helpers import get_corporation
 from taxsystem.helpers.lazy import get_character_portrait_url
 from taxsystem.hooks import get_extension_logger
@@ -31,6 +37,8 @@ class CorporationApiEndpoints:
             members = Members.objects.filter(corporation=corp)
 
             for member in members:
+                joined = timezone.localtime(member.joined).strftime("%Y-%m-%d")
+
                 corporation_dict[member.character_id] = {
                     "character_id": member.character_id,
                     "character_portrait": get_character_portrait_url(
@@ -39,6 +47,7 @@ class CorporationApiEndpoints:
                     "character_name": member.character_name,
                     "is_faulty": member.is_faulty,
                     "status": member.get_status_display(),
+                    "joined": joined,
                     "actions": "",
                 }
 
@@ -61,7 +70,9 @@ class CorporationApiEndpoints:
             if corp is None:
                 return 404, "Corporation Not Found"
 
-            payment_system = PaymentSystem.objects.filter(corporation=corp)
+            payment_system = PaymentSystem.objects.filter(
+                corporation=corp
+            ).select_related("user", "user__user", "user__main_character")
 
             payment_dict = {}
 
@@ -77,6 +88,8 @@ class CorporationApiEndpoints:
                         "character_name": payment.user.main_character.character_name,
                         "alts": payment.get_alt_ids(),
                         "status": payment.get_payment_status(),
+                        "has_paid": payment.has_paid,
+                        "wallet": payment.payment_pool,
                         "actions": "",
                     }
 
@@ -93,9 +106,6 @@ class CorporationApiEndpoints:
         def get_payments(request, corporation_id: int):
             perms, corp = get_corporation(request, corporation_id)
 
-            if perms is False:
-                return 403, "Permission Denied"
-
             if corp is None:
                 return 404, "Corporation Not Found"
 
@@ -109,17 +119,47 @@ class CorporationApiEndpoints:
                 except AttributeError:
                     character_id = 0
 
-                payments_dict[payment.name] = {
+                actions = ""
+                if perms is True:
+                    if payment.payment_status in [
+                        Payments.States.PENDING,
+                        Payments.States.NEEDS_APPROVAL,
+                    ]:
+                        amount = intcomma(payment.amount)
+                        confirm_text = ""
+                        confirm_text += trans("Are you sure to Confirm")
+                        confirm_text += f"?<br><span class='fw-bold'>{amount} ISK (ID: {payment.pk}) "
+                        confirm_text += trans("from")
+                        confirm_text += f" {payment.payment_user.name}</span>"
+
+                        actions = format_html(
+                            "<td>{}</td>",
+                            render_to_string(
+                                "taxsystem/forms/approve.html",
+                                {
+                                    "corporation_id": corporation_id,
+                                    "payment": payment,
+                                    "title": trans("Approve Payment"),
+                                    "confirm_text": confirm_text,
+                                    "request": request,
+                                },
+                                request=request,
+                            ),
+                        )
+
+                payments_dict[payment.pk] = {
+                    "payment_id": payment.pk,
                     "date": payment.date,
                     "character_portrait": get_character_portrait_url(
                         character_id, size=32, as_html=True
                     ),
                     "character_name": payment.payment_user.name,
                     "amount": payment.amount,
-                    "status": payment.get_payment_status(),
-                    "approved": payment.get_approval_status(),
+                    "status": payment.get_payment_status_display(),
+                    "approved": payment.get_approved_display(),
+                    "system": payment.get_system_display(),
                     "payment_date": payment.formatted_payment_date(),
-                    "actions": "",
+                    "actions": actions,
                 }
 
             output = []
