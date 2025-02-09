@@ -41,3 +41,29 @@ def get_type_render_url(
         )
         return render_html
     return render_url
+
+
+def get_badge_html(label: str, color: str = "primary", size: str = "sm") -> str:
+    """Get a badge HTML element."""
+
+    return format_html(
+        '<span class="badge badge-{} badge-{}">{}</span>',
+        color,
+        size,
+        label,
+    )
+
+
+def get_bool_icon_html(
+    value: bool, true_icon: str = "check", false_icon: str = "times"
+) -> str:
+    """Get a boolean icon HTML element."""
+
+    icon = true_icon if value else false_icon
+    state = "success" if value else "danger"
+
+    return format_html(
+        '<button class="btn btn-{} btn-sm"><i class="fas fa-{}"></i></button>',
+        state,
+        icon,
+    )
