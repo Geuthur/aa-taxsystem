@@ -124,6 +124,9 @@ LOGGING["loggers"].update(LOGGING_TAXSYSTEM["loggers"])
 
 ## Highlights<a name="highlights"></a>
 
+![Tax System 1](https://i.imgur.com/61Px6Nm.png)
+![Tax System 2](https://i.imgur.com/2SS59Td.png)
+
 > [!NOTE]
 > Contributing
 > You want to improve the project?
