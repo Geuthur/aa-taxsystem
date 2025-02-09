@@ -3,9 +3,13 @@
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import ValidationError
+from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from esi.decorators import token_required
 
@@ -152,3 +156,47 @@ def approve_payment(request, corporation_id: int, payment_pk: int):
 
     messages.info(request, msg)
     return redirect(previous_url)
+
+
+@csrf_exempt
+def update_tax_amount(request: WSGIRequest, corporation_id: int):
+    if request.method == "POST":
+        new_value = request.POST.get("value")
+
+        # Check Permission
+        perms, corp = get_corporation(request, corporation_id)
+
+        if not perms:
+            return JsonResponse({"message": _("Permission Denied")}, status=403)
+
+        try:
+            corp.tax_amount = new_value
+            corp.save()
+        except ValidationError:
+            return JsonResponse(
+                {"message": _("Please enter a valid number")}, status=400
+            )
+        return JsonResponse({"message": ""}, status=200)
+    return JsonResponse({"message": _("Invalid request method")}, status=405)
+
+
+@csrf_exempt
+def update_tax_period(request: WSGIRequest, corporation_id: int):
+    if request.method == "POST":
+        new_value = request.POST.get("value")
+
+        # Check Permission
+        perms, corp = get_corporation(request, corporation_id)
+
+        if not perms:
+            return JsonResponse({"message": _("Permission Denied")}, status=403)
+
+        try:
+            corp.tax_period = new_value
+            corp.save()
+        except ValidationError:
+            return JsonResponse(
+                {"message": _("Please enter a valid number")}, status=400
+            )
+        return JsonResponse({"message": ""}, status=200)
+    return JsonResponse({"message": _("Invalid request method")}, status=405)

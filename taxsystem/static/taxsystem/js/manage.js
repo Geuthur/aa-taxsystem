@@ -46,11 +46,10 @@ $.ajax({
                 },
                 error: function(response, newValue) {
                     // Display an error message
-                    if (response.status === 400) {
-                        return taxsystemsettings.translations.pleaseEnterValidNumber;
-                    } else if (response.status === 500) {
+                    if (response.status === 500) {
                         return taxsystemsettings.translations.internalServerError;
                     }
+                    return response.responseJSON.message;
                 }
             });
 
@@ -72,11 +71,10 @@ $.ajax({
                 },
                 error: function(response, newValue) {
                     // Display an error message
-                    if (response.status === 400) {
-                        return taxsystemsettings.translations.pleaseEnterValidNumber;
-                    } else if (response.status === 500) {
+                    if (response.status === 500) {
                         return taxsystemsettings.translations.internalServerError;
                     }
+                    return response.responseJSON.message;
                 }
             });
             $('#taxamount').on('shown', function(e, editable) {
