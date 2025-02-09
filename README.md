@@ -18,7 +18,23 @@ ______________________________________________________________________
 
 ## Features<a name="features"></a>
 
+- Corporation Tax System
+  - Member Tracking
+    - Check Member is registred in Auth
+    - Check Member is Alt Char
+  - Payment System
+    - Allocate User from Member Tracking
+    - Automatic Payment Tracking
+    - Automatic Payment Approvment
+    - Filtering Amount, Reason, Date
+      - Support Hooks for Add more Filters
+  - Payments
+    - Track Payments that meets filters
+
 ## Upcoming<a name="upcoming"></a>
+
+- Notify one time via Discord
+- Alliance level tax system
 
 ## Installation<a name="installation"></a>
 
@@ -78,7 +94,7 @@ The Following Settings can be setting up in the `local.py`
 
 - TAXSYSTEM_LOGGER_USE: `True / False` - Set to use own Logger File
 
-If you set up TAXSYSTEM_LOGGER_USE to `True` you need to add the following code below:
+If you set up TAXSYSTEM_LOGGER_USE to `True` you need to add the following code below and ensure you have permission on logs folder:
 
 ```python
 LOGGING_TAXSYSTEM = {
