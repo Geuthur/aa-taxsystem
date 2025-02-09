@@ -25,4 +25,9 @@ urlpatterns = [
     ),
     # -- Tax Administration
     path("corporation/add/", views.add_corp, name="add_corp"),
+    path(
+        "corporation/<int:corporation_id>/payment/<int:payment_pk>/approve/",
+        views.approve_payment,
+        name="approve_payment",
+    ),
 ]
