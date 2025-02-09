@@ -30,13 +30,15 @@
                         <tr>
                             <td>{% trans "Tax Amount:" %}</td>
                             <td class="text-end">
-                                <a href="#" id="taxamount" data-type="text" data-url="" data-title="{% trans 'Enter Tax Amount' %}"></a>
+                               <i class="fa-solid fa-circle-question fa-fw" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Click on the value to edit' %}"></i>
+                               <span href="#" id="taxamount" data-url=""></span>
                             </td>
                         </tr>
                         <tr>
                             <td>{% trans "Tax Period:" %}</td>
                             <td class="text-end">
-                                <a href="#" id="period" data-type="text" data-url="" data-title="{% trans 'Enter Tax Period' %}"></a>
+                                <i class="fa-solid fa-circle-question fa-fw" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Click on the value to edit' %}"></i>
+                                <span href="#" id="period" data-url=""></span>
                             </td>
                         </tr>
                     </tbody>
