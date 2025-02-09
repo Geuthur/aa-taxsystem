@@ -31,49 +31,11 @@
         <h3 class="me-3">{% translate "Administration" %}</h3>
     </div>
     <div class="card-body">
-        <div class="card-header bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Members" %}</h3>
-        </div>
-        <div class="card-body bg-secondary rounded-bottom">
-            <!-- Corporation Content-->
-            <table class="table table-dark table-striped table-hover w-100 d-none" id="members">
-                <thead>
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col">{% translate "Character Name" %}</th>
-                        <th scope="col">{% translate "Status" %}</th>
-                        <th scope="col">{% translate "Joined" %}</th>
-                    </tr>
-                </thead>
+        {% include 'taxsystem/partials/view/manage/dashboard.html' %}
 
-                <tbody>
-                    <!-- Corporation Members -->
-                </tbody>
-            </table>
-        </div>
+        {% include 'taxsystem/partials/view/manage/members.html' %}
 
-        <div class="card-header bg-primary rounded-top d-flex align-items-center mt-4">
-            <h3 class="me-3">{% translate "Payment System" %}</h3>
-        </div>
-        <div class="card-body bg-secondary rounded-bottom">
-            <!-- Payment System Content -->
-            <table class="table table-dark table-striped table-hover w-100 d-none" id="administration">
-                <thead>
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col">{% translate "Character Name" %}</th>
-                        <th scope="col">{% translate "Status" %}</th>
-                        <th scope="col">{% translate "Wallet" %}</th>
-                        <th scope="col">{% translate "Tax Paid" %}</th>
-                        <th scope="col">{% translate "Actions" %}</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <!-- Payment Users -->
-                </tbody>
-            </table>
-        </div>
+        {% include 'taxsystem/partials/view/manage/paymentsystem.html' %}
     </div>
 <!-- Tab Session -->
 {% endblock %}
