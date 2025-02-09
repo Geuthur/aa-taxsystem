@@ -18,7 +18,23 @@ ______________________________________________________________________
 
 ## Features<a name="features"></a>
 
+- Corporation Tax System
+  - Member Tracking
+    - Check Member is registred in Auth
+    - Check Member is Alt Char
+  - Payment System
+    - Allocate User from Member Tracking
+    - Automatic Payment Tracking
+    - Automatic Payment Approvment
+    - Filtering Amount, Reason, Date
+      - Support Hooks for Add more Filters
+  - Payments
+    - Track Payments that meets filters
+
 ## Upcoming<a name="upcoming"></a>
+
+- Notify one time via Discord
+- Alliance level tax system
 
 ## Installation<a name="installation"></a>
 
@@ -47,8 +63,8 @@ Configure your Alliance Auth settings (`local.py`) as follows:
 To set up the Scheduled Tasks add following code to your `local.py`
 
 ```python
-CELERYBEAT_SCHEDULE["taxsystem_update_all_corps"] = {
-    "task": "taxsystem.tasks.update_all_corps",
+CELERYBEAT_SCHEDULE["taxsystem_update_all_taxsytem"] = {
+    "task": "taxsystem.tasks.update_all_taxsytem",
     "schedule": crontab(minute=0, hour="*/1"),
 }
 ```
@@ -64,21 +80,24 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Tax System
 
-| ID                 | Description                      |                                                            |
-| :----------------- | :------------------------------- | :--------------------------------------------------------- |
-| `basic_access`     | Can access the Tax System module | All Members with the Permission can access the Tax System. |
-| `manage_access   ` | Can manage Tax System            | Can modify/remove tax settings.                            |
-| `create_access`    | Can add Corporation              | Users with this permission can add corporation.            |
+| ID              | Description                      |                                                            |
+| :-------------- | :------------------------------- | :--------------------------------------------------------- |
+| `basic_access`  | Can access the Tax System module | All Members with the Permission can access the Tax System. |
+| `manage_access` | Can manage Tax System            | Can modify/remove tax settings.                            |
+| `create_access` | Can add Corporation              | Users with this permission can add corporation.            |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 
 The Following Settings can be setting up in the `local.py`
 
 - TAXSYSTEM_APP_NAME: `"YOURNAME"` - Set the name of the APP
-
 - TAXSYSTEM_LOGGER_USE: `True / False` - Set to use own Logger File
+- TAXSYSTEM_CORP_MEMBERS_SKIP_DATE: `1` - Set Skip Task Time in Days
+- TAXSYSTEM_CORP_WALLET_SKIP_DATE: `1` - Set Skip Task Time in Hours
+- TAXSYSTEM_CORP_PAYMENTS_SKIP_DATE: `1` - Set Skip Task Time in Hours
+- TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE: `1` - Set Skip Task Time in Hours
 
-If you set up TAXSYSTEM_LOGGER_USE to `True` you need to add the following code below:
+If you set up TAXSYSTEM_LOGGER_USE to `True` you need to add the following code below and ensure you have permission on logs folder:
 
 ```python
 LOGGING_TAXSYSTEM = {
@@ -104,6 +123,9 @@ LOGGING["loggers"].update(LOGGING_TAXSYSTEM["loggers"])
 ```
 
 ## Highlights<a name="highlights"></a>
+
+![Tax System 1](https://i.imgur.com/61Px6Nm.png)
+![Tax System 2](https://i.imgur.com/2SS59Td.png)
 
 > [!NOTE]
 > Contributing

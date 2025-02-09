@@ -1,0 +1,106 @@
+/* global taxsystemsettings bootstrap */
+
+$(document).ready(() => {
+    const adminstationTableVar = $('#payments');
+
+    const tablePayments = adminstationTableVar.DataTable({
+        ajax: {
+            url: taxsystemsettings.corporationPaymentsUrl,
+            type: 'GET',
+            dataSrc: function (data) {
+                return Object.values(data[0].corporation);
+            },
+            error: function (xhr, error, thrown) {
+                console.error('Error loading data:', error);
+                tablePayments.clear().draw();
+            }
+        },
+        stateSave: true, // Enable state saving
+        columns: [
+            {
+                data: 'character_portrait',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'character_name',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'amount',
+                render: function (data, _, row) {
+                    const amount = parseFloat(data);
+                    return amount.toLocaleString('de-DE') + ' ISK';
+                }
+            },
+            {
+                data: 'payment_date',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'status',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'approved',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'system',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+            {
+                data: 'actions',
+                render: function (data, _, row) {
+                    return data;
+                }
+            },
+        ],
+        order: [[1, 'asc']],
+        columnDefs: [
+            { orderable: false, targets: [0, 2] },
+        ],
+    });
+
+    tablePayments.on('init.dt', function () {
+        adminstationTableVar.removeClass('d-none');
+    });
+
+    tablePayments.on('draw', function (row, data) {
+        $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
+            trigger: 'hover',
+        });
+    });
+});
+
+var confirmModal = document.getElementById('modalApprovePaymentContainer');
+var confirmTextSpan = document.getElementById('confirmText');
+var confirmButton = document.getElementById('confirmButton');
+var confirmTitleSpan = document.getElementById('confirmTitle');
+
+confirmModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var formId = button.getAttribute('data-form-id');
+    var confirmText = button.getAttribute('data-confirm-text');
+    var title = button.getAttribute('data-title');
+
+    confirmTextSpan.innerHTML = confirmText;
+    confirmTitleSpan.innerHTML = title;
+
+    confirmButton.onclick = function () {
+        document.getElementById(formId).submit();
+        var modal = bootstrap.Modal.getInstance(confirmModal);
+        modal.hide();
+    };
+});

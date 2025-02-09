@@ -5,12 +5,12 @@
 {% load taxsystem %}
 
 {% block page_title %}
-    {% translate "Tax System" %}
+    {{ title }}
 {% endblock %}
 
 {% block page_topic %}
     <h1 class="page-header text-center">
-        {% translate "Tax System" %}
+        {{ title }}
     </h1>
 {% endblock page_topic %}
 
@@ -27,14 +27,18 @@
 {% endblock header_nav_collapse_right %}
 
 {% block taxsystem_block %}
-    <div class="card-body bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Tax System" %}</h3>
+    <div class="card-header bg-primary rounded-top d-flex align-items-center">
+        <h3 class="me-3">{% translate "Administration" %}</h3>
     </div>
-    <div class="card-body rounded-bottom">
-        <!-- Corporation Content-->
+    <div class="card-body">
+        {% include 'taxsystem/partials/view/manage/dashboard.html' %}
+
+        {% include 'taxsystem/partials/view/manage/paymentsystem.html' %}
+
+        {% include 'taxsystem/partials/view/manage/members.html' %}
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/modal.html' with name="ViewCorporation" %}
+{% include 'taxsystem/modals/confirm.html' with name="PaymentSystem" %}
 {% endblock %}
 
 {% block extra_css %}
@@ -42,12 +46,10 @@
 
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
-    <script type="application/javascript">
-        let taxsystemsettings = {
-            entity_pk: {{ entity_pk }},
-            entity_type: "{{ entity_type }}",
-        };
-    </script>
+    {% include "bundles/filterdropdown-js.html" %}
+    <!-- load the settings-js.html bundle -->
+    {% include 'taxsystem/bundles/settings-js.html' %}
+    {% include 'taxsystem/bundles/administration-js.html' %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}

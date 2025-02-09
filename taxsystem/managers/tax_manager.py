@@ -48,12 +48,12 @@ class OwnerAuditManagerBase(models.Manager):
 OwnerAuditManager = OwnerAuditManagerBase.from_queryset(OwnerAuditQuerySet)
 
 
-class TaxSystemQuerySet(models.QuerySet):
+class MembersQuerySet(models.QuerySet):
     pass
 
 
-class TaxSystemManagerBase(models.Manager):
+class MembersManagerBase(models.Manager):
     pass
 
 
-TaxSystemManager = TaxSystemManagerBase.from_queryset(TaxSystemQuerySet)
+MembersManager = MembersManagerBase.from_queryset(MembersQuerySet)
