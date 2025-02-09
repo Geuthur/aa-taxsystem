@@ -7,7 +7,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from taxsystem.api.helpers import get_corporation
-from taxsystem.helpers.lazy import get_character_portrait_url
+from taxsystem.helpers import lazy
 from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import Members, Payments, PaymentSystem
 
@@ -41,7 +41,7 @@ class CorporationApiEndpoints:
 
                 corporation_dict[member.character_id] = {
                     "character_id": member.character_id,
-                    "character_portrait": get_character_portrait_url(
+                    "character_portrait": lazy.get_character_portrait_url(
                         member.character_id, size=32, as_html=True
                     ),
                     "character_name": member.character_name,
@@ -78,9 +78,11 @@ class CorporationApiEndpoints:
 
             for payment in payment_system:
                 if payment.is_active:
+                    has_paid = lazy.get_bool_icon_html(value=payment.has_paid)
+
                     payment_dict[payment.user.user.username] = {
                         "character_id": payment.user.main_character.character_id,
-                        "character_portrait": get_character_portrait_url(
+                        "character_portrait": lazy.get_character_portrait_url(
                             payment.user.main_character.character_id,
                             size=32,
                             as_html=True,
@@ -88,7 +90,7 @@ class CorporationApiEndpoints:
                         "character_name": payment.user.main_character.character_name,
                         "alts": payment.get_alt_ids(),
                         "status": payment.get_payment_status(),
-                        "has_paid": payment.has_paid,
+                        "has_paid": has_paid,
                         "wallet": payment.payment_pool,
                         "actions": "",
                     }
@@ -150,7 +152,7 @@ class CorporationApiEndpoints:
                 payments_dict[payment.pk] = {
                     "payment_id": payment.pk,
                     "date": payment.date,
-                    "character_portrait": get_character_portrait_url(
+                    "character_portrait": lazy.get_character_portrait_url(
                         character_id, size=32, as_html=True
                     ),
                     "character_name": payment.payment_user.name,
