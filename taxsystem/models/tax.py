@@ -1,6 +1,7 @@
 """Models for Tax System."""
 
 # Django
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -41,6 +42,24 @@ class OwnerAudit(models.Model):
     last_update_members = models.DateTimeField(null=True, blank=True)
 
     last_update_payments = models.DateTimeField(null=True, blank=True)
+
+    last_update_filters = models.DateTimeField(null=True, blank=True)
+
+    tax_amount = models.DecimalField(
+        max_digits=16,
+        decimal_places=0,
+        help_text=_("Tax Amount in ISK that is set for the corporation. Max 16 Digits"),
+        default=0,
+        validators=[MaxValueValidator(9999999999999999)],
+    )
+
+    tax_period = models.PositiveIntegerField(
+        help_text=_(
+            "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
+        ),
+        default=30,
+        validators=[MaxValueValidator(365)],
+    )
 
     def __str__(self):
         return f"{self.corporation.corporation_name} - Audit Data"
@@ -84,6 +103,12 @@ class Members(models.Model):
     status = models.CharField(
         _("Status"), max_length=10, choices=States.choices, blank=True, default="active"
     )
+
+    logon = models.DateTimeField(null=True, blank=True)
+
+    logged_off = models.DateTimeField(null=True, blank=True)
+
+    joined = models.DateTimeField(null=True, blank=True)
 
     notice = models.TextField(null=True, blank=True)
 
@@ -142,6 +167,18 @@ class PaymentSystem(models.Model):
         _("Status"), max_length=16, choices=States.choices, blank=True, default=""
     )
 
+    payment_pool = models.DecimalField(
+        max_digits=16,
+        decimal_places=0,
+        default=0,
+        help_text=_(
+            "Payment Pool in ISK that is set for the corporation. Max 16 Digits"
+        ),
+        validators=[MaxValueValidator(9999999999999999)],
+    )
+
+    last_paid = models.DateTimeField(null=True, blank=True)
+
     notice = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -166,6 +203,19 @@ class PaymentSystem(models.Model):
     def is_active(self) -> bool:
         return self.status == self.States.ACTIVE
 
+    @property
+    def is_inactive(self) -> bool:
+        return self.status == self.States.INACTIVE
+
+    @property
+    def is_deactivated(self) -> bool:
+        return self.status == self.States.DEACTIVATED
+
+    @property
+    def has_paid(self) -> bool:
+        """Return True if user has paid the set amount."""
+        return self.payment_pool >= self.corporation.tax_amount
+
     objects = PaymentSystemManager()
 
 
@@ -176,11 +226,16 @@ class Payments(models.Model):
         PAID = "paid", _("Paid")
         PENDING = "pending", _("Pending")
         FAILED = "failed", _("Failed")
+        NEEDS_APPROVAL = "needs_approval", _("Needs Approval")
 
     class Approval(models.TextChoices):
         APPROVED = "approved", _("Approved")
         PENDING = "pending", _("Pending")
         REJECTED = "rejected", _("Rejected")
+
+    class Systems(models.TextChoices):
+        AUTOMATIC = "automatic", _("Automatic")
+        MANUAL = "manual", _("Manual")
 
     name = models.CharField(max_length=100)
 
@@ -195,7 +250,7 @@ class Payments(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
     payment_status = models.CharField(
-        _("Status"), max_length=10, choices=States.choices, blank=True, default=""
+        _("Status"), max_length=16, choices=States.choices, blank=True, default=""
     )
 
     payment_date = models.DateTimeField(null=True, blank=True)
@@ -206,10 +261,24 @@ class Payments(models.Model):
         _("Pending"), max_length=16, choices=Approval.choices, blank=True, default=""
     )
 
+    system = models.CharField(
+        _("System"), max_length=16, choices=Systems.choices, blank=True, default=""
+    )
+
+    notified = models.BooleanField(default=False)
+
     class Meta:
         default_permissions = ()
         verbose_name = _("Tax Payments")
         verbose_name_plural = _("Tax Payments")
+
+    @property
+    def is_human(self) -> bool:
+        return self.system == self.Systems.MANUAL
+
+    @property
+    def is_automatic(self) -> bool:
+        return self.system == self.Systems.AUTOMATIC
 
     def __str__(self):
         return f"{self.payment_user.name} - {self.date} - {self.amount} - {self.payment_status}"
