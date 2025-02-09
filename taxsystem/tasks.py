@@ -62,7 +62,9 @@ def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-a
         que.append(update_corp_members.si(corp_id, force_refresh=force_refresh))
     if (corp.last_update_payments or mindt) <= SkipDates.payments or force_refresh:
         que.append(update_corp_payments.si(corp_id))
-    if (corp.last_update_filters or mindt) <= SkipDates.payment_system or force_refresh:
+    if (
+        corp.last_update_payment_system or mindt
+    ) <= SkipDates.payment_system or force_refresh:
         que.append(update_corp_payments_filter.si(corp_id))
 
     enqueue_next_task(que)
