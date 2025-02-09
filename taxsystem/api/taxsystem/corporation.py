@@ -4,7 +4,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as trans
+from django.utils.translation import gettext_lazy as _
 
 from taxsystem.api.helpers import get_corporation
 from taxsystem.helpers.lazy import get_character_portrait_url
@@ -127,9 +127,9 @@ class CorporationApiEndpoints:
                     ]:
                         amount = intcomma(payment.amount)
                         confirm_text = ""
-                        confirm_text += trans("Are you sure to Confirm")
+                        confirm_text += _("Are you sure to Confirm")
                         confirm_text += f"?<br><span class='fw-bold'>{amount} ISK (ID: {payment.pk}) "
-                        confirm_text += trans("from")
+                        confirm_text += _("from")
                         confirm_text += f" {payment.payment_user.name}</span>"
 
                         actions = format_html(
@@ -139,7 +139,7 @@ class CorporationApiEndpoints:
                                 {
                                     "corporation_id": corporation_id,
                                     "payment": payment,
-                                    "title": trans("Approve Payment"),
+                                    "title": _("Approve Payment"),
                                     "confirm_text": confirm_text,
                                     "request": request,
                                 },

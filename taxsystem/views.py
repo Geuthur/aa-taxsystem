@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import gettext_lazy as trans
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from esi.decorators import token_required
 
@@ -26,7 +26,7 @@ logger = get_extension_logger(__name__)
 @permission_required("taxsystem.basic_access")
 def index(request):
     context = {
-        "title": "Tax System",
+        "title": _("Tax System"),
     }
     context = add_info_to_context(request, context)
     return render(request, "taxsystem/index.html", context=context)
@@ -40,7 +40,7 @@ def administration(request, corporation_pk):
     context = {
         "entity_pk": corporation_pk,
         "entity_type": "corporation",
-        "title": "Administration",
+        "title": _("Administration"),
     }
     context = add_info_to_context(request, context)
 
@@ -61,7 +61,7 @@ def payments(request, corporation_pk):
     context = {
         "entity_pk": corporation_pk,
         "entity_type": "corporation",
-        "title": "Payments",
+        "title": _("Payments"),
     }
     context = add_info_to_context(request, context)
 
@@ -93,7 +93,7 @@ def add_corp(request, token):
     update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
     )
-    msg = trans("{corporation_name} successfully added/updated to Tax System").format(
+    msg = _("{corporation_name} successfully added/updated to Tax System").format(
         corporation_name=corp.corporation_name,
     )
     messages.info(request, msg)
@@ -120,7 +120,7 @@ def approve_payment(request, corporation_id: int, payment_pk: int):
     previous_url = request.headers.get("referer", "taxsystem:payments")
 
     if not perms:
-        msg = trans("Permission Denied")
+        msg = _("Permission Denied")
         messages.error(request, msg)
         return redirect(previous_url)
 
@@ -144,11 +144,11 @@ def approve_payment(request, corporation_id: int, payment_pk: int):
                 payment_user.payment_pool += payment.amount
                 payment_user.save()
 
-                msg = trans("Payment ID: %s successfully approved") % payment.pk
+                msg = _("Payment ID: %s successfully approved") % payment.pk
             else:
-                msg = trans("Payment ID: %s is already edited") % payment.pk
+                msg = _("Payment ID: %s is already edited") % payment.pk
     except IntegrityError:
-        msg = trans("Transaction failed. Please try again.")
+        msg = _("Transaction failed. Please try again.")
 
     messages.info(request, msg)
     return redirect(previous_url)
