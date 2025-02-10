@@ -276,7 +276,7 @@ $(document).ready(function() {
     });
 
     // Initialize the confirm modal for switch user
-    var confirmModal = document.getElementById('modalPaymentSystemContainer');
+    var confirmModal = document.getElementById('modalConfirmContainer');
     var confirmTextSpan = document.getElementById('confirmText');
     var confirmButton = document.getElementById('confirmButton');
     var confirmTitleSpan = document.getElementById('confirmTitle');
