@@ -1,11 +1,10 @@
 from ninja import NinjaAPI
 
 from django.contrib.humanize.templatetags.humanize import intcomma
-from django.template.loader import render_to_string
-from django.utils.html import format_html
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from taxsystem.api.helpers import get_corporation
+from taxsystem.api.helpers import generate_button, get_corporation
 from taxsystem.helpers import lazy
 from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import Members, Payments, PaymentSystem
@@ -78,16 +77,22 @@ class CorporationApiEndpoints:
             for user in payment_system:
                 actions = ""
                 if perms is True:
-                    url = "taxsystem/forms/paymentsystem/switchuser.html"
+                    template = "taxsystem/forms/standard/confirm.html"
+                    url = reverse(
+                        viewname="taxsystem:switch_user",
+                        kwargs={"corporation_id": corporation_id, "user_pk": user.pk},
+                    )
                     if user.is_active:
                         confirm_text = ""
                         confirm_text += _("Are you sure to Confirm")
                         confirm_text += f"?<br><span class='fw-bold'>Deactivate {user.name} (ID: {user.pk}) "
                         title = _("Deactivate User")
                         settings = {
+                            "title": title,
                             "icon": "fas fa-eye-low-vision",
                             "color": "warning",
-                            "title": title,
+                            "confirm_text": confirm_text,
+                            "action": url,
                         }
                     else:
                         confirm_text = ""
@@ -95,24 +100,14 @@ class CorporationApiEndpoints:
                         confirm_text += f"?<br><span class='fw-bold'>Activate {user.name} (ID: {user.pk}) "
                         title = _("Activate User")
                         settings = {
+                            "title": title,
                             "icon": "fas fa-eye",
                             "color": "success",
-                            "title": title,
+                            "confirm_text": confirm_text,
+                            "action": url,
                         }
-
-                    actions = format_html(
-                        "<td>{}</td>",
-                        render_to_string(
-                            template_name=url,
-                            context={
-                                "corporation_id": corporation_id,
-                                "payment_system": user,
-                                "title": title,
-                                "confirm_text": confirm_text,
-                                "settings": settings,
-                            },
-                            request=request,
-                        ),
+                    actions = generate_button(
+                        corporation_id, template, user, settings, request
                     )
                 has_paid_filter = _("Yes") if user.has_paid else _("No")
                 has_paid = {
@@ -155,11 +150,11 @@ class CorporationApiEndpoints:
             if corp is None:
                 return 404, "Corporation Not Found"
 
-            payment_system = Payments.objects.filter(payment_user__corporation=corp)
+            payments = Payments.objects.filter(payment_user__corporation=corp)
 
             payments_dict = {}
 
-            for payment in payment_system:
+            for payment in payments:
                 try:
                     character_id = payment.payment_user.user.main_character.character_id
                 except AttributeError:
@@ -167,31 +162,49 @@ class CorporationApiEndpoints:
 
                 actions = ""
                 if perms is True:
-                    if payment.payment_status in [
-                        Payments.States.PENDING,
-                        Payments.States.NEEDS_APPROVAL,
-                    ]:
-                        amount = intcomma(payment.amount)
-                        confirm_text = ""
-                        confirm_text += _("Are you sure to Confirm")
-                        confirm_text += f"?<br><span class='fw-bold'>{amount} ISK (ID: {payment.pk}) "
-                        confirm_text += _("from")
-                        confirm_text += f" {payment.payment_user.name}</span>"
-
-                        actions = format_html(
-                            "<td>{}</td>",
-                            render_to_string(
-                                "taxsystem/forms/approve.html",
-                                {
-                                    "corporation_id": corporation_id,
-                                    "payment": payment,
-                                    "title": _("Approve Payment"),
-                                    "confirm_text": confirm_text,
-                                    "request": request,
-                                },
-                                request=request,
-                            ),
+                    template = "taxsystem/forms/standard/confirm.html"
+                    amount = intcomma(payment.amount)
+                    confirm_text = ""
+                    confirm_text += _("Are you sure to Confirm")
+                    confirm_text += (
+                        f"?<br><span class='fw-bold'>{amount} ISK (ID: {payment.pk}) "
+                    )
+                    confirm_text += _("from")
+                    confirm_text += f" {payment.payment_user.name}</span>"
+                    settings = {}
+                    if payment.is_pending or payment.is_needs_approval:
+                        url = reverse(
+                            viewname="taxsystem:approve_payment",
+                            kwargs={
+                                "corporation_id": corporation_id,
+                                "payment_pk": payment.pk,
+                            },
                         )
+                        settings = {
+                            "icon": "fas fa-check",
+                            "color": "success",
+                            "confirm_text": confirm_text,
+                            "title": _("Approve Payment"),
+                            "action": url,
+                        }
+                    elif payment.is_paid:
+                        url = reverse(
+                            viewname="taxsystem:undo_payment",
+                            kwargs={
+                                "corporation_id": corporation_id,
+                                "payment_pk": payment.pk,
+                            },
+                        )
+                        settings = {
+                            "icon": "fas fa-undo",
+                            "color": "danger",
+                            "confirm_text": confirm_text,
+                            "title": _("Undo Payment"),
+                            "action": url,
+                        }
+                    actions = generate_button(
+                        corporation_id, template, payment, settings, request
+                    )
 
                 payments_dict[payment.pk] = {
                     "payment_id": payment.pk,
@@ -201,10 +214,11 @@ class CorporationApiEndpoints:
                     ),
                     "character_name": payment.payment_user.name,
                     "amount": payment.amount,
+                    "payment_date": payment.formatted_payment_date(),
                     "status": payment.get_payment_status_display(),
                     "approved": payment.get_approved_display(),
                     "system": payment.get_system_display(),
-                    "payment_date": payment.formatted_payment_date(),
+                    "reason": payment.reason,
                     "actions": actions,
                 }
 
