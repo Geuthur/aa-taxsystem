@@ -4,11 +4,21 @@
 
 ### Added
 
-- Standardized Button HTML Generator
-- approver text field for payments model
+- Approver text field for `payments` model
 - Undo Payments Url
 - Tax System Standard CSS
 - Form Generation System
+- Inactive Button for Payment System Users
+- Datatable Filters for Payments, Payment System, Members
+- Division Overview in Administration Section
+- Miscellaneous Statistics in Administration Section
+- Corporation Name in Payments View
+- Reason row into Payments
+
+### Fixed
+
+- Wrong Bool State on `has_paid` property if `payment_pool` is negative [#2](https://github.com/Geuthur/aa-taxsystem/issues/2)
+- Locale Folder has wrong `__init__`
 
 ## [0.5.0.3] - 2025-02-10
 
