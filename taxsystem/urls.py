@@ -31,6 +31,11 @@ urlpatterns = [
         views.approve_payment,
         name="approve_payment",
     ),
+    path(
+        "corporation/<int:corporation_id>/payment/<int:payment_pk>/undo/",
+        views.undo_payment,
+        name="undo_payment",
+    ),
     # -- Tax Manage
     path(
         "corporation/<int:corporation_id>/manage/update_tax/",
