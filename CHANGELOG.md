@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.1] - IN DEVELOPMENT
+
+### Added
+
+- Standardized Button HTML Generator
+- approver text field for payments model
+- Undo Payments Url
+- Tax System Standard CSS
+- Form Generation System
+
 ## [0.5.0.3] - 2025-02-10
 
 ### Hot Fix

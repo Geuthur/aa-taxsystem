@@ -33,7 +33,8 @@ ______________________________________________________________________
 
 ## Upcoming<a name="upcoming"></a>
 
-- Notify one time via Discord
+- Manage Log System
+- Notify via Discord each Month
 - Alliance level tax system
 
 ## Installation<a name="installation"></a>
