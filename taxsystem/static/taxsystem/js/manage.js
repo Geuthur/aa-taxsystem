@@ -1,6 +1,14 @@
 /* global taxsystemsettings, bootstrap */
 $(document).ready(function() {
+    // Dashboard-Info
+    const manageDashboardVar = $('#dashboard-card');
     const manageDashboardTableVar = $('#manage-dashboard');
+    // Dashboard-Divison
+    const manageDashboardDivisionVar = $('#dashboard-division-card');
+    const manageDashboardDivisionTableVar = $('#manage-dashboard-division');
+    // Dashboard-Statistics
+    const manageDashboardStatisticsVar = $('#dashboard-statistics-card');
+    const manageDashboardStatisticsTableVar = $('#manage-dashboard-statistics');
 
     $.ajax({
         url: taxsystemsettings.corporationmanageDashboardUrl,
@@ -8,7 +16,7 @@ $(document).ready(function() {
         success: function (data) {
             var tax_amount = parseFloat(data.tax_amount);
             var days = parseFloat(data.tax_period);
-            $('#dashboard-info').html(data.corporation_logo + ' ' + data.corporation_name);
+            $('#dashboard-info').html(data.corporation_name);
             $('#last_update_wallet').text(data.last_update_wallet);
             $('#last_update_members').text(data.last_update_members);
             $('#last_update_payments').text(data.last_update_payments);
@@ -85,7 +93,78 @@ $(document).ready(function() {
                 editable.input.$input.val(editable.value.replace(' days', ''));
             });
 
+            manageDashboardVar.removeClass('d-none');
             manageDashboardTableVar.removeClass('d-none');
+
+            // Show Divisions
+            const divisions = data.divisions;
+            const divisionKeys = Object.keys(divisions);
+
+            for (let i = 0; i < divisionKeys.length; i++) {
+                const divisionKey = divisionKeys[i];
+                const division = divisions[divisionKey];
+
+                try {
+                    if (division && division.name && division.balance) {
+                        $(`#division${i + 1}_name`).text(division.name);
+                        $(`#division${i + 1}`).text(division.balance + ' ISK');
+                    } else {
+                        $(`#division${i + 1}_name`).hide();
+                        $(`#division${i + 1}`).hide();
+                    }
+                } catch (e) {
+                    console.error(`Error fetching division data for division ${i + 1}:`, e);
+                    $(`#division${i + 1}_name`).hide();
+                    $(`#division${i + 1}`).hide();
+                }
+            }
+
+            manageDashboardDivisionVar.removeClass('d-none');
+            manageDashboardDivisionTableVar.removeClass('d-none');
+
+            // Statistics
+            const statistics = data.statistics;
+            const statisticsKey = Object.keys(statistics)[0];
+            const stat = statistics[statisticsKey];
+
+            try {
+                if (stat) {
+                    $('#statistics_name').text(statisticsKey);
+                    $('#statistics_payments_auto').text(stat.payments_auto);
+                    $('#statistics_payments_manually').text(stat.payments_manually);
+                    $('#statistics_payments_open').text(stat.payments_open);
+                    $('#statistics_payment_users').text(stat.payment_users);
+                    $('#statistics_members').text(stat.members);
+                    $('#statistics_members_mains').text(stat.members_mains);
+                    $('#statistics_members_alts').text(stat.members_alts);
+                    $('#statistics_members_not_registered').text(stat.members_unregistered);
+                } else {
+                    $('#statistics_name').hide();
+                    $('#statistics_payments_auto').hide();
+                    $('#statistics_payments_manually').hide();
+                    $('#statistics_payments_open').hide();
+                    $('#statistics_payment_users').hide();
+                    $('#statistics_members').hide();
+                    $('#statistics_members_mains').hide();
+                    $('#statistics_members_alts').hide();
+                    $('#statistics_members_not_registered').hide();
+                }
+            } catch (e) {
+                console.error('Error fetching statistics data:', e);
+                $('#statistics_name').hide();
+                $('#statistics_payments_auto').hide();
+                $('#statistics_payments_manually').hide();
+                $('#statistics_payments_open').hide();
+                $('#statistics_payment_users').hide();
+                $('#statistics_members').hide();
+                $('#statistics_members_mains').hide();
+                $('#statistics_members_alts').hide();
+                $('#statistics_members_not_registered').hide();
+            }
+
+            manageDashboardStatisticsVar.removeClass('d-none');
+            manageDashboardStatisticsTableVar.removeClass('d-none');
+
         },
         error: function(xhr, status, error) {
             console.error('Error fetching data:', error);
