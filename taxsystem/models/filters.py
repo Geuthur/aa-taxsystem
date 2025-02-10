@@ -57,6 +57,7 @@ class FilterAmount(FilterBase):
     """Filter for Amount"""
 
     class Meta:
+        default_permissions = ()
         verbose_name = _("Filter Amount")
         verbose_name_plural = _("Filter Amounts")
 
@@ -73,6 +74,7 @@ class FilterReason(FilterBase):
     """Filter for Reason"""
 
     class Meta:
+        default_permissions = ()
         verbose_name = _("Filter Reason")
         verbose_name_plural = _("Filter Reasons")
 
@@ -89,6 +91,7 @@ class FilterDate(FilterBase):
     """Filter for Date"""
 
     class Meta:
+        default_permissions = ()
         verbose_name = _("Filter Date")
         verbose_name_plural = _("Filter Dates")
 

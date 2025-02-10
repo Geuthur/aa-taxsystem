@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.0.3] - 2025-02-10
+
+### Hot Fix
+
+- Manage Permissions for Corporations
+
+### Remove
+
+- Standard Permissions for Filters
+
 ## [0.5.0] - 2025-02-09
 
 > [!NOTE]
