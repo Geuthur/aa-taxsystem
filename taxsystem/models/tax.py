@@ -219,7 +219,7 @@ class PaymentSystem(models.Model):
         """Return True if user has paid the set amount or if last_paid is within the tax period."""
         if self.payment_pool >= self.corporation.tax_amount:
             return True
-        if self.last_paid:
+        if self.last_paid and self.payment_pool == 0:
             return timezone.now() - self.last_paid < timezone.timedelta(
                 days=self.corporation.tax_period
             )
