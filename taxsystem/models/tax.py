@@ -274,6 +274,10 @@ class Payments(models.Model):
         _("System"), max_length=16, choices=Systems.choices, blank=True, default=""
     )
 
+    approver_text = models.TextField(
+        null=True, blank=True, help_text=_("Reason for approval or rejection")
+    )
+
     notified = models.BooleanField(default=False)
 
     class Meta:
@@ -288,6 +292,22 @@ class Payments(models.Model):
     @property
     def is_automatic(self) -> bool:
         return self.system == self.Systems.AUTOMATIC
+
+    @property
+    def is_paid(self) -> bool:
+        return self.payment_status == self.States.PAID
+
+    @property
+    def is_pending(self) -> bool:
+        return self.payment_status == self.States.PENDING
+
+    @property
+    def is_failed(self) -> bool:
+        return self.payment_status == self.States.FAILED
+
+    @property
+    def is_needs_approval(self) -> bool:
+        return self.payment_status == self.States.NEEDS_APPROVAL
 
     def __str__(self):
         return f"{self.payment_user.name} - {self.date} - {self.amount} - {self.payment_status}"
