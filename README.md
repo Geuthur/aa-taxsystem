@@ -80,11 +80,13 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Tax System
 
-| ID              | Description                      |                                                            |
-| :-------------- | :------------------------------- | :--------------------------------------------------------- |
-| `basic_access`  | Can access the Tax System module | All Members with the Permission can access the Tax System. |
-| `manage_access` | Can manage Tax System            | Can modify/remove tax settings.                            |
-| `create_access` | Can add Corporation              | Users with this permission can add corporation.            |
+| ID                | Description                      |                                                            |
+| :---------------- | :------------------------------- | :--------------------------------------------------------- |
+| `basic_access`    | Can access the Tax System module | All Members with the Permission can access the Tax System. |
+| `manage_access`   | Can access tools Tax System      | Can modify/remove tax settings.                            |
+| `create_access`   | Can add Corporation              | Users with this permission can add corporation.            |
+| `manage_own_corp` | Can manage own Corporation       | Users with this permission can manage own corporation.     |
+| `manage_corps`    | Can manage all Corporation       | Users with this permission can manage all corporations.    |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 

@@ -15,6 +15,7 @@ class SmartFilter(models.Model):
     """Model to hold a filter and its settings"""
 
     class Meta:
+        default_permissions = ()
         verbose_name = _("Smart Filter Binding")
         verbose_name_plural = _("Smart Filters Catalog")
 
@@ -39,6 +40,7 @@ class FilterBase(models.Model):
     description = models.CharField(max_length=255)
 
     class Meta:
+        default_permissions = ()
         abstract = True
 
     def __str__(self):
@@ -101,6 +103,9 @@ class FilterDate(FilterBase):
 
 class SmartGroup(models.Model):
     """Model to hold a group of filters"""
+
+    class Meta:
+        default_permissions = ()
 
     corporation = models.OneToOneField(
         OwnerAudit, on_delete=models.CASCADE, related_name="filter_sets"
