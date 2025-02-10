@@ -130,9 +130,9 @@ $(document).ready(function() {
             try {
                 if (stat) {
                     $('#statistics_name').text(statisticsKey);
+                    $('#statistics_payments_pending').text(stat.payments_pending);
                     $('#statistics_payments_auto').text(stat.payments_auto);
                     $('#statistics_payments_manually').text(stat.payments_manually);
-                    $('#statistics_payments_open').text(stat.payments_open);
                     $('#statistics_payment_users').text(stat.payment_users);
                     $('#statistics_members').text(stat.members);
                     $('#statistics_members_mains').text(stat.members_mains);
@@ -140,9 +140,9 @@ $(document).ready(function() {
                     $('#statistics_members_not_registered').text(stat.members_unregistered);
                 } else {
                     $('#statistics_name').hide();
+                    $('#statistics_payments_pending').hide();
                     $('#statistics_payments_auto').hide();
                     $('#statistics_payments_manually').hide();
-                    $('#statistics_payments_open').hide();
                     $('#statistics_payment_users').hide();
                     $('#statistics_members').hide();
                     $('#statistics_members_mains').hide();
@@ -152,9 +152,9 @@ $(document).ready(function() {
             } catch (e) {
                 console.error('Error fetching statistics data:', e);
                 $('#statistics_name').hide();
+                $('#statistics_payments_pending').hide();
                 $('#statistics_payments_auto').hide();
                 $('#statistics_payments_manually').hide();
-                $('#statistics_payments_open').hide();
                 $('#statistics_payment_users').hide();
                 $('#statistics_members').hide();
                 $('#statistics_members_mains').hide();
@@ -336,9 +336,9 @@ $(document).ready(function() {
         rowCallback: function(row, data) {
             if (!data.is_active) {
                 $(row).css('background-color', 'rgba(255, 238, 0, 0.1)');
-            } else if (data.is_active && data.has_paid_raw) {
+            } else if (data.is_active && data.has_paid.raw) {
                 $(row).css('background-color', 'rgba(0, 255, 42, 0.1)');
-            } else if (data.is_active && !data.has_paid_raw) {
+            } else if (data.is_active && !data.has_paid.raw) {
                 $(row).css('background-color', 'rgba(255, 0, 0, 0.1)');
             }
         },
