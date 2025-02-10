@@ -46,6 +46,7 @@
                         <th scope="col">{% translate "Status" %}</th>
                         <th scope="col">{% translate "Approved" %}</th>
                         <th scope="col">{% translate "System" %}</th>
+                        <th scope="col">{% translate "Reason" %}</th>
                         <th scope="col">{% translate "Actions" %}</th>
                     </tr>
                 </thead>
@@ -57,7 +58,7 @@
         </div>
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/confirm.html' with name="ApprovePayment" %}
+{% include 'taxsystem/modals/confirm.html' with name="Confirm" %}
 
 {% endblock %}
 
@@ -67,6 +68,8 @@
 {% block extra_javascript %}
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include "bundles/filterdropdown-js.html" %}
+    <!-- load the settings-css.html bundle -->
+    {% include "taxsystem/bundles/settings-css.html" %}
     <!-- load the settings-js.html bundle -->
     {% include 'taxsystem/bundles/settings-js.html' %}
     {% include 'taxsystem/bundles/payments-js.html' %}
