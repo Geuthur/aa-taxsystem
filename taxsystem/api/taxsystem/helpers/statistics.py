@@ -8,6 +8,7 @@ from taxsystem.models.wallet import CorporationWalletDivision
 
 def _get_divisions_dict(divisions: CorporationWalletDivision):
     divisions_dict = {}
+    total_balance = 0
     for i, division in enumerate(divisions, start=1):
         division_name = division.name if division.name else f"{i}. {_('Division')}"
         division_balance = intcomma(division.balance)
@@ -15,6 +16,13 @@ def _get_divisions_dict(divisions: CorporationWalletDivision):
             "name": division_name,
             "balance": division_balance,
         }
+        total_balance += division.balance
+
+    divisions_dict["total"] = {
+        "name": _("Total"),
+        "balance": intcomma(total_balance),
+    }
+
     return divisions_dict
 
 
@@ -23,18 +31,18 @@ def _get_statistics_dict(corp: OwnerAudit):
         total=Count("id"),
         automatic=Count("id", filter=Q(system=Payments.Systems.AUTOMATIC)),
         manual=Count("id", filter=Q(system=Payments.Systems.MANUAL)),
-    )
-
-    payment_system_counts = PaymentSystem.objects.filter(corporation=corp).aggregate(
-        open=Count(
+        pending=Count(
             "id",
             filter=Q(
-                status__in=[
+                payment_status__in=[
                     Payments.States.PENDING,
                     Payments.States.NEEDS_APPROVAL,
                 ]
             ),
         ),
+    )
+
+    payment_system_counts = PaymentSystem.objects.filter(corporation=corp).aggregate(
         users=Count("id"),
     )
 
@@ -46,9 +54,9 @@ def _get_statistics_dict(corp: OwnerAudit):
     )
 
     return {
+        "payments_pending": payments_counts["pending"],
         "payments_auto": payments_counts["automatic"],
         "payments_manually": payments_counts["manual"],
-        "payments_open": payment_system_counts["open"],
         "payment_users": payment_system_counts["users"],
         "members": members_count["total"],
         "members_unregistered": members_count["unregistered"],
