@@ -55,14 +55,16 @@ def administration(request, corporation_pk):
 @permission_required("taxsystem.basic_access")
 def payments(request, corporation_pk):
     """Payments View"""
-
+    corporation_name = None
     if corporation_pk == 0:
         try:
             corporation_pk = request.user.profile.main_character.corporation_id
+            corporation_name = request.user.profile.main_character.corporation_name
         except AttributeError:
             messages.error(request.user, "No Main Character found")
 
     context = {
+        "entity_name": corporation_name,
         "entity_pk": corporation_pk,
         "entity_type": "corporation",
         "title": _("Payments"),
