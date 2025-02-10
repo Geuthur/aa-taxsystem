@@ -2,7 +2,7 @@
     {% csrf_token %}
     <input type="hidden" name="payment_pk" value="{{ queryset.pk }}">
     <button type="button"
-        class="btn btn-{{ settings.color }} btn-sm btn-square"
+        class="btn btn-{{ settings.color }} btn-sm btn-square me-2"
         data-bs-toggle="modal"
         data-tooltip-toggle="taxsystem"
         data-bs-target="#modalConfirmContainer"
