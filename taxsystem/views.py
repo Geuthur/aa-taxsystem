@@ -198,6 +198,45 @@ def undo_payment(request, corporation_id: int, payment_pk: int):
 @login_required
 @permission_required("taxsystem.manage_access")
 @require_POST
+def decline_payment(request, corporation_id: int, payment_pk: int):
+    # Check Permission
+    perms, corp = get_corporation(request, corporation_id)
+    previous_url = request.headers.get("referer", "taxsystem:payments")
+
+    if not perms:
+        msg = _("Permission Denied")
+        messages.error(request, msg)
+        return redirect(previous_url)
+
+    try:
+        with transaction.atomic():
+            payment = Payments.objects.get(
+                payment_user__corporation=corp, pk=payment_pk
+            )
+            if payment.is_pending or payment.is_needs_approval:
+                payment.approved = Payments.Approval.REJECTED
+                payment.payment_status = Payments.States.FAILED
+                payment.system = Payments.Systems.MANUAL
+                payment.save()
+
+                payment_user = PaymentSystem.objects.get(
+                    corporation=corp, user=payment.payment_user.user
+                )
+                payment_user.save()
+
+                msg = _("Payment ID: %s successfully declined") % payment.pk
+            else:
+                msg = _("Payment ID: %s is already declined") % payment.pk
+    except IntegrityError:
+        msg = _("Transaction failed. Please try again.")
+
+    messages.info(request, msg)
+    return redirect(previous_url)
+
+
+@login_required
+@permission_required("taxsystem.manage_access")
+@require_POST
 def switch_user(request, corporation_id: int, user_pk: int):
     # Check Permission
     perms, corp = get_corporation(request, corporation_id)
