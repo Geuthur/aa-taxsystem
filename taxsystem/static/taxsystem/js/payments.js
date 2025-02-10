@@ -61,6 +61,13 @@ $(document).ready(() => {
                 }
             },
             {
+                data: 'reason',
+                render: function (data, _, row) {
+                    return data;
+                },
+                className: 'ts-reason'
+            },
+            {
                 data: 'actions',
                 render: function (data, _, row) {
                     return data;
@@ -71,6 +78,17 @@ $(document).ready(() => {
         columnDefs: [
             { orderable: false, targets: [0, 2] },
         ],
+        filterDropDown: {
+            columns: [
+                {
+                    idx: 4,
+                    maxWidth: '200px',
+                },
+            ],
+            autoSize: false,
+            bootstrap: true,
+            bootstrap_version: 5
+        },
     });
 
     tablePayments.on('init.dt', function () {
@@ -84,7 +102,7 @@ $(document).ready(() => {
     });
 });
 
-var confirmModal = document.getElementById('modalApprovePaymentContainer');
+var confirmModal = document.getElementById('modalConfirmContainer');
 var confirmTextSpan = document.getElementById('confirmText');
 var confirmButton = document.getElementById('confirmButton');
 var confirmTitleSpan = document.getElementById('confirmTitle');
