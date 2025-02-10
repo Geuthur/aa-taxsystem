@@ -4,7 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 from taxsystem.api.helpers import get_corporation
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
-from taxsystem.api.taxsystem.helpers.paymentsystem import _payment_system_actions
+from taxsystem.api.taxsystem.helpers.paymentsystem import (
+    _get_has_paid_icon,
+    _payment_system_actions,
+)
 from taxsystem.api.taxsystem.helpers.statistics import (
     _get_divisions_dict,
     _get_statistics_dict,
@@ -79,11 +82,7 @@ class CorporationApiEndpoints:
 
             for user in payment_system:
                 actions = _payment_system_actions(corporation_id, user, perms, request)
-                has_paid_filter = _("Yes") if user.has_paid else _("No")
-                has_paid = {
-                    "display": lazy.get_bool_icon_html(value=user.has_paid),
-                    "sort": has_paid_filter,
-                }
+                has_paid = _get_has_paid_icon(user)
                 character_id = user.user.main_character.character_id
                 payment_dict[character_id] = {
                     "character_id": character_id,
@@ -97,8 +96,7 @@ class CorporationApiEndpoints:
                     "status": user.get_payment_status(),
                     "wallet": user.payment_pool,
                     "has_paid": has_paid,
-                    "has_paid_filter": has_paid_filter,
-                    "has_paid_raw": user.has_paid,
+                    "has_paid_filter": has_paid["sort"],
                     "last_paid": lazy.str_normalize_time(user.last_paid, hours=True),
                     "is_active": user.is_active,
                     "actions": actions,
