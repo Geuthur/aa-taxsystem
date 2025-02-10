@@ -81,6 +81,10 @@ $(document).ready(() => {
         filterDropDown: {
             columns: [
                 {
+                    idx: 1,
+                    maxWidth: '200px',
+                },
+                {
                     idx: 4,
                     maxWidth: '200px',
                 },
