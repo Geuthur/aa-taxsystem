@@ -1,0 +1,48 @@
+
+{% load i18n %}
+{% load static %}
+{% load evelinks %}
+{% load humanize %}
+
+{% if character %}
+    <div>
+        <h4 id="modal-title">
+            {{ character.title }}:
+            <img src="{{ character.character_id|character_portrait_url:32 }}" class="rounded-circle">
+            {{character.character_name}}
+        </h4>
+    </div>
+    <div class="card bg-secondary rounded mb-3">
+        <header class="bg-primary rounded-top px-2 py-1">
+            <h3 class="me-3">{% trans "Payments" %}</h3>
+        </header>
+        <table class="card-body table table-dark table-striped table-hover w-100" id="extractors-table">
+            <thead>
+                <tr>
+                    <th scope="col">{% translate "ISK" %}</th>
+                    <th scope="col">{% translate "Date" %}</th>
+                    <th scope="col">{% translate "Status" %}</th>
+                    <th scope="col">{% translate "Request" %}</th>
+                    <th scope="col">{% translate "Edited by" %}</th>
+                    <th scope="col">{% translate "Reason" %}</th>
+                    <th scope="col">{% translate "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody class="modal-payments-table-body">
+                {% for payment_id, payment in character.payments.items %}
+                    <tr>
+                        <td>{{ payment.amount }}</td>
+                        <td>{{ payment.payment_date }}</td>
+                        <td>{{ payment.status }}</td>
+                        <td>{{ payment.approved }}</td>
+                        <td>{{ payment.system }}</td>
+                        <td>{{ payment.reason }}</td>
+                        <td>{{ payment.actions }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    {% translate "No character found." %}
+{% endif %}

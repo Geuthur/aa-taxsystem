@@ -39,12 +39,18 @@
     </div>
 <!-- Tab Session -->
 {% include 'taxsystem/modals/confirm.html' with name="Confirm" %}
+{% include 'taxsystem/modals/modal.html' with name="ViewPayments" %}
 {% endblock %}
 
 {% block extra_css %}
 {% endblock %}
 
 {% block extra_javascript %}
+    {% include 'taxsystem/bundles/modal-js.html' %}
+    <script>
+        setupModal('#modalViewPaymentsContainer', 'ajax_payments', '#modalViewPaymentsContent', '#modalViewPaymentsLoader');
+    </script>
+
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include "bundles/filterdropdown-js.html" %}
     <!-- load the settings-js.html bundle -->

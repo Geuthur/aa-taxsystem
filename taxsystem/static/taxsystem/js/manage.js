@@ -1,5 +1,7 @@
 /* global taxsystemsettings, bootstrap */
 $(document).ready(function() {
+    const entityPk = taxsystemsettings.entity_pk;
+
     // Dashboard-Info
     const manageDashboardVar = $('#dashboard-card');
     const manageDashboardTableVar = $('#manage-dashboard');
@@ -275,7 +277,19 @@ $(document).ready(function() {
                 render: function (data, type, row) {
                     const amount = parseFloat(data);
                     if (type === 'display') {
-                        return amount.toLocaleString('de-DE') + ' ISK';
+                        const viewPaymentUrl = `/taxsystem/api/corporation/${entityPk}/character/${row.character_id}/view/payments/`;
+                        const button = `
+                            <button type="button"
+                                class="btn btn-sm btn-primary"
+                                title="View Payments"
+                                data-tooltip-toggle="taxsystem-tooltip"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalViewPaymentsContainer"
+                                data-ajax_payments="${viewPaymentUrl}">
+                            <span class="fas fa-info"></span></button>
+                        `;
+
+                        return amount.toLocaleString('de-DE') + ' ISK ' + button;
                     }
                     return amount;
                 }
