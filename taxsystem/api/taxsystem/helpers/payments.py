@@ -30,6 +30,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
             },
         )
         settings = {
+            "unique_id": f"approve_{payment.pk}",
             "icon": "fas fa-check",
             "color": "success",
             "confirm_text": confirm_text,
@@ -46,6 +47,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
         )
 
         settingsdecline = {
+            "unique_id": f"decline_{payment.pk}",
             "icon": "fas fa-times",
             "color": "danger",
             "confirm_text": confirm_text,
@@ -58,7 +60,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
         actions.append(
             generate_button(corporation_id, template, payment, settings, request)
         )
-    elif payment.is_paid:
+    elif payment.is_paid or payment.is_failed:
         url = reverse(
             viewname="taxsystem:undo_payment",
             kwargs={
@@ -67,10 +69,11 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
             },
         )
         settings = {
+            "unique_id": f"undo_{payment.pk}",
             "icon": "fas fa-undo",
             "color": "danger",
             "confirm_text": confirm_text,
-            "title": _("Undo Payment"),
+            "title": _("Undo Payment") if payment.is_paid else _("Undo Action"),
             "action": url,
         }
         actions.append(

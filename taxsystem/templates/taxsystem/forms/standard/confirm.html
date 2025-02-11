@@ -1,4 +1,4 @@
-<form id="confirmForm-{{ queryset.name }}-{{ queryset.pk }}" class="text-end" method="post" action="{{ settings.action }}">
+<form id="confirmForm-{{ queryset.name }}-{{ queryset.pk }}-{{ settings.unique_id }}" class="text-end" method="post" action="{{ settings.action }}">
     {% csrf_token %}
     <input type="hidden" name="payment_pk" value="{{ queryset.pk }}">
     <button type="button"
@@ -8,7 +8,7 @@
         data-bs-target="#modalConfirmContainer"
         data-confirm-text="{{ settings.confirm_text }}"
         data-title="{{ settings.title }}"
-        data-form-id="confirmForm-{{ queryset.name }}-{{ queryset.pk }}"
+        data-form-id="confirmForm-{{ queryset.name }}-{{ queryset.pk }}-{{ settings.unique_id }}"
         >
         <span class="{{ settings.icon }}" data-tooltip-toggle="taxsystem-tooltip" title="{{ settings.title }}"></span>
     </button>

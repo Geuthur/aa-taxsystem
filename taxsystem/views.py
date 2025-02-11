@@ -138,7 +138,7 @@ def approve_payment(request, corporation_id: int, payment_pk: int):
             if payment.is_pending or payment.is_needs_approval:
                 payment.approved = Payments.Approval.APPROVED
                 payment.payment_status = Payments.States.PAID
-                payment.system = Payments.Systems.MANUAL
+                payment.system = request.user.profile.main_character.character_name
                 payment.save()
 
                 payment_user = PaymentSystem.objects.get(
@@ -175,17 +175,18 @@ def undo_payment(request, corporation_id: int, payment_pk: int):
             payment = Payments.objects.get(
                 payment_user__corporation=corp, pk=payment_pk
             )
-            if payment.is_paid:
+            if payment.is_paid or payment.is_rejected:
+                # Ensure that the payment is not rejected
+                if not payment.is_rejected:
+                    payment_user = PaymentSystem.objects.get(
+                        corporation=corp, user=payment.payment_user.user
+                    )
+                    payment_user.payment_pool -= payment.amount
+                    payment_user.save()
                 payment.approved = Payments.Approval.PENDING
                 payment.payment_status = Payments.States.PENDING
-                payment.system = Payments.Systems.MANUAL
+                payment.system = ""
                 payment.save()
-
-                payment_user = PaymentSystem.objects.get(
-                    corporation=corp, user=payment.payment_user.user
-                )
-                payment_user.payment_pool -= payment.amount
-                payment_user.save()
 
                 msg = _("Payment ID: %s successfully undone") % payment.pk
             else:
@@ -218,7 +219,7 @@ def decline_payment(request, corporation_id: int, payment_pk: int):
             if payment.is_pending or payment.is_needs_approval:
                 payment.approved = Payments.Approval.REJECTED
                 payment.payment_status = Payments.States.FAILED
-                payment.system = Payments.Systems.MANUAL
+                payment.system = request.user.profile.main_character.character_name
                 payment.save()
 
                 payment_user = PaymentSystem.objects.get(
