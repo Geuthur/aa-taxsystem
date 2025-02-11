@@ -243,8 +243,7 @@ class Payments(models.Model):
         REJECTED = "rejected", _("Rejected")
 
     class Systems(models.TextChoices):
-        AUTOMATIC = "automatic", _("Automatic")
-        MANUAL = "manual", _("Manual")
+        AUTOMATIC = "automatic", _("System")
 
     name = models.CharField(max_length=100)
 
@@ -271,7 +270,12 @@ class Payments(models.Model):
     )
 
     system = models.CharField(
-        _("System"), max_length=16, choices=Systems.choices, blank=True, default=""
+        _("System"),
+        max_length=16,
+        choices=Systems.choices,
+        blank=True,
+        default="",
+        help_text=_("System that processed the payment"),
     )
 
     approver_text = models.TextField(
@@ -308,6 +312,14 @@ class Payments(models.Model):
     @property
     def is_needs_approval(self) -> bool:
         return self.payment_status == self.States.NEEDS_APPROVAL
+
+    @property
+    def is_approved(self) -> bool:
+        return self.approved == self.Approval.APPROVED
+
+    @property
+    def is_rejected(self) -> bool:
+        return self.approved == self.Approval.REJECTED
 
     def __str__(self):
         return f"{self.payment_user.name} - {self.date} - {self.amount} - {self.payment_status}"
