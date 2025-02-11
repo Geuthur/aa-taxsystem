@@ -30,7 +30,9 @@ def _get_statistics_dict(corp: OwnerAudit):
     payments_counts = Payments.objects.filter(payment_user__corporation=corp).aggregate(
         total=Count("id"),
         automatic=Count("id", filter=Q(system=Payments.Systems.AUTOMATIC)),
-        manual=Count("id", filter=Q(system=Payments.Systems.MANUAL)),
+        manual=Count(
+            "id", filter=~Q(system=Payments.Systems.AUTOMATIC) & ~Q(system="")
+        ),
         pending=Count(
             "id",
             filter=Q(
