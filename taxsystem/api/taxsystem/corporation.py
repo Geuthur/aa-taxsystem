@@ -84,9 +84,15 @@ class CorporationApiEndpoints:
             payment_dict = {}
 
             for user in payment_system:
+                try:
+                    # Skip users without a main character
+                    character_id = user.user.main_character.character_id
+                    character_name = user.user.main_character.character_name
+                except AttributeError:
+                    continue
+
                 actions = _payment_system_actions(corporation_id, user, perms, request)
                 has_paid = _get_has_paid_icon(user)
-                character_id = user.user.main_character.character_id
                 payment_dict[character_id] = {
                     "character_id": character_id,
                     "character_portrait": lazy.get_character_portrait_url(
@@ -94,7 +100,7 @@ class CorporationApiEndpoints:
                         size=32,
                         as_html=True,
                     ),
-                    "character_name": user.user.main_character.character_name,
+                    "character_name": character_name,
                     "alts": user.get_alt_ids(),
                     "status": user.get_payment_status(),
                     "wallet": user.payment_pool,
@@ -172,6 +178,9 @@ class CorporationApiEndpoints:
                 payment_user__user__main_character__character_id=character_id,
             )
 
+            if not payments:
+                return 404, "No Payments Found"
+
             # Create a dict for the character
             payments_char_dict = {
                 "title": "Payments for",
@@ -217,8 +226,6 @@ class CorporationApiEndpoints:
                 "entity_type": "character",
                 "character": payments_char_dict,
             }
-
-            logger.debug(context)
 
             return render(
                 request,
