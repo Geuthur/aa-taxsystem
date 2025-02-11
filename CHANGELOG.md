@@ -14,11 +14,17 @@
 - Miscellaneous Statistics in Administration Section
 - Corporation Name in Payments View
 - Reason row into Payments
+- API
+- Character Payments View
+- Payments System
+- Payments Overview for each User with option to manage
 
 ### Fixed
 
 - Wrong Bool State on `has_paid` property if `payment_pool` is negative [#2](https://github.com/Geuthur/aa-taxsystem/issues/2)
 - Locale Folder has wrong `__init__`
+- Modal System Error Handler
+- Error if User has no Main Character defined yet
 
 ## [0.5.0.3] - 2025-02-10
 
