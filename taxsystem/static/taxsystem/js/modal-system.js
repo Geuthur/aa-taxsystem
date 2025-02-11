@@ -14,9 +14,12 @@ function setupModal(modalId, ajaxDataAttr, contentId, loaderId) {
                 modal.find(loaderId).hide();
                 modal.find(contentId).show();
 
-                if (xhr.status === 403) {
+                if ([403, 404, 500].includes(xhr.status)) {
                     modal.find(contentId).html(response);
+                    modal.find('.modal-title').html('Error');
+                    return;
                 }
+
                 // Extract and set the modal title
                 const title = modal.find(contentId).find('#modal-title').html();
                 modal.find('.modal-title').html(title);
