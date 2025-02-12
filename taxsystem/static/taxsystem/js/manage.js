@@ -11,6 +11,9 @@ $(document).ready(function() {
     // Dashboard-Statistics
     const manageDashboardStatisticsVar = $('#dashboard-statistics-card');
     const manageDashboardStatisticsTableVar = $('#manage-dashboard-statistics');
+    // Dashboard-Statistics-Payment System
+    const manageDashboardStatisticsPaymentUsersVar = $('#dashboard-psystem-card');
+    const manageDashboardStatisticsPaymentUsersTableVar = $('#manage-dashboard-psystem');
 
     $.ajax({
         url: taxsystemsettings.corporationmanageDashboardUrl,
@@ -132,40 +135,60 @@ $(document).ready(function() {
             try {
                 if (stat) {
                     $('#statistics_name').text(statisticsKey);
+                    $('#statistics_payments').text(stat.payments);
                     $('#statistics_payments_pending').text(stat.payments_pending);
                     $('#statistics_payments_auto').text(stat.payments_auto);
                     $('#statistics_payments_manually').text(stat.payments_manually);
-                    $('#statistics_payment_users').text(stat.payment_users);
+                    // Members
                     $('#statistics_members').text(stat.members);
                     $('#statistics_members_mains').text(stat.members_mains);
                     $('#statistics_members_alts').text(stat.members_alts);
                     $('#statistics_members_not_registered').text(stat.members_unregistered);
+                    // Payment Users
+                    $('#statistics_payment_users').text(stat.payment_users);
+                    $('#statistics_payment_users_active').text(stat.payment_users_active);
+                    $('#statistics_payment_users_inactive').text(stat.payment_users_inactive);
+                    $('#statistics_payment_users_deactivated').text(stat.payment_users_deactivated);
                 } else {
                     $('#statistics_name').hide();
+                    $('#statistics_payments').hide();
                     $('#statistics_payments_pending').hide();
                     $('#statistics_payments_auto').hide();
                     $('#statistics_payments_manually').hide();
-                    $('#statistics_payment_users').hide();
+                    // Members
                     $('#statistics_members').hide();
                     $('#statistics_members_mains').hide();
                     $('#statistics_members_alts').hide();
                     $('#statistics_members_not_registered').hide();
+                    // Payment Users
+                    $('#statistics_payment_users').hide();
+                    $('#statistics_payment_users_active').hide();
+                    $('#statistics_payment_users_inactive').hide();
+                    $('#statistics_payment_users_deactivated').hide();
                 }
             } catch (e) {
                 console.error('Error fetching statistics data:', e);
                 $('#statistics_name').hide();
+                $('#statistics_payments').hide();
                 $('#statistics_payments_pending').hide();
                 $('#statistics_payments_auto').hide();
                 $('#statistics_payments_manually').hide();
-                $('#statistics_payment_users').hide();
+                // Members
                 $('#statistics_members').hide();
                 $('#statistics_members_mains').hide();
                 $('#statistics_members_alts').hide();
                 $('#statistics_members_not_registered').hide();
+                // Payment Users
+                $('#statistics_payment_users').hide();
+                $('#statistics_payment_users_active').hide();
+                $('#statistics_payment_users_inactive').hide();
+                $('#statistics_payment_users_deactivated').hide();
             }
 
             manageDashboardStatisticsVar.removeClass('d-none');
             manageDashboardStatisticsTableVar.removeClass('d-none');
+            manageDashboardStatisticsPaymentUsersVar.removeClass('d-none');
+            manageDashboardStatisticsPaymentUsersTableVar.removeClass('d-none');
 
         },
         error: function(xhr, status, error) {

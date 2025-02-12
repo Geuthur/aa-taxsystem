@@ -111,20 +111,20 @@
                 <table class="table table-dark table-striped table-hover w-100 d-none" id="manage-dashboard-statistics">
                     <tbody>
                         <tr>
-                            <td>{% trans "Pending Payments" %}</td>
+                            <td>{% trans "Payments" %}:</td>
+                            <td class="text-end" id="statistics_payments"></td>
+                        </tr>
+                        <tr>
+                            <td><button type="button" class="ps-4 btn btn-warning btn-sm btn-square"></button> {% trans "Pending Payments" %}</td>
                             <td class="text-end" id="statistics_payments_pending"></td>
                         </tr>
                         <tr>
-                            <td>{% trans "Automated Payments" %}</td>
+                            <td><button type="button" class="ps-4 btn btn-success btn-sm btn-square"></button> {% trans "Automated Payments" %}</td>
                             <td class="text-end" id="statistics_payments_auto"></td>
                         </tr>
                         <tr>
-                            <td>{% trans "Manuelly Payments" %}</td>
+                            <td><button type="button" class="ps-4 btn btn-success btn-sm btn-square"></button> {% trans "Edited Payments" %}</td>
                             <td class="text-end" id="statistics_payments_manually"></td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Payment System Accounts" %}</td>
-                            <td class="text-end" id="statistics_payment_users"></td>
                         </tr>
                         <tr>
                             <td>{% trans "Members" %}:</td>
@@ -141,6 +141,45 @@
                         <tr>
                             <td><button type="button" class="ps-4 btn btn-danger btn-sm btn-square"></button> {% trans "Unregistered" %}</td>
                             <td class="text-end" id="statistics_members_not_registered"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Payment System -->
+    <div class="card flex-grow-1 d-none" style="min-width: 350px;" id="dashboard-psystem-card">
+        <div class="card-body bg-secondary rounded-top">
+            <h5 class="card-title text-center">
+                <span id="dashboard-statistics">{% translate "Payment System Dashboard" %}</span>
+            </h5>
+            <hr>
+            <div>
+                <table class="table table-dark table-striped table-hover w-100 d-none" id="manage-dashboard-psystem">
+                    <tbody>
+                        <tr>
+                            <td>{% trans "Accounts" %}:</td>
+                            <td class="text-end" id="statistics_payment_users"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Active Accounts" %}:</td>
+                            <td class="text-end" id="statistics_payment_users_active"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Inactive Accounts" %}:</td>
+                            <td class="text-end" id="statistics_payment_users_inactive"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Deactivated Accounts" %}:</td>
+                            <td class="text-end" id="statistics_payment_users_deactivated"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Tax Paid" %}:</td>
+                            <td class="text-end" id="psystem_payment_users_paid"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Tax Unpaid" %}:</td>
+                            <td class="text-end" id="psystem_payment_users_unpaid"></td>
                         </tr>
                     </tbody>
                 </table>

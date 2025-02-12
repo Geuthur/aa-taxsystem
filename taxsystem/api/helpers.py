@@ -2,22 +2,20 @@ from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from taxsystem import models
+from taxsystem.models.tax import OwnerAudit
 
 
-def get_corporation(
-    request, corporation_id
-) -> tuple[bool | None, models.tax.OwnerAudit | None]:
+def get_corporation(request, corporation_id) -> tuple[bool | None, OwnerAudit | None]:
     """Get Corporation and check permissions"""
     perms = True
 
     try:
-        corp = models.OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
-    except models.OwnerAudit.DoesNotExist:
+        corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
+    except OwnerAudit.DoesNotExist:
         return None, None
 
     # Check access
-    visible = models.OwnerAudit.objects.visible_to(request.user)
+    visible = OwnerAudit.objects.visible_to(request.user)
     if corp not in visible:
         perms = False
     return perms, corp

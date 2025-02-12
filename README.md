@@ -30,10 +30,11 @@ ______________________________________________________________________
       - Support Hooks for Add more Filters
   - Payments
     - Track Payments that meets filters
+  - Log System
+  - Logs Actions from Administration Section
 
 ## Upcoming<a name="upcoming"></a>
 
-- Manage Log System
 - Notify via Discord each Month
 - Alliance level tax system
 

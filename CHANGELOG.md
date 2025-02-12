@@ -14,10 +14,7 @@
 - Miscellaneous Statistics in Administration Section
 - Corporation Name in Payments View
 - Reason row into Payments
-- API
-- Character Payments View
-- Payments System
-- Payments Overview for each User with option to manage
+- Log System for Administration Actions
 
 ### Fixed
 

@@ -46,6 +46,9 @@ def _get_statistics_dict(corp: OwnerAudit):
 
     payment_system_counts = PaymentSystem.objects.filter(corporation=corp).aggregate(
         users=Count("id"),
+        active=Count("id", filter=Q(status=PaymentSystem.States.ACTIVE)),
+        inactive=Count("id", filter=Q(status=PaymentSystem.States.INACTIVE)),
+        deactivated=Count("id", filter=Q(status=PaymentSystem.States.DEACTIVATED)),
     )
 
     members_count = Members.objects.filter(corporation=corp).aggregate(
@@ -56,10 +59,19 @@ def _get_statistics_dict(corp: OwnerAudit):
     )
 
     return {
+        # Payment System
+        "payment_users": payment_system_counts["users"],
+        "payment_users_active": payment_system_counts["active"],
+        "payment_users_inactive": payment_system_counts["inactive"],
+        "payment_users_deactivated": payment_system_counts["deactivated"],
+        "payment_users_paid": 0,
+        "payment_users_unpaid": 0,
+        # Payments
+        "payments": payments_counts["total"],
         "payments_pending": payments_counts["pending"],
         "payments_auto": payments_counts["automatic"],
         "payments_manually": payments_counts["manual"],
-        "payment_users": payment_system_counts["users"],
+        # Members
         "members": members_count["total"],
         "members_unregistered": members_count["unregistered"],
         "members_alts": members_count["alts"],
