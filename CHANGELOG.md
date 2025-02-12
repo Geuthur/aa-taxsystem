@@ -14,6 +14,7 @@
 - Miscellaneous Statistics in Administration Section
 - Corporation Name in Payments View
 - Reason row into Payments
+- Log System for Administration Actions
 
 ### Fixed
 

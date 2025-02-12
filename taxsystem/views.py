@@ -17,8 +17,8 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 from taxsystem.api.helpers import get_corporation
 from taxsystem.helpers.views import add_info_to_context
-from taxsystem.models import OwnerAudit
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.logs import Logs
+from taxsystem.models.tax import OwnerAudit, Payments, PaymentSystem
 from taxsystem.tasks import update_corp
 
 from .hooks import get_extension_logger
@@ -88,13 +88,21 @@ def add_corp(request, token):
         },
     )
 
-    OwnerAudit.objects.update_or_create(
+    _, created = OwnerAudit.objects.update_or_create(
         corporation=corp,
         defaults={
             "name": corp.corporation_name,
             "active": True,
         },
     )
+
+    if created:
+        Logs.objects.create(
+            user=request.user,
+            corporation=corp,
+            action=Logs.Actions.CREATED,
+            log=f"Corporation {corp.corporation_name} added to Tax System",
+        )
 
     update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
@@ -148,6 +156,14 @@ def approve_payment(request, corporation_id: int, payment_pk: int):
                 payment_user.save()
 
                 msg = _("Payment ID: %s successfully approved") % payment.pk
+
+                Logs.objects.create(
+                    user=request.user,
+                    corporation=corp,
+                    action=Logs.Actions.APPROVED,
+                    log=f"Payment ID: {payment.pk} - {payment.name} approved",
+                    level=Logs.Levels.UNNECESSARY,
+                )
             else:
                 msg = _("Payment ID: %s is already edited") % payment.pk
     except IntegrityError:
@@ -189,6 +205,14 @@ def undo_payment(request, corporation_id: int, payment_pk: int):
                 payment.save()
 
                 msg = _("Payment ID: %s successfully undone") % payment.pk
+
+                Logs.objects.create(
+                    user=request.user,
+                    corporation=corp,
+                    action=Logs.Actions.UNDO,
+                    log=f"Payment ID: {payment.pk} - {payment.name} undone",
+                    level=Logs.Levels.UNNECESSARY,
+                )
             else:
                 msg = _("Payment ID: %s is already undone") % payment.pk
     except IntegrityError:
@@ -228,6 +252,14 @@ def decline_payment(request, corporation_id: int, payment_pk: int):
                 payment_user.save()
 
                 msg = _("Payment ID: %s successfully declined") % payment.pk
+
+                Logs.objects.create(
+                    user=request.user,
+                    corporation=corp,
+                    action=Logs.Actions.DECLINED,
+                    log=f"Payment ID: {payment.pk} - {payment.name} declined",
+                    level=Logs.Levels.UNNECESSARY,
+                )
             else:
                 msg = _("Payment ID: %s is already declined") % payment.pk
     except IntegrityError:
@@ -259,11 +291,26 @@ def switch_user(request, corporation_id: int, user_pk: int):
                     _("Payment System User: %s successfully deactivated")
                     % payment_system.name
                 )
+
+                Logs.objects.create(
+                    user=request.user,
+                    corporation=corp,
+                    action=Logs.Actions.UPDATED,
+                    log=f"Payment System User: {payment_system.name} deactivated",
+                    level=Logs.Levels.INFO,
+                )
             else:
                 payment_system.status = PaymentSystem.States.ACTIVE
                 msg = (
                     _("Payment System User: %s successfully activated")
                     % payment_system.name
+                )
+                Logs.objects.create(
+                    user=request.user,
+                    corporation=corp,
+                    action=Logs.Actions.UPDATED,
+                    log=f"Payment System User: {payment_system.name} activated",
+                    level=Logs.Levels.INFO,
                 )
             payment_system.save()
     except IntegrityError:
@@ -297,6 +344,13 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
         try:
             corp.tax_amount = value
             corp.save()
+            Logs.objects.create(
+                user=request.user,
+                corporation=corp,
+                action=Logs.Actions.UPDATED,
+                log=_(f"Tax Amount from {corp.name} updated to {value}"),
+                level=Logs.Levels.INFO,
+            )
         except ValidationError:
             return JsonResponse(
                 {"message": _("Please enter a valid number")}, status=400
@@ -329,6 +383,13 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
         try:
             corp.tax_period = value
             corp.save()
+            Logs.objects.create(
+                user=request.user,
+                corporation=corp,
+                action=Logs.Actions.UPDATED,
+                log=_(f"Tax Period from {corp.name} updated to {value}"),
+                level=Logs.Levels.INFO,
+            )
         except ValidationError:
             return JsonResponse(
                 {"message": _("Please enter a valid number")}, status=400

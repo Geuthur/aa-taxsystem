@@ -77,6 +77,13 @@ class OwnerAudit(models.Model):
             "esi-corporations.read_divisions.v1",
         ]
 
+    def logs(self) -> models.QuerySet:
+        """Return all logs for this corporation."""
+        # pylint: disable=import-outside-toplevel
+        from taxsystem.models.logs import Logs
+
+        return Logs.objects.filter(corporation=self)
+
     class Meta:
         default_permissions = ()
         verbose_name = _("Tax System Audit")
