@@ -52,7 +52,7 @@ $(document).ready(function() {
                     $(this).text(value.toLocaleString('de-DE') + ' ISK');
                 },
                 success: function(response, newValue) {
-                    tablePaymentSystem.ajax.reload();
+                    location.reload();
                 },
                 error: function(response, newValue) {
                     // Display an error message
@@ -77,7 +77,7 @@ $(document).ready(function() {
                     $(this).text(value.toLocaleString('de-DE') + ' ' + taxsystemsettings.translations.days);
                 },
                 success: function(response, newValue) {
-                    tablePaymentSystem.ajax.reload();
+                    location.reload();
                 },
                 error: function(response, newValue) {
                     // Display an error message

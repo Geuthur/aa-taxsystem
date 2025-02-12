@@ -323,9 +323,8 @@ def switch_user(request, corporation_id: int, user_pk: int):
 @csrf_exempt
 def update_tax_amount(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
-        value = float(request.POST.get("value"))
-
         try:
+            value = int(request.POST.get("value"))
             if value < 0:
                 return JsonResponse(
                     {"message": _("Please enter a valid number")}, status=400
@@ -355,6 +354,7 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
             return JsonResponse(
                 {"message": _("Please enter a valid number")}, status=400
             )
+        messages.info(request, _(f"Tax Amount updated to {value}"))
         return JsonResponse({"message": ""}, status=200)
     return JsonResponse({"message": _("Invalid request method")}, status=405)
 
@@ -362,9 +362,8 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
 @csrf_exempt
 def update_tax_period(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
-        value = float(request.POST.get("value"))
-
         try:
+            value = int(request.POST.get("value"))
             if value < 0:
                 return JsonResponse(
                     {"message": _("Please enter a valid number")}, status=400
@@ -394,5 +393,6 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             return JsonResponse(
                 {"message": _("Please enter a valid number")}, status=400
             )
+        messages.info(request, _(f"Tax Period updated to {value}"))
         return JsonResponse({"message": ""}, status=200)
     return JsonResponse({"message": _("Invalid request method")}, status=405)
