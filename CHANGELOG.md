@@ -15,6 +15,14 @@
 - Corporation Name in Payments View
 - Reason row into Payments
 - Log System for Administration Actions
+- Shake Animation
+- API
+  - Payment System
+    - Account Payments Overview
+
+### Changed
+
+- Modal System
 
 ### Fixed
 
