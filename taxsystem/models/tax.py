@@ -223,7 +223,7 @@ class PaymentSystem(models.Model):
 
     @property
     def has_paid(self) -> bool:
-        """Return True if user has paid the set amount or if last_paid is within the tax period."""
+        """Return True if user has paid."""
         if self.payment_pool >= self.corporation.tax_amount:
             return True
         if self.last_paid and self.payment_pool == 0:
