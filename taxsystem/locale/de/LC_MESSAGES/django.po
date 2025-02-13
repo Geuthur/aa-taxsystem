@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-12 12:58+0100\n"
+"POT-Creation-Date: 2025-02-13 23:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,8 +19,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: taxsystem/api/taxsystem/helpers/payments.py:18
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:20
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:33
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:15
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:35
 msgid "Are you sure to Confirm"
 msgstr "Sind Sie sicher, dass Sie bestätigen möchten"
 
@@ -28,35 +28,43 @@ msgstr "Sind Sie sicher, dass Sie bestätigen möchten"
 msgid "from"
 msgstr "von"
 
-#: taxsystem/api/taxsystem/helpers/payments.py:37
+#: taxsystem/api/taxsystem/helpers/payments.py:33
 msgid "Approve Payment"
 msgstr "Bestätige Zahlung"
 
-#: taxsystem/api/taxsystem/helpers/payments.py:54
+#: taxsystem/api/taxsystem/helpers/payments.py:49
 msgid "Decline Payment"
-msgstr "Abgelehnte Zahlungen"
+msgstr "Zahlung ablehnen"
 
-#: taxsystem/api/taxsystem/helpers/payments.py:76
+#: taxsystem/api/taxsystem/helpers/payments.py:71
 msgid "Undo Payment"
 msgstr "Zahlung rückgängig machen"
 
-#: taxsystem/api/taxsystem/helpers/payments.py:76
+#: taxsystem/api/taxsystem/helpers/payments.py:71
 msgid "Undo Action"
 msgstr "Aktion rückgängig machen"
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:23
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:17
+msgid "Deactivate"
+msgstr "Deaktiviere"
+
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:24
 msgid "Deactivate User"
 msgstr "Deaktiviere User"
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:36
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:37
+msgid "Activate"
+msgstr "Aktiviere"
+
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:39
 msgid "Activate User"
 msgstr "Aktiviere User"
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:49
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:53
 msgid "Yes"
 msgstr "Ja"
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:49
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:53
 msgid "No"
 msgstr "Nein"
 
@@ -64,6 +72,18 @@ msgstr "Nein"
 #: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:95
 msgid "Total"
 msgstr ""
+
+#: taxsystem/forms.py:23
+msgid "Reason for declining"
+msgstr "Grund der Ablehnung"
+
+#: taxsystem/forms.py:33
+msgid "Comment"
+msgstr "Kommentar"
+
+#: taxsystem/forms.py:43
+msgid "Reason for undoing"
+msgstr "Grund des Zurücksetzens"
 
 #: taxsystem/models/filters.py:19
 msgid "Smart Filter Binding"
@@ -127,7 +147,7 @@ msgstr "Abgebrochen"
 
 #: taxsystem/models/logs.py:19
 msgid "Created"
-msgstr ""
+msgstr "Erstellt"
 
 #: taxsystem/models/logs.py:20
 msgid "Confirmed"
@@ -186,7 +206,7 @@ msgid "User that performed the action"
 msgstr "Benutzer der die Action ausgeführt hat"
 
 #: taxsystem/models/logs.py:58
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:23
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:22
 #: taxsystem/templates/taxsystem/view/payments.html:45
 msgid "Date"
 msgstr "Datum"
@@ -246,7 +266,7 @@ msgid "Missing"
 msgstr "Vermisst"
 
 #: taxsystem/models/tax.py:99
-#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:146
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:142
 msgid "Unregistered"
 msgstr "Nicht Registriert"
 
@@ -256,7 +276,7 @@ msgstr "Ist Alt"
 
 #: taxsystem/models/tax.py:111 taxsystem/models/tax.py:174
 #: taxsystem/models/tax.py:268
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:24
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:23
 #: taxsystem/templates/taxsystem/partials/view/manage/members.html:13
 #: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:13
 #: taxsystem/templates/taxsystem/view/payments.html:46
@@ -338,7 +358,7 @@ msgid "Corporation Overview"
 msgstr "Corporation Übersicht"
 
 #: taxsystem/templates/taxsystem/admin/overview.html:18
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:28
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:27
 #: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:17
 #: taxsystem/templates/taxsystem/view/payments.html:50
 msgid "Actions"
@@ -354,7 +374,7 @@ msgstr "Keine Berechtigung"
 
 #: taxsystem/templates/taxsystem/base.html:9
 #: taxsystem/templates/taxsystem/base.html:13
-#: taxsystem/templates/taxsystem/index.html:6 taxsystem/views.py:33
+#: taxsystem/templates/taxsystem/index.html:6 taxsystem/views.py:35
 msgid "Tax System"
 msgstr "Steuer System"
 
@@ -375,51 +395,63 @@ msgid "Internal Server Error"
 msgstr "Interner Server Fehler"
 
 #: taxsystem/templates/taxsystem/bundles/settings-js.html:24
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:177
 #: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:15
 msgid "Tax Paid"
 msgstr "Steuer Gezahlt"
 
-#: taxsystem/templates/taxsystem/modals/confirm.html:22
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: taxsystem/templates/taxsystem/modals/confirm.html:23
-msgid "Confirm"
-msgstr "Bestätigen"
-
-#: taxsystem/templates/taxsystem/modals/modal.html:27
+#: taxsystem/templates/taxsystem/modals/modal.html:29
 msgid "Close"
 msgstr "Schließen"
 
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:17
+#: taxsystem/templates/taxsystem/modals/payments-approve.html:29
+#: taxsystem/templates/taxsystem/modals/payments-decline.html:30
+#: taxsystem/templates/taxsystem/modals/payments-undo.html:30
+#: taxsystem/templates/taxsystem/modals/paymentsystem-switchuser.html:29
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: taxsystem/templates/taxsystem/modals/payments-approve.html:33
+#: taxsystem/templates/taxsystem/modals/payments-decline.html:34
+#: taxsystem/templates/taxsystem/modals/payments-undo.html:34
+#: taxsystem/templates/taxsystem/modals/paymentsystem-switchuser.html:33
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:14
 #: taxsystem/templates/taxsystem/partials/menu/navigation.html:5
-#: taxsystem/templates/taxsystem/view/payments.html:31 taxsystem/views.py:70
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:114
+#: taxsystem/templates/taxsystem/view/payments.html:31 taxsystem/views.py:77
 msgid "Payments"
 msgstr "Zahlungen"
 
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:22
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:21
 #: taxsystem/templates/taxsystem/view/payments.html:44
 msgid "ISK"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:25
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:24
 #: taxsystem/templates/taxsystem/view/payments.html:47
 msgid "Request"
 msgstr "Anfrage"
 
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:26
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:25
 #: taxsystem/templates/taxsystem/view/payments.html:48
 msgid "Edited by"
 msgstr "Bearbeitet von"
 
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:27
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:26
 #: taxsystem/templates/taxsystem/view/payments.html:49
 msgid "Reason"
 msgstr "Grund"
 
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:47
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:56
 msgid "No character found."
 msgstr "Kein Charakter gefunden."
+
+#: taxsystem/templates/taxsystem/partials/form/required-field.html:4
+msgid "This field is required"
+msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/menu/administration.html:7
 msgid "Add Corporation"
@@ -489,21 +521,41 @@ msgid "Edited Payments"
 msgstr "Bearbeitete Zahlungen"
 
 #: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:130
-msgid "Payment System Accounts"
-msgstr "Zahlungssystem Accounts"
-
-#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:134
 #: taxsystem/templates/taxsystem/partials/view/manage/members.html:4
 msgid "Members"
 msgstr "Mitglieder"
 
-#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:138
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:134
 msgid "Mains"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:142
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:138
 msgid "Alts"
 msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:154
+msgid "Payment System Dashboard"
+msgstr "Zahlungssystem Dashboard"
+
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:161
+msgid "Accounts"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:165
+msgid "Active Accounts"
+msgstr "Aktive Accounts"
+
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:169
+msgid "Inactive Accounts"
+msgstr "Inaktive Accpimts"
+
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:173
+msgid "Deactivated Accounts"
+msgstr "Deaktivierte Accounts"
+
+#: taxsystem/templates/taxsystem/partials/view/manage/dashboard.html:181
+msgid "Tax Unpaid"
+msgstr "Steuer nicht Gezahlt"
 
 #: taxsystem/templates/taxsystem/partials/view/manage/members.html:12
 #: taxsystem/templates/taxsystem/partials/view/manage/paymentsystem.html:12
@@ -527,7 +579,7 @@ msgstr "Konto"
 msgid "Last Paid"
 msgstr "Letzte Zahlung"
 
-#: taxsystem/templates/taxsystem/view/manage.html:31 taxsystem/views.py:47
+#: taxsystem/templates/taxsystem/view/manage.html:31 taxsystem/views.py:48
 msgid "Administration"
 msgstr ""
 
@@ -535,78 +587,59 @@ msgstr ""
 msgid "Incoming Payments"
 msgstr "Eingehende Zahlungen"
 
-#: taxsystem/views.py:110
+#: taxsystem/views.py:122
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
 msgstr "{corporation_name} erfolgreich hinzugefügt/geupdated in Steuer System"
 
-#: taxsystem/views.py:137 taxsystem/views.py:185 taxsystem/views.py:234
-#: taxsystem/views.py:281 taxsystem/views.py:342 taxsystem/views.py:381
+#: taxsystem/views.py:146 taxsystem/views.py:201 taxsystem/views.py:256
+#: taxsystem/views.py:311
+msgid "Invalid Method"
+msgstr "Ungültige methode"
+
+#: taxsystem/views.py:149 taxsystem/views.py:204 taxsystem/views.py:259
+#: taxsystem/views.py:314 taxsystem/views.py:369 taxsystem/views.py:403
 msgid "Permission Denied"
 msgstr "Berechtigung Abgelehnt"
 
-#: taxsystem/views.py:158
-msgid "Payment ID: %s successfully approved"
-msgstr "Zahlungs ID %s erfolgreich bestätigt"
+#: taxsystem/views.py:175
+#| msgid "Payment ID: %s successfully approved"
+msgid "Payment ID: %s - Amount %s - Name: %s approved"
+msgstr "Zahlungs ID: %s - Betrag %s - Name: %s erfolgreich bestätigt"
 
-#: taxsystem/views.py:168
-msgid "Payment ID: %s is already edited"
-msgstr "Zahlungs ID %s ist bereits bearbeitet"
-
-#: taxsystem/views.py:170 taxsystem/views.py:219 taxsystem/views.py:266
-#: taxsystem/views.py:317
+#: taxsystem/views.py:191 taxsystem/views.py:246 taxsystem/views.py:301
+#: taxsystem/views.py:350
 msgid "Transaction failed. Please try again."
 msgstr "Transcation fehlgeschlagen. Versuche es später erneut."
 
-#: taxsystem/views.py:207
-msgid "Payment ID: %s successfully undone"
-msgstr "Zahlungs ID %s erfolgreich rückgängig gemacht"
+#: taxsystem/views.py:229
+msgid "Payment ID: %s - Amount %s - Name: %s reseted"
+msgstr "Zahlungs ID: %s - Betrag %s - Name: %s zurückgesetzt"
 
-#: taxsystem/views.py:217
-msgid "Payment ID: %s is already undone"
-msgstr "Zahlungs ID %s ist bereits zurückgesetzt"
+#: taxsystem/views.py:284
+msgid "Payment ID: %s - Amount %s - Name: %s declined"
+msgstr "Zahlungs ID %s - Betrag %s - Name: %s abgelehnt"
 
-#: taxsystem/views.py:254
-msgid "Payment ID: %s successfully declined"
-msgstr "Zahlungs ID %s erfolgreich abgelehnt"
+#: taxsystem/views.py:326
+msgid "Payment System User: %s deactivated"
+msgstr "Zahlungssystem User %s deaktiviert"
 
-#: taxsystem/views.py:264
-msgid "Payment ID: %s is already declined"
-msgstr "Zahlungs ID %s ist bereits abgelehnt"
+#: taxsystem/views.py:337
+msgid "Payment System User: %s activated"
+msgstr "Zahlungssystem User %s aktiviert"
 
-#: taxsystem/views.py:291
-msgid "Payment System User: %s successfully deactivated"
-msgstr "Zahlungs System User %s erfolgreich deaktiviert"
-
-#: taxsystem/views.py:305
-msgid "Payment System User: %s successfully activated"
-msgstr "Zahlungs System User %s erfolgreich aktiviert"
-
-#: taxsystem/views.py:331 taxsystem/views.py:335 taxsystem/views.py:356
-#: taxsystem/views.py:370 taxsystem/views.py:374 taxsystem/views.py:395
+#: taxsystem/views.py:358 taxsystem/views.py:392
 msgid "Please enter a valid number"
 msgstr "Bitte gib einen gültigen Betrag ein"
 
-#: taxsystem/views.py:351
+#: taxsystem/views.py:374
 msgid "Tax Amount from {corp.name} updated to {value}"
-msgstr ""
+msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
 
-#: taxsystem/views.py:359 taxsystem/views.py:398
+#: taxsystem/views.py:385 taxsystem/views.py:419
 msgid "Invalid request method"
 msgstr "Ungültige anfragen methode"
 
-#: taxsystem/views.py:390
+#: taxsystem/views.py:408
 msgid "Tax Period from {corp.name} updated to {value}"
-msgstr ""
-
-#~ msgid "Automatic"
-#~ msgstr "Automatisiert"
-
-#~ msgid "Manual"
-#~ msgstr "Manuell"
-
-#~ msgid "Amount"
-#~ msgstr "Menge"
-
-#~ msgid "Negative value is not allowed"
-#~ msgstr "Negative Beträge nicht erlaubt"
+msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
