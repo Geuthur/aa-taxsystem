@@ -52,6 +52,8 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
             "color": "danger",
             "confirm_text": confirm_text,
             "title": _("Decline Payment"),
+            "required": True,
+            "label": _("Reject Reason") + " (*)",
             "action": urldecline,
         }
         actions.append(

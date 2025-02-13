@@ -17,6 +17,12 @@
                 <span id="confirmText">
                     <!-- Confirmation message will be populated here -->
                 </span>
+                <!-- New text area for additional information -->
+                <div class="form-group mt-3 d-none" id="confirmationReason">
+                    <label id="reasonLabel">{% trans "Comment" %} (Optional)</label>
+                    <textarea class="form-control" id="reasonText" rows="5"></textarea>
+                    <div class="d-none" id="reasonRequirment">{% trans "This field is required" %}.</div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fa-solid fa-hand"></i> {% trans "Cancel" %}</button>

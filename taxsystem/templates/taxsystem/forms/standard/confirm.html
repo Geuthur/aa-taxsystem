@@ -1,6 +1,7 @@
 <form id="confirmForm-{{ queryset.name }}-{{ settings.unique_id }}" class="text-end" method="post" action="{{ settings.action }}">
     {% csrf_token %}
     <input type="hidden" name="payment_pk" value="{{ queryset.pk }}">
+    <input type="hidden" name="reason" value="" id="reason-{{ queryset.name }}-{{ settings.unique_id }}">
     <button type="button"
         class="btn btn-{{ settings.color }} btn-sm btn-square me-2"
         data-bs-toggle="modal"
@@ -8,7 +9,10 @@
         data-bs-target="#modalConfirmContainer"
         data-confirm-text="{{ settings.confirm_text }}"
         data-title="{{ settings.title }}"
+        data-label="{{ settings.label }}"
+        data-required="{{ settings.required }}"
         data-form-id="confirmForm-{{ queryset.name }}-{{ settings.unique_id }}"
+        data-reason-id="reason-{{ queryset.name }}-{{ settings.unique_id }}"
         >
         <span class="{{ settings.icon }}" data-tooltip-toggle="taxsystem-tooltip" title="{{ settings.title }}"></span>
     </button>

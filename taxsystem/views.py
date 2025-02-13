@@ -202,6 +202,7 @@ def undo_payment(request, corporation_id: int, payment_pk: int):
                 payment.approved = Payments.Approval.PENDING
                 payment.payment_status = Payments.States.PENDING
                 payment.system = ""
+                payment.approver_text = ""
                 payment.save()
 
                 msg = _("Payment ID: %s successfully undone") % payment.pk
@@ -237,6 +238,7 @@ def decline_payment(request, corporation_id: int, payment_pk: int):
 
     try:
         with transaction.atomic():
+            reason = request.POST.get("reason", None)
             payment = Payments.objects.get(
                 payment_user__corporation=corp, pk=payment_pk
             )
@@ -244,6 +246,8 @@ def decline_payment(request, corporation_id: int, payment_pk: int):
                 payment.approved = Payments.Approval.REJECTED
                 payment.payment_status = Payments.States.FAILED
                 payment.system = request.user.profile.main_character.character_name
+                if reason:
+                    payment.approver_text = reason
                 payment.save()
 
                 payment_user = PaymentSystem.objects.get(
