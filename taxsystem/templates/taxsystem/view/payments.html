@@ -58,20 +58,23 @@
         </div>
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/confirm.html' with name="Confirm" %}
-
 {% endblock %}
 
 {% block extra_css %}
 {% endblock %}
 
 {% block extra_javascript %}
+    <!-- load modals -->
+    {% include 'taxsystem/modals/payments-decline.html' %}
+    {% include 'taxsystem/modals/payments-approve.html' %}
+    {% include 'taxsystem/modals/payments-undo.html' %}
+    <!-- load the datatables-js-bs5.html bundle -->
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include "bundles/filterdropdown-js.html" %}
-    <!-- load the settings-css.html bundle -->
+    <!-- load the settings bundle -->
     {% include "taxsystem/bundles/settings-css.html" %}
-    <!-- load the settings-js.html bundle -->
     {% include 'taxsystem/bundles/settings-js.html' %}
+    <!-- load the payments-js.html bundle -->
     {% include 'taxsystem/bundles/payments-js.html' %}
 {% endblock extra_javascript %}
 

@@ -10,35 +10,39 @@ def _payment_system_actions(corporation_id, user: PaymentSystem, perms, request)
     if not perms:
         return ""
 
-    template = "taxsystem/forms/standard/confirm.html"
+    template = "taxsystem/partials/form/button.html"
+    confirm_text = ""
+    confirm_text += _("Are you sure to Confirm")
+    confirm_text += (
+        f"?<br><span class='fw-bold'>{user.name} " + _("Deactivate") + "</span>"
+    )
     url = reverse(
         viewname="taxsystem:switch_user",
         kwargs={"corporation_id": corporation_id, "user_pk": user.pk},
     )
     if user.is_active:
-        confirm_text = (
-            _("Are you sure to Confirm")
-            + f"?<br><span class='fw-bold'>Deactivate {user.name} (ID: {user.pk}) "
-        )
         title = _("Deactivate User")
         settings = {
             "title": title,
             "icon": "fas fa-eye-low-vision",
             "color": "warning",
-            "confirm_text": confirm_text,
+            "text": confirm_text,
+            "modal": "paymentsystem-switchuser",
             "action": url,
         }
     else:
-        confirm_text = (
-            _("Are you sure to Confirm")
-            + f"?<br><span class='fw-bold'>Activate {user.name} (ID: {user.pk}) "
+        confirm_text = ""
+        confirm_text += _("Are you sure to Confirm")
+        confirm_text += (
+            f"?<br><span class='fw-bold'>{user.name} " + _("Activate") + "</span>"
         )
         title = _("Activate User")
         settings = {
             "title": title,
             "icon": "fas fa-eye",
             "color": "success",
-            "confirm_text": confirm_text,
+            "text": confirm_text,
+            "modal": "paymentsystem-switchuser",
             "action": url,
         }
     return generate_button(corporation_id, template, user, settings, request)

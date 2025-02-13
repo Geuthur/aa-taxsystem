@@ -38,7 +38,6 @@
         {% include 'taxsystem/partials/view/manage/members.html' %}
     </div>
 <!-- Tab Session -->
-{% include 'taxsystem/modals/confirm.html' with name="Confirm" %}
 {% include 'taxsystem/modals/modal.html' with name="ViewPayments" %}
 {% endblock %}
 
@@ -46,15 +45,22 @@
 {% endblock %}
 
 {% block extra_javascript %}
+    <!-- load modals -->
     {% include 'taxsystem/bundles/modal-js.html' %}
+    {% include 'taxsystem/modals/payments-decline.html' %}
+    {% include 'taxsystem/modals/payments-approve.html' %}
+    {% include 'taxsystem/modals/payments-undo.html' %}
+    {% include 'taxsystem/modals/paymentsystem-switchuser.html' %}
     <script>
         setupModal('#modalViewPaymentsContainer', 'ajax_payments', '#modalViewPaymentsContent', '#modalViewPaymentsLoader');
     </script>
-
+    <!-- load the datatables-js-bs5.html bundle -->
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include "bundles/filterdropdown-js.html" %}
-    <!-- load the settings-js.html bundle -->
+    <!-- load the settings bundle -->
+    {% include "taxsystem/bundles/settings-css.html" %}
     {% include 'taxsystem/bundles/settings-js.html' %}
+    <!-- load the administration-js.html bundle -->
     {% include 'taxsystem/bundles/administration-js.html' %}
 {% endblock extra_javascript %}
 
