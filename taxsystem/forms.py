@@ -16,7 +16,7 @@ def get_mandatory_form_label_text(text: str) -> str:
 
 
 class TaxDeclinedForm(forms.Form):
-    """Form for declining a tax declaration."""
+    """Form for declining."""
 
     decline_reason = forms.CharField(
         required=True,
@@ -26,7 +26,7 @@ class TaxDeclinedForm(forms.Form):
 
 
 class TaxAcceptForm(forms.Form):
-    """Form for accepting a tax declaration."""
+    """Form for accepting."""
 
     accept_info = forms.CharField(
         required=False,
@@ -36,10 +36,16 @@ class TaxAcceptForm(forms.Form):
 
 
 class TaxUndoForm(forms.Form):
-    """Form for undoing a tax declaration."""
+    """Form for undoing."""
 
     undo_reason = forms.CharField(
         required=True,
         label=get_mandatory_form_label_text(text=_("Reason for undoing")),
         widget=forms.Textarea(attrs={"rows": 5}),
     )
+
+
+class TaxSwitchUserForm(forms.Form):
+    """Form for switching user."""
+
+    user = forms.HiddenInput()
