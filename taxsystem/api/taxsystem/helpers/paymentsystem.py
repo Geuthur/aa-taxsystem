@@ -59,14 +59,14 @@ def _get_has_paid_icon(user: PaymentSystem) -> dict:
                 '<button class="btn btn-success btn-sm d-flex align-items-center justify-content-center" '
                 'style="height: 30px; width: 30px;" title="{}" data-tooltip-toggle="taxsystem-tooltip">'
                 '<i class="fas fa-check"></i></button>',
-                _("Active"),
+                _("Paid"),
             )
         else:
             button = format_html(
                 '<button class="btn btn-danger btn-sm d-flex align-items-center justify-content-center" '
                 'style="height: 30px; width: 30px;" title="{}" data-tooltip-toggle="taxsystem-tooltip">'
-                '<i class="fas fa-user-clock"></i></button>',
-                _("Deactivated"),
+                '<i class="fas fa-times"></i></button>',
+                _("Unpaid"),
             )
         has_paid = {
             "display": button,
