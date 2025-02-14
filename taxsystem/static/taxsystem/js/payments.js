@@ -31,13 +31,16 @@ $(document).ready(() => {
             },
             {
                 data: 'amount',
-                render: function (data, _, row) {
+                render: function (data, type, row) {
                     const amount = parseFloat(data);
-                    return amount.toLocaleString('de-DE') + ' ISK';
+                    if (type === 'display') {
+                        return amount.toLocaleString('de-DE') + ' ISK';
+                    }
+                    return amount;
                 }
             },
             {
-                data: 'payment_date',
+                data: 'date',
                 render: function (data, _, row) {
                     return data;
                 }

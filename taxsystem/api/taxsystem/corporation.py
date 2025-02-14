@@ -145,7 +145,7 @@ class CorporationApiEndpoints:
 
                 payments_dict[payment.pk] = {
                     "payment_id": payment.pk,
-                    "date": payment.date,
+                    "date": payment.formatted_payment_date(),
                     "character_portrait": character_portrait,
                     "character_name": payment.account.name,
                     "amount": payment.amount,
