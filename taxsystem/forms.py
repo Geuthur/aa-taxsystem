@@ -15,12 +15,12 @@ def get_mandatory_form_label_text(text: str) -> str:
     )
 
 
-class TaxDeclinedForm(forms.Form):
-    """Form for declining."""
+class TaxRejectForm(forms.Form):
+    """Form for rejecting."""
 
-    decline_reason = forms.CharField(
+    reject_reason = forms.CharField(
         required=True,
-        label=get_mandatory_form_label_text(text=_("Reason for declining")),
+        label=get_mandatory_form_label_text(text=_("Reason for rejecting")),
         widget=forms.Textarea(attrs={"rows": 5}),
     )
 
