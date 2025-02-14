@@ -153,7 +153,7 @@ class Members(models.Model):
 class PaymentSystem(models.Model):
     """Tax Payment System model for app"""
 
-    class States(models.TextChoices):
+    class Status(models.TextChoices):
         ACTIVE = "active", _("Active")
         INACTIVE = "inactive", _("Inactive")
         DEACTIVATED = "deactivated", _("Deactivated")
@@ -171,16 +171,17 @@ class PaymentSystem(models.Model):
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     status = models.CharField(
-        _("Status"), max_length=16, choices=States.choices, blank=True, default=""
+        max_length=16,
+        choices=Status.choices,
+        blank=True,
+        default=Status.ACTIVE,
     )
 
-    payment_pool = models.DecimalField(
+    deposit = models.DecimalField(
         max_digits=16,
         decimal_places=0,
         default=0,
-        help_text=_(
-            "Payment Pool in ISK that is set for the corporation. Max 16 Digits"
-        ),
+        help_text=_("Deposit Pool in ISK. Max 16 Digits"),
         validators=[
             MaxValueValidator(9999999999999999),
             MinValueValidator(-9999999999999999),
@@ -211,22 +212,22 @@ class PaymentSystem(models.Model):
 
     @property
     def is_active(self) -> bool:
-        return self.status == self.States.ACTIVE
+        return self.status == self.Status.ACTIVE
 
     @property
     def is_inactive(self) -> bool:
-        return self.status == self.States.INACTIVE
+        return self.status == self.Status.INACTIVE
 
     @property
     def is_deactivated(self) -> bool:
-        return self.status == self.States.DEACTIVATED
+        return self.status == self.Status.DEACTIVATED
 
     @property
     def has_paid(self) -> bool:
         """Return True if user has paid."""
-        if self.payment_pool >= self.corporation.tax_amount:
+        if self.deposit >= self.corporation.tax_amount:
             return True
-        if self.last_paid and self.payment_pool == 0:
+        if self.last_paid and self.deposit == 0:
             return timezone.now() - self.last_paid < timezone.timedelta(
                 days=self.corporation.tax_period
             )
@@ -238,58 +239,51 @@ class PaymentSystem(models.Model):
 class Payments(models.Model):
     """Tax Payments model for app"""
 
-    class States(models.TextChoices):
+    class Status(models.TextChoices):
         PAID = "paid", _("Paid")
         PENDING = "pending", _("Pending")
         FAILED = "failed", _("Failed")
         NEEDS_APPROVAL = "needs_approval", _("Needs Approval")
 
-    class Approval(models.TextChoices):
+    class RequestStatus(models.TextChoices):
         APPROVED = "approved", _("Approved")
         PENDING = "pending", _("Pending")
         REJECTED = "rejected", _("Rejected")
-
-    class Systems(models.TextChoices):
-        AUTOMATIC = "automatic", _("System")
 
     name = models.CharField(max_length=100)
 
     entry_id = models.BigIntegerField()
 
-    payment_user = models.ForeignKey(
-        PaymentSystem, on_delete=models.CASCADE, related_name="payment_user"
+    account = models.ForeignKey(
+        PaymentSystem, on_delete=models.CASCADE, related_name="+"
     )
-
-    date = models.DateTimeField(default=timezone.now, null=True, blank=True)
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
-    payment_status = models.CharField(
-        _("Status"), max_length=16, choices=States.choices, blank=True, default=""
+    status = models.CharField(
+        max_length=16,
+        choices=Status.choices,
+        blank=True,
+        default=Status.PENDING,
     )
 
-    payment_date = models.DateTimeField(null=True, blank=True)
+    date = models.DateTimeField(null=True, blank=True)
 
     reason = models.TextField(null=True, blank=True)
 
-    approved = models.CharField(
-        _("Pending"), max_length=16, choices=Approval.choices, blank=True, default=""
+    request_status = models.CharField(
+        max_length=16,
+        choices=RequestStatus.choices,
+        default=RequestStatus.PENDING,
+        verbose_name=_("Request Status"),
     )
 
-    system = models.CharField(
-        _("System"),
-        max_length=16,
-        choices=Systems.choices,
+    reviser = models.CharField(
+        max_length=100,
         blank=True,
         default="",
-        help_text=_("System that processed the payment"),
+        help_text=_("Reviser that approved or rejected the payment"),
     )
-
-    approver_text = models.TextField(
-        null=True, blank=True, help_text=_("Reason for approval or rejection")
-    )
-
-    notified = models.BooleanField(default=False)
 
     class Meta:
         default_permissions = ()
@@ -297,49 +291,45 @@ class Payments(models.Model):
         verbose_name_plural = _("Tax Payments")
 
     @property
-    def is_human(self) -> bool:
-        return self.system == self.Systems.MANUAL
-
-    @property
     def is_automatic(self) -> bool:
-        return self.system == self.Systems.AUTOMATIC
+        return self.reviser == "System"
 
     @property
     def is_paid(self) -> bool:
-        return self.payment_status == self.States.PAID
+        return self.status == self.Status.PAID
 
     @property
     def is_pending(self) -> bool:
-        return self.payment_status == self.States.PENDING
+        return self.status == self.Status.PENDING
 
     @property
     def is_failed(self) -> bool:
-        return self.payment_status == self.States.FAILED
+        return self.status == self.Status.FAILED
 
     @property
     def is_needs_approval(self) -> bool:
-        return self.payment_status == self.States.NEEDS_APPROVAL
+        return self.status == self.Status.NEEDS_APPROVAL
 
     @property
     def is_approved(self) -> bool:
-        return self.approved == self.Approval.APPROVED
+        return self.request_status == self.RequestStatus.APPROVED
 
     @property
     def is_rejected(self) -> bool:
-        return self.approved == self.Approval.REJECTED
+        return self.request_status == self.RequestStatus.REJECTED
 
     def __str__(self):
-        return f"{self.payment_user.name} - {self.date} - {self.amount} - {self.payment_status}"
+        return f"{self.account.name} - {self.date} - {self.amount} - {self.status}"
 
-    def get_payment_status(self) -> str:
-        return self.get_payment_status_display()
+    def get_status(self) -> str:
+        return self.get_status_display()
 
-    def get_approval_status(self) -> str:
-        return self.get_approved_display()
+    def get_request_status(self) -> str:
+        return self.get_request_status_display()
 
     def formatted_payment_date(self) -> str:
-        if self.payment_date:
-            return timezone.localtime(self.payment_date).strftime("%Y-%m-%d %H:%M:%S")
-        return _("No payment date")
+        if self.date:
+            return timezone.localtime(self.date).strftime("%Y-%m-%d %H:%M:%S")
+        return _("No date")
 
     objects = PaymentsManager()
