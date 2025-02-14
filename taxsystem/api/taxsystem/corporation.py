@@ -103,7 +103,7 @@ class CorporationApiEndpoints:
                     "character_name": character_name,
                     "alts": user.get_alt_ids(),
                     "status": user.get_payment_status(),
-                    "wallet": user.payment_pool,
+                    "wallet": user.deposit,
                     "has_paid": has_paid,
                     "has_paid_filter": has_paid["sort"],
                     "last_paid": lazy.str_normalize_time(user.last_paid, hours=True),
@@ -127,13 +127,13 @@ class CorporationApiEndpoints:
             if corp is None:
                 return 404, "Corporation Not Found"
 
-            payments = Payments.objects.filter(payment_user__corporation=corp)
+            payments = Payments.objects.filter(account__corporation=corp)
 
             payments_dict = {}
 
             for payment in payments:
                 try:
-                    character_id = payment.payment_user.user.main_character.character_id
+                    character_id = payment.account.user.main_character.character_id
                 except AttributeError:
                     character_id = 0
 
@@ -145,12 +145,12 @@ class CorporationApiEndpoints:
                     "character_portrait": lazy.get_character_portrait_url(
                         character_id, size=32, as_html=True
                     ),
-                    "character_name": payment.payment_user.name,
+                    "character_name": payment.account.name,
                     "amount": payment.amount,
                     "payment_date": payment.formatted_payment_date(),
-                    "status": payment.get_payment_status_display(),
-                    "approved": payment.get_approved_display(),
-                    "system": payment.get_system_display(),
+                    "status": payment.get_status_display(),
+                    "approved": payment.get_request_status_display(),
+                    "system": payment.reviser,
                     "reason": payment.reason,
                     "actions": actions,
                 }
@@ -174,8 +174,8 @@ class CorporationApiEndpoints:
                 return 404, "Corporation Not Found"
 
             payments = Payments.objects.filter(
-                payment_user__corporation=corp,
-                payment_user__user__main_character__character_id=character_id,
+                account__corporation=corp,
+                account__user__main_character__character_id=character_id,
             )
 
             if not payments:
@@ -188,14 +188,14 @@ class CorporationApiEndpoints:
                 "character_portrait": lazy.get_character_portrait_url(
                     character_id, size=32, as_html=True
                 ),
-                "character_name": payments[0].payment_user.name,
+                "character_name": payments[0].account.name,
             }
 
             # Create a dict for each payment
             payments_dict = {}
             for payment in payments:
                 try:
-                    character_id = payment.payment_user.user.main_character.character_id
+                    character_id = payment.account.user.main_character.character_id
                 except AttributeError:
                     character_id = 0
 
@@ -208,12 +208,12 @@ class CorporationApiEndpoints:
                     "character_portrait": lazy.get_character_portrait_url(
                         character_id, size=32, as_html=True
                     ),
-                    "character_name": payment.payment_user.name,
+                    "character_name": payment.account.name,
                     "amount": amount,
                     "payment_date": payment.formatted_payment_date(),
-                    "status": payment.get_payment_status_display(),
-                    "approved": payment.get_approved_display(),
-                    "system": payment.get_system_display(),
+                    "status": payment.get_status_display(),
+                    "approved": payment.get_request_status_display(),
+                    "system": payment.reviser,
                     "reason": payment.reason,
                     "actions": actions,
                 }
