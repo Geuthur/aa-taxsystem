@@ -1,11 +1,13 @@
 """Logs Model"""
 
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from allianceauth.authentication.models import User
 
 from taxsystem.managers.logs_manager import LogsManager
+from taxsystem.models.tax import Payments
 
 
 class Logs(models.Model):
@@ -14,35 +16,22 @@ class Logs(models.Model):
     class Actions(models.TextChoices):
         """Actions for Logs"""
 
-        APPROVED = "approved", _("Approved")
-        CANCELED = "canceled", _("Canceled")
-        CREATED = "created", _("Created")
-        CONFIRMED = "confirmed", _("Confirmed")
-        DECLINED = "declined", _("Declined")
-        DELETED = "deleted", _("Deleted")
-        VIEWED = "viewed", _("Viewed")
-        UPDATED = "updated", _("Updated")
-        UNDO = "undo", _("Undo")
-
-    class Levels(models.TextChoices):
-        """Levels for Logs"""
-
-        CRITICAL = "critical", _("Critical")
-        IMPORTANT = "important", _("Important")
-        INFO = "info", _("Info")
-        UNNECESSARY = "unnecessary", _("Unnecessary")
+        DEFAULT = "", ""
+        STATUS_CHANGE = "Status Changed", _("Status Changed")
+        PAYMENT_ADDED = "Payment Added", _("Payment Added")
+        REVISER_COMMENT = "Reviser Comment", _("Reviser Comment")
 
     class Meta:
         default_permissions = ()
 
     objects = LogsManager()
 
-    corporation = models.ForeignKey(
-        "OwnerAudit",
+    payment = models.ForeignKey(
+        Payments,
         on_delete=models.CASCADE,
         related_name="+",
-        verbose_name=_("Corporation"),
-        help_text=_("Corporation that the action was performed on"),
+        verbose_name=_("Payment"),
+        help_text=_("Payment that the action was performed on"),
     )
 
     user = models.ForeignKey(
@@ -54,27 +43,30 @@ class Logs(models.Model):
     )
 
     date = models.DateTimeField(
-        auto_now_add=True,
+        default=timezone.now,
         verbose_name=_("Date"),
         help_text=_("Date of the action"),
     )
 
     action = models.CharField(
-        max_length=16,
+        max_length=20,
         choices=Actions.choices,
+        default=Actions.DEFAULT,
         verbose_name=_("Action"),
         help_text=_("Action performed"),
     )
 
-    log = models.TextField(
-        verbose_name=_("Log"),
-        help_text=_("Log of the action"),
+    comment = models.TextField(
+        blank=True,
+        default="",
+        verbose_name=_("Comment"),
     )
 
-    level = models.CharField(
+    new_status = models.CharField(
         max_length=16,
-        verbose_name=_("Level"),
-        help_text=_("Level of the log"),
+        choices=Payments.RequestStatus.choices,
+        verbose_name=_("New Status"),
+        help_text=_("New Status of the action"),
     )
 
     def __str__(self):
