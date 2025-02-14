@@ -39,6 +39,7 @@
     </div>
 <!-- Tab Session -->
 {% include 'taxsystem/modals/modal.html' with name="ViewPayments" %}
+{% include 'taxsystem/modals/modal.html' with name="ViewDetails" %}
 {% endblock %}
 
 {% block extra_css %}
@@ -53,6 +54,7 @@
     {% include 'taxsystem/modals/paymentsystem-switchuser.html' %}
     <script>
         setupModal('#modalViewPaymentsContainer', 'ajax_payments', '#modalViewPaymentsContent', '#modalViewPaymentsLoader');
+        setupModal('#modalViewDetailsContainer', 'ajax_details', '#modalViewDetailsContent', '#modalViewDetailsLoader');
     </script>
     <!-- load the datatables-js-bs5.html bundle -->
     {% include 'bundles/datatables-js-bs5.html' %}

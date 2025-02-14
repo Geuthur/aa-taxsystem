@@ -43,7 +43,7 @@ $(document).ready(() => {
                 }
             },
             {
-                data: 'status',
+                data: 'request_status',
                 render: function (data, _, row) {
                     return data;
                 }

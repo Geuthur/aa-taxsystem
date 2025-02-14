@@ -2,13 +2,15 @@ from ninja import NinjaAPI
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.shortcuts import render
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from taxsystem.api.helpers import get_corporation
+from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import _get_has_paid_icon
 from taxsystem.helpers import lazy
 from taxsystem.hooks import get_extension_logger
-from taxsystem.models.logs import Logs
+from taxsystem.models.logs import PaymentHistory
 from taxsystem.models.tax import Payments, PaymentSystem
 
 logger = get_extension_logger(__name__)
@@ -19,6 +21,80 @@ class CharacterApiEndpoints:
 
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
+        @api.get(
+            "corporation/{corporation_id}/character/{character_id}/view/payments/",
+            response={200: list, 403: str, 404: str},
+            tags=self.tags,
+        )
+        def get_main_characcter_payments(
+            request, corporation_id: int, character_id: int
+        ):
+            perms, corp = get_corporation(request, corporation_id)
+
+            if corp is None:
+                return 404, "Corporation Not Found"
+
+            payments = Payments.objects.filter(
+                account__corporation=corp,
+                account__user__profile__main_character__character_id=character_id,
+            )
+
+            if not payments:
+                return 404, "No Payments Found"
+
+            # Create a dict for the character
+            payments_char_dict = {
+                "title": "Payments for",
+                "character_id": character_id,
+                "character_portrait": lazy.get_character_portrait_url(
+                    character_id, size=32, as_html=True
+                ),
+                "character_name": payments[0].account.name,
+            }
+
+            # Create a dict for each payment
+            payments_dict = {}
+            for payment in payments:
+                try:
+                    character_id = (
+                        payment.account.user.profile.main_character.character_id
+                    )
+                    portrait = lazy.get_character_portrait_url(
+                        character_id, size=32, as_html=True
+                    )
+                except AttributeError:
+                    portrait = ""
+
+                actions = _payments_actions(corporation_id, payment, perms, request)
+                amount = f"{intcomma(payment.amount)} ISK"
+
+                payments_dict[payment.pk] = {
+                    "payment_id": payment.pk,
+                    "character_portrait": portrait,
+                    "character_name": payment.account.name,
+                    "date": payment.date,
+                    "amount": amount,
+                    "request_status": payment.get_request_status_display(),
+                    "reviser": payment.reviser,
+                    "reason": payment.reason,
+                    "actions": actions,
+                }
+
+            # Add payments to the character dict
+            payments_char_dict["payments"] = payments_dict
+
+            context = {
+                "entity_pk": corporation_id,
+                "entity_type": "character",
+                "character": payments_char_dict,
+            }
+
+            return render(
+                request,
+                "taxsystem/modals/view_character_payments.html",
+                context,
+            )
+
         @api.get(
             "corporation/{corporation_id}/character/{character_id}/payment/{pk}/view/details/",
             response={200: list, 403: str, 404: str},
@@ -37,7 +113,7 @@ class CharacterApiEndpoints:
                 payment = Payments.objects.get(
                     pk=pk,
                     account__corporation=corp,
-                    account__user__main_character__character_id=character_id,
+                    account__user__profile__main_character__character_id=character_id,
                 )
                 account = PaymentSystem.objects.get(
                     user=payment.account.user,
@@ -78,13 +154,12 @@ class CharacterApiEndpoints:
                 "name": account.name,
                 "payment_pool": f"{intcomma(account.deposit)} ISK",
                 "payment_status": _get_has_paid_icon(account),
-                "payment_status2": account.get_payment_status(),
                 "status": status,
             }
 
             payment_history_dict = {}
 
-            payments_history = Logs.objects.filter(
+            payments_history = PaymentHistory.objects.filter(
                 payment=payment,
             ).order_by("-date")
 
@@ -99,20 +174,30 @@ class CharacterApiEndpoints:
                 }
                 payment_history_dict[log.pk] = log_dict
 
+            # Create Status Display
+            payment_status = "<div class='text-center alert"
+            if payment.is_pending:
+                payment_status += " alert-warning'>"
+            elif payment.is_needs_approval:
+                payment_status += " alert-info'>"
+            elif payment.is_approved:
+                payment_status += " alert-success'>"
+            elif payment.is_rejected:
+                payment_status += " alert-danger'>"
+            payment_status += f"{payment.get_request_status_display()}</div>"
+
             # Create a dict for each payment
-            payments_dict = {
+            payment_dict = {
                 "payment_id": payment.pk,
-                "date": payment.date,
                 "amount": f"{intcomma(payment.amount)} ISK",
-                "payment_date": payment.formatted_payment_date(),
-                "status": payment.get_status_display(),
-                "approved": payment.get_request_status_display(),
-                "system": payment.reviser,
+                "date": payment.formatted_payment_date(),
+                "status": format_html(payment_status),
+                "reviser": payment.reviser,
                 "reason": payment.reason,
             }
 
             # Add payments to the character dict
-            payments_char_dict["payment"] = payments_dict
+            payments_char_dict["payment"] = payment_dict
             payments_char_dict["payment_system"] = account_dict
             payments_char_dict["payment_history"] = payment_history_dict
 

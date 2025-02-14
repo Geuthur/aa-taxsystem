@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.authentication.models import UserProfile
+from allianceauth.authentication.models import User
 from allianceauth.eveonline.models import EveAllianceInfo, EveCorporationInfo
 
 from taxsystem.managers.payment_manager import PaymentsManager, PaymentSystemManager
@@ -76,13 +76,6 @@ class OwnerAudit(models.Model):
             "esi-wallet.read_corporation_wallets.v1",
             "esi-corporations.read_divisions.v1",
         ]
-
-    def logs(self) -> models.QuerySet:
-        """Return all logs for this corporation."""
-        # pylint: disable=import-outside-toplevel
-        from taxsystem.models.logs import Logs
-
-        return Logs.objects.filter(corporation=self)
 
     class Meta:
         default_permissions = ()
@@ -166,7 +159,7 @@ class PaymentSystem(models.Model):
         OwnerAudit, on_delete=models.CASCADE, related_name="+"
     )
 
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name="+")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="+")
 
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
@@ -205,7 +198,7 @@ class PaymentSystem(models.Model):
 
     def get_alt_ids(self) -> list[int]:
         return list(
-            self.user.user.character_ownerships.all().values_list(
+            self.user.character_ownerships.all().values_list(
                 "character__character_id", flat=True
             )
         )
@@ -239,16 +232,11 @@ class PaymentSystem(models.Model):
 class Payments(models.Model):
     """Tax Payments model for app"""
 
-    class Status(models.TextChoices):
-        PAID = "paid", _("Paid")
-        PENDING = "pending", _("Pending")
-        FAILED = "failed", _("Failed")
-        NEEDS_APPROVAL = "needs_approval", _("Needs Approval")
-
     class RequestStatus(models.TextChoices):
         APPROVED = "approved", _("Approved")
         PENDING = "pending", _("Pending")
         REJECTED = "rejected", _("Rejected")
+        NEEDS_APPROVAL = "needs_approval", _("Needs Approval")
 
     name = models.CharField(max_length=100)
 
@@ -259,13 +247,6 @@ class Payments(models.Model):
     )
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
-
-    status = models.CharField(
-        max_length=16,
-        choices=Status.choices,
-        blank=True,
-        default=Status.PENDING,
-    )
 
     date = models.DateTimeField(null=True, blank=True)
 
@@ -295,20 +276,12 @@ class Payments(models.Model):
         return self.reviser == "System"
 
     @property
-    def is_paid(self) -> bool:
-        return self.status == self.Status.PAID
-
-    @property
     def is_pending(self) -> bool:
-        return self.status == self.Status.PENDING
-
-    @property
-    def is_failed(self) -> bool:
-        return self.status == self.Status.FAILED
+        return self.request_status == self.RequestStatus.PENDING
 
     @property
     def is_needs_approval(self) -> bool:
-        return self.status == self.Status.NEEDS_APPROVAL
+        return self.request_status == self.RequestStatus.NEEDS_APPROVAL
 
     @property
     def is_approved(self) -> bool:
@@ -319,10 +292,9 @@ class Payments(models.Model):
         return self.request_status == self.RequestStatus.REJECTED
 
     def __str__(self):
-        return f"{self.account.name} - {self.date} - {self.amount} - {self.status}"
-
-    def get_status(self) -> str:
-        return self.get_status_display()
+        return (
+            f"{self.account.name} - {self.date} - {self.amount} - {self.request_status}"
+        )
 
     def get_request_status(self) -> str:
         return self.get_request_status_display()

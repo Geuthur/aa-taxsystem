@@ -21,7 +21,6 @@
                     <th scope="col">{% translate "ISK" %}</th>
                     <th scope="col">{% translate "Date" %}</th>
                     <th scope="col">{% translate "Status" %}</th>
-                    <th scope="col">{% translate "Request" %}</th>
                     <th scope="col">{% translate "Edited by" %}</th>
                     <th scope="col">{% translate "Reason" %}</th>
                     <th scope="col">{% translate "Actions" %}</th>
@@ -32,9 +31,8 @@
                     <tr>
                         <td>{{ payment.amount }}</td>
                         <td>{{ payment.payment_date }}</td>
-                        <td>{{ payment.status }}</td>
-                        <td>{{ payment.approved }}</td>
-                        <td>{{ payment.system }}</td>
+                        <td>{{ payment.request_status }}</td>
+                        <td>{{ payment.reviser }}</td>
                         <td>{{ payment.reason }}</td>
                         <td>{{ payment.actions }}</td>
                     </tr>
@@ -49,7 +47,7 @@
             const tablePayments = paymentsViewCharacterTableVar.DataTable({
                 "order": [[ 1, "desc" ]],
                 "columnDefs": [
-                    { "orderable": false, "targets": 6 }
+                    { "orderable": false, "targets": 5 }
                 ]
             });
 

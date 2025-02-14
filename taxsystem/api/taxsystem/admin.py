@@ -3,6 +3,7 @@ from ninja import NinjaAPI
 from taxsystem.api.helpers import get_corporation
 from taxsystem.helpers import lazy
 from taxsystem.hooks import get_extension_logger
+from taxsystem.models.logs import AdminLogs
 from taxsystem.models.tax import OwnerAudit
 
 logger = get_extension_logger(__name__)
@@ -54,7 +55,7 @@ class AdminApiEndpoints:
             if corp is None:
                 return 404, "Corporation Not Found"
 
-            logs = corp.logs()
+            logs = AdminLogs.objects.filter(corporation=corp).order_by("-date")
 
             logs_dict = {}
 

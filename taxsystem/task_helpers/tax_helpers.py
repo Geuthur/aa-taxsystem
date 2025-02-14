@@ -179,9 +179,9 @@ def update_payment_users(corp_id, members_ids):
                             status=Members.States.IS_ALT
                         )
             try:
-                existing_payment_system = PaymentSystem.objects.get(user=account)
-                if existing_payment_system.status != PaymentSystem.States.DEACTIVATED:
-                    existing_payment_system.status = PaymentSystem.States.ACTIVE
+                existing_payment_system = PaymentSystem.objects.get(user=account.user)
+                if existing_payment_system.status != PaymentSystem.Status.DEACTIVATED:
+                    existing_payment_system.status = PaymentSystem.Status.ACTIVE
                     existing_payment_system.save()
             except PaymentSystem.DoesNotExist:
                 items.append(
@@ -189,14 +189,14 @@ def update_payment_users(corp_id, members_ids):
                         name=main.character_name,
                         corporation=audit_corp,
                         user=account,
-                        status=PaymentSystem.States.ACTIVE,
+                        status=PaymentSystem.Status.ACTIVE,
                     )
                 )
         else:
             # Set the account to inactive if none of the conditions are met
             try:
-                existing_payment_system = PaymentSystem.objects.get(user=account)
-                existing_payment_system.status = PaymentSystem.States.INACTIVE
+                existing_payment_system = PaymentSystem.objects.get(user=account.user)
+                existing_payment_system.status = PaymentSystem.Status.INACTIVE
                 existing_payment_system.save()
             except PaymentSystem.DoesNotExist:
                 pass

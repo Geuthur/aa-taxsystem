@@ -2,10 +2,11 @@
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from taxsystem.hooks import get_extension_logger
 from taxsystem.models.filters import SmartGroup
-from taxsystem.models.logs import Logs
+from taxsystem.models.logs import PaymentHistory
 from taxsystem.models.tax import (
     OwnerAudit,
     Payments,
@@ -59,7 +60,6 @@ def update_corporation_payments(corp_id):
                     name=user.name,
                     account=user,
                     amount=entry.amount,
-                    status=Payments.Status.PENDING,
                     request_status=Payments.RequestStatus.PENDING,
                     date=entry.date,
                     reason=entry.reason,
@@ -69,10 +69,10 @@ def update_corporation_payments(corp_id):
     payments = Payments.objects.bulk_create(items, ignore_conflicts=True)
 
     for payment in payments:
-        Logs(
-            user=payment.account.user.user,
+        PaymentHistory(
+            user=payment.account.user,
             payment=payment,
-            action=Logs.Actions.PAYMENT_ADDED,
+            action=PaymentHistory.Actions.PAYMENT_ADDED,
             new_status=Payments.RequestStatus.PENDING,
         ).save()
 
@@ -98,7 +98,7 @@ def update_corporation_payments_filter(corp_id, runs=0):
     )
 
     payments = Payments.objects.filter(
-        account__corporation=audit_corp, status=Payments.Status.PENDING
+        account__corporation=audit_corp, request_status=Payments.RequestStatus.PENDING
     )
 
     _current_payment_ids = set(payments.values_list("id", flat=True))
@@ -110,10 +110,9 @@ def update_corporation_payments_filter(corp_id, runs=0):
         if filters:
             payments = filters.filter(payments)
             for payment in payments:
-                if payment.status == Payments.Status.PENDING:
-                    # Ensure all transers are processed in a single transaction
+                if payment.request_status == Payments.RequestStatus.PENDING:
+                    # Ensure all transfers are processed in a single transaction
                     with transaction.atomic():
-                        payment.status = Payments.Status.PAID
                         payment.request_status = Payments.RequestStatus.APPROVED
                         payment.reviser = "System"
 
@@ -124,11 +123,12 @@ def update_corporation_payments_filter(corp_id, runs=0):
 
                         payment.save()
 
-                        Logs(
-                            user=payment.account.user.user,
+                        PaymentHistory(
+                            user=payment.account.user,
                             payment=payment,
-                            action=Logs.Actions.STATUS_CHANGE,
+                            action=PaymentHistory.Actions.STATUS_CHANGE,
                             new_status=Payments.RequestStatus.APPROVED,
+                            comment=_("Automated approved Payment"),
                         ).save()
 
                         runs = runs + 1
@@ -139,46 +139,22 @@ def update_corporation_payments_filter(corp_id, runs=0):
     # Check for any payments that need approval
     needs_approval = _current_payment_ids - set(_automatic_payment_ids)
     approvals = Payments.objects.filter(
-        id__in=needs_approval, status=Payments.Status.PENDING
+        id__in=needs_approval, request_status=Payments.RequestStatus.PENDING
     )
 
     for payment in approvals:
-        payment.status = Payments.Status.NEEDS_APPROVAL
-        payment.request_status = Payments.RequestStatus.PENDING
+        payment.request_status = Payments.RequestStatus.NEEDS_APPROVAL
         payment.save()
 
-        Logs(
-            user=payment.account.user.user,
+        PaymentHistory(
+            user=payment.account.user,
             payment=payment,
-            action=Logs.Actions.STATUS_CHANGE,
-            new_status=Payments.RequestStatus.PENDING,
+            action=PaymentHistory.Actions.STATUS_CHANGE,
+            new_status=Payments.RequestStatus.NEEDS_APPROVAL,
+            comment=_("Payment must be approved by an reviser"),
         ).save()
 
         runs = runs + 1
-
-    # Check approved payments
-    approved = Payments.objects.filter(
-        account__corporation=audit_corp,
-        status=Payments.Status.NEEDS_APPROVAL,
-        request_status=Payments.RequestStatus.APPROVED,
-    )
-
-    for payment in approved:
-        with transaction.atomic():
-            payment.status = Payments.Status.PAID
-            PaymentSystem.objects.filter(
-                corporation=audit_corp, user=payment.account.user
-            ).update(deposit=payment.account.deposit + payment.amount)
-            payment.save()
-
-            Logs(
-                user=payment.account.user.user,
-                payment=payment,
-                action=Logs.Actions.STATUS_CHANGE,
-                new_status=Payments.RequestStatus.APPROVED,
-            ).save()
-
-            runs = runs + 1
 
     # Check Payment Period
     payday = PaymentSystem.objects.filter(

@@ -19,7 +19,7 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from taxsystem import forms
 from taxsystem.api.helpers import get_corporation
 from taxsystem.helpers.views import add_info_to_context
-from taxsystem.models.logs import Logs
+from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import OwnerAudit, Payments, PaymentSystem
 from taxsystem.tasks import update_corp
 
@@ -123,13 +123,21 @@ def add_corp(request, token):
         },
     )
 
-    __, ___ = OwnerAudit.objects.update_or_create(
+    owner, created = OwnerAudit.objects.update_or_create(
         corporation=corp,
         defaults={
             "name": corp.corporation_name,
             "active": True,
         },
     )
+
+    if created:
+        AdminLogs(
+            user=request.user,
+            corporation=owner,
+            action=AdminLogs.Actions.ADD,
+            comment=_("Added to Tax System"),
+        ).save()
 
     update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
@@ -174,7 +182,6 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                 payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
                     payment.request_status = Payments.RequestStatus.APPROVED
-                    payment.status = Payments.Status.PAID
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
@@ -183,10 +190,10 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                     )
                     account.deposit += payment.amount
                     account.save()
-                    Logs(
+                    PaymentHistory(
                         user=request.user,
                         payment=payment,
-                        action=Logs.Actions.STATUS_CHANGE,
+                        action=PaymentHistory.Actions.STATUS_CHANGE,
                         comment=reason,
                         new_status=Payments.RequestStatus.APPROVED,
                     ).save()
@@ -218,7 +225,7 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             if form.is_valid():
                 reason = form.cleaned_data["undo_reason"]
                 payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
-                if payment.is_paid or payment.is_rejected:
+                if payment.is_approved or payment.is_rejected:
                     # Ensure that the payment is not rejected
                     if not payment.is_rejected:
                         account = PaymentSystem.objects.get(
@@ -227,13 +234,12 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                         account.deposit -= payment.amount
                         account.save()
                     payment.request_status = Payments.RequestStatus.PENDING
-                    payment.status = Payments.Status.PENDING
                     payment.reviser = ""
                     payment.save()
-                    Logs(
+                    PaymentHistory(
                         user=request.user,
                         payment=payment,
-                        action=Logs.Actions.STATUS_CHANGE,
+                        action=PaymentHistory.Actions.STATUS_CHANGE,
                         comment=reason,
                         new_status=Payments.RequestStatus.PENDING,
                     ).save()
@@ -267,7 +273,6 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                 payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
                     payment.request_status = Payments.RequestStatus.REJECTED
-                    payment.status = Payments.Status.FAILED
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
@@ -281,10 +286,10 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                         payment.name,
                     )
 
-                    Logs(
+                    PaymentHistory(
                         user=request.user,
                         payment=payment,
-                        action=Logs.Actions.STATUS_CHANGE,
+                        action=PaymentHistory.Actions.STATUS_CHANGE,
                         comment=reason,
                         new_status=Payments.RequestStatus.REJECTED,
                     ).save()
@@ -321,6 +326,13 @@ def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
                 else:
                     payment_system.status = PaymentSystem.Status.ACTIVE
                     msg = _("Payment System User: %s activated") % payment_system.name
+
+                AdminLogs(
+                    user=request.user,
+                    corporation=corp,
+                    action=AdminLogs.Actions.CHANGE,
+                    comment=msg,
+                ).save()
                 payment_system.save()
             return JsonResponse(
                 data={"success": True, "message": msg}, status=200, safe=False
@@ -351,6 +363,12 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
             corp.tax_amount = value
             corp.save()
             msg = _(f"Tax Amount from {corp.name} updated to {value}")
+            AdminLogs(
+                user=request.user,
+                corporation=corp,
+                action=AdminLogs.Actions.CHANGE,
+                comment=msg,
+            ).save()
         except ValidationError:
             return JsonResponse({"message": msg}, status=400)
         return JsonResponse({"message": msg}, status=200)
@@ -378,6 +396,12 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             corp.tax_period = value
             corp.save()
             msg = _(f"Tax Period from {corp.name} updated to {value}")
+            AdminLogs(
+                user=request.user,
+                corporation=corp,
+                action=AdminLogs.Actions.CHANGE,
+                comment=msg,
+            ).save()
         except ValidationError:
             return JsonResponse({"message": msg}, status=400)
         return JsonResponse({"message": msg}, status=200)

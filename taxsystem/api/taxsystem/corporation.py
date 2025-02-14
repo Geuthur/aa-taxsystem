@@ -1,7 +1,5 @@
 from ninja import NinjaAPI
 
-from django.contrib.humanize.templatetags.humanize import intcomma
-from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
 from taxsystem.api.helpers import get_corporation
@@ -79,15 +77,15 @@ class CorporationApiEndpoints:
 
             payment_system = PaymentSystem.objects.filter(
                 corporation=corp
-            ).select_related("user", "user__user", "user__main_character")
+            ).select_related("user", "user__profile", "user__profile__main_character")
 
             payment_dict = {}
 
             for user in payment_system:
                 try:
                     # Skip users without a main character
-                    character_id = user.user.main_character.character_id
-                    character_name = user.user.main_character.character_name
+                    character_id = user.user.profile.main_character.character_id
+                    character_name = user.user.profile.main_character.character_name
                 except AttributeError:
                     continue
 
@@ -132,24 +130,26 @@ class CorporationApiEndpoints:
             payments_dict = {}
 
             for payment in payments:
+                # pylint: disable=duplicate-code
                 try:
-                    character_id = payment.account.user.main_character.character_id
+                    character_id = (
+                        payment.account.user.profile.main_character.character_id
+                    )
+                    character_portrait = lazy.get_character_portrait_url(
+                        character_id, size=32, as_html=True
+                    )
                 except AttributeError:
-                    character_id = 0
+                    character_portrait = ""
 
                 actions = _payments_actions(corporation_id, payment, perms, request)
 
                 payments_dict[payment.pk] = {
                     "payment_id": payment.pk,
                     "date": payment.date,
-                    "character_portrait": lazy.get_character_portrait_url(
-                        character_id, size=32, as_html=True
-                    ),
+                    "character_portrait": character_portrait,
                     "character_name": payment.account.name,
                     "amount": payment.amount,
-                    "payment_date": payment.formatted_payment_date(),
-                    "status": payment.get_status_display(),
-                    "approved": payment.get_request_status_display(),
+                    "request_status": payment.get_request_status_display(),
                     "system": payment.reviser,
                     "reason": payment.reason,
                     "actions": actions,
@@ -159,79 +159,6 @@ class CorporationApiEndpoints:
             output.append({"corporation": payments_dict})
 
             return output
-
-        @api.get(
-            "corporation/{corporation_id}/character/{character_id}/view/payments/",
-            response={200: list, 403: str, 404: str},
-            tags=self.tags,
-        )
-        def get_main_characcter_payments(
-            request, corporation_id: int, character_id: int
-        ):
-            perms, corp = get_corporation(request, corporation_id)
-
-            if corp is None:
-                return 404, "Corporation Not Found"
-
-            payments = Payments.objects.filter(
-                account__corporation=corp,
-                account__user__main_character__character_id=character_id,
-            )
-
-            if not payments:
-                return 404, "No Payments Found"
-
-            # Create a dict for the character
-            payments_char_dict = {
-                "title": "Payments for",
-                "character_id": character_id,
-                "character_portrait": lazy.get_character_portrait_url(
-                    character_id, size=32, as_html=True
-                ),
-                "character_name": payments[0].account.name,
-            }
-
-            # Create a dict for each payment
-            payments_dict = {}
-            for payment in payments:
-                try:
-                    character_id = payment.account.user.main_character.character_id
-                except AttributeError:
-                    character_id = 0
-
-                actions = _payments_actions(corporation_id, payment, perms, request)
-                amount = f"{intcomma(payment.amount)} ISK"
-
-                payments_dict[payment.pk] = {
-                    "payment_id": payment.pk,
-                    "date": payment.date,
-                    "character_portrait": lazy.get_character_portrait_url(
-                        character_id, size=32, as_html=True
-                    ),
-                    "character_name": payment.account.name,
-                    "amount": amount,
-                    "payment_date": payment.formatted_payment_date(),
-                    "status": payment.get_status_display(),
-                    "approved": payment.get_request_status_display(),
-                    "system": payment.reviser,
-                    "reason": payment.reason,
-                    "actions": actions,
-                }
-
-            # Add payments to the character dict
-            payments_char_dict["payments"] = payments_dict
-
-            context = {
-                "entity_pk": corporation_id,
-                "entity_type": "character",
-                "character": payments_char_dict,
-            }
-
-            return render(
-                request,
-                "taxsystem/modals/view_character_payments.html",
-                context,
-            )
 
         @api.get(
             "corporation/{corporation_id}/view/dashboard/",

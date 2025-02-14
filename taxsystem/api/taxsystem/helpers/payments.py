@@ -61,7 +61,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
         actions.append(
             generate_button(corporation_id, template, payment, approve, request)
         )
-    elif payment.is_paid or payment.is_failed:
+    elif payment.is_approved or payment.is_rejected:
         url = reverse(
             viewname="taxsystem:undo_payment",
             kwargs={
@@ -70,7 +70,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
             },
         )
         settings = {
-            "title": _("Undo Payment") if payment.is_paid else _("Undo Action"),
+            "title": _("Undo Payment") if payment.is_approved else _("Undo Action"),
             "icon": "fas fa-undo",
             "color": "danger",
             "text": confirm_text,
@@ -88,7 +88,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
         color="info",
         text=_("View Payment Details"),
         modal="modalViewDetailsContainer",
-        action=f"/taxsystem/api/corporation/{corporation_id}/character/{payment.account.user.main_character.character_id}/payment/{payment.pk}/view/details/",
+        action=f"/taxsystem/api/corporation/{corporation_id}/character/{payment.account.user.profile.main_character.character_id}/payment/{payment.pk}/view/details/",
         ajax="ajax_details",
     )
     actions.append(generate_button(corporation_id, template, payment, details, request))

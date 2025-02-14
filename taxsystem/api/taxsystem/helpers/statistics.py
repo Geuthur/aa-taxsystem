@@ -34,9 +34,9 @@ def _get_statistics_dict(corp: OwnerAudit):
         pending=Count(
             "id",
             filter=Q(
-                status__in=[
-                    Payments.Status.PENDING,
-                    Payments.Status.NEEDS_APPROVAL,
+                request_status__in=[
+                    Payments.RequestStatus.PENDING,
+                    Payments.RequestStatus.NEEDS_APPROVAL,
                 ]
             ),
         ),
