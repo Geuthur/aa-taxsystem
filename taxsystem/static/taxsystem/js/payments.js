@@ -49,25 +49,6 @@ $(document).ready(() => {
                 }
             },
             {
-                data: 'approved',
-                render: function (data, _, row) {
-                    return data;
-                }
-            },
-            {
-                data: 'system',
-                render: function (data, _, row) {
-                    return data;
-                }
-            },
-            {
-                data: 'reason',
-                render: function (data, _, row) {
-                    return data;
-                },
-                className: 'ts-reason'
-            },
-            {
                 data: 'actions',
                 render: function (data, _, row) {
                     return data;

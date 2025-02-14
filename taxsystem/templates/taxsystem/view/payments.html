@@ -44,9 +44,6 @@
                         <th scope="col">{% translate "ISK" %}</th>
                         <th scope="col">{% translate "Date" %}</th>
                         <th scope="col">{% translate "Status" %}</th>
-                        <th scope="col">{% translate "Request" %}</th>
-                        <th scope="col">{% translate "Edited by" %}</th>
-                        <th scope="col">{% translate "Reason" %}</th>
                         <th scope="col">{% translate "Actions" %}</th>
                     </tr>
                 </thead>
@@ -58,6 +55,7 @@
         </div>
     </div>
 <!-- Tab Session -->
+{% include 'taxsystem/modals/modal.html' with name="ViewDetails" %}
 {% endblock %}
 
 {% block extra_css %}
@@ -65,9 +63,13 @@
 
 {% block extra_javascript %}
     <!-- load modals -->
-    {% include 'taxsystem/modals/payments-decline.html' %}
+    {% include 'taxsystem/bundles/modal-js.html' %}
+    {% include 'taxsystem/modals/payments-reject.html' %}
     {% include 'taxsystem/modals/payments-approve.html' %}
     {% include 'taxsystem/modals/payments-undo.html' %}
+    <script>
+        setupModal('#modalViewDetailsContainer', 'ajax_details', '#modalViewDetailsContent', '#modalViewDetailsLoader');
+    </script>
     <!-- load the datatables-js-bs5.html bundle -->
     {% include 'bundles/datatables-js-bs5.html' %}
     {% include "bundles/filterdropdown-js.html" %}

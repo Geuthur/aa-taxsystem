@@ -48,7 +48,7 @@ def administration(request, corporation_pk):
         "title": _("Administration"),
         "forms": {
             "accept_request": forms.TaxAcceptForm(),
-            "decline_request": forms.TaxDeclinedForm(),
+            "reject_request": forms.TaxRejectForm(),
             "undo_request": forms.TaxUndoForm(),
             "switchuser_request": forms.TaxSwitchUserForm(),
         },
@@ -77,13 +77,36 @@ def payments(request, corporation_pk):
         "title": _("Payments"),
         "forms": {
             "accept_request": forms.TaxAcceptForm(),
-            "decline_request": forms.TaxDeclinedForm(),
+            "reject_request": forms.TaxRejectForm(),
             "undo_request": forms.TaxUndoForm(),
         },
     }
     context = add_info_to_context(request, context)
 
     return render(request, "taxsystem/view/payments.html", context=context)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def own_payments(request, corporation_pk):
+    """Payments View"""
+    corporation_name = None
+    if corporation_pk == 0:
+        try:
+            corporation_pk = request.user.profile.main_character.corporation_id
+            corporation_name = request.user.profile.main_character.corporation_name
+        except AttributeError:
+            messages.error(request.user, "No Main Character found")
+
+    context = {
+        "entity_name": corporation_name,
+        "entity_pk": corporation_pk,
+        "entity_type": "corporation",
+        "title": _("Own Payments"),
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/view/own-payments.html", context=context)
 
 
 @login_required
@@ -100,21 +123,13 @@ def add_corp(request, token):
         },
     )
 
-    _, created = OwnerAudit.objects.update_or_create(
+    __, ___ = OwnerAudit.objects.update_or_create(
         corporation=corp,
         defaults={
             "name": corp.corporation_name,
             "active": True,
         },
     )
-
-    if created:
-        Logs.objects.create(
-            user=request.user,
-            corporation=corp,
-            action=Logs.Actions.CREATED,
-            log=f"Corporation {corp.corporation_name} added to Tax System",
-        )
 
     update_corp.apply_async(
         args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
@@ -156,34 +171,25 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.TaxAcceptForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["accept_info"]
-                payment = Payments.objects.get(
-                    payment_user__corporation=corp, pk=payment_pk
-                )
+                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
-                    payment.approved = Payments.Approval.APPROVED
-                    payment.payment_status = Payments.States.PAID
-                    payment.system = request.user.profile.main_character.character_name
-                    if reason:
-                        payment.approver_text = reason
+                    payment.request_status = Payments.RequestStatus.APPROVED
+                    payment.status = Payments.Status.PAID
+                    payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
-                    payment_user = PaymentSystem.objects.get(
-                        corporation=corp, user=payment.payment_user.user
+                    account = PaymentSystem.objects.get(
+                        corporation=corp, user=payment.account.user
                     )
-                    payment_user.payment_pool += payment.amount
-                    payment_user.save()
-                    msg = _("Payment ID: %s - Amount %s - Name: %s approved") % (
-                        payment.pk,
-                        intcomma(payment.amount),
-                        payment.name,
-                    )
+                    account.deposit += payment.amount
+                    account.save()
                     Logs(
                         user=request.user,
-                        corporation=corp,
-                        action=Logs.Actions.APPROVED,
-                        log=msg,
-                        level=Logs.Levels.UNNECESSARY,
-                    )
+                        payment=payment,
+                        action=Logs.Actions.STATUS_CHANGE,
+                        comment=reason,
+                        new_status=Payments.RequestStatus.APPROVED,
+                    ).save()
                     return JsonResponse(
                         data={"success": True, "message": msg}, status=200, safe=False
                     )
@@ -210,34 +216,26 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
         with transaction.atomic():
             form = forms.TaxUndoForm(data=request.POST)
             if form.is_valid():
-                payment = Payments.objects.get(
-                    payment_user__corporation=corp, pk=payment_pk
-                )
+                reason = form.cleaned_data["undo_reason"]
+                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
                 if payment.is_paid or payment.is_rejected:
                     # Ensure that the payment is not rejected
                     if not payment.is_rejected:
-                        payment_user = PaymentSystem.objects.get(
-                            corporation=corp, user=payment.payment_user.user
+                        account = PaymentSystem.objects.get(
+                            corporation=corp, user=payment.account.user
                         )
-                        payment_user.payment_pool -= payment.amount
-                        payment_user.save()
-                    payment.approved = Payments.Approval.PENDING
-                    payment.payment_status = Payments.States.PENDING
-                    payment.system = ""
-                    payment.approver_text = ""
+                        account.deposit -= payment.amount
+                        account.save()
+                    payment.request_status = Payments.RequestStatus.PENDING
+                    payment.status = Payments.Status.PENDING
+                    payment.reviser = ""
                     payment.save()
-                    msg = _("Payment ID: %s - Amount %s - Name: %s reseted") % (
-                        payment.pk,
-                        intcomma(payment.amount),
-                        payment.name,
-                    )
-
                     Logs(
                         user=request.user,
-                        corporation=corp,
-                        action=Logs.Actions.UNDO,
-                        log=msg,
-                        level=Logs.Levels.UNNECESSARY,
+                        payment=payment,
+                        action=Logs.Actions.STATUS_CHANGE,
+                        comment=reason,
+                        new_status=Payments.RequestStatus.PENDING,
                     ).save()
                     return JsonResponse(
                         data={"success": True, "message": msg}, status=200, safe=False
@@ -250,7 +248,7 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 @login_required
 @permission_required("taxsystem.manage_access")
 @require_POST
-def decline_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
+def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
     # Check Permission
     perms, corp = get_corporation(request, corporation_id)
     msg = _("Invalid Method")
@@ -263,25 +261,21 @@ def decline_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
     try:
         with transaction.atomic():
-            form = forms.TaxDeclinedForm(data=request.POST)
+            form = forms.TaxRejectForm(data=request.POST)
             if form.is_valid():
-                reason = form.cleaned_data["decline_reason"]
-                payment = Payments.objects.get(
-                    payment_user__corporation=corp, pk=payment_pk
-                )
+                reason = form.cleaned_data["reject_reason"]
+                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
-                    payment.approved = Payments.Approval.REJECTED
-                    payment.payment_status = Payments.States.FAILED
-                    payment.system = request.user.profile.main_character.character_name
-                    if reason:
-                        payment.approver_text = reason
+                    payment.request_status = Payments.RequestStatus.REJECTED
+                    payment.status = Payments.Status.FAILED
+                    payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
-                    payment_user = PaymentSystem.objects.get(
-                        corporation=corp, user=payment.payment_user.user
+                    account = PaymentSystem.objects.get(
+                        corporation=corp, user=payment.account.user
                     )
-                    payment_user.save()
-                    msg = _("Payment ID: %s - Amount %s - Name: %s declined") % (
+                    account.save()
+                    msg = _("Payment ID: %s - Amount %s - Name: %s rejected") % (
                         payment.pk,
                         intcomma(payment.amount),
                         payment.name,
@@ -289,10 +283,10 @@ def decline_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
                     Logs(
                         user=request.user,
-                        corporation=corp,
-                        action=Logs.Actions.DECLINED,
-                        log=msg,
-                        level=Logs.Levels.UNNECESSARY,
+                        payment=payment,
+                        action=Logs.Actions.STATUS_CHANGE,
+                        comment=reason,
+                        new_status=Payments.RequestStatus.REJECTED,
                     ).save()
                     return JsonResponse(
                         data={"success": True, "message": msg}, status=200, safe=False
@@ -322,26 +316,11 @@ def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
             if form.is_valid():
                 payment_system = PaymentSystem.objects.get(corporation=corp, pk=user_pk)
                 if payment_system.is_active:
-                    payment_system.status = PaymentSystem.States.DEACTIVATED
+                    payment_system.status = PaymentSystem.Status.DEACTIVATED
                     msg = _("Payment System User: %s deactivated") % payment_system.name
-
-                    Logs.objects.create(
-                        user=request.user,
-                        corporation=corp,
-                        action=Logs.Actions.UPDATED,
-                        log=msg,
-                        level=Logs.Levels.INFO,
-                    )
                 else:
-                    payment_system.status = PaymentSystem.States.ACTIVE
+                    payment_system.status = PaymentSystem.Status.ACTIVE
                     msg = _("Payment System User: %s activated") % payment_system.name
-                    Logs(
-                        user=request.user,
-                        corporation=corp,
-                        action=Logs.Actions.UPDATED,
-                        log=msg,
-                        level=Logs.Levels.INFO,
-                    ).save()
                 payment_system.save()
             return JsonResponse(
                 data={"success": True, "message": msg}, status=200, safe=False
@@ -372,13 +351,6 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
             corp.tax_amount = value
             corp.save()
             msg = _(f"Tax Amount from {corp.name} updated to {value}")
-            Logs(
-                user=request.user,
-                corporation=corp,
-                action=Logs.Actions.UPDATED,
-                log=msg,
-                level=Logs.Levels.INFO,
-            ).save()
         except ValidationError:
             return JsonResponse({"message": msg}, status=400)
         return JsonResponse({"message": msg}, status=200)
@@ -406,13 +378,6 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             corp.tax_period = value
             corp.save()
             msg = _(f"Tax Period from {corp.name} updated to {value}")
-            Logs(
-                user=request.user,
-                corporation=corp,
-                action=Logs.Actions.UPDATED,
-                log=msg,
-                level=Logs.Levels.INFO,
-            ).save()
         except ValidationError:
             return JsonResponse({"message": msg}, status=400)
         return JsonResponse({"message": msg}, status=200)

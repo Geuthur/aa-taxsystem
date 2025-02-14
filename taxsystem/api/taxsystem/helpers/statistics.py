@@ -27,18 +27,16 @@ def _get_divisions_dict(divisions: CorporationWalletDivision):
 
 
 def _get_statistics_dict(corp: OwnerAudit):
-    payments_counts = Payments.objects.filter(payment_user__corporation=corp).aggregate(
+    payments_counts = Payments.objects.filter(account__corporation=corp).aggregate(
         total=Count("id"),
-        automatic=Count("id", filter=Q(system=Payments.Systems.AUTOMATIC)),
-        manual=Count(
-            "id", filter=~Q(system=Payments.Systems.AUTOMATIC) & ~Q(system="")
-        ),
+        automatic=Count("id", filter=Q(reviser="System")),
+        manual=Count("id", filter=~Q(reviser="System") & ~Q(reviser="")),
         pending=Count(
             "id",
             filter=Q(
-                payment_status__in=[
-                    Payments.States.PENDING,
-                    Payments.States.NEEDS_APPROVAL,
+                status__in=[
+                    Payments.Status.PENDING,
+                    Payments.Status.NEEDS_APPROVAL,
                 ]
             ),
         ),
@@ -46,9 +44,9 @@ def _get_statistics_dict(corp: OwnerAudit):
 
     payment_system_counts = PaymentSystem.objects.filter(corporation=corp).aggregate(
         users=Count("id"),
-        active=Count("id", filter=Q(status=PaymentSystem.States.ACTIVE)),
-        inactive=Count("id", filter=Q(status=PaymentSystem.States.INACTIVE)),
-        deactivated=Count("id", filter=Q(status=PaymentSystem.States.DEACTIVATED)),
+        active=Count("id", filter=Q(status=PaymentSystem.Status.ACTIVE)),
+        inactive=Count("id", filter=Q(status=PaymentSystem.Status.INACTIVE)),
+        deactivated=Count("id", filter=Q(status=PaymentSystem.Status.DEACTIVATED)),
     )
 
     members_count = Members.objects.filter(corporation=corp).aggregate(

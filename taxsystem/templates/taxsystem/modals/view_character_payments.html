@@ -43,12 +43,25 @@
         </table>
     </div>
     <script>
-        $(document).ready(function() {
-            $('#payments').DataTable({
+        $(document).ready(() => {
+            const paymentsViewCharacterTableVar = $('#payments');
+
+            const tablePayments = paymentsViewCharacterTableVar.DataTable({
                 "order": [[ 1, "desc" ]],
                 "columnDefs": [
                     { "orderable": false, "targets": 6 }
                 ]
+            });
+
+            tablePayments.on('draw', function (row, data) {
+                $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            });
+
+            // Tooltip
+            $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
+                trigger: 'hover',
             });
         });
     </script>

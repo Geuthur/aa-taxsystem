@@ -3,7 +3,7 @@
 {% load bootstrap %}
 
 <!-- Decline Request Modal -->
-<div class="modal fade" id="payments-decline" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="payments-reject" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -19,18 +19,18 @@
 
                 <form method="post">
                     {% csrf_token %}
-                    <fieldset class="tax-decline-form">
-                        {{ forms.decline_request|bootstrap }}
+                    <fieldset class="tax-reject-form">
+                        {{ forms.reject_request|bootstrap }}
                     </fieldset>
                 </form>
                 {% include 'taxsystem/partials/form/required-field.html' %}
             </div>
             <div class="modal-footer">
-                <button id="modal-button-cancel-decline-request" type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                <button id="modal-button-cancel-reject-request" type="button" class="btn btn-danger" data-bs-dismiss="modal">
                     <i class="fa-solid fa-hand"></i> {% trans "Cancel" %}
                 </button>
 
-                <button id="modal-button-confirm-decline-request" type="button" class="btn btn-success">
+                <button id="modal-button-confirm-reject-request" type="button" class="btn btn-success">
                     <i class="fa-solid fa-check"></i> {% trans "Confirm" %}
                 </button>
             </div>

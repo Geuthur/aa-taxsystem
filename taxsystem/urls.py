@@ -23,6 +23,11 @@ urlpatterns = [
         views.payments,
         name="payments",
     ),
+    path(
+        "corporation/<int:corporation_pk>/view/own-payments/",
+        views.own_payments,
+        name="own_payments",
+    ),
     # --- Tax Administration
     # -- Tax Payments
     path("corporation/add/", views.add_corp, name="add_corp"),
@@ -37,9 +42,9 @@ urlpatterns = [
         name="undo_payment",
     ),
     path(
-        "corporation/<int:corporation_id>/payment/<int:payment_pk>/decline/",
-        views.decline_payment,
-        name="decline_payment",
+        "corporation/<int:corporation_id>/payment/<int:payment_pk>/reject/",
+        views.reject_payment,
+        name="reject_payment",
     ),
     # -- Tax Manage
     path(

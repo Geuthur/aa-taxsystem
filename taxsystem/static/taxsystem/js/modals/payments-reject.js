@@ -1,6 +1,6 @@
 $(document).ready(() => {
     // * global tablePayments */
-    const modalRequestDecline = $('#payments-decline');
+    const modalRequestDecline = $('#payments-reject');
     const modalRequestDeclineError = modalRequestDecline.find('#modal-error-field');
     const previousDeclineModal = $('#modalViewPaymentsContainer');
 
@@ -19,15 +19,15 @@ $(document).ready(() => {
         const modalDiv = modalRequestDecline.find('#modal-request-text');
         modalDiv.html(modalText);
 
-        $('#modal-button-confirm-decline-request').on('click', () => {
+        $('#modal-button-confirm-reject-request').on('click', () => {
             const form = modalRequestDecline.find('form');
-            const declineInfoField = form.find('textarea[name="decline_reason"]');
-            const declineInfo = declineInfoField.val();
+            const rejectInfoField = form.find('textarea[name="reject_reason"]');
+            const rejectInfo = rejectInfoField.val();
             const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
-            if (declineInfo === '') {
+            if (rejectInfo === '') {
                 modalRequestDeclineError.removeClass('d-none');
-                declineInfoField.addClass('is-invalid');
+                rejectInfoField.addClass('is-invalid');
 
                 // Add shake class to the error field
                 modalRequestDeclineError.addClass('ts-shake');
@@ -40,7 +40,7 @@ $(document).ready(() => {
                 const posting = $.post(
                     url,
                     {
-                        decline_reason: declineInfo,
+                        reject_reason: rejectInfo,
                         csrfmiddlewaretoken: csrfMiddlewareToken
                     }
                 );
@@ -67,10 +67,10 @@ $(document).ready(() => {
             }
         });
     }).on('hide.bs.modal', () => {
-        modalRequestDecline.find('textarea[name="decline_reason"]').val('');
-        modalRequestDecline.find('textarea[name="decline_reason"]').removeClass('is-invalid');
+        modalRequestDecline.find('textarea[name="reject_reason"]').val('');
+        modalRequestDecline.find('textarea[name="reject_reason"]').removeClass('is-invalid');
         modalRequestDecline.find('.alert-danger').remove();
         modalRequestDeclineError.addClass('d-none');
-        $('#modal-button-confirm-decline-request').unbind('click');
+        $('#modal-button-confirm-reject-request').unbind('click');
     });
 });
