@@ -15,11 +15,21 @@
 - Corporation Name in Payments View
 - Reason row into Payments
 - Log System for Administration Actions
+- Shake Animation
+- API
+  - Payment System
+    - Account Payments Overview
+
+### Changed
+
+- Modal System
 
 ### Fixed
 
 - Wrong Bool State on `has_paid` property if `payment_pool` is negative [#2](https://github.com/Geuthur/aa-taxsystem/issues/2)
 - Locale Folder has wrong `__init__`
+- Modal System Error Handler
+- Error if User has no Main Character defined yet
 
 ## [0.5.0.3] - 2025-02-10
 

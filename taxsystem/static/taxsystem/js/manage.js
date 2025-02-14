@@ -51,7 +51,7 @@ $(document).ready(function() {
                     // Display the value in the table with thousand separators
                     $(this).text(value.toLocaleString('de-DE') + ' ISK');
                 },
-                success: function(response, newValue) {
+                success: function() {
                     tablePaymentSystem.ajax.reload();
                 },
                 error: function(response, newValue) {
@@ -76,7 +76,7 @@ $(document).ready(function() {
                     // Display the value in the table with thousand separators
                     $(this).text(value.toLocaleString('de-DE') + ' ' + taxsystemsettings.translations.days);
                 },
-                success: function(response, newValue) {
+                success: function() {
                     tablePaymentSystem.ajax.reload();
                 },
                 error: function(response, newValue) {
@@ -315,7 +315,8 @@ $(document).ready(function() {
                         return amount.toLocaleString('de-DE') + ' ISK ' + button;
                     }
                     return amount;
-                }
+                },
+                className: 'text-end'
             },
             {
                 data: 'has_paid',
@@ -334,7 +335,8 @@ $(document).ready(function() {
                 data: 'actions',
                 render: function (data, _, row) {
                     return data;
-                }
+                },
+                className: 'text-end'
             },
             // Hidden columns
             {

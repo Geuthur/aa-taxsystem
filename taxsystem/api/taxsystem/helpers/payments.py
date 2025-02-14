@@ -12,7 +12,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
     if not perms:
         return actions
 
-    template = "taxsystem/forms/standard/confirm.html"
+    template = "taxsystem/partials/form/button.html"
     amount = intcomma(payment.amount)
     confirm_text = (
         _("Are you sure to Confirm")
@@ -30,11 +30,11 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
             },
         )
         settings = {
-            "unique_id": f"approve_{payment.pk}",
+            "title": _("Approve Payment"),
             "icon": "fas fa-check",
             "color": "success",
-            "confirm_text": confirm_text,
-            "title": _("Approve Payment"),
+            "text": confirm_text,
+            "modal": "payments-approve",
             "action": url,
         }
 
@@ -45,15 +45,12 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
                 "payment_pk": payment.pk,
             },
         )
-
         settingsdecline = {
-            "unique_id": f"decline_{payment.pk}",
+            "title": _("Decline Payment"),
             "icon": "fas fa-times",
             "color": "danger",
-            "confirm_text": confirm_text,
-            "title": _("Decline Payment"),
-            "required": True,
-            "label": _("Reject Reason") + " (*)",
+            "text": confirm_text,
+            "modal": "payments-decline",
             "action": urldecline,
         }
         actions.append(
@@ -71,11 +68,11 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
             },
         )
         settings = {
-            "unique_id": f"undo_{payment.pk}",
+            "title": _("Undo Payment") if payment.is_paid else _("Undo Action"),
             "icon": "fas fa-undo",
             "color": "danger",
-            "confirm_text": confirm_text,
-            "title": _("Undo Payment") if payment.is_paid else _("Undo Action"),
+            "text": confirm_text,
+            "modal": "payments-undo",
             "action": url,
         }
         actions.append(

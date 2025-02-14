@@ -1,3 +1,6 @@
-{% load static %}
-<script src="{% static 'taxsystem/js/payments.js' %}"></script>
-<script src="{% static 'taxsystem/js/modals/confirm.js' %}"></script>
+{% load taxsystem %}
+
+{% taxsystem_static 'js/payments.js' %}
+{% taxsystem_static 'js/modals/payments-decline.js' %}
+{% taxsystem_static 'js/modals/payments-approve.js' %}
+{% taxsystem_static 'js/modals/payments-undo.js' %}
