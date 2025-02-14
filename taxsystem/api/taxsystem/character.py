@@ -137,15 +137,21 @@ class CharacterApiEndpoints:
             # Create a dict for the payment system
             if account.is_active:
                 status = lazy.generate_icon(
-                    color="success", icon="fas fa-check", size=24
+                    color="success", icon="fas fa-check", size=24, title=_("Active")
                 )
             elif account.is_deactivated:
                 status = lazy.generate_icon(
-                    color="danger", icon="fas fa-times", size=24
+                    color="danger",
+                    icon="fas fa-user-clock",
+                    size=24,
+                    title=_("Deactivated"),
                 )
             else:
                 status = lazy.generate_icon(
-                    color="warning", icon="fas fa-user-slash", size=24
+                    color="warning",
+                    icon="fas fa-user-slash",
+                    size=24,
+                    title=_("Inactive"),
                 )
 
             account_dict = {

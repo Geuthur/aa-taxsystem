@@ -83,11 +83,15 @@ def str_normalize_time(evetime, hours: bool = False) -> str:
     return timezone.localtime(evetime).strftime("%Y-%m-%d")
 
 
-def generate_icon(color: str, icon: str, size: str = 32, position: str = "end") -> str:
+def generate_icon(
+    color: str, icon: str, size: str = 32, title: str = None, position: str = "end"
+) -> str:
     """Generate a bootstrap icon button."""
     html = f"<div class='d-flex justify-content-{position}'>"
     html += f"<button class='btn btn-{color} btn-sm d-flex align-items-center justify-content-center'"
-    html += f" style='height: {size}px; width: {size}px;'"
+    html += f" style='height: {size}px; width: {size}px;' data-tooltip-toggle='taxsystem-tooltip'"
+    if title:
+        html += f" title='{title}'"
     html += ">"
     html += f"<i class='{icon}'></i>"
     html += "</button>"
