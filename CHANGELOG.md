@@ -14,15 +14,39 @@
 - Miscellaneous Statistics in Administration Section
 - Corporation Name in Payments View
 - Reason row into Payments
-- Log System for Administration Actions
 - Shake Animation
 - API
   - Payment System
     - Account Payments Overview
+  - Character
+    - Payment Details
+- Log System
+  - Logs Payment changes
+- Views
+  - Logs for each Payment Change
+- Lazy Functions
+  - Add Icon Generate function
+- Tasks
+  - Logs fo Payments
 
 ### Changed
 
 - Modal System
+- Tax Model
+  - States Choice to Status
+  - `payment_pool` to `deposit`
+- Payments
+  - States to Status
+  - Approval to RequestStatus
+  - `payment_user` to `account`
+  - `payment_status` to `status`
+  - `system` to `reviser`
+  - Removed payment_date
+  - Removed approver_text
+- Button System
+  - Add Ajax Support for Modal System
+- Payments View
+  - Removed `request_status`, `reviser`, `reason` row
 
 ### Fixed
 
