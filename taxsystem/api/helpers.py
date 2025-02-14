@@ -36,3 +36,19 @@ def generate_button(
             request=request,
         )
     )
+
+
+# pylint: disable=too-many-positional-arguments
+def generate_settings(
+    title: str, icon: str, color: str, text: str, modal: str, action: str, ajax: str
+) -> dict:
+    """Generate a settings dict for the tax system"""
+    return {
+        "title": title,
+        "icon": icon,
+        "color": color,
+        "text": text,
+        "modal": modal,
+        "action": action,
+        "ajax": ajax,
+    }
