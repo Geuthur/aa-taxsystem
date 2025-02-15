@@ -149,6 +149,8 @@ $(document).ready(function() {
                     $('#statistics_payment_users_active').text(stat.payment_users_active);
                     $('#statistics_payment_users_inactive').text(stat.payment_users_inactive);
                     $('#statistics_payment_users_deactivated').text(stat.payment_users_deactivated);
+                    $('#psystem_payment_users_paid').text(stat.payment_users_paid);
+                    $('#psystem_payment_users_unpaid').text(stat.payment_users_unpaid);
                 } else {
                     $('#statistics_name').hide();
                     $('#statistics_payments').hide();
@@ -165,6 +167,8 @@ $(document).ready(function() {
                     $('#statistics_payment_users_active').hide();
                     $('#statistics_payment_users_inactive').hide();
                     $('#statistics_payment_users_deactivated').hide();
+                    $('#psystem_payment_users_paid').hide();
+                    $('#psystem_payment_users_unpaid').hide();
                 }
             } catch (e) {
                 console.error('Error fetching statistics data:', e);
@@ -183,6 +187,8 @@ $(document).ready(function() {
                 $('#statistics_payment_users_active').hide();
                 $('#statistics_payment_users_inactive').hide();
                 $('#statistics_payment_users_deactivated').hide();
+                $('#psystem_payment_users_paid').hide();
+                $('#psystem_payment_users_unpaid').hide();
             }
 
             manageDashboardStatisticsVar.removeClass('d-none');
@@ -296,25 +302,9 @@ $(document).ready(function() {
                 }
             },
             {
-                data: 'wallet',
-                render: function (data, type, row) {
-                    const amount = parseFloat(data);
-                    if (type === 'display') {
-                        const viewPaymentUrl = `/taxsystem/api/corporation/${entityPk}/character/${row.character_id}/view/payments/`;
-                        const button = `
-                            <button type="button"
-                                class="btn btn-sm btn-primary"
-                                title="View Payments"
-                                data-tooltip-toggle="taxsystem-tooltip"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalViewPaymentsContainer"
-                                data-ajax_payments="${viewPaymentUrl}">
-                            <span class="fas fa-info"></span></button>
-                        `;
-
-                        return amount.toLocaleString('de-DE') + ' ISK ' + button;
-                    }
-                    return amount;
+                data: 'deposit',
+                render: function (data, _, row) {
+                    return data;
                 },
                 className: 'text-end'
             },

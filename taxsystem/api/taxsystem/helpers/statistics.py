@@ -1,5 +1,6 @@
 from django.contrib.humanize.templatetags.humanize import intcomma
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
@@ -42,11 +43,27 @@ def _get_statistics_dict(corp: OwnerAudit):
         ),
     )
 
+    period = timezone.timedelta(days=corp.tax_period)
+
     payment_system_counts = PaymentSystem.objects.filter(corporation=corp).aggregate(
         users=Count("id"),
         active=Count("id", filter=Q(status=PaymentSystem.Status.ACTIVE)),
         inactive=Count("id", filter=Q(status=PaymentSystem.Status.INACTIVE)),
         deactivated=Count("id", filter=Q(status=PaymentSystem.Status.DEACTIVATED)),
+        paid=Count(
+            "id",
+            filter=Q(deposit__gte=F("corporation__tax_amount"))
+            & Q(status=PaymentSystem.Status.ACTIVE)
+            | Q(deposit=0)
+            & Q(status=PaymentSystem.Status.ACTIVE)
+            & Q(last_paid__gte=timezone.now() - period),
+        ),
+        unpaid=Count(
+            "id",
+            filter=Q(deposit=0)
+            & Q(status=PaymentSystem.Status.ACTIVE)
+            & Q(last_paid__lt=timezone.now() - period),
+        ),
     )
 
     members_count = Members.objects.filter(corporation=corp).aggregate(
@@ -62,8 +79,8 @@ def _get_statistics_dict(corp: OwnerAudit):
         "payment_users_active": payment_system_counts["active"],
         "payment_users_inactive": payment_system_counts["inactive"],
         "payment_users_deactivated": payment_system_counts["deactivated"],
-        "payment_users_paid": 0,
-        "payment_users_unpaid": 0,
+        "payment_users_paid": payment_system_counts["paid"],
+        "payment_users_unpaid": payment_system_counts["unpaid"],
         # Payments
         "payments": payments_counts["total"],
         "payments_pending": payments_counts["pending"],
