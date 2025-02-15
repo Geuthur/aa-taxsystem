@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load navactive %}
+
+{% if perms.taxsystem.create_access %}
+    <li class="nav-item">
+        <a class="nav-link py-0" href="{% url 'taxsystem:add_corp' %}">
+            <span class="btn btn-success">{% translate 'Add Corporation' %}</span>
+        </a>
+    </li>
+{% endif %}
+
+{% if perms.taxsystem.manage_access %}
+    <li class="nav-item">
+        <a class="nav-link py-0" href="{% url 'taxsystem:overview' %}">
+            <span class="btn btn-success">{% translate 'Manage Tax System' %}</span>
+        </a>
+    </li>
+{% endif %}

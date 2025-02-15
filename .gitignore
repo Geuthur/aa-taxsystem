@@ -1,0 +1,15 @@
+*.log
+.tox/
+*.old
+__pycache__
+node_modules/
+
+# Ignore all files in the root of the directory
+.coverage
+.env
+.pypirc
+.venv/
+/build/
+/dist/
+/coverage.xml
+testing/

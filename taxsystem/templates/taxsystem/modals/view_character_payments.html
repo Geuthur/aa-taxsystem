@@ -1,0 +1,68 @@
+
+{% load i18n %}
+{% load static %}
+{% load evelinks %}
+{% load humanize %}
+
+{% if character %}
+    <h4 class="d-none" id="modal-title">
+        {{ character.title }}:
+        <img src="{{ character.character_id|character_portrait_url:32 }}" class="rounded-circle">
+        {{character.character_name}}
+    </h4>
+    <header class="card-header bg-primary rounded-top">
+        <h3 class="me-3">{% trans "Payments" %}</h3>
+    </header>
+    <input type="hidden" id="modal-hidden-url" value="">
+    <div class="card-body bg-secondary rounded-bottom mb-3">
+        <table class="table table-dark table-striped table-hover w-100" id="payments">
+            <thead>
+                <tr>
+                    <th scope="col">{% translate "ISK" %}</th>
+                    <th scope="col">{% translate "Date" %}</th>
+                    <th scope="col">{% translate "Status" %}</th>
+                    <th scope="col">{% translate "Edited by" %}</th>
+                    <th scope="col">{% translate "Reason" %}</th>
+                    <th scope="col">{% translate "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody class="modal-payments-table-body">
+                {% for payment_id, payment in character.payments.items %}
+                    <tr>
+                        <td>{{ payment.amount }}</td>
+                        <td>{{ payment.payment_date }}</td>
+                        <td>{{ payment.request_status }}</td>
+                        <td>{{ payment.reviser }}</td>
+                        <td>{{ payment.reason }}</td>
+                        <td>{{ payment.actions }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(() => {
+            const paymentsViewCharacterTableVar = $('#payments');
+
+            const tablePayments = paymentsViewCharacterTableVar.DataTable({
+                "order": [[ 1, "desc" ]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 5 }
+                ]
+            });
+
+            tablePayments.on('draw', function (row, data) {
+                $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            });
+
+            // Tooltip
+            $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
+                trigger: 'hover',
+            });
+        });
+    </script>
+{% else %}
+    {% translate "No character found." %}
+{% endif %}

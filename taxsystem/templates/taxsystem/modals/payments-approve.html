@@ -1,0 +1,38 @@
+{% load i18n %}
+{% load static %}
+{% load bootstrap %}
+
+<!-- Approve Request Modal -->
+<div class="modal fade" id="payments-approve" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modal-title">
+                    <!-- Modal Title -->
+                </span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span id="modal-request-text">
+                    <!-- Modal Request Text -->
+                </span>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <fieldset class="tax-approve-form">
+                        {{ forms.accept_request|bootstrap }}
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-button-cancel-approve-request" type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-hand"></i> {% trans "Cancel" %}
+                </button>
+
+                <button id="modal-button-confirm-approve-request" type="button" class="btn btn-success">
+                    <i class="fa-solid fa-check"></i> {% trans "Confirm" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
