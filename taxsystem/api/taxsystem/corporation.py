@@ -7,6 +7,7 @@ from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
     _get_has_paid_icon,
     _payment_system_actions,
+    _payments_info,
 )
 from taxsystem.api.taxsystem.helpers.statistics import (
     _get_divisions_dict,
@@ -89,7 +90,18 @@ class CorporationApiEndpoints:
                 except AttributeError:
                     continue
 
-                actions = _payment_system_actions(corporation_id, user, perms, request)
+                actions = _payment_system_actions(
+                    corporation_id=corporation_id,
+                    user=user,
+                    perms=perms,
+                    request=request,
+                )
+                deposit = _payments_info(
+                    corporation_id=corporation_id,
+                    user=user,
+                    perms=perms,
+                    request=request,
+                )
                 has_paid = _get_has_paid_icon(user)
                 payment_dict[character_id] = {
                     "character_id": character_id,
@@ -101,7 +113,7 @@ class CorporationApiEndpoints:
                     "character_name": character_name,
                     "alts": user.get_alt_ids(),
                     "status": user.get_payment_status(),
-                    "wallet": user.deposit,
+                    "deposit": deposit,
                     "has_paid": has_paid,
                     "has_paid_filter": has_paid["sort"],
                     "last_paid": lazy.str_normalize_time(user.last_paid, hours=True),
