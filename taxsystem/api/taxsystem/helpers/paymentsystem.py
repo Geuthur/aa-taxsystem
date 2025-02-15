@@ -1,9 +1,33 @@
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 from taxsystem.api.helpers import generate_button, generate_settings
 from taxsystem.models.tax import PaymentSystem
+
+
+def _payments_info(corporation_id, user: PaymentSystem, perms, request):
+    if not perms:
+        return ""
+
+    view_payments = generate_button(
+        corporation_id,
+        "taxsystem/partials/form/button.html",
+        user,
+        {
+            "title": _("View Payments"),
+            "icon": "fas fa-info",
+            "color": "primary",
+            "text": _("View Payments"),
+            "modal": "modalViewPaymentsContainer",
+            "action": f"/taxsystem/api/corporation/{corporation_id}/character/{user.user.profile.main_character.character_id}/view/payments/",
+            "ajax": "ajax_payments",
+        },
+        request,
+    )
+
+    return format_html(f"{intcomma(user.deposit, use_l10n=True)} ISK {view_payments}")
 
 
 def _payment_system_actions(corporation_id, user: PaymentSystem, perms, request):
