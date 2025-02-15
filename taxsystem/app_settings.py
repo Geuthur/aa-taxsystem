@@ -35,7 +35,7 @@ TAXSYSTEM_LOGGER_USE = clean_setting("TAXSYSTEM_LOGGER_USE", False)
 
 # Skip Dates for Audit
 
-# Member Skip Date in Days
+# Member Skip Date in Hours
 TAXSYSTEM_CORP_MEMBERS_SKIP_DATE = clean_setting("TAXSYSTEM_CORP_MEMBERS_SKIP_DATE", 1)
 # Wallet Skip Date in Hours
 TAXSYSTEM_CORP_WALLET_SKIP_DATE = clean_setting("TAXSYSTEM_CORP_WALLET_SKIP_DATE", 1)

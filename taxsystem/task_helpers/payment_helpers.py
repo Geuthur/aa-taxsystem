@@ -47,37 +47,49 @@ def update_corporation_payments(corp_id):
             "entry_id", flat=True
         )
     )
+    with transaction.atomic():
+        items = []
+        logs_items = []
+        for entry in journal:
+            # Skip if already processed
+            if entry.entry_id in _current_entry_ids:
+                continue
+            for user, alts in users.items():
+                if entry.first_party.id in alts:
+                    payment_item = Payments(
+                        entry_id=entry.entry_id,
+                        name=user.name,
+                        account=user,
+                        amount=entry.amount,
+                        request_status=Payments.RequestStatus.PENDING,
+                        date=entry.date,
+                        reason=entry.reason,
+                    )
+                    items.append(payment_item)
 
-    items = []
-    for entry in journal:
-        # Skip if already processed
-        if entry.entry_id in _current_entry_ids:
-            continue
-        for user, alts in users.items():
-            if entry.first_party.id in alts:
-                payment_item = Payments(
-                    entry_id=entry.entry_id,
-                    name=user.name,
-                    account=user,
-                    amount=entry.amount,
-                    request_status=Payments.RequestStatus.PENDING,
-                    date=entry.date,
-                    reason=entry.reason,
+        payments = Payments.objects.bulk_create(items, ignore_conflicts=True)
+
+        for payment in payments:
+            try:
+                payment = Payments.objects.get(
+                    entry_id=payment.entry_id, account=payment.account
                 )
-                items.append(payment_item)
+            except Payments.DoesNotExist:
+                continue
 
-    payments = Payments.objects.bulk_create(items, ignore_conflicts=True)
+            log_items = PaymentHistory(
+                user=payment.account.user,
+                payment=payment,
+                action=PaymentHistory.Actions.STATUS_CHANGE,
+                new_status=Payments.RequestStatus.PENDING,
+                comment=_("Payment added to system"),
+            )
+            logs_items.append(log_items)
 
-    for payment in payments:
-        PaymentHistory(
-            user=payment.account.user,
-            payment=payment,
-            action=PaymentHistory.Actions.PAYMENT_ADDED,
-            new_status=Payments.RequestStatus.PENDING,
-        ).save()
+        PaymentHistory.objects.bulk_create(logs_items, ignore_conflicts=True)
 
-    audit_corp.last_update_payments = timezone.now()
-    audit_corp.save()
+        audit_corp.last_update_payments = timezone.now()
+        audit_corp.save()
 
     logger.debug(
         "Finished %s Payments for %s",

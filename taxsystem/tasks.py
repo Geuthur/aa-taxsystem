@@ -41,13 +41,13 @@ def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-a
             hours=app_settings.TAXSYSTEM_CORP_WALLET_SKIP_DATE
         )
         members = timezone.now() - datetime.timedelta(
-            days=app_settings.TAXSYSTEM_CORP_MEMBERS_SKIP_DATE
+            hours=app_settings.TAXSYSTEM_CORP_MEMBERS_SKIP_DATE
         )
         payments = timezone.now() - datetime.timedelta(
-            days=app_settings.TAXSYSTEM_CORP_PAYMENTS_SKIP_DATE
+            hours=app_settings.TAXSYSTEM_CORP_PAYMENTS_SKIP_DATE
         )
         payment_system = timezone.now() - datetime.timedelta(
-            days=app_settings.TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE
+            hours=app_settings.TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE
         )
 
     corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)

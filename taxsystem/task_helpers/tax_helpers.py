@@ -188,7 +188,7 @@ def update_payment_users(corp_id, members_ids):
                     PaymentSystem(
                         name=main.character_name,
                         corporation=audit_corp,
-                        user=account,
+                        user=account.user,
                         status=PaymentSystem.Status.ACTIVE,
                     )
                 )
