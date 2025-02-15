@@ -28,6 +28,7 @@
   - Add Icon Generate function
 - Tasks
   - Logs fo Payments
+- AJAX Reloader for Statistics on Changes
 
 ### Changed
 
