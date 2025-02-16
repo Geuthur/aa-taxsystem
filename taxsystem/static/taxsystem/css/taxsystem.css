@@ -40,3 +40,13 @@ table.tax-table-hover>tbody>tr:nth-of-type(1n+1):hover>* {
 .tax-red {
     background-color: rgba(255 0 0 / 10%) !important;
 }
+
+/* Fix X-Editable Cancel Button */
+
+.editable-cancel {
+    background-color: rgba(231 76 60 / 100%);
+}
+
+.editable-cancel:hover {
+    background-color: rgba(231 76 60 / 70%);
+}
