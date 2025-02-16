@@ -3,17 +3,17 @@
 <script type="application/javascript">
     let taxsystemsettings = {
         // Core
-        entity_pk: {{ entity_pk }},
-        entity_type: "{{ entity_type }}",
+        corporation_id: {{ corporation_id }},
         csrf: "{{ csrf_token }}",
         // URLs
-        corporationmanageDashboardUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/dashboard/",
-        corporationPaymentsUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/payments/",
-        corporationMembersUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/members/",
-        corporationPaymentSystemUrl: "/taxsystem/api/corporation/{{ entity_pk }}/view/paymentsystem/",
+        corporationmanageDashboardUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/dashboard/",
+        corporationPaymentsUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/payments/",
+        corporationOwnPaymentsUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/own-payments/",
+        corporationMembersUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/members/",
+        corporationPaymentSystemUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/paymentsystem/",
         // Update URLs
-        corporationUpdateTaxUrl: "/taxsystem/corporation/{{ entity_pk }}/manage/update_tax/",
-        corporationUpdatePeriodUrl: "/taxsystem/corporation/{{ entity_pk }}/manage/update_period/",
+        corporationUpdateTaxUrl: "/taxsystem/corporation/{{ corporation_id }}/manage/update_tax/",
+        corporationUpdatePeriodUrl: "/taxsystem/corporation/{{ corporation_id }}/manage/update_period/",
 
         // Translations
         translations: {

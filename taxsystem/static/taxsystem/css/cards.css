@@ -1,0 +1,113 @@
+
+@media all {
+    .nav-pills .nav-link {
+        transition: opacity 0.3s ease; /* Übergangseffekt */
+    }
+
+    .nav-pills .nav-link:not(.active) {
+        opacity: 0.6; /* Starttransparenz für nicht aktive Links */
+    }
+
+    .nav-pills .nav-link:not(.active):hover {
+        opacity: 1.0; /* Transparenz auf 100% beim Hover */
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    .card-corporations {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        margin: 0 -1rem 2rem;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .card-corporations .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-clip: border-box;
+        background-color: rgb(100 100 100 / 100%);
+        border: 1px solid rgba(0 0 0 / 12.5%);
+        border-radius: 0.25rem;
+    }
+
+    .card-corporations .card-header,
+    .card-corporations .card-footer {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 0;
+        background-color: rgba(0 0 0 / 3%);
+        border-bottom: 1px solid rgba(0 0 0 / 12.5%);
+        text-align: center;
+    }
+
+    .card-corporations .card-footer {
+        border-bottom: none;
+        border-top: 1px solid rgba(0 0 0 / 12.5%);
+    }
+
+    .card-corporations .card-header:first-child {
+        border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+    }
+
+    .card-corporations .card-body {
+        flex: 1 1 auto;
+        min-height: 1px;
+        padding: 1.25rem;
+    }
+
+    .card-corporations .card-item {
+        display: flex;
+        padding: 1rem;
+    }
+
+    .card-corporations .card-item .card {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-corporations img {
+        max-width: 100%;
+    }
+
+    .card-corporations .text-center {
+        text-align: center;
+    }
+
+    @media (width >= 576px) {
+        .card-corporations .card-item {
+            width: calc(100% / 2);
+        }
+    }
+
+    @media (width >= 768px) {
+        .card-corporations .card-item {
+            width: calc(100% / 3);
+        }
+    }
+
+    @media (width >= 992px) {
+        .card-corporations .card-item {
+            width: calc(100% / 4);
+        }
+    }
+
+    @media (width >= 1200px) {
+        .card-corporations .card-item {
+            width: calc(100% / 5);
+        }
+    }
+
+    @media (width >= 1400px) {
+        .card-corporations .card-item {
+            width: calc(100% / 6);
+        }
+    }
+}

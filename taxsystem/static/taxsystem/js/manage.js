@@ -211,6 +211,10 @@ $(document).ready(function() {
             dataSrc: function (data) {
                 return Object.values(data[0].corporation);
             },
+            error: function (xhr, error, thrown) {
+                console.error('Error loading data:', error);
+                tableMembers.clear().draw();
+            }
         },
         columns: [
             {
@@ -255,7 +259,7 @@ $(document).ready(function() {
         },
         rowCallback: function(row, data) {
             if (data.is_faulty) {
-                $(row).css('background-color', 'rgba(255, 0, 0, 0.1)');
+                $(row).addClass('tax-red tax-hover');
             }
         },
     });
@@ -280,6 +284,10 @@ $(document).ready(function() {
             dataSrc: function (data) {
                 return Object.values(data[0].corporation);
             },
+            error: function (xhr, error, thrown) {
+                console.error('Error loading data:', error);
+                tablePaymentSystem.clear().draw();
+            }
         },
         stateSave: true, // Enable state saving
         columns: [
@@ -364,11 +372,11 @@ $(document).ready(function() {
         },
         rowCallback: function(row, data) {
             if (!data.is_active) {
-                $(row).css('background-color', 'rgba(255, 238, 0, 0.1)');
+                $(row).addClass('tax-warning tax-hover');
             } else if (data.is_active && data.has_paid.raw) {
-                $(row).css('background-color', 'rgba(0, 255, 42, 0.1)');
+                $(row).addClass('tax-green tax-hover');
             } else if (data.is_active && !data.has_paid.raw) {
-                $(row).css('background-color', 'rgba(255, 0, 0, 0.1)');
+                $(row).addClass('tax-red tax-hover');
             }
         },
     });

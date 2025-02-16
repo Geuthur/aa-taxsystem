@@ -27,15 +27,17 @@
 {% endblock header_nav_collapse_right %}
 
 {% block taxsystem_block %}
-    <div class="card-header bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Administration" %}</h3>
-    </div>
-    <div class="card-body">
-        {% include 'taxsystem/partials/view/manage/dashboard.html' %}
+    <div class="card">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Administration" %}</h3>
+        </div>
+        <div class="card-body">
+            {% include 'taxsystem/partials/view/manage/dashboard.html' %}
 
-        {% include 'taxsystem/partials/view/manage/paymentsystem.html' %}
+            {% include 'taxsystem/partials/view/manage/paymentsystem.html' %}
 
-        {% include 'taxsystem/partials/view/manage/members.html' %}
+            {% include 'taxsystem/partials/view/manage/members.html' %}
+        </div>
     </div>
 <!-- Tab Session -->
 {% include 'taxsystem/modals/modal.html' with name="ViewPayments" %}
@@ -62,8 +64,8 @@
     <!-- load the settings bundle -->
     {% include "taxsystem/bundles/settings-css.html" %}
     {% include 'taxsystem/bundles/settings-js.html' %}
-    <!-- load the administration-js.html bundle -->
-    {% include 'taxsystem/bundles/administration-js.html' %}
+    <!-- load the administration bundle -->
+    {% include 'taxsystem/bundles/administration-bundle.html' %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}

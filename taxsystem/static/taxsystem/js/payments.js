@@ -1,9 +1,9 @@
 /* global taxsystemsettings bootstrap */
 
 $(document).ready(() => {
-    const adminstationTableVar = $('#payments');
+    const paymentsTableVar = $('#payments');
 
-    const tablePayments = adminstationTableVar.DataTable({
+    const tablePayments = paymentsTableVar.DataTable({
         ajax: {
             url: taxsystemsettings.corporationPaymentsUrl,
             type: 'GET',
@@ -77,10 +77,6 @@ $(document).ready(() => {
             bootstrap: true,
             bootstrap_version: 5
         },
-    });
-
-    tablePayments.on('init.dt', function () {
-        adminstationTableVar.removeClass('d-none');
     });
 
     tablePayments.on('draw', function (row, data) {

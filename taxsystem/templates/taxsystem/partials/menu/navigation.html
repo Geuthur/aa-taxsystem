@@ -2,5 +2,9 @@
 {% load navactive %}
 
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'taxsystem:payments' corporation_pk=0 %}">{% translate 'Payments' %}</a>
+    <a class="nav-link {% navactive request 'taxsystem:payments' %}" href="{% url 'taxsystem:payments' corporation_id %}">{% translate 'Payments' %}</a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link {% navactive request 'taxsystem:own_payments' %}" href="{% url 'taxsystem:own_payments' corporation_id %}">{% translate 'Own Payments' %}</a>
 </li>

@@ -1,12 +1,8 @@
 {% extends 'allianceauth/base-bs5.html' %}
 {% load i18n %}
-{% block main_css %}
-{% endblock main_css %}
-{% block extra_css %}
-{% endblock extra_css %}
 
 {% block page_title %}
-    {% translate "Tax System" %}
+    {{page_title}}
 {% endblock %}
 
 {% block header_nav_brand %}
@@ -23,18 +19,14 @@
 
 {% block content %}
     {% include 'bundles/datatables-css-bs5.html' %}
-    <div class="allianceauth-taxsystem-plugin">
-        <div class="card" id="taxsystem_block">
-        {% block taxsystem_block %}
-            <!-- Your content goes here -->
-        {% endblock %}
+    <div class="allianceauth-taxsystem">
+        <div class="taxsystem-body">
+            {% block taxsystem_block %}
+                <!-- Your content goes here -->
+            {% endblock %}
         </div>
-        <br>
     </div>
 {% endblock %}
 
 {% block extra_javascript %}
-{% endblock %}
-
-{% block extra_script %}
 {% endblock %}
