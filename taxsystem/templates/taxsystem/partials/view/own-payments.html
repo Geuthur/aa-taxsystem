@@ -1,0 +1,83 @@
+{% extends 'taxsystem/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+{% load taxsystem %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Tax System" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block header_nav_collapse_left %}
+
+    {% include 'taxsystem/partials/menu/navigation.html' %}
+
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+
+    {% include 'taxsystem/partials/menu/administration.html' %}
+
+{% endblock header_nav_collapse_right %}
+
+{% block taxsystem_block %}
+    <div class="mb-4">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded">
+            <div class="container-fluid justify-content-start">
+                <div class="collapse navbar-collapse" id="navbarexpand">
+                    <!-- Navbar Tabs -->
+                    <ul class="nav nav-pills w-100" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="pills-payments-tab" data-bs-toggle="pill" href="#pills-payments" role="tab" aria-controls="pills-payments" aria-selected="true">
+                                <h4 class="me-3">{% translate "Own Payments" %}</h4>
+                            </a>
+                        </li>
+                        <li class="nav-item ms-auto" role="presentation">
+                            <a class="nav-link" id="pills-corporations-tab" data-bs-toggle="pill" href="#pills-corporations" role="tab" aria-controls="pills-corporations" aria-selected="false">
+                                <h4 class="me-3">{% translate "Corporations" %}</h4>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="card card-body bg-secondary tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-payments" role="tabpanel" aria-labelledby="pills-payments-tab">
+            {% include 'taxsystem/partials/table/own-payments.html' %}
+        </div>
+        <div class="tab-pane fade" id="pills-corporations" role="tabpanel" aria-labelledby="pills-corporations-tab">
+            {% include 'taxsystem/partials/view/corporations.html' with name="OwnPayments" %}
+        </div>
+    </div>
+<!-- Tab Session -->
+{% include 'taxsystem/modals/modal.html' with name="ViewDetails" %}
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <!-- load modals -->
+    {% include 'taxsystem/bundles/modal-js.html' %}
+    <script>
+        setupModal('#modalViewDetailsContainer', 'ajax_details', '#modalViewDetailsContent', '#modalViewDetailsLoader');
+    </script>
+    <!-- load the datatables-js-bs5.html bundle -->
+    {% include 'bundles/datatables-js-bs5.html' %}
+    {% include "bundles/filterdropdown-js.html" %}
+    <!-- load the settings bundle -->
+    {% include "taxsystem/bundles/settings-css.html" %}
+    {% include 'taxsystem/bundles/settings-js.html' %}
+    <!-- load the payments bundle -->
+    {% include 'taxsystem/bundles/own-payments-bundle.html' %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+{% endblock extra_script %}

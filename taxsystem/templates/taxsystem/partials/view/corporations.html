@@ -1,0 +1,47 @@
+{% load i18n %}
+
+{% if corporations|length == 0 %}
+    <div class="alert alert-info" role="alert">
+        {% translate "No corporations found." %}
+    </div>
+{% else %}
+    <div class="card-corporations">
+        {% for corporation in corporations %}
+            <li class="card-item">
+                <div class="card">
+                    <!-- Corporation Name -->
+                    <div class="card-header">{{ corporation.corporation.corporation_name }}</div>
+                    <!-- Corporation Logo -->
+                    <div class="card-body text-center">
+                        <a href="#">
+                            <img src="{{ corporation.corporation.logo_url_256 }}">
+                        </a>
+                    </div>
+                    <!-- Corporation Actions -->
+                    <div class="card-footer">
+                        <a class="btn btn-success btn-sm"
+                            {% if name == "OwnPayments" %}
+                                href="{% url 'taxsystem:own_payments' corporation.corporation.corporation_id %}"
+                            {% else %}
+                                href="{% url 'taxsystem:payments' corporation.corporation.corporation_id %}"
+                            {% endif %}
+                            role="button"
+                            data-tooltip-toggle="taxsystem-tooltip"
+                            title="{% translate 'View Payments' %}">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                        {% if perms.taxsystem.manage_access %}
+                            <a class="btn btn-warning btn-sm"
+                                href="{% url 'taxsystem:administration' corporation.corporation.corporation_id %}"
+                                role="button"
+                                data-tooltip-toggle="taxsystem-tooltip"
+                                title="{% translate 'Manage Tax System' %}">
+                                <i class="fas fa-cogs"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </div>
+{% endif %}
