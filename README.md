@@ -7,6 +7,7 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Geuthur/aa-taxsystem/master.svg)](https://results.pre-commit.ci/latest/github/Geuthur/aa-taxsystem/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Tests](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml)
+[![codecov](https://codecov.io/gh/Geuthur/aa-taxsystem/graph/badge.svg?token=IGpkrAuv42)](https://codecov.io/gh/Geuthur/aa-taxsystem)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
