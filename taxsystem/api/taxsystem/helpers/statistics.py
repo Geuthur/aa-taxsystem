@@ -58,13 +58,9 @@ def _get_statistics_dict(corp: OwnerAudit):
             & Q(status=PaymentSystem.Status.ACTIVE)
             & Q(last_paid__gte=timezone.now() - period),
         ),
-        unpaid=Count(
-            "id",
-            filter=Q(deposit=0)
-            & Q(status=PaymentSystem.Status.ACTIVE)
-            & Q(last_paid__lt=timezone.now() - period),
-        ),
     )
+
+    unpaid = payment_system_counts["active"] - payment_system_counts["paid"]
 
     members_count = Members.objects.filter(corporation=corp).aggregate(
         total=Count("character_id"),
@@ -80,7 +76,7 @@ def _get_statistics_dict(corp: OwnerAudit):
         "payment_users_inactive": payment_system_counts["inactive"],
         "payment_users_deactivated": payment_system_counts["deactivated"],
         "payment_users_paid": payment_system_counts["paid"],
-        "payment_users_unpaid": payment_system_counts["unpaid"],
+        "payment_users_unpaid": unpaid,
         # Payments
         "payments": payments_counts["total"],
         "payments_pending": payments_counts["pending"],
