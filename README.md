@@ -113,10 +113,9 @@ With the Following IDs you can set up the permissions for the Tax System
 | ID                | Description                      |                                                            |
 | :---------------- | :------------------------------- | :--------------------------------------------------------- |
 | `basic_access`    | Can access the Tax System module | All Members with the Permission can access the Tax System. |
-| `manage_access`   | Can access tools Tax System      | Can modify/remove tax settings.                            |
 | `create_access`   | Can add Corporation              | Users with this permission can add corporation.            |
 | `manage_own_corp` | Can manage own Corporation       | Users with this permission can manage own corporation.     |
-| `manage_corps`    | Can manage all Corporation       | Users with this permission can manage all corporations.    |
+| `manage_corps`    | Can manage all Corporations      | Users with this permission can manage all corporations.    |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 
@@ -124,7 +123,7 @@ The Following Settings can be setting up in the `local.py`
 
 - TAXSYSTEM_APP_NAME: `"YOURNAME"` - Set the name of the APP
 - TAXSYSTEM_LOGGER_USE: `True / False` - Set to use own Logger File
-- TAXSYSTEM_CORP_MEMBERS_SKIP_DATE: `1` - Set Skip Task Time in Days
+- TAXSYSTEM_CORP_MEMBERS_SKIP_DATE: `1` - Set Skip Task Time in Hours
 - TAXSYSTEM_CORP_WALLET_SKIP_DATE: `1` - Set Skip Task Time in Hours
 - TAXSYSTEM_CORP_PAYMENTS_SKIP_DATE: `1` - Set Skip Task Time in Hours
 - TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE: `1` - Set Skip Task Time in Hours

@@ -6,20 +6,53 @@ from django.utils.translation import gettext as _
 from taxsystem.models.tax import OwnerAudit, Payments
 
 
-def get_corporation(request, corporation_id) -> tuple[bool | None, OwnerAudit | None]:
-    """Get Corporation and check permissions"""
+def get_manage_corporation(request, corporation_id) -> tuple[OwnerAudit | None, bool]:
+    """Get Corporation and Permission"""
+    corp = get_corporation(request, corporation_id)
+    perms = get_manage_permission(request, corporation_id)
+    return corp, perms
+
+
+def get_corporation(request, corporation_id) -> OwnerAudit | None:
+    """Get Corporation"""
+    try:
+        corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
+    except OwnerAudit.DoesNotExist:
+        return None
+
+    # Check access
+    visible = OwnerAudit.objects.visible_to(request.user)
+    if corp not in visible:
+        corp = None
+    return corp
+
+
+def get_manage_permission(request, corporation_id) -> bool:
+    """Get Permission for Corporation"""
     perms = True
 
     try:
         corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
     except OwnerAudit.DoesNotExist:
-        return None, None
+        return False
 
     # Check access
     visible = OwnerAudit.objects.manage_to(request.user)
     if corp not in visible:
         perms = False
-    return perms, corp
+    return perms
+
+
+def get_character_permissions(request, character_id) -> bool:
+    """Get Permission for Character"""
+    perms = True
+
+    char_ids = request.user.character_ownerships.all().values_list(
+        "character__character_id", flat=True
+    )
+    if character_id not in char_ids:
+        perms = False
+    return perms
 
 
 def get_info_button(corporation_id, payment: Payments, request) -> mark_safe:
