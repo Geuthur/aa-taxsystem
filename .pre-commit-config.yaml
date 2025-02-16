@@ -123,7 +123,7 @@ repos:
           )
 
   - repo: https://github.com/eslint/eslint
-    rev: v9.19.0
+    rev: v9.20.1
     hooks:
       - id: eslint
         name: ESLint
@@ -195,7 +195,7 @@ repos:
           )
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.22.2
+    rev: 1.23.1
     hooks:
       - id: django-upgrade
         name: Django upgrade
@@ -213,7 +213,7 @@ repos:
           - --py310-plus  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+    rev: 7.1.2
     hooks:
       - id: flake8
         name: Flake8

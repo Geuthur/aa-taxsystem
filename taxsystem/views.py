@@ -14,10 +14,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from esi.decorators import token_required
 
+from allianceauth.authentication.decorators import permissions_required
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 from taxsystem import forms
-from taxsystem.api.helpers import get_corporation
+from taxsystem.api.helpers import get_corporation, get_manage_permission
 from taxsystem.helpers.views import add_info_to_context
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import OwnerAudit, Payments, PaymentSystem
@@ -38,7 +39,7 @@ def index(request):
 
 
 @login_required
-@permission_required("taxsystem.manage_access")
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 def administration(request, corporation_id):
     """Manage View"""
     if corporation_id is None:
@@ -66,6 +67,12 @@ def payments(request, corporation_id):
     if corporation_id is None:
         corporation_id = request.user.profile.main_character.corporation_id
 
+    perms = get_corporation(request, corporation_id)
+
+    if perms is None:
+        messages.error(request, _("Corporation not found"))
+        return redirect("taxsystem:index")
+
     corporations = OwnerAudit.objects.visible_to(request.user)
 
     context = {
@@ -89,6 +96,12 @@ def own_payments(request, corporation_id=None):
     """Own Payments View"""
     if corporation_id is None:
         corporation_id = request.user.profile.main_character.corporation_id
+
+    perms = get_corporation(request, corporation_id)
+
+    if perms is None:
+        messages.error(request, _("Corporation not found"))
+        return redirect("taxsystem:index")
 
     corporations = OwnerAudit.objects.visible_to(request.user)
 
@@ -143,13 +156,13 @@ def add_corp(request, token):
 
 
 @login_required
-@permission_required("taxsystem.manage_access")
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
-    # Check Permission
-    perms, corp = get_corporation(request, corporation_id)
     msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
 
+    perms = get_manage_permission(request, corporation_id)
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -188,13 +201,13 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
 
 @login_required
-@permission_required("taxsystem.manage_access")
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
-    # Check Permission
-    perms, corp = get_corporation(request, corporation_id)
     msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
 
+    perms = get_manage_permission(request, corporation_id)
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -234,13 +247,13 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
 
 @login_required
-@permission_required("taxsystem.manage_access")
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
-    # Check Permission
-    perms, corp = get_corporation(request, corporation_id)
     msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
 
+    perms = get_manage_permission(request, corporation_id)
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -284,13 +297,13 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
 
 @login_required
-@permission_required("taxsystem.manage_access")
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
-    # Check Permission
-    perms, corp = get_corporation(request, corporation_id)
     msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
 
+    perms = get_manage_permission(request, corporation_id)
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -335,8 +348,9 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
         except ValueError:
             return JsonResponse({"message": msg}, status=400)
 
-        # Check Permission
-        perms, corp = get_corporation(request, corporation_id)
+        corp = get_corporation(request, corporation_id)
+
+        perms = get_manage_permission(request, corporation_id)
 
         if not perms:
             return JsonResponse({"message": _("Permission Denied")}, status=403)
@@ -368,8 +382,9 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
         except ValueError:
             return JsonResponse({"message": msg}, status=400)
 
-        # Check Permission
-        perms, corp = get_corporation(request, corporation_id)
+        corp = get_corporation(request, corporation_id)
+
+        perms = get_manage_permission(request, corporation_id)
 
         if not perms:
             return JsonResponse({"message": _("Permission Denied")}, status=403)

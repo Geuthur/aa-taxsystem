@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.3] - 2025-02-16
+
+### Fixed
+
+- Permission Issues
+
+### Removed
+
+- `manage_access` permission
+
 ## [0.5.2] - 2025-02-16
 
 ### Added

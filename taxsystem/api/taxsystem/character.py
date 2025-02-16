@@ -5,8 +5,7 @@ from django.shortcuts import render
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from taxsystem.api.helpers import get_corporation
-from taxsystem.api.taxsystem.helpers.payments import _payments_actions
+from taxsystem.api.helpers import get_character_permissions, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.paymentsystem import _get_has_paid_icon
 from taxsystem.helpers import lazy
 from taxsystem.hooks import get_extension_logger
@@ -22,80 +21,6 @@ class CharacterApiEndpoints:
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "corporation/{corporation_id}/character/{character_id}/view/payments/",
-            response={200: list, 403: str, 404: str},
-            tags=self.tags,
-        )
-        def get_main_characcter_payments(
-            request, corporation_id: int, character_id: int
-        ):
-            perms, corp = get_corporation(request, corporation_id)
-
-            if corp is None:
-                return 404, "Corporation Not Found"
-
-            payments = Payments.objects.filter(
-                account__corporation=corp,
-                account__user__profile__main_character__character_id=character_id,
-            )
-
-            if not payments:
-                return 404, "No Payments Found"
-
-            # Create a dict for the character
-            payments_char_dict = {
-                "title": "Payments for",
-                "character_id": character_id,
-                "character_portrait": lazy.get_character_portrait_url(
-                    character_id, size=32, as_html=True
-                ),
-                "character_name": payments[0].account.name,
-            }
-
-            # Create a dict for each payment
-            payments_dict = {}
-            for payment in payments:
-                try:
-                    character_id = (
-                        payment.account.user.profile.main_character.character_id
-                    )
-                    portrait = lazy.get_character_portrait_url(
-                        character_id, size=32, as_html=True
-                    )
-                except AttributeError:
-                    portrait = ""
-
-                actions = _payments_actions(corporation_id, payment, perms, request)
-                amount = f"{intcomma(payment.amount)} ISK"
-
-                payments_dict[payment.pk] = {
-                    "payment_id": payment.pk,
-                    "character_portrait": portrait,
-                    "character_name": payment.account.name,
-                    "date": payment.date,
-                    "amount": amount,
-                    "request_status": payment.get_request_status_display(),
-                    "reviser": payment.reviser,
-                    "reason": payment.reason,
-                    "actions": actions,
-                }
-
-            # Add payments to the character dict
-            payments_char_dict["payments"] = payments_dict
-
-            context = {
-                "entity_pk": corporation_id,
-                "entity_type": "character",
-                "character": payments_char_dict,
-            }
-
-            return render(
-                request,
-                "taxsystem/modals/view_character_payments.html",
-                context,
-            )
-
-        @api.get(
             "corporation/{corporation_id}/character/{character_id}/payment/{pk}/view/details/",
             response={200: list, 403: str, 404: str},
             tags=self.tags,
@@ -104,10 +29,14 @@ class CharacterApiEndpoints:
         def get_payment_details(
             request, corporation_id: int, character_id: int, pk: int
         ):
-            __, corp = get_corporation(request, corporation_id)
+            corp, perms = get_manage_corporation(request, corporation_id)
+            perms = perms or get_character_permissions(request, character_id)
 
             if corp is None:
                 return 404, "Corporation Not Found"
+
+            if perms is False:
+                return 403, "Permission Denied"
 
             try:
                 payment = Payments.objects.get(
@@ -123,7 +52,7 @@ class CharacterApiEndpoints:
                 return 404, "Payment Not Found"
 
             # Create a dict for the character
-            payments_char_dict = {
+            paymentdetails = {
                 "title": "Payments for",
                 "character_id": character_id,
                 "character_portrait": lazy.get_character_portrait_url(
@@ -203,14 +132,14 @@ class CharacterApiEndpoints:
             }
 
             # Add payments to the character dict
-            payments_char_dict["payment"] = payment_dict
-            payments_char_dict["payment_system"] = account_dict
-            payments_char_dict["payment_history"] = payment_history_dict
+            paymentdetails["payment"] = payment_dict
+            paymentdetails["payment_system"] = account_dict
+            paymentdetails["payment_history"] = payment_history_dict
 
             context = {
                 "entity_pk": corporation_id,
                 "entity_type": "character",
-                "character": payments_char_dict,
+                "character": paymentdetails,
             }
 
             return render(

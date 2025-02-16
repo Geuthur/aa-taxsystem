@@ -9,7 +9,7 @@
     </li>
 {% endif %}
 
-{% if perms.taxsystem.manage_access %}
+{% if perms.taxsystem.manage_own_corp or perms.taxsystem.manage_corps %}
     <li class="nav-item">
         <a class="nav-link py-0" href="{% url 'taxsystem:administration' corporation_id %}">
             <span class="btn btn-success">{% translate 'Manage Tax System' %}</span>
