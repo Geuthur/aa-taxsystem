@@ -25,4 +25,4 @@ class TestViews(TestCase):
         request = self.factory.get(reverse("taxsystem:index"))
         request.user = self.user
         response = index(request)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
