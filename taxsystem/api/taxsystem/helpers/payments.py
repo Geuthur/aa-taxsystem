@@ -9,7 +9,7 @@ from taxsystem.models.tax import Payments
 
 # pylint: disable=too-many-arguments, too-many-positional-arguments
 def generate_action_settings(
-    corporation_id, payment, action_type, icon, color, modal, viewname, request
+    corporation_id, payment, title, icon, color, modal, viewname, request
 ):
     url = reverse(
         viewname=viewname,
@@ -19,14 +19,9 @@ def generate_action_settings(
         },
     )
     amount = intcomma(payment.amount, use_l10n=True)
-    text = (
-        _(f"{action_type} Payment")
-        + f" {amount} ISK "
-        + _("from")
-        + f" {payment.account.user.username}"
-    )
+    text = title + f" {amount} ISK " + _("from") + f" {payment.account.user.username}"
     settings = generate_settings(
-        title=_(f"{action_type} Payment"),
+        title=title,
         icon=icon,
         color=color,
         text=text,
@@ -49,26 +44,26 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
         if payment.is_pending or payment.is_needs_approval:
             actions.append(
                 generate_action_settings(
-                    corporation_id,
-                    payment,
-                    "Approve",
-                    "fas fa-check",
-                    "success",
-                    "payments-approve",
-                    "taxsystem:approve_payment",
-                    request,
+                    corporation_id=corporation_id,
+                    payment=payment,
+                    title=_("Approve Payment"),
+                    icon="fas fa-check",
+                    color="success",
+                    modal="payments-approve",
+                    viewname="taxsystem:approve_payment",
+                    request=request,
                 )
             )
             actions.append(
                 generate_action_settings(
-                    corporation_id,
-                    payment,
-                    "Reject",
-                    "fas fa-times",
-                    "danger",
-                    "payments-reject",
-                    "taxsystem:reject_payment",
-                    request,
+                    corporation_id=corporation_id,
+                    payment=payment,
+                    title=_("Reject Payment"),
+                    icon="fas fa-times",
+                    color="danger",
+                    modal="payments-reject",
+                    viewname="taxsystem:reject_payment",
+                    request=request,
                 )
             )
         elif payment.is_approved or payment.is_rejected:
@@ -76,7 +71,7 @@ def _payments_actions(corporation_id, payment: Payments, perms, request):
                 generate_action_settings(
                     corporation_id=corporation_id,
                     payment=payment,
-                    action_type="Undo",
+                    title=_("Undo Payment"),
                     icon="fas fa-undo",
                     color="danger",
                     modal="payments-undo",

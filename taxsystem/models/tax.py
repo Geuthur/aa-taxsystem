@@ -236,7 +236,7 @@ class Payments(models.Model):
         APPROVED = "approved", _("Approved")
         PENDING = "pending", _("Pending")
         REJECTED = "rejected", _("Rejected")
-        NEEDS_APPROVAL = "needs_approval", _("Needs Approval")
+        NEEDS_APPROVAL = "needs_approval", _("Requires Auditor")
 
     name = models.CharField(max_length=100)
 

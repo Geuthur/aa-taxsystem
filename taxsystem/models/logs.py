@@ -13,6 +13,14 @@ from taxsystem.models.tax import OwnerAudit, Payments
 class PaymentHistory(models.Model):
     """PaymentHistory Model for app"""
 
+    class SystemText(models.TextChoices):
+        DEFAULT = "", ""
+        ADDED = "Payment added to system", _("Payment added to system")
+        AUTOMATIC = "Automated approved Payment", _("Automated approved Payment")
+        REVISER = "Payment must be approved by an reviser", _(
+            "Payment must be approved by an reviser"
+        )
+
     class Actions(models.TextChoices):
         DEFAULT = "", ""
         STATUS_CHANGE = "Status Changed", _("Status Changed")
@@ -54,10 +62,12 @@ class PaymentHistory(models.Model):
         help_text=_("Action performed"),
     )
 
-    comment = models.TextField(
-        blank=True,
-        default="",
+    comment = models.CharField(
+        max_length=255,
+        choices=SystemText.choices,
+        default=SystemText.DEFAULT,
         verbose_name=_("Comment"),
+        help_text=_("Comment of the action"),
     )
 
     new_status = models.CharField(

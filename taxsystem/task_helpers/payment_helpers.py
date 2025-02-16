@@ -82,7 +82,7 @@ def update_corporation_payments(corp_id):
                 payment=payment,
                 action=PaymentHistory.Actions.STATUS_CHANGE,
                 new_status=Payments.RequestStatus.PENDING,
-                comment=_("Payment added to system"),
+                comment=PaymentHistory.SystemText.ADDED,
             )
             logs_items.append(log_items)
 
@@ -140,7 +140,7 @@ def update_corporation_payments_filter(corp_id, runs=0):
                             payment=payment,
                             action=PaymentHistory.Actions.STATUS_CHANGE,
                             new_status=Payments.RequestStatus.APPROVED,
-                            comment=_("Automated approved Payment"),
+                            comment=PaymentHistory.SystemText.AUTOMATIC,
                         ).save()
 
                         runs = runs + 1
@@ -163,7 +163,7 @@ def update_corporation_payments_filter(corp_id, runs=0):
             payment=payment,
             action=PaymentHistory.Actions.STATUS_CHANGE,
             new_status=Payments.RequestStatus.NEEDS_APPROVAL,
-            comment=_("Payment must be approved by an reviser"),
+            comment=PaymentHistory.SystemText.REVISER,
         ).save()
 
         runs = runs + 1
