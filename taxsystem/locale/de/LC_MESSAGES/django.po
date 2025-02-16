@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-16 15:34+0100\n"
+"POT-Creation-Date: 2025-02-16 16:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -106,7 +106,7 @@ msgstr ""
 msgid "Reason for rejecting"
 msgstr "Grund der Ablehnung"
 
-#: forms.py:33 models/logs.py:66 models/logs.py:127
+#: forms.py:33 models/logs.py:67 models/logs.py:129
 #: templates/taxsystem/modals/view_payment_details.html:80
 msgid "Comment"
 msgstr "Kommentar"
@@ -191,24 +191,24 @@ msgstr "Zahlung Hinzugefügt"
 msgid "Reviser Comment"
 msgstr "Prüfer Kommentar"
 
-#: models/logs.py:37 models/logs.py:98
+#: models/logs.py:37 models/logs.py:100
 msgid "Payment"
 msgstr "Zahlung"
 
-#: models/logs.py:38 models/logs.py:99
+#: models/logs.py:38 models/logs.py:101
 msgid "Payment that the action was performed on"
 msgstr "Zahlung in der die Aktion durchgeführt wurde"
 
-#: models/logs.py:45 models/logs.py:106
+#: models/logs.py:45 models/logs.py:108
 #: templates/taxsystem/modals/view_payment_details.html:77
 msgid "User"
 msgstr "Benutzer"
 
-#: models/logs.py:46 models/logs.py:107
+#: models/logs.py:46 models/logs.py:109
 msgid "User that performed the action"
 msgstr "Benutzer der die Action ausgeführt hat"
 
-#: models/logs.py:51 models/logs.py:112
+#: models/logs.py:51 models/logs.py:114
 #: templates/taxsystem/modals/view_character_payments.html:22
 #: templates/taxsystem/modals/view_payment_details.html:78
 #: templates/taxsystem/partials/table/own-payments.html:8
@@ -216,36 +216,42 @@ msgstr "Benutzer der die Action ausgeführt hat"
 msgid "Date"
 msgstr "Datum"
 
-#: models/logs.py:52 models/logs.py:113
+#: models/logs.py:52 models/logs.py:115
 msgid "Date of the action"
 msgstr "Datum der Aktion"
 
-#: models/logs.py:59 models/logs.py:120
+#: models/logs.py:59 models/logs.py:122
 #: templates/taxsystem/modals/view_payment_details.html:79
 msgid "Action"
 msgstr "Aktion"
 
-#: models/logs.py:60 models/logs.py:121
+#: models/logs.py:60 models/logs.py:123
 msgid "Action performed"
 msgstr "Aktion ausgeführt"
 
-#: models/logs.py:72
+#: models/logs.py:68
+#, fuzzy
+#| msgid "Date of the action"
+msgid "Comment of the action"
+msgstr "Datum der Aktion"
+
+#: models/logs.py:74
 msgid "New Status"
 msgstr "Neuer Status"
 
-#: models/logs.py:73
+#: models/logs.py:75
 msgid "New Status of the action"
 msgstr "Neuer Status der Aktion"
 
-#: models/logs.py:85
+#: models/logs.py:87
 msgid "Added"
 msgstr "Hinzugefügt"
 
-#: models/logs.py:86
+#: models/logs.py:88
 msgid "Changed"
 msgstr "Geändert"
 
-#: models/logs.py:87
+#: models/logs.py:89
 msgid "Deleted"
 msgstr "Gelöscht"
 
@@ -321,8 +327,8 @@ msgid "Rejected"
 msgstr "Abgewiesen"
 
 #: models/tax.py:239
-msgid "Needs Approval"
-msgstr "Benötigt Bestätigung"
+msgid "Requires Auditor"
+msgstr "Benötigt Prüfer"
 
 #: models/tax.py:259
 msgid "Request Status"
@@ -664,3 +670,6 @@ msgstr "Ungültige anfragen methode"
 #, python-brace-format
 msgid "Tax Period from {corp.name} updated to {value}"
 msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
+
+#~ msgid "Needs Approval"
+#~ msgstr "Benötigt Bestätigung"
