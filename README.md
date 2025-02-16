@@ -7,6 +7,7 @@ ______________________________________________________________________
 - [AA Tax System](#aa-taxsystem)
   - [Features](#features)
   - [Upcoming](#upcoming)
+  - [Screenshots](#screenshots)
   - [Installation](#features)
     - [Step 1 - Install the Package](#step1)
     - [Step 2 - Configure Alliance Auth](#step2)
@@ -14,7 +15,6 @@ ______________________________________________________________________
     - [Step 4 - Migration to AA](#step4)
     - [Step 5 - Setting up Permissions](#step5)
     - [Step 6 - (Optional) Setting up Compatibilies](#step6)
-  - [Highlights](#highlights)
 
 ## Features<a name="features"></a>
 
@@ -37,6 +37,24 @@ ______________________________________________________________________
 
 - Notify via Discord each Month
 - Alliance level tax system
+
+## Screenshots<a name="screenshots"></a>
+
+### Administration View
+
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/administration.png)
+
+### Account User Payments History
+
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/administrationpaymentaccount.png)
+
+### Payments Details
+
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/paymentdetails.png)
+
+### Payments
+
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/payments.png)
 
 ## Installation<a name="installation"></a>
 
@@ -125,11 +143,6 @@ LOGGING_TAXSYSTEM = {
 LOGGING["handlers"].update(LOGGING_TAXSYSTEM["handlers"])
 LOGGING["loggers"].update(LOGGING_TAXSYSTEM["loggers"])
 ```
-
-## Highlights<a name="highlights"></a>
-
-![Tax System 1](https://i.imgur.com/61Px6Nm.png)
-![Tax System 2](https://i.imgur.com/2SS59Td.png)
 
 > [!NOTE]
 > Contributing
