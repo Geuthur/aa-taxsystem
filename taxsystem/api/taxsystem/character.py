@@ -175,7 +175,7 @@ class CharacterApiEndpoints:
                     "reviser": log.user,
                     "date": log.date,
                     "action": log.get_action_display(),
-                    "comment": log.comment,
+                    "comment": log.get_comment_display(),
                     "status": log.get_new_status_display(),
                 }
                 payment_history_dict[log.pk] = log_dict
