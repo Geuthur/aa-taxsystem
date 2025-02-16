@@ -1,8 +1,9 @@
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
-from taxsystem.models.tax import OwnerAudit
+from taxsystem.models.tax import OwnerAudit, Payments
 
 
 def get_corporation(request, corporation_id) -> tuple[bool | None, OwnerAudit | None]:
@@ -15,10 +16,30 @@ def get_corporation(request, corporation_id) -> tuple[bool | None, OwnerAudit | 
         return None, None
 
     # Check access
-    visible = OwnerAudit.objects.visible_to(request.user)
+    visible = OwnerAudit.objects.manage_to(request.user)
     if corp not in visible:
         perms = False
     return perms, corp
+
+
+def get_info_button(corporation_id, payment: Payments, request) -> mark_safe:
+    details = generate_settings(
+        title=_("Payment Details"),
+        icon="fas fa-info",
+        color="primary",
+        text=_("View Payment Details"),
+        modal="modalViewDetailsContainer",
+        action=f"/taxsystem/api/corporation/{corporation_id}/character/{payment.account.user.profile.main_character.character_id}/payment/{payment.pk}/view/details/",
+        ajax="ajax_details",
+    )
+    button = generate_button(
+        corporation_id=corporation_id,
+        template="taxsystem/partials/form/button.html",
+        queryset=payment,
+        settings=details,
+        request=request,
+    )
+    return button
 
 
 def generate_button(

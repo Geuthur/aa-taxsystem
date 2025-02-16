@@ -8,25 +8,22 @@ from taxsystem.api import api
 app_name: str = "taxsystem"
 
 urlpatterns = [
-    path("", views.index, name="index"),
-    # -- API System
-    re_path(r"^api/", api.urls),
     # -- Tax System
-    path("corporation/overview/", views.overview, name="overview"),
+    path("", views.index, name="index"),
     path(
-        "corporation/<int:corporation_pk>/view/administration/",
-        views.administration,
-        name="administration",
-    ),
-    path(
-        "corporation/<int:corporation_pk>/view/payments/",
+        "corporation/<int:corporation_id>/view/payments/",
         views.payments,
         name="payments",
     ),
     path(
-        "corporation/<int:corporation_pk>/view/own-payments/",
+        "corporation/<int:corporation_id>/view/own_payments/",
         views.own_payments,
         name="own_payments",
+    ),
+    path(
+        "corporation/<int:corporation_id>/view/administration/",
+        views.administration,
+        name="administration",
     ),
     # --- Tax Administration
     # -- Tax Payments
@@ -63,4 +60,6 @@ urlpatterns = [
         views.switch_user,
         name="switch_user",
     ),
+    # -- API System
+    re_path(r"^api/", api.urls),
 ]

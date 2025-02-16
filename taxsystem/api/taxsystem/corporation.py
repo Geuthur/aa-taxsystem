@@ -3,6 +3,7 @@ from ninja import NinjaAPI
 from django.utils.translation import gettext_lazy as _
 
 from taxsystem.api.helpers import get_corporation
+from taxsystem.api.taxsystem.helpers.own_payments import _own_payments_actions
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
     _get_has_paid_icon,
@@ -162,13 +163,49 @@ class CorporationApiEndpoints:
                     "character_name": payment.account.name,
                     "amount": payment.amount,
                     "request_status": payment.get_request_status_display(),
-                    "system": payment.reviser,
                     "reason": payment.reason,
                     "actions": actions,
                 }
 
             output = []
             output.append({"corporation": payments_dict})
+
+            return output
+
+        @api.get(
+            "corporation/{corporation_id}/view/own-payments/",
+            response={200: list, 403: str, 404: str},
+            tags=self.tags,
+        )
+        def get_own_payments(request, corporation_id: int):
+            __, corp = get_corporation(request, corporation_id)
+
+            if corp is None:
+                return 404, "Corporation Not Found"
+
+            account = PaymentSystem.objects.get(corporation=corp, user=request.user)
+
+            payments = Payments.objects.filter(
+                account__corporation=corp, account=account
+            )
+
+            own_payments_dict = {}
+
+            for payment in payments:
+                actions = _own_payments_actions(corporation_id, payment, request)
+
+                own_payments_dict[payment.pk] = {
+                    "payment_id": payment.pk,
+                    "date": payment.formatted_payment_date(),
+                    "character_name": payment.account.name,
+                    "amount": payment.amount,
+                    "request_status": payment.get_request_status_display(),
+                    "reason": payment.reason,
+                    "actions": actions,
+                }
+
+            output = []
+            output.append({"corporation": own_payments_dict})
 
             return output
 

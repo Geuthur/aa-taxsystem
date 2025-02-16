@@ -31,20 +31,21 @@ logger = get_extension_logger(__name__)
 @login_required
 @permission_required("taxsystem.basic_access")
 def index(request):
-    context = {
-        "title": _("Tax System"),
-    }
-    context = add_info_to_context(request, context)
-    return render(request, "taxsystem/index.html", context=context)
+    """Index View"""
+    return redirect(
+        "taxsystem:payments", request.user.profile.main_character.corporation_id
+    )
 
 
 @login_required
-@permission_required("taxsystem.basic_access")
-def administration(request, corporation_pk):
+@permission_required("taxsystem.manage_access")
+def administration(request, corporation_id):
     """Manage View"""
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
     context = {
-        "entity_pk": corporation_pk,
-        "entity_type": "corporation",
+        "corporation_id": corporation_id,
         "title": _("Administration"),
         "forms": {
             "accept_request": forms.TaxAcceptForm(),
@@ -60,53 +61,45 @@ def administration(request, corporation_pk):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def payments(request, corporation_pk):
+def payments(request, corporation_id):
     """Payments View"""
-    corporation_name = None
-    if corporation_pk == 0:
-        try:
-            corporation_pk = request.user.profile.main_character.corporation_id
-            corporation_name = request.user.profile.main_character.corporation_name
-        except AttributeError:
-            messages.error(request.user, "No Main Character found")
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
+    corporations = OwnerAudit.objects.visible_to(request.user)
 
     context = {
-        "entity_name": corporation_name,
-        "entity_pk": corporation_pk,
-        "entity_type": "corporation",
+        "corporation_id": corporation_id,
         "title": _("Payments"),
         "forms": {
             "accept_request": forms.TaxAcceptForm(),
             "reject_request": forms.TaxRejectForm(),
             "undo_request": forms.TaxUndoForm(),
         },
+        "corporations": corporations,
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/view/payments.html", context=context)
+    return render(request, "taxsystem/partials/view/payments.html", context=context)
 
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def own_payments(request, corporation_pk):
-    """Payments View"""
-    corporation_name = None
-    if corporation_pk == 0:
-        try:
-            corporation_pk = request.user.profile.main_character.corporation_id
-            corporation_name = request.user.profile.main_character.corporation_name
-        except AttributeError:
-            messages.error(request.user, "No Main Character found")
+def own_payments(request, corporation_id=None):
+    """Own Payments View"""
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
+    corporations = OwnerAudit.objects.visible_to(request.user)
 
     context = {
-        "entity_name": corporation_name,
-        "entity_pk": corporation_pk,
-        "entity_type": "corporation",
+        "corporation_id": corporation_id,
         "title": _("Own Payments"),
+        "corporations": corporations,
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/view/own-payments.html", context=context)
+    return render(request, "taxsystem/partials/view/own-payments.html", context=context)
 
 
 @login_required
@@ -147,17 +140,6 @@ def add_corp(request, token):
     )
     messages.info(request, msg)
     return redirect("taxsystem:index")
-
-
-@login_required
-@permission_required("taxsystem.manage_access")
-def overview(request):
-    """Overview of the tax system"""
-
-    context = {}
-    context = add_info_to_context(request, context)
-
-    return render(request, "taxsystem/admin/overview.html", context=context)
 
 
 @login_required
