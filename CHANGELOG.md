@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.2] - 2025-02-16
+
+### Added
+
+- Corporation Menu
+- Own Payments View
+
+### Changed
+
+- CSS Style
+- Cleaned templates
+
+### Fixed
+
+- Table Error Handler
+- Wrong Permission in Administration View
+
 ## [0.5.1] - 2025-02-15
 
 ### Added
