@@ -42,19 +42,19 @@ ______________________________________________________________________
 
 ### Administration View
 
-![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/administration.png)
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/blob/master/taxsystem/docs/images/administration.png)
 
 ### Account User Payments History
 
-![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/administrationpaymentaccount.png)
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/blob/master/taxsystem/docs/images/administrationpaymentaccount.png)
 
 ### Payments Details
 
-![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/paymentdetails.png)
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/blob/master/taxsystem/docs/images/paymentdetails.png)
 
 ### Payments
 
-![Screenshot](https://github.com/Geuthur/aa-taxsystem/docs/images/payments.png)
+![Screenshot](https://github.com/Geuthur/aa-taxsystem/blob/master/taxsystem/docs/images/payments.png)
 
 ## Installation<a name="installation"></a>
 
