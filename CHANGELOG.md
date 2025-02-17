@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.4.1] - 2025-02-17
+
+### Hotfix
+
+- Redirect Loop
+
 ## [0.5.4] - 2025-02-17
 
 ### Added

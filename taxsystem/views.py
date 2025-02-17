@@ -71,7 +71,6 @@ def payments(request, corporation_id):
 
     if perms is None:
         messages.error(request, _("No corporation found."))
-        return redirect("taxsystem:index")
 
     corporations = OwnerAudit.objects.visible_to(request.user)
 
@@ -101,7 +100,6 @@ def own_payments(request, corporation_id=None):
 
     if perms is None:
         messages.error(request, _("No corporation found."))
-        return redirect("taxsystem:index")
 
     corporations = OwnerAudit.objects.visible_to(request.user)
 
