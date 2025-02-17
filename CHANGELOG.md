@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.4] - 2025-02-17
+
+### Added
+
+- Amount, Reason to Payment Details [#10](https://github.com/Geuthur/aa-taxsystem/issues/10)
+
+### Changed
+
+- Moved Templates
+- Translations
+
 ## [0.5.3] - 2025-02-16
 
 ### Fixed
