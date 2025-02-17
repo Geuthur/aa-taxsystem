@@ -57,7 +57,7 @@ def administration(request, corporation_id):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/view/manage.html", context=context)
+    return render(request, "taxsystem/manage.html", context=context)
 
 
 @login_required
@@ -87,7 +87,7 @@ def payments(request, corporation_id):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/partials/view/payments.html", context=context)
+    return render(request, "taxsystem/payments.html", context=context)
 
 
 @login_required
@@ -112,7 +112,7 @@ def own_payments(request, corporation_id=None):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/partials/view/own-payments.html", context=context)
+    return render(request, "taxsystem/own-payments.html", context=context)
 
 
 @login_required
