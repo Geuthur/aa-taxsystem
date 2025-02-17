@@ -57,7 +57,7 @@ def administration(request, corporation_id):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/view/manage.html", context=context)
+    return render(request, "taxsystem/manage.html", context=context)
 
 
 @login_required
@@ -70,7 +70,7 @@ def payments(request, corporation_id):
     perms = get_corporation(request, corporation_id)
 
     if perms is None:
-        messages.error(request, _("Corporation not found"))
+        messages.error(request, _("No corporation found."))
         return redirect("taxsystem:index")
 
     corporations = OwnerAudit.objects.visible_to(request.user)
@@ -87,7 +87,7 @@ def payments(request, corporation_id):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/partials/view/payments.html", context=context)
+    return render(request, "taxsystem/payments.html", context=context)
 
 
 @login_required
@@ -100,7 +100,7 @@ def own_payments(request, corporation_id=None):
     perms = get_corporation(request, corporation_id)
 
     if perms is None:
-        messages.error(request, _("Corporation not found"))
+        messages.error(request, _("No corporation found."))
         return redirect("taxsystem:index")
 
     corporations = OwnerAudit.objects.visible_to(request.user)
@@ -112,7 +112,7 @@ def own_payments(request, corporation_id=None):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/partials/view/own-payments.html", context=context)
+    return render(request, "taxsystem/own-payments.html", context=context)
 
 
 @login_required

@@ -14,13 +14,24 @@
         <div class="col-sm-6" style="min-width: 350px;">
             <div class="card-body bg-secondary rounded">
                 <h5 class="card-title text-center">
-                    <span id="dashboard-division">{% translate "Payment User" %}</span>
+                    <span id="dashboard-division">{% translate "Payment Information" %}</span>
                 </h5>
                 <hr>
-                <div>
-                    {{ character.character_portrait }}
-                    {{ character.character_name }}
-                </div>
+                <table class="table table-dark table-striped w-100" id="payments-information">
+                    <tbody>
+                        <tr>
+                            <td>{% trans "Payment Account" %}:</td>
+                            <td class="text-end">{{ character.character_portrait }} {{ character.character_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Amount" %}:</td>
+                            <td class="text-end">{{ character.payment.amount }}</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Reason" %}:</td>
+                            <td class="text-end">{{ character.payment.reason }}</td>
+                    </tbody>
+                </table>
             </div>
         </div>
         <!-- Dashboard -->
@@ -31,7 +42,7 @@
                 </h5>
                 <hr>
                 <div>
-                    <table class="table table-dark table-striped table-hover w-100" id="payments-dashboard">
+                    <table class="table table-dark table-striped w-100" id="payments-dashboard">
                         <tbody>
                             <tr>
                                 <td>{% trans "Account" %}:</td>
