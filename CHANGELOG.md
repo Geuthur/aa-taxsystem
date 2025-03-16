@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.5] - IN DEVELOPMENT
+
+### Added
+
+- Timeout Handler for ESI Requests
+
+### Changed
+
+- Refactor Task Process
+
 ## [0.5.4.1] - 2025-02-17
 
 ### Hotfix
