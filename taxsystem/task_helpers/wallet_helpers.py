@@ -13,7 +13,11 @@ from taxsystem.models.wallet import (
     CorporationWalletJournalEntry,
 )
 from taxsystem.providers import esi
-from taxsystem.task_helpers.etag_helpers import NotModifiedError, etag_results
+from taxsystem.task_helpers.etag_helpers import (
+    HTTPGatewayTimeoutError,
+    NotModifiedError,
+    etag_results,
+)
 from taxsystem.task_helpers.general_helpers import get_corp_token
 
 logger = get_extension_logger(__name__)
@@ -80,6 +84,13 @@ def update_corporation_wallet_division(corp_id, force_refresh=False):
             "No New wallet data for: %s",
             audit_corp.corporation.corporation_name,
         )
+    except HTTPGatewayTimeoutError:
+        # TODO Add retry method?
+        logger.debug(
+            "ESI Timeout skipping wallet for: %s",
+            audit_corp.corporation.corporation_name,
+        )
+        return ("ESI Timeout for %s:", audit_corp.corporation.corporation_name)
 
     audit_corp.last_update_wallet = timezone.now()
     audit_corp.save()
