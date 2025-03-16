@@ -168,7 +168,27 @@ def update_corporation_payments_filter(corp_id, runs=0):
 
         runs = runs + 1
 
-    # Check Payment Period
+    audit_corp.last_update_payment_system = timezone.now()
+    audit_corp.save()
+
+    logger.debug(
+        "Finished %s: Payment System entrys for %s",
+        runs,
+        audit_corp.corporation.corporation_name,
+    )
+
+    return ("Finished Payment System for %s", audit_corp.corporation.corporation_name)
+
+
+def update_payday(corp_id, runs=0):
+    """Update Payday for Corporation"""
+    audit_corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
+
+    logger.debug(
+        "Updating payday for: %s",
+        audit_corp.corporation.corporation_name,
+    )
+
     payday = PaymentSystem.objects.filter(
         corporation=audit_corp, status=PaymentSystem.Status.ACTIVE
     )
@@ -185,13 +205,13 @@ def update_corporation_payments_filter(corp_id, runs=0):
             runs = runs + 1
         user.save()
 
-    audit_corp.last_update_payment_system = timezone.now()
+    audit_corp.last_update_payday = timezone.now()
     audit_corp.save()
 
     logger.debug(
-        "Finished %s: Payment System entrys for %s",
+        "Finished %s: Payday for %s",
         runs,
         audit_corp.corporation.corporation_name,
     )
 
-    return ("Finished Payment System for %s", audit_corp.corporation.corporation_name)
+    return ("Finished Payday for %s", audit_corp.corporation.corporation_name)

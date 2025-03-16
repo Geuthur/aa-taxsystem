@@ -45,6 +45,8 @@ class OwnerAudit(models.Model):
 
     last_update_payment_system = models.DateTimeField(null=True, blank=True)
 
+    last_update_payday = models.DateTimeField(null=True, blank=True)
+
     tax_amount = models.DecimalField(
         max_digits=16,
         decimal_places=0,
