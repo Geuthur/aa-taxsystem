@@ -78,12 +78,15 @@ def update_corporation_wallet_division(corp_id, force_refresh=False):
                 update_corp_wallet_journal(
                     corp_id, division.get("division"), force_refresh=force_refresh
                 )  # inline not async
-
+        audit_corp.last_update_wallet = timezone.now()
+        audit_corp.save()
+        return ("Finished wallet divs for: %s", audit_corp.corporation.corporation_name)
     except NotModifiedError:
         logger.debug(
             "No New wallet data for: %s",
             audit_corp.corporation.corporation_name,
         )
+        return ("No New wallet data for: %s", audit_corp.corporation.corporation_name)
     except HTTPGatewayTimeoutError:
         # TODO Add retry method?
         logger.debug(
@@ -91,11 +94,6 @@ def update_corporation_wallet_division(corp_id, force_refresh=False):
             audit_corp.corporation.corporation_name,
         )
         return ("ESI Timeout for %s:", audit_corp.corporation.corporation_name)
-
-    audit_corp.last_update_wallet = timezone.now()
-    audit_corp.save()
-
-    return ("Finished wallet divs for: %s", audit_corp.corporation.corporation_name)
 
 
 # pylint: disable=too-many-locals
@@ -109,7 +107,7 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
     logger.debug(
         "Updating wallet transactions for: %s (Div: %s)",
         audit_corp.corporation.corporation_name,
-        division,
+        division.name,
     )
 
     req_scopes = [
@@ -187,7 +185,7 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
             logger.debug(
                 "Corp %s Div %s, Page: %s, New Transactions! %s, New Names %s",
                 corp_id,
-                wallet_division,
+                division.name,
                 current_page,
                 len(items),
                 _new_names,
@@ -206,10 +204,36 @@ def update_corp_wallet_journal(corp_id, wallet_division, force_refresh=False):
                 raise DatabaseError("DB Fail")
 
             current_page += 1
+        logger.debug(
+            "Finished wallet journal for: Div: %s Corp: %s",
+            division.name,
+            audit_corp.corporation.corporation_name,
+        )
+        return (
+            "Finished wallet journal for: Div: %s Corp: %s",
+            division.name,
+            audit_corp.corporation.corporation_name,
+        )
     except NotModifiedError:
         logger.debug(
             "No New wallet data for: Div: %s Corp: %s",
+            division.name,
             audit_corp.corporation.corporation_name,
-            wallet_division,
         )
-    return ("Finished wallet journal for: %s", audit_corp.corporation.corporation_name)
+        return (
+            "No New wallet data for: Div: %s Corp: %s",
+            division.name,
+            audit_corp.corporation.corporation_name,
+        )
+    except HTTPGatewayTimeoutError:
+        # TODO Add retry method?
+        logger.debug(
+            "ESI Timeout for Div: %s Corp: %s",
+            division.name,
+            audit_corp.corporation.corporation_name,
+        )
+        return (
+            "ESI Timeout for Div: %s Corp: %s",
+            division.name,
+            audit_corp.corporation.corporation_name,
+        )
