@@ -12,7 +12,11 @@ from taxsystem.models.tax import (
     PaymentSystem,
 )
 from taxsystem.providers import esi
-from taxsystem.task_helpers.etag_helpers import NotModifiedError, etag_results
+from taxsystem.task_helpers.etag_helpers import (
+    HTTPGatewayTimeoutError,
+    NotModifiedError,
+    etag_results,
+)
 from taxsystem.task_helpers.general_helpers import get_corp_token
 
 logger = get_extension_logger(__name__)
@@ -126,11 +130,21 @@ def update_corporation_members(corp_id, force_refresh=False):
             len(_new_members),
             len(missing_members_ids),
         )
+        return ("Finished Members for %s", audit_corp.corporation.corporation_name)
     except NotModifiedError:
         logger.debug(
             "No changes detected for: %s", audit_corp.corporation.corporation_name
         )
-    return ("Finished Members for %s", audit_corp.corporation.corporation_name)
+        return ("No changes detected for: %s", audit_corp.corporation.corporation_name)
+    except HTTPGatewayTimeoutError:
+        logger.debug(
+            "ESI Timeout skipping Members for: %s",
+            audit_corp.corporation.corporation_name,
+        )
+        return (
+            "ESI Timeout skipping Members for %s",
+            audit_corp.corporation.corporation_name,
+        )
 
 
 # pylint: disable=too-many-branches
