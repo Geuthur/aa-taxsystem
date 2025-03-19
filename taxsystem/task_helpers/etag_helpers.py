@@ -131,15 +131,14 @@ def handle_page_results(
             if not etags_incomplete and not force_refresh:
                 inject_etag_header(operation)
             else:
-                logger.debug()
                 rem_etag_header(operation)
 
             result, headers = operation.result()
             total_pages = int(headers.headers["X-Pages"])
 
             # Get ETag Informations
-            logger.info(get_etag_header(operation))
-            logger.info(headers.headers.get("ETag"))
+            logger.debug(get_etag_header(operation))
+            logger.debug(headers.headers.get("ETag"))
 
             # Handle ETag headers
             handle_etag_headers(operation, headers, force_refresh, etags_incomplete)
