@@ -8,6 +8,7 @@ node_modules/
 .coverage
 .env
 .pypirc
+.vscode/
 .venv/
 /build/
 /dist/
