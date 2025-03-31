@@ -45,19 +45,23 @@ def _get_statistics_dict(corp: OwnerAudit):
 
     period = timezone.timedelta(days=corp.tax_period)
 
-    payment_system_counts = PaymentSystem.objects.filter(corporation=corp).aggregate(
-        users=Count("id"),
-        active=Count("id", filter=Q(status=PaymentSystem.Status.ACTIVE)),
-        inactive=Count("id", filter=Q(status=PaymentSystem.Status.INACTIVE)),
-        deactivated=Count("id", filter=Q(status=PaymentSystem.Status.DEACTIVATED)),
-        paid=Count(
-            "id",
-            filter=Q(deposit__gte=F("corporation__tax_amount"))
-            & Q(status=PaymentSystem.Status.ACTIVE)
-            | Q(deposit=0)
-            & Q(status=PaymentSystem.Status.ACTIVE)
-            & Q(last_paid__gte=timezone.now() - period),
-        ),
+    payment_system_counts = (
+        PaymentSystem.objects.filter(corporation=corp)
+        .exclude(status=PaymentSystem.Status.MISSING)
+        .aggregate(
+            users=Count("id"),
+            active=Count("id", filter=Q(status=PaymentSystem.Status.ACTIVE)),
+            inactive=Count("id", filter=Q(status=PaymentSystem.Status.INACTIVE)),
+            deactivated=Count("id", filter=Q(status=PaymentSystem.Status.DEACTIVATED)),
+            paid=Count(
+                "id",
+                filter=Q(deposit__gte=F("corporation__tax_amount"))
+                & Q(status=PaymentSystem.Status.ACTIVE)
+                | Q(deposit=0)
+                & Q(status=PaymentSystem.Status.ACTIVE)
+                & Q(last_paid__gte=timezone.now() - period),
+            ),
+        )
     )
 
     unpaid = payment_system_counts["active"] - payment_system_counts["paid"]

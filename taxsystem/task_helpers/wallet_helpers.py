@@ -78,15 +78,11 @@ def update_corporation_wallet_division(corp_id, force_refresh=False):
                 update_corp_wallet_journal(
                     corp_id, division.get("division"), force_refresh=force_refresh
                 )  # inline not async
-        audit_corp.last_update_wallet = timezone.now()
-        audit_corp.save()
-        return ("Finished wallet divs for: %s", audit_corp.corporation.corporation_name)
     except NotModifiedError:
         logger.debug(
             "No New wallet data for: %s",
             audit_corp.corporation.corporation_name,
         )
-        return ("No New wallet data for: %s", audit_corp.corporation.corporation_name)
     except HTTPGatewayTimeoutError:
         # TODO Add retry method?
         logger.debug(
@@ -94,6 +90,10 @@ def update_corporation_wallet_division(corp_id, force_refresh=False):
             audit_corp.corporation.corporation_name,
         )
         return ("ESI Timeout for %s:", audit_corp.corporation.corporation_name)
+
+    audit_corp.last_update_wallet = timezone.now()
+    audit_corp.save()
+    return ("Finished wallet divs for: %s", audit_corp.corporation.corporation_name)
 
 
 # pylint: disable=too-many-locals

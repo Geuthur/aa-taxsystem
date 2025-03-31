@@ -152,6 +152,7 @@ class PaymentSystem(models.Model):
         ACTIVE = "active", _("Active")
         INACTIVE = "inactive", _("Inactive")
         DEACTIVATED = "deactivated", _("Deactivated")
+        MISSING = "missing", _("Missing")
 
     name = models.CharField(
         max_length=100,
@@ -216,6 +217,10 @@ class PaymentSystem(models.Model):
     @property
     def is_deactivated(self) -> bool:
         return self.status == self.Status.DEACTIVATED
+
+    @property
+    def is_missing(self) -> bool:
+        return self.status == self.Status.MISSING
 
     @property
     def has_paid(self) -> bool:
