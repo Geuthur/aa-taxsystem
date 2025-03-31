@@ -73,7 +73,7 @@ def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-a
     logger.debug("Processing Audit Updates for %s", corp.corporation.corporation_name)
 
     que = []
-    mindt = timezone.now() - datetime.timedelta(days=90)
+    mindt = timezone.now() - datetime.timedelta(days=app_settings.TAXSYSTEM_STALE_TIME)
     priority = 7
 
     if (corp.last_update_wallet or mindt) <= SkipDates.wallet or force_refresh:

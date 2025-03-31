@@ -5,6 +5,11 @@
 ### Added
 
 - Timeout Handler for ESI Requests
+- Check Payment Accounts
+  - Check if Account is in Corporation
+  - Update Account on Corporation Change
+  - Reactivate Account on returning to Corporation
+- `TAXSYSTEM_STALE_TIME` Defines the time (in days) after which data is considered outdated and needs a update
 
 ### Changed
 

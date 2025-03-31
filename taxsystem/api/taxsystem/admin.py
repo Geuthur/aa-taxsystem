@@ -134,9 +134,13 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, "Permission Denied"
 
-            payment_system = PaymentSystem.objects.filter(
-                corporation=corp
-            ).select_related("user", "user__profile", "user__profile__main_character")
+            payment_system = (
+                PaymentSystem.objects.filter(corporation=corp)
+                .exclude(status=PaymentSystem.Status.MISSING)
+                .select_related(
+                    "user", "user__profile", "user__profile__main_character"
+                )
+            )
 
             payment_dict = {}
 

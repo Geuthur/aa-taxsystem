@@ -35,6 +35,9 @@ TAXSYSTEM_LOGGER_USE = clean_setting("TAXSYSTEM_LOGGER_USE", False)
 # Global timeout for tasks in seconds to reduce task accumulation during outages.
 TAXSYSTEM_TASKS_TIME_LIMIT = clean_setting("TAXSYSTEM_TASKS_TIME_LIMIT", 7200)
 
+# Stale Time
+TAXSYSTEM_STALE_TIME = clean_setting("TAXSYSTEM_STALE_TIME", 3)
+
 # Skip Dates for Tasks
 # Member Skip Date in Hours
 TAXSYSTEM_CORP_MEMBERS_SKIP_DATE = clean_setting("TAXSYSTEM_CORP_MEMBERS_SKIP_DATE", 1)
