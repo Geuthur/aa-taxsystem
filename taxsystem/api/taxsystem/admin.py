@@ -6,6 +6,7 @@ from django.shortcuts import render
 from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem.api.helpers import get_manage_corporation
+from taxsystem.api.taxsystem.helpers.administration import _delete_member
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
     _get_has_paid_icon,
@@ -104,6 +105,13 @@ class AdminApiEndpoints:
             members = Members.objects.filter(corporation=corp)
 
             for member in members:
+                actions = _delete_member(
+                    corporation_id=corporation_id,
+                    member=member,
+                    perms=perms,
+                    request=request,
+                )
+
                 corporation_dict[member.character_id] = {
                     "character_id": member.character_id,
                     "character_portrait": lazy.get_character_portrait_url(
@@ -113,7 +121,7 @@ class AdminApiEndpoints:
                     "is_faulty": member.is_faulty,
                     "status": member.get_status_display(),
                     "joined": lazy.str_normalize_time(member.joined, hours=False),
-                    "actions": "",
+                    "actions": actions,
                 }
 
             output = []
