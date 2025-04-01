@@ -2,15 +2,15 @@
 Etag Helpers
 """
 
-import logging
-
 from bravado.exception import HTTPGatewayTimeout, HTTPNotModified
 
 from django.core.cache import cache
 
+from allianceauth.services.hooks import get_extension_logger
+
 from taxsystem.decorators import log_timing
 
-logger = logging.getLogger(__name__)
+logger = get_extension_logger(__name__)
 
 MAX_ETAG_LIFE = 60 * 60 * 24 * 7  # 7 Days
 

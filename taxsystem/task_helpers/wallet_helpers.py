@@ -3,8 +3,9 @@
 from django.utils import timezone
 from eveuniverse.models import EveEntity
 
+from allianceauth.services.hooks import get_extension_logger
+
 from taxsystem.errors import DatabaseError
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import (
     OwnerAudit,
 )

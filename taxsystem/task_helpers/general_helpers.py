@@ -6,8 +6,8 @@ from esi.errors import TokenError
 from esi.models import Token
 
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.services.hooks import get_extension_logger
 
-from taxsystem.hooks import get_extension_logger
 from taxsystem.providers import esi
 
 logger = get_extension_logger(__name__)

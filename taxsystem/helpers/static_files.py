@@ -9,17 +9,13 @@ from pathlib import Path
 # Third Party
 from sri import Algorithm, calculate_integrity
 
-# Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
-
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
 
 # AA Fleet Pings
 from taxsystem import __title__
 from taxsystem.constants import AA_TAXSYSTEM_STATIC_DIR
 
-logger = LoggerAddTag(my_logger=get_extension_logger(__name__), prefix=__title__)
+logger = get_extension_logger(__name__)
 
 
 def calculate_integrity_hash(relative_file_path: str) -> str:

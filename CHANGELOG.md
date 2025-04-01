@@ -14,6 +14,7 @@
 ### Changed
 
 - Refactor Task Process
+- Update Logger System
 
 ## [0.5.4.1] - 2025-02-17
 

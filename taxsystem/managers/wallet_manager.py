@@ -1,8 +1,7 @@
 # Django
 from django.db import models
 
-# AA Voices of War
-from taxsystem.hooks import get_extension_logger
+from allianceauth.services.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 

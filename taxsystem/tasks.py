@@ -6,11 +6,11 @@ from celery import chain, shared_task
 
 from django.utils import timezone
 
+from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 from taxsystem import app_settings
 from taxsystem.decorators import when_esi_is_available
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import OwnerAudit
 from taxsystem.task_helpers.payment_helpers import (
     update_corporation_payments,

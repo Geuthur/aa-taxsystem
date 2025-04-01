@@ -5,9 +5,10 @@ from django.template.defaulttags import register
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
+from allianceauth.services.hooks import get_extension_logger
+
 from taxsystem import __title__, __version__
 from taxsystem.helpers.static_files import calculate_integrity_hash
-from taxsystem.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 

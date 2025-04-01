@@ -5,10 +5,10 @@ Decorators
 import time
 from functools import wraps
 
+from allianceauth.services.hooks import get_extension_logger
 from app_utils.esi import EsiDailyDowntime, fetch_esi_status
 
 from taxsystem.app_settings import IS_TESTING
-from taxsystem.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 

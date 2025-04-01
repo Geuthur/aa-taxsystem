@@ -16,6 +16,7 @@ from esi.decorators import token_required
 
 from allianceauth.authentication.decorators import permissions_required
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem import forms
 from taxsystem.api.helpers import get_corporation, get_manage_permission
@@ -23,8 +24,6 @@ from taxsystem.helpers.views import add_info_to_context
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import OwnerAudit, Payments, PaymentSystem
 from taxsystem.tasks import update_corp
-
-from .hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 

@@ -2,11 +2,12 @@ from ninja import NinjaAPI
 
 from django.utils.translation import gettext_lazy as _
 
+from allianceauth.services.hooks import get_extension_logger
+
 from taxsystem.api.helpers import get_corporation, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.own_payments import _own_payments_actions
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.helpers import lazy
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import Payments, PaymentSystem
 
 logger = get_extension_logger(__name__)

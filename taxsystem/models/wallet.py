@@ -4,7 +4,8 @@
 from django.db import models
 from eveuniverse.models import EveEntity
 
-from taxsystem.hooks import get_extension_logger
+from allianceauth.services.hooks import get_extension_logger
+
 from taxsystem.managers.wallet_manager import WalletManager
 from taxsystem.models.tax import OwnerAudit
 
