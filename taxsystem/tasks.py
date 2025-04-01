@@ -98,7 +98,7 @@ def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-a
         que.append(update_corp_payday.si(corp_id).set(priority=priority))
 
     chain(que).apply_async()
-    logger.debug("Queued Updates for %s", corp.corporation.corporation_name)
+    logger.info("Queued Updates for %s", corp.corporation.corporation_name)
 
 
 @shared_task(**_update_taxsystem_params)

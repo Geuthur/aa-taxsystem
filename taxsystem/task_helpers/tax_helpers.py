@@ -124,7 +124,7 @@ def update_corporation_members(corp_id, force_refresh=False):
         # Update payment accounts
         update_payment_accounts(corp_id, _esi_members_ids)
 
-        logger.debug(
+        logger.info(
             "Corp %s - Old Members: %s, New Members: %s, Missing: %s",
             audit_corp.name,
             len(_old_members),
@@ -226,7 +226,7 @@ def update_payment_accounts(corp_id: int, members_ids: list[int]):
 
     if items:
         PaymentSystem.objects.bulk_create(items, ignore_conflicts=True)
-        logger.debug(
+        logger.info(
             "Added %s new payment users for: %s",
             len(items),
             audit_corp.corporation.corporation_name,
@@ -282,7 +282,7 @@ def check_payment_accounts(corp_id: int):
             ):
                 payment_system.status = PaymentSystem.Status.MISSING
                 payment_system.save()
-                logger.debug(
+                logger.info(
                     "User %s is no longer in Corp marked as Missing",
                     payment_system.name,
                 )
@@ -300,7 +300,7 @@ def check_payment_accounts(corp_id: int):
                     payment_system.status = PaymentSystem.Status.ACTIVE
                     payment_system.last_paid = None
                     payment_system.save()
-                    logger.debug(
+                    logger.info(
                         "User %s is now in Corp %s",
                         payment_system.name,
                         new_audit_corp.corporation.corporation_name,
@@ -316,7 +316,7 @@ def check_payment_accounts(corp_id: int):
                 payment_system.deposit = 0
                 payment_system.last_paid = None
                 payment_system.save()
-                logger.debug(
+                logger.info(
                     "User %s is back in Corp %s",
                     payment_system.name,
                     payment_system.corporation.corporation.corporation_name,
