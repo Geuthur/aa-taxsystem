@@ -2,15 +2,16 @@
 Core Helpers
 """
 
+import logging
+
 from esi.errors import TokenError
 from esi.models import Token
 
 from allianceauth.eveonline.models import EveCharacter
-from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem.providers import esi
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_token(character_id: int, scopes: list) -> Token:

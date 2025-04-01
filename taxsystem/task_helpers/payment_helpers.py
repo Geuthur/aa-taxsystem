@@ -1,10 +1,10 @@
 """Tax Helpers"""
 
+import logging
+
 from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
-from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem.models.filters import SmartGroup
 from taxsystem.models.logs import PaymentHistory
@@ -15,7 +15,7 @@ from taxsystem.models.tax import (
 )
 from taxsystem.models.wallet import CorporationWalletJournalEntry
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-locals

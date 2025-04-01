@@ -1,5 +1,7 @@
 """PvE Views"""
 
+import logging
+
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -16,7 +18,6 @@ from esi.decorators import token_required
 
 from allianceauth.authentication.decorators import permissions_required
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
-from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem import forms
 from taxsystem.api.helpers import get_corporation, get_manage_permission
@@ -25,7 +26,7 @@ from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
 from taxsystem.tasks import update_corp
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @login_required

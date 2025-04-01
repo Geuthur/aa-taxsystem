@@ -1,9 +1,9 @@
 """Wallet Helpers"""
 
+import logging
+
 from django.utils import timezone
 from eveuniverse.models import EveEntity
-
-from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem.errors import DatabaseError
 from taxsystem.models.tax import (
@@ -21,7 +21,7 @@ from taxsystem.task_helpers.etag_helpers import (
 )
 from taxsystem.task_helpers.general_helpers import get_corp_token
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def update_corporation_wallet_division(corp_id, force_refresh=False):

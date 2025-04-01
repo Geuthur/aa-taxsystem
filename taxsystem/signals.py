@@ -1,11 +1,12 @@
+import logging
+
 from django.db.models.signals import post_save, pre_delete
 
 from allianceauth import hooks
-from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem import models
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class HookCache:
