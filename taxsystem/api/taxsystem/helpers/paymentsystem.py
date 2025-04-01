@@ -36,23 +36,27 @@ def _payment_system_actions(corporation_id, user: PaymentSystem, perms, request)
         return ""
 
     template = "taxsystem/partials/form/button.html"
-    confirm_text = ""
-    confirm_text += _("Are you sure to Confirm")
     url = reverse(
         viewname="taxsystem:switch_user",
         kwargs={"corporation_id": corporation_id, "user_pk": user.pk},
     )
 
     if user.is_active:
-        confirm_text += (
-            f"?<br><span class='fw-bold'>{user.name} " + _("Deactivate") + "</span>"
+        confirm_text = (
+            _("Are you sure to Confirm")
+            + f"?<br><span class='fw-bold'>{user.name} "
+            + _("Deactivate")
+            + "</span>"
         )
         title = _("Deactivate User")
         icon = "fas fa-eye-low-vision"
         color = "warning"
     else:
-        confirm_text += (
-            f"?<br><span class='fw-bold'>{user.name} " + _("Activate") + "</span>"
+        confirm_text = (
+            _("Are you sure to Confirm")
+            + f"?<br><span class='fw-bold'>{user.name} "
+            + _("Activate")
+            + "</span>"
         )
         title = _("Activate User")
         icon = "fas fa-eye"

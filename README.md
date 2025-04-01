@@ -33,6 +33,7 @@ ______________________________________________________________________
   - Member Tracking
     - Check Member is registred in Auth
     - Check Member is Alt Char
+    - See Members as Missing when they leave the Corporation
   - Payment System
     - Allocate User from Member Tracking
     - Automatic Payment Tracking
