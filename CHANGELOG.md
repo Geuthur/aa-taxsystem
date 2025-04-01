@@ -18,6 +18,10 @@
 - Refactor Task Process
 - Update Logger System
 
+### Fixed
+
+- Wrong Payment User Count on Corporation Leave
+
 ## [0.5.4.1] - 2025-02-17
 
 ### Hotfix
