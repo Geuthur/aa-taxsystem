@@ -266,18 +266,19 @@ def check_payment_accounts(corp_id: int):
         return "No Accounts"
 
     for account in accounts:
-        main = account.main_character
-        main_corporation = main.corporation
+        main_corporation_id = account.main_character.corporation_id
 
         try:
             payment_system = PaymentSystem.objects.get(
                 user=account.user, corporation=audit_corp
             )
-            payment_system_corp = payment_system.corporation.corporation
+            payment_system_corp_id = (
+                payment_system.corporation.corporation.corporation_id
+            )
             # Check if the user is no longer in the same corporation
             if (
                 not payment_system.is_missing
-                and not payment_system_corp == main_corporation
+                and not payment_system_corp_id == main_corporation_id
             ):
                 payment_system.status = PaymentSystem.Status.MISSING
                 payment_system.save()
@@ -286,10 +287,13 @@ def check_payment_accounts(corp_id: int):
                     payment_system.name,
                 )
             # Check if the user changed to a existing corporation Payment System
-            elif payment_system.is_missing and payment_system_corp != main_corporation:
+            elif (
+                payment_system.is_missing
+                and payment_system_corp_id != main_corporation_id
+            ):
                 try:
                     new_audit_corp = OwnerAudit.objects.get(
-                        corporation=main_corporation
+                        corporation__corporation_id=main_corporation_id
                     )
                     payment_system.corporation = new_audit_corp
                     payment_system.deposit = 0
@@ -303,7 +307,10 @@ def check_payment_accounts(corp_id: int):
                     )
                 except OwnerAudit.DoesNotExist:
                     continue
-            elif payment_system.is_missing and payment_system_corp == main_corporation:
+            elif (
+                payment_system.is_missing
+                and payment_system_corp_id == main_corporation_id
+            ):
                 payment_system.status = PaymentSystem.Status.ACTIVE
                 payment_system.notice = None
                 payment_system.deposit = 0
@@ -312,7 +319,7 @@ def check_payment_accounts(corp_id: int):
                 logger.debug(
                     "User %s is back in Corp %s",
                     payment_system.name,
-                    main_corporation.corporation_name,
+                    payment_system.corporation.corporation.corporation_name,
                 )
         except PaymentSystem.DoesNotExist:
             logger.debug(
