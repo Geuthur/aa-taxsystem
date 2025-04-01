@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save, pre_delete
 
 from allianceauth import hooks
+from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem import models
-from taxsystem.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 

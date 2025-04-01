@@ -4,8 +4,8 @@ from django.utils import timezone
 from eveuniverse.models import EveEntity
 
 from allianceauth.authentication.models import UserProfile
+from allianceauth.services.hooks import get_extension_logger
 
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import (
     Members,
     OwnerAudit,

@@ -3,6 +3,8 @@ from ninja import NinjaAPI
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.shortcuts import render
 
+from allianceauth.services.hooks import get_extension_logger
+
 from taxsystem.api.helpers import get_manage_corporation
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
@@ -15,7 +17,6 @@ from taxsystem.api.taxsystem.helpers.statistics import (
     _get_statistics_dict,
 )
 from taxsystem.helpers import lazy
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.logs import AdminLogs
 from taxsystem.models.tax import Members, Payments, PaymentSystem
 from taxsystem.models.wallet import CorporationWalletDivision

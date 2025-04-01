@@ -3,8 +3,9 @@ from ninja.security import django_auth
 
 from django.conf import settings
 
+from allianceauth.services.hooks import get_extension_logger
+
 from taxsystem.api import taxsystem
-from taxsystem.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
