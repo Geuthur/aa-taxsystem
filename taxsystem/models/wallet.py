@@ -1,15 +1,15 @@
 """Corporation Wallet Model"""
 
+import logging
+
 # Django
 from django.db import models
 from eveuniverse.models import EveEntity
 
-from allianceauth.services.hooks import get_extension_logger
-
 from taxsystem.managers.wallet_manager import WalletManager
 from taxsystem.models.tax import OwnerAudit
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class WalletJournalEntry(models.Model):

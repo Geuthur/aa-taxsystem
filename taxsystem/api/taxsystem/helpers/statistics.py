@@ -46,7 +46,10 @@ def _get_statistics_dict(corp: OwnerAudit):
     period = timezone.timedelta(days=corp.tax_period)
 
     payment_system_counts = (
-        PaymentSystem.objects.filter(corporation=corp)
+        PaymentSystem.objects.filter(
+            corporation=corp,
+            user__profile__main_character__isnull=False,
+        )
         .exclude(status=PaymentSystem.Status.MISSING)
         .aggregate(
             users=Count("id"),

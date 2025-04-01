@@ -1,9 +1,9 @@
 # Django
+import logging
+
 from django.db import models
 
-from allianceauth.services.hooks import get_extension_logger
-
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class PaymentSystemQuerySet(models.QuerySet):

@@ -1,12 +1,12 @@
 """App Tasks"""
 
 import datetime
+import logging
 
 from celery import chain, shared_task
 
 from django.utils import timezone
 
-from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 from taxsystem import app_settings
@@ -20,7 +20,7 @@ from taxsystem.task_helpers.payment_helpers import (
 from taxsystem.task_helpers.tax_helpers import update_corporation_members
 from taxsystem.task_helpers.wallet_helpers import update_corporation_wallet_division
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 MAX_RETRIES_DEFAULT = 3
 
@@ -98,7 +98,7 @@ def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-a
         que.append(update_corp_payday.si(corp_id).set(priority=priority))
 
     chain(que).apply_async()
-    logger.debug("Queued Updates for %s", corp.corporation.corporation_name)
+    logger.info("Queued Updates for %s", corp.corporation.corporation_name)
 
 
 @shared_task(**_update_taxsystem_params)

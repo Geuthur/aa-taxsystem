@@ -1,9 +1,9 @@
+import logging
+
 from ninja import NinjaAPI
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.shortcuts import render
-
-from allianceauth.services.hooks import get_extension_logger
 
 from taxsystem.api.helpers import get_manage_corporation
 from taxsystem.api.taxsystem.helpers.administration import _delete_member
@@ -22,7 +22,7 @@ from taxsystem.models.logs import AdminLogs
 from taxsystem.models.tax import Members, Payments, PaymentSystem
 from taxsystem.models.wallet import CorporationWalletDivision
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class AdminApiEndpoints:
@@ -144,7 +144,10 @@ class AdminApiEndpoints:
                 return 403, "Permission Denied"
 
             payment_system = (
-                PaymentSystem.objects.filter(corporation=corp)
+                PaymentSystem.objects.filter(
+                    corporation=corp,
+                    user__profile__main_character__isnull=False,
+                )
                 .exclude(status=PaymentSystem.Status.MISSING)
                 .select_related(
                     "user", "user__profile", "user__profile__main_character"
@@ -154,12 +157,8 @@ class AdminApiEndpoints:
             payment_dict = {}
 
             for user in payment_system:
-                try:
-                    # Skip users without a main character
-                    character_id = user.user.profile.main_character.character_id
-                    character_name = user.user.profile.main_character.character_name
-                except AttributeError:
-                    continue
+                character_id = user.user.profile.main_character.character_id
+                character_name = user.user.profile.main_character.character_name
 
                 actions = _payment_system_actions(
                     corporation_id=corporation_id,
