@@ -21,6 +21,7 @@
 ### Fixed
 
 - Wrong Payment User Count on Corporation Leave
+- Payments Error if no Main Character Exist
 
 ## [0.5.4.1] - 2025-02-17
 
