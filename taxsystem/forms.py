@@ -45,6 +45,16 @@ class TaxUndoForm(forms.Form):
     )
 
 
+class TaxDeleteForm(forms.Form):
+    """Form for accepting."""
+
+    delete_reason = forms.CharField(
+        required=False,
+        label=_("Comment") + " (optional)",
+        widget=forms.Textarea(attrs={"rows": 5}),
+    )
+
+
 class TaxSwitchUserForm(forms.Form):
     """Form for switching user."""
 

@@ -241,6 +241,12 @@ $(document).ready(function() {
                     return data;
                 }
             },
+            {
+                data: 'actions',
+                render: function (data, _, __) {
+                    return data;
+                }
+            },
         ],
         order: [[1, 'asc']],
         columnDefs: [

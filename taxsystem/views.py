@@ -1,5 +1,7 @@
 """PvE Views"""
 
+import logging
+
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -21,12 +23,10 @@ from taxsystem import forms
 from taxsystem.api.helpers import get_corporation, get_manage_permission
 from taxsystem.helpers.views import add_info_to_context
 from taxsystem.models.logs import AdminLogs, PaymentHistory
-from taxsystem.models.tax import OwnerAudit, Payments, PaymentSystem
+from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
 from taxsystem.tasks import update_corp
 
-from .hooks import get_extension_logger
-
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -53,6 +53,7 @@ def administration(request, corporation_id):
             "reject_request": forms.TaxRejectForm(),
             "undo_request": forms.TaxUndoForm(),
             "switchuser_request": forms.TaxSwitchUserForm(),
+            "delete_request": forms.TaxDeleteForm(),
         },
     }
     context = add_info_to_context(request, context)
@@ -401,3 +402,36 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             return JsonResponse({"message": msg}, status=400)
         return JsonResponse({"message": msg}, status=200)
     return JsonResponse({"message": _("Invalid request method")}, status=405)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+@require_POST
+def delete_user(request: WSGIRequest, corporation_id: int, member_pk: int):
+    msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
+
+    perms = get_manage_permission(request, corporation_id)
+    if not perms:
+        msg = _("Permission Denied")
+        return JsonResponse(
+            data={"success": False, "message": msg}, status=403, safe=False
+        )
+
+    form = forms.TaxDeleteForm(data=request.POST)
+    if form.is_valid():
+        reason = form.cleaned_data["delete_reason"]
+        member = Members.objects.get(corporation=corp, pk=member_pk)
+        if member.is_missing:
+            msg = _(f"Member {member.character_name} deleted")
+            member.delete()
+            AdminLogs(
+                user=request.user,
+                corporation=corp,
+                action=AdminLogs.Actions.DELETE,
+                comment=reason,
+            ).save()
+            return JsonResponse(
+                data={"success": True, "message": msg}, status=200, safe=False
+            )
+    return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)

@@ -1,3 +1,5 @@
+import logging
+
 from ninja import NinjaAPI
 
 from django.utils.translation import gettext_lazy as _
@@ -6,10 +8,9 @@ from taxsystem.api.helpers import get_corporation, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.own_payments import _own_payments_actions
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.helpers import lazy
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import Payments, PaymentSystem
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CorporationApiEndpoints:
@@ -33,15 +34,11 @@ class CorporationApiEndpoints:
             payments_dict = {}
 
             for payment in payments:
-                # pylint: disable=duplicate-code
                 try:
-                    character_id = (
-                        payment.account.user.profile.main_character.character_id
-                    )
                     character_portrait = lazy.get_character_portrait_url(
-                        character_id, size=32, as_html=True
+                        payment.character_id, size=32, as_html=True
                     )
-                except AttributeError:
+                except ValueError:
                     character_portrait = ""
 
                 actions = _payments_actions(corporation_id, payment, perms, request)

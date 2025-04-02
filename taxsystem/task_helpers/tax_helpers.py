@@ -1,21 +1,26 @@
 """Tax Helpers"""
 
+import logging
+
 from django.utils import timezone
 from eveuniverse.models import EveEntity
 
 from allianceauth.authentication.models import UserProfile
 
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import (
     Members,
     OwnerAudit,
     PaymentSystem,
 )
 from taxsystem.providers import esi
-from taxsystem.task_helpers.etag_helpers import NotModifiedError, etag_results
+from taxsystem.task_helpers.etag_helpers import (
+    HTTPGatewayTimeoutError,
+    NotModifiedError,
+    etag_results,
+)
 from taxsystem.task_helpers.general_helpers import get_corp_token
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-locals
@@ -41,6 +46,10 @@ def update_corporation_members(corp_id, force_refresh=False):
     if not token:
         logger.debug("No valid token for: %s", audit_corp.corporation.corporation_name)
         return "No Tokens"
+
+    # Check Payment Accounts
+
+    check_payment_accounts(corp_id)
 
     try:
         _current_members_ids = set(
@@ -113,13 +122,10 @@ def update_corporation_members(corp_id, force_refresh=False):
                 audit_corp.corporation.corporation_name,
             )
 
-        # Update payment users
-        update_payment_users(corp_id, _esi_members_ids)
+        # Update payment accounts
+        update_payment_accounts(corp_id, _esi_members_ids)
 
-        audit_corp.last_update_members = timezone.now()
-        audit_corp.save()
-
-        logger.debug(
+        logger.info(
             "Corp %s - Old Members: %s, New Members: %s, Missing: %s",
             audit_corp.name,
             len(_old_members),
@@ -130,16 +136,27 @@ def update_corporation_members(corp_id, force_refresh=False):
         logger.debug(
             "No changes detected for: %s", audit_corp.corporation.corporation_name
         )
+    except HTTPGatewayTimeoutError:
+        logger.debug(
+            "ESI Timeout skipping Members for: %s",
+            audit_corp.corporation.corporation_name,
+        )
+        return (
+            "ESI Timeout skipping Members for %s",
+            audit_corp.corporation.corporation_name,
+        )
+    audit_corp.last_update_members = timezone.now()
+    audit_corp.save()
+
     return ("Finished Members for %s", audit_corp.corporation.corporation_name)
 
 
-# pylint: disable=too-many-branches
-def update_payment_users(corp_id, members_ids):
-    """Update payment users for a corporation."""
+def update_payment_accounts(corp_id: int, members_ids: list[int]):
+    """Update payment accounts for a corporation."""
     audit_corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
 
     logger.debug(
-        "Updating payment system for: %s",
+        "Updating Payment Accounts for: %s",
         audit_corp.corporation.corporation_name,
     )
 
@@ -162,44 +179,38 @@ def update_payment_users(corp_id, members_ids):
         return "No Accounts"
 
     items = []
+
     for account in accounts:
-        alts = account.user.character_ownerships.all().values_list(
-            "character__character_id", flat=True
+        alts = set(
+            account.user.character_ownerships.all().values_list(
+                "character__character_id", flat=True
+            )
         )
         main = account.main_character
 
-        if any(alt in members_ids for alt in alts):
-            # Remove alts from list
-            for alt in alts:
-                if alt in members_ids:
-                    members_ids.remove(alt)
-                    if alt != main.character_id:
-                        # Update the status of the member to alt
-                        members.filter(character_id=alt).update(
-                            status=Members.States.IS_ALT
-                        )
-            try:
-                existing_payment_system = PaymentSystem.objects.get(user=account.user)
-                if existing_payment_system.status != PaymentSystem.Status.DEACTIVATED:
-                    existing_payment_system.status = PaymentSystem.Status.ACTIVE
-                    existing_payment_system.save()
-            except PaymentSystem.DoesNotExist:
-                items.append(
-                    PaymentSystem(
-                        name=main.character_name,
-                        corporation=audit_corp,
-                        user=account.user,
-                        status=PaymentSystem.Status.ACTIVE,
-                    )
-                )
-        else:
-            # Set the account to inactive if none of the conditions are met
-            try:
-                existing_payment_system = PaymentSystem.objects.get(user=account.user)
-                existing_payment_system.status = PaymentSystem.Status.INACTIVE
+        relevant_alts = alts.intersection(members_ids)
+        for alt in relevant_alts:
+            members_ids.remove(alt)
+            if alt != main.character_id:
+                # Update the status of the member to alt
+                members.filter(character_id=alt).update(status=Members.States.IS_ALT)
+        try:
+            existing_payment_system = PaymentSystem.objects.get(
+                user=account.user, corporation=audit_corp
+            )
+
+            if existing_payment_system.status != PaymentSystem.Status.DEACTIVATED:
+                existing_payment_system.status = PaymentSystem.Status.ACTIVE
                 existing_payment_system.save()
-            except PaymentSystem.DoesNotExist:
-                pass
+        except PaymentSystem.DoesNotExist:
+            items.append(
+                PaymentSystem(
+                    name=main.character_name,
+                    corporation=audit_corp,
+                    user=account.user,
+                    status=PaymentSystem.Status.ACTIVE,
+                )
+            )
 
     if members_ids:
         # Mark members without accounts
@@ -216,7 +227,7 @@ def update_payment_users(corp_id, members_ids):
 
     if items:
         PaymentSystem.objects.bulk_create(items, ignore_conflicts=True)
-        logger.debug(
+        logger.info(
             "Added %s new payment users for: %s",
             len(items),
             audit_corp.corporation.corporation_name,
@@ -228,3 +239,97 @@ def update_payment_users(corp_id, members_ids):
         )
 
     return ("Finished payment system for %s", audit_corp.corporation.corporation_name)
+
+
+def check_payment_accounts(corp_id: int):
+    """Check payment accounts for a corporation."""
+    audit_corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
+
+    logger.debug(
+        "Checking Payment Accounts for: %s",
+        audit_corp.corporation.corporation_name,
+    )
+
+    accounts = UserProfile.objects.filter(
+        main_character__isnull=False,
+    ).select_related(
+        "user__profile__main_character",
+        "main_character__character_ownership",
+        "main_character__character_ownership__user__profile",
+        "main_character__character_ownership__user__profile__main_character",
+    )
+
+    if not accounts:
+        logger.debug(
+            "No valid accounts for skipping Check: %s",
+            audit_corp.corporation.corporation_name,
+        )
+        return "No Accounts"
+
+    for account in accounts:
+        main_corporation_id = account.main_character.corporation_id
+
+        try:
+            payment_system = PaymentSystem.objects.get(
+                user=account.user, corporation=audit_corp
+            )
+            payment_system_corp_id = (
+                payment_system.corporation.corporation.corporation_id
+            )
+            # Check if the user is no longer in the same corporation
+            if (
+                not payment_system.is_missing
+                and not payment_system_corp_id == main_corporation_id
+            ):
+                payment_system.status = PaymentSystem.Status.MISSING
+                payment_system.save()
+                logger.info(
+                    "User %s is no longer in Corp marked as Missing",
+                    payment_system.name,
+                )
+            # Check if the user changed to a existing corporation Payment System
+            elif (
+                payment_system.is_missing
+                and payment_system_corp_id != main_corporation_id
+            ):
+                try:
+                    new_audit_corp = OwnerAudit.objects.get(
+                        corporation__corporation_id=main_corporation_id
+                    )
+                    payment_system.corporation = new_audit_corp
+                    payment_system.deposit = 0
+                    payment_system.status = PaymentSystem.Status.ACTIVE
+                    payment_system.last_paid = None
+                    payment_system.save()
+                    logger.info(
+                        "User %s is now in Corp %s",
+                        payment_system.name,
+                        new_audit_corp.corporation.corporation_name,
+                    )
+                except OwnerAudit.DoesNotExist:
+                    continue
+            elif (
+                payment_system.is_missing
+                and payment_system_corp_id == main_corporation_id
+            ):
+                payment_system.status = PaymentSystem.Status.ACTIVE
+                payment_system.notice = None
+                payment_system.deposit = 0
+                payment_system.last_paid = None
+                payment_system.save()
+                logger.info(
+                    "User %s is back in Corp %s",
+                    payment_system.name,
+                    payment_system.corporation.corporation.corporation_name,
+                )
+        except PaymentSystem.DoesNotExist:
+            logger.debug(
+                "No Payment System for %s - %s",
+                account.user.username,
+                audit_corp.corporation.corporation_name,
+            )
+            continue
+    return (
+        "Finished checking Payment Accounts for %s",
+        audit_corp.corporation.corporation_name,
+    )

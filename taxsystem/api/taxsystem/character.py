@@ -1,3 +1,5 @@
+import logging
+
 from ninja import NinjaAPI
 
 from django.contrib.humanize.templatetags.humanize import intcomma
@@ -8,11 +10,10 @@ from django.utils.translation import gettext_lazy as _
 from taxsystem.api.helpers import get_character_permissions, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.paymentsystem import _get_has_paid_icon
 from taxsystem.helpers import lazy
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.logs import PaymentHistory
 from taxsystem.models.tax import Payments, PaymentSystem
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CharacterApiEndpoints:
@@ -42,7 +43,6 @@ class CharacterApiEndpoints:
                 payment = Payments.objects.get(
                     pk=pk,
                     account__corporation=corp,
-                    account__user__profile__main_character__character_id=character_id,
                 )
                 account = PaymentSystem.objects.get(
                     user=payment.account.user,

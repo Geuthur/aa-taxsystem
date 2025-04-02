@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.5.5] - IN DEVELOPMENT
+
+### Added
+
+- Timeout Handler for ESI Requests
+- Check Payment Accounts
+  - Check if Account is in Corporation
+  - Update Account on Corporation Change
+  - Reactivate Account on returning to Corporation
+- `TAXSYSTEM_STALE_TIME` Defines the time (in days) after which data is considered outdated and needs a update
+- Member Delete Button
+  - Delete Missing Member from Corp Members list
+
+### Changed
+
+- Refactor Task Process
+- Update Logger System
+
+### Fixed
+
+- Wrong Payment User Count on Corporation Leave
+- Payments Error if no Main Character Exist
+
 ## [0.5.4.1] - 2025-02-17
 
 ### Hotfix

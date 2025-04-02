@@ -1,8 +1,9 @@
 """App Tasks"""
 
 import datetime
+import logging
 
-from celery import shared_task
+from celery import chain, shared_task
 
 from django.utils import timezone
 
@@ -10,17 +11,32 @@ from allianceauth.services.tasks import QueueOnce
 
 from taxsystem import app_settings
 from taxsystem.decorators import when_esi_is_available
-from taxsystem.hooks import get_extension_logger
 from taxsystem.models.tax import OwnerAudit
-from taxsystem.task_helpers.general_helpers import enqueue_next_task, no_fail_chain
 from taxsystem.task_helpers.payment_helpers import (
     update_corporation_payments,
     update_corporation_payments_filter,
+    update_payday,
 )
 from taxsystem.task_helpers.tax_helpers import update_corporation_members
 from taxsystem.task_helpers.wallet_helpers import update_corporation_wallet_division
 
-logger = get_extension_logger(__name__)
+logger = logging.getLogger(__name__)
+
+MAX_RETRIES_DEFAULT = 3
+
+# Default params for all tasks.
+TASK_DEFAULTS = {
+    "time_limit": app_settings.TAXSYSTEM_TASKS_TIME_LIMIT,
+    "max_retries": MAX_RETRIES_DEFAULT,
+}
+
+# Default params for tasks that need run once only.
+TASK_DEFAULTS_ONCE = {**TASK_DEFAULTS, **{"base": QueueOnce}}
+
+_update_taxsystem_params = {
+    **TASK_DEFAULTS_ONCE,
+    **{"once": {"keys": ["corp_id"], "graceful": True}},
+}
 
 
 @shared_task
@@ -49,76 +65,74 @@ def update_corp(self, corp_id, force_refresh=False):  # pylint: disable=unused-a
         payment_system = timezone.now() - datetime.timedelta(
             hours=app_settings.TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE
         )
+        payment_payday = timezone.now() - datetime.timedelta(
+            hours=app_settings.TAXSYSTEM_CORP_PAYMENT_PAYDAY_SKIP_DATE
+        )
 
     corp = OwnerAudit.objects.get(corporation__corporation_id=corp_id)
     logger.debug("Processing Audit Updates for %s", corp.corporation.corporation_name)
 
     que = []
-    mindt = timezone.now() - datetime.timedelta(days=90)
+    mindt = timezone.now() - datetime.timedelta(days=app_settings.TAXSYSTEM_STALE_TIME)
+    priority = 7
 
     if (corp.last_update_wallet or mindt) <= SkipDates.wallet or force_refresh:
-        que.append(update_corp_wallet.si(corp_id, force_refresh=force_refresh))
+        que.append(
+            update_corp_wallet.si(corp_id, force_refresh=force_refresh).set(
+                priority=priority
+            )
+        )
     if (corp.last_update_members or mindt) <= SkipDates.members or force_refresh:
-        que.append(update_corp_members.si(corp_id, force_refresh=force_refresh))
+        que.append(
+            update_corp_members.si(corp_id, force_refresh=force_refresh).set(
+                priority=priority
+            )
+        )
     if (corp.last_update_payments or mindt) <= SkipDates.payments or force_refresh:
-        que.append(update_corp_payments.si(corp_id))
+        que.append(update_corp_payments.si(corp_id).set(priority=priority))
     if (
         corp.last_update_payment_system or mindt
     ) <= SkipDates.payment_system or force_refresh:
-        que.append(update_corp_payments_filter.si(corp_id))
+        que.append(update_corp_payments_filter.si(corp_id).set(priority=priority))
+    if (corp.last_update_payday or mindt) <= SkipDates.payment_payday or force_refresh:
+        que.append(update_corp_payday.si(corp_id).set(priority=priority))
 
-    enqueue_next_task(que)
+    chain(que).apply_async()
+    logger.info("Queued Updates for %s", corp.corporation.corporation_name)
 
-    logger.debug("Queued Updates for %s", corp.corporation.corporation_name)
 
-
-@shared_task(
-    bind=True,
-    base=QueueOnce,
-    once={"graceful": False, "keys": ["corp_id"]},
-    name="taxsystem.tasks.update_corp_wallet",
-)
-@no_fail_chain
+@shared_task(**_update_taxsystem_params)
 def update_corp_wallet(
-    self, corp_id, force_refresh=False, chain=[]
-):  # pylint: disable=unused-argument, dangerous-default-value
+    corp_id,
+    force_refresh=False,
+):
     return update_corporation_wallet_division(corp_id, force_refresh=force_refresh)
 
 
-@shared_task(
-    bind=True,
-    base=QueueOnce,
-    once={"graceful": False, "keys": ["corp_id"]},
-    name="taxsystem.tasks.update_corp_members",
-)
-@no_fail_chain
+@shared_task(**_update_taxsystem_params)
 def update_corp_members(
-    self, corp_id, force_refresh=False, chain=[]
-):  # pylint: disable=unused-argument, dangerous-default-value
+    corp_id,
+    force_refresh=False,
+):
     return update_corporation_members(corp_id, force_refresh=force_refresh)
 
 
-@shared_task(
-    bind=True,
-    base=QueueOnce,
-    once={"graceful": False, "keys": ["corp_id"]},
-    name="taxsystem.tasks.update_corp_payments",
-)
-@no_fail_chain
+@shared_task(**_update_taxsystem_params)
 def update_corp_payments(
-    self, corp_id, chain=[]
-):  # pylint: disable=unused-argument, dangerous-default-value
+    corp_id,
+):
     return update_corporation_payments(corp_id)
 
 
-@shared_task(
-    bind=True,
-    base=QueueOnce,
-    once={"graceful": False, "keys": ["corp_id"]},
-    name="taxsystem.tasks.update_corp_payments_filter",
-)
-@no_fail_chain
+@shared_task(**_update_taxsystem_params)
 def update_corp_payments_filter(
-    self, corp_id, chain=[]
-):  # pylint: disable=unused-argument, dangerous-default-value
+    corp_id,
+):
     return update_corporation_payments_filter(corp_id)
+
+
+@shared_task(**_update_taxsystem_params)
+def update_corp_payday(
+    corp_id,
+):
+    return update_payday(corp_id)
