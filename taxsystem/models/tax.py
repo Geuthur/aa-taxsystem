@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.authentication.models import User
+from allianceauth.authentication.models import OwnershipRecord, User
 from allianceauth.eveonline.models import EveAllianceInfo, EveCorporationInfo
 
 from taxsystem.managers.payment_manager import PaymentsManager, PaymentSystemManager
@@ -297,6 +297,16 @@ class Payments(models.Model):
     @property
     def is_rejected(self) -> bool:
         return self.request_status == self.RequestStatus.REJECTED
+
+    @property
+    def character_id(self) -> int:
+        """Return the character ID of the user who made the payment or first OwnershipRecord."""
+        try:
+            character_id = self.account.user.profile.main_character.character_id
+        except AttributeError:
+            character = OwnershipRecord.objects.filter(user=self.account.user).first()
+            character_id = character.character.character_id
+        return character_id
 
     def __str__(self):
         return (
