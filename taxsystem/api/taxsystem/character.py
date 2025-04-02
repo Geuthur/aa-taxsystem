@@ -43,7 +43,6 @@ class CharacterApiEndpoints:
                 payment = Payments.objects.get(
                     pk=pk,
                     account__corporation=corp,
-                    account__user__profile__main_character__character_id=character_id,
                 )
                 account = PaymentSystem.objects.get(
                     user=payment.account.user,

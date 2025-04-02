@@ -34,15 +34,11 @@ class CorporationApiEndpoints:
             payments_dict = {}
 
             for payment in payments:
-                # pylint: disable=duplicate-code
                 try:
-                    character_id = (
-                        payment.account.user.profile.main_character.character_id
-                    )
                     character_portrait = lazy.get_character_portrait_url(
-                        character_id, size=32, as_html=True
+                        payment.character_id, size=32, as_html=True
                     )
-                except AttributeError:
+                except ValueError:
                     character_portrait = ""
 
                 actions = _payments_actions(corporation_id, payment, perms, request)

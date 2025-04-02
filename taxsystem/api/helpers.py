@@ -62,7 +62,7 @@ def get_info_button(corporation_id, payment: Payments, request) -> mark_safe:
         color="primary",
         text=_("View Payment Details"),
         modal="modalViewDetailsContainer",
-        action=f"/taxsystem/api/corporation/{corporation_id}/character/{payment.account.user.profile.main_character.character_id}/payment/{payment.pk}/view/details/",
+        action=f"/taxsystem/api/corporation/{corporation_id}/character/{payment.character_id}/payment/{payment.pk}/view/details/",
         ajax="ajax_details",
     )
     button = generate_button(
