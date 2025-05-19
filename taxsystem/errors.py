@@ -11,5 +11,9 @@ class DatabaseError(Exception):
     pass
 
 
-class CustomError(Exception):
+class NotModifiedError(Exception):
+    pass
+
+
+class HTTPGatewayTimeoutError(Exception):
     pass

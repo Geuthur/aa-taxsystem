@@ -15,7 +15,6 @@ class OwnerAuditAdmin(admin.ModelAdmin):
         "_entity_pic",
         "_corporation__corporation_id",
         "_corporation__corporation_name",
-        "_last_update_wallet",
     )
 
     list_display_links = (
@@ -51,18 +50,6 @@ class OwnerAuditAdmin(admin.ModelAdmin):
     )
     def _corporation__corporation_name(self, obj: OwnerAudit):
         return obj.corporation.corporation_name
-
-    @admin.display(description="Last Update Wallet", ordering="last_update_wallet")
-    def _last_update_wallet(self, obj: OwnerAudit):
-        return obj.last_update_wallet
-
-    @admin.display(description="Last Update Members", ordering="last_update_members")
-    def _last_update_members(self, obj: OwnerAudit):
-        return obj.last_update_members
-
-    @admin.display(description="Last Update Payments", ordering="last_update_payments")
-    def _last_update_payments(self, obj: OwnerAudit):
-        return obj.last_update_payments
 
     # pylint: disable=unused-argument
     def has_add_permission(self, request):

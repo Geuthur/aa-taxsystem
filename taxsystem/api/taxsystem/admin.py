@@ -37,47 +37,34 @@ class AdminApiEndpoints:
         )
         # pylint: disable=too-many-locals
         def get_dashboard(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            corporation, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if corporation is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
                 return 403, "Permission Denied"
 
-            divisions = CorporationWalletDivision.objects.filter(corporation=corp)
+            divisions = CorporationWalletDivision.objects.filter(
+                corporation=corporation
+            )
 
-            corporation_name = corp.name
-            corporation_id = corp.corporation.corporation_id
+            corporation_name = corporation.name
+            corporation_id = corporation.corporation.corporation_id
             corporation_logo = lazy.get_corporation_logo_url(
                 corporation_id, size=64, as_html=True
             )
-            last_update_wallet = lazy.str_normalize_time(
-                corp.last_update_wallet, hours=True
-            )
-            last_update_members = lazy.str_normalize_time(
-                corp.last_update_members, hours=True
-            )
-            last_update_payments = lazy.str_normalize_time(
-                corp.last_update_payments, hours=True
-            )
-            last_update_payment_system = lazy.str_normalize_time(
-                corp.last_update_payment_system, hours=True
-            )
-            corporation_tax_amount = corp.tax_amount
-            corporation_tax_period = corp.tax_period
+            corporation_tax_amount = corporation.tax_amount
+            corporation_tax_period = corporation.tax_period
 
             divisions_dict = _get_divisions_dict(divisions)
-            statistics_dict = {corp.name: _get_statistics_dict(corp)}
+            statistics_dict = {corporation.name: _get_statistics_dict(corporation)}
 
             output = {
                 "corporation_name": corporation_name,
                 "corporation_id": corporation_id,
                 "corporation_logo": corporation_logo,
-                "last_update_wallet": last_update_wallet,
-                "last_update_members": last_update_members,
-                "last_update_payments": last_update_payments,
-                "last_update_payment_system": last_update_payment_system,
+                "update_status": corporation.get_status.bootstrap_icon(),
                 "tax_amount": corporation_tax_amount,
                 "tax_period": corporation_tax_period,
                 "divisions": divisions_dict,

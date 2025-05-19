@@ -10,6 +10,7 @@ app_name: str = "taxsystem"
 urlpatterns = [
     # -- Tax System
     path("", views.index, name="index"),
+    path("admin/", views.admin, name="admin"),
     path(
         "corporation/<int:corporation_id>/view/payments/",
         views.payments,

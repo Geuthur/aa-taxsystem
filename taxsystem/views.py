@@ -24,7 +24,7 @@ from taxsystem.api.helpers import get_corporation, get_manage_permission
 from taxsystem.helpers.views import add_info_to_context
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
-from taxsystem.tasks import update_corp
+from taxsystem.tasks import clear_all_etags, update_all_taxsytem, update_corporation
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,33 @@ def index(request):
     return redirect(
         "taxsystem:payments", request.user.profile.main_character.corporation_id
     )
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def admin(request):
+    corporation_id = request.user.profile.main_character.corporation_id
+    if not request.user.is_superuser:
+        messages.error(request, _("You do not have permission to access this page."))
+        return redirect("taxsystem:index")
+
+    if request.method == "POST":
+        force_refresh = False
+        if request.POST.get("force_refresh", False):
+            force_refresh = True
+        if request.POST.get("run_clear_etag"):
+            messages.info(request, _("Queued Clear All ETags"))
+            clear_all_etags.apply_async(priority=1)
+        if request.POST.get("run_taxsystem_updates"):
+            messages.info(request, _("Queued Update All Taxsystem"))
+            update_all_taxsytem.apply_async(
+                kwargs={"force_refresh": force_refresh}, priority=7
+            )
+    context = {
+        "corporation_id": corporation_id,
+        "title": _("Tax System Superuser Administration"),
+    }
+    return render(request, "taxsystem/admin.html", context=context)
 
 
 @login_required
@@ -144,8 +171,8 @@ def add_corp(request, token):
             comment=_("Added to Tax System"),
         ).save()
 
-    update_corp.apply_async(
-        args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
+    update_corporation.apply_async(
+        args=[owner.pk], kwargs={"force_refresh": True}, priority=6
     )
     msg = _("{corporation_name} successfully added/updated to Tax System").format(
         corporation_name=corp.corporation_name,
