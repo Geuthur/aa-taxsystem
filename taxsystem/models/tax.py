@@ -279,12 +279,11 @@ class OwnerAudit(models.Model):
         except NotModifiedError:
             logger.debug("%s: Update has not changed, section: %s", self, section.label)
             return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPGatewayTimeoutError as exc:
+        except HTTPGatewayTimeoutError:
             logger.debug(
-                "%s: Update has a gateway timeout error, section: %s: %s",
+                "%s: Update has a gateway timeout error, section: %s",
                 self,
                 section.label,
-                exc,
             )
             return UpdateSectionResult(is_changed=False, is_updated=False)
         return UpdateSectionResult(
