@@ -1,15 +1,23 @@
 """Corporation Wallet Model"""
 
-import logging
-
 # Django
 from django.db import models
+
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveEntity
 
-from taxsystem.managers.wallet_manager import WalletManager
-from taxsystem.models.tax import OwnerAudit
+# AA TaxSystem
+from taxsystem import __title__
+from taxsystem.managers.wallet_manager import (
+    CorporationDivisionManager,
+    CorporationWalletManager,
+)
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class WalletJournalEntry(models.Model):
@@ -78,12 +86,14 @@ class WalletJournalEntry(models.Model):
 class CorporationWalletDivision(models.Model):
     name = models.CharField(max_length=100, null=True, default=None)
     corporation = models.ForeignKey(
-        OwnerAudit,
+        "OwnerAudit",
         on_delete=models.CASCADE,
-        related_name="corporation_division",
+        related_name="ts_corporation_division",
     )
     balance = models.DecimalField(max_digits=20, decimal_places=2)
-    division = models.IntegerField()
+    division_id = models.IntegerField()
+
+    objects = CorporationDivisionManager()
 
     class Meta:
         default_permissions = ()
@@ -92,12 +102,17 @@ class CorporationWalletDivision(models.Model):
 class CorporationWalletJournalEntry(WalletJournalEntry):
     division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
 
-    objects = WalletManager()
+    objects = CorporationWalletManager()
 
     def __str__(self):
         return f"Corporation Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
 
     @classmethod
     def get_visible(cls, user):
+        """Get visible objects for the user"""
+        # pylint: disable=import-outside-toplevel, cyclic-import
+        # AA TaxSystem
+        from taxsystem.models.tax import OwnerAudit
+
         corps_vis = OwnerAudit.objects.visible_to(user)
         return cls.objects.filter(division__corporation__in=corps_vis)

@@ -2,15 +2,22 @@
 Decorators
 """
 
-import logging
+# Standard Library
 import time
 from functools import wraps
 
-from app_utils.esi import EsiDailyDowntime, fetch_esi_status
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
 
+# Alliance Auth (External Libs)
+from app_utils.esi import EsiDailyDowntime, fetch_esi_status
+from app_utils.logging import LoggerAddTag
+
+# AA TaxSystem
+from taxsystem import __title__
 from taxsystem.app_settings import IS_TESTING
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 def when_esi_is_available(func):
@@ -38,7 +45,7 @@ def when_esi_is_available(func):
 
 def log_timing(logs):
     """
-    A Decirator to log the time a function takes to run.
+    A Decorator to log the time a function takes to run.
     """
 
     def decorator(func):

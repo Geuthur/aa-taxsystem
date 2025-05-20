@@ -2,12 +2,14 @@
 
 # Django
 
+# Django
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+# AA TaxSystem
 from taxsystem.models.tax import OwnerAudit, Payments
 
 

@@ -1,3 +1,4 @@
+# Alliance Auth
 from allianceauth.authentication.models import UserProfile
 
 

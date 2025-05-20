@@ -1,21 +1,112 @@
 """Models for Tax System."""
 
+# Standard Library
+from collections.abc import Callable
+
+# Third Party
+from bravado.exception import HTTPInternalServerError
+
 # Django
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import OwnershipRecord, User
-from allianceauth.eveonline.models import EveAllianceInfo, EveCorporationInfo
+from allianceauth.eveonline.models import (
+    EveAllianceInfo,
+    EveCharacter,
+    EveCorporationInfo,
+)
+from allianceauth.services.hooks import get_extension_logger
+from esi.errors import TokenError
+from esi.models import Token
 
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
+# AA TaxSystem
+from taxsystem import __title__, app_settings
+from taxsystem.errors import HTTPGatewayTimeoutError, NotModifiedError
 from taxsystem.managers.payment_manager import PaymentsManager, PaymentSystemManager
 from taxsystem.managers.tax_manager import MembersManager, OwnerAuditManager
+from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
+from taxsystem.providers import esi
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class OwnerAudit(models.Model):
     """Tax System Audit model for app"""
+
+    class UpdateSection(models.TextChoices):
+        WALLET = "wallet", _("Wallet Journal")
+        DIVISION = "division", _("Wallet Division")
+        MEMBERS = "members", _("Members")
+        PAYMENTS = "payments", _("Payments")
+        PAYMENT_SYSTEM = "payment_system", _("Payment System")
+        PAYDAY = "payday", _("Payday")
+
+        @classmethod
+        def get_sections(cls) -> list[str]:
+            """Return list of section values."""
+            return [choice.value for choice in cls]
+
+        @property
+        def method_name(self) -> str:
+            """Return method name for this section."""
+            return f"update_{self.value}"
+
+    class UpdateStatus(models.TextChoices):
+        DISABLED = "disabled", _("disabled")
+        TOKEN_ERROR = "token_error", _("token error")
+        ERROR = "error", _("error")
+        OK = "ok", _("ok")
+        INCOMPLETE = "incomplete", _("incomplete")
+        IN_PROGRESS = "in_progress", _("in progress")
+
+        def bootstrap_icon(self) -> str:
+            """Return bootstrap corresponding icon class."""
+            update_map = {
+                status: mark_safe(
+                    f"<span class='{self.bootstrap_text_style_class()}' data-tooltip-toggle='taxsystem-tooltip' title='{self.description()}'>⬤</span>"
+                )
+                for status in [
+                    self.DISABLED,
+                    self.TOKEN_ERROR,
+                    self.ERROR,
+                    self.INCOMPLETE,
+                    self.IN_PROGRESS,
+                    self.OK,
+                ]
+            }
+            return update_map.get(self, "")
+
+        def bootstrap_text_style_class(self) -> str:
+            """Return bootstrap corresponding bootstrap text style class."""
+            update_map = {
+                self.DISABLED: "text-muted",
+                self.TOKEN_ERROR: "text-warning",
+                self.INCOMPLETE: "text-warning",
+                self.IN_PROGRESS: "text-info",
+                self.ERROR: "text-danger",
+                self.OK: "text-success",
+            }
+            return update_map.get(self, "")
+
+        def description(self) -> str:
+            """Return description for an enum object."""
+            update_map = {
+                self.DISABLED: _("Update is disabled"),
+                self.TOKEN_ERROR: _("One section has a token error during update"),
+                self.INCOMPLETE: _("One or more sections have not been updated"),
+                self.IN_PROGRESS: _("Update is in progress"),
+                self.ERROR: _("An error occurred during update"),
+                self.OK: _("Updates completed successfully"),
+            }
+            return update_map.get(self, "")
 
     objects = OwnerAuditManager()
 
@@ -35,17 +126,7 @@ class OwnerAudit(models.Model):
         null=True,
     )
 
-    active = models.BooleanField(default=False)
-
-    last_update_wallet = models.DateTimeField(null=True, blank=True)
-
-    last_update_members = models.DateTimeField(null=True, blank=True)
-
-    last_update_payments = models.DateTimeField(null=True, blank=True)
-
-    last_update_payment_system = models.DateTimeField(null=True, blank=True)
-
-    last_update_payday = models.DateTimeField(null=True, blank=True)
+    active = models.BooleanField(default=True)
 
     tax_amount = models.DecimalField(
         max_digits=16,
@@ -64,7 +145,43 @@ class OwnerAudit(models.Model):
     )
 
     def __str__(self):
-        return f"{self.corporation.corporation_name} - Audit Data"
+        return f"{self.corporation.corporation_name} - Status: {self.get_status}"
+
+    def update_division(self, force_refresh: bool) -> None:
+        """Update the divisions for this corporation."""
+        return self.ts_corporation_division.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_wallet(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the wallet journal for this corporation."""
+        # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
+        from taxsystem.models.wallet import CorporationWalletJournalEntry
+
+        return CorporationWalletJournalEntry.objects.update_or_create_esi(
+            self, force_refresh=force_refresh
+        )
+
+    def update_members(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the members for this corporation."""
+        return self.ts_members.update_or_create_esi(self, force_refresh=force_refresh)
+
+    def update_payments(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the Payments for this corporation."""
+        return Payments.objects.update_or_create_payments(
+            self, force_refresh=force_refresh
+        )
+
+    def update_payment_system(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the Payment System for this corporation."""
+        return self.ts_payment_system.update_or_create_payment_system(
+            self, force_refresh=force_refresh
+        )
+
+    def update_payday(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the Payment System for this corporation."""
+        return self.ts_payment_system.check_pay_day(self, force_refresh=force_refresh)
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -78,6 +195,163 @@ class OwnerAudit(models.Model):
             "esi-wallet.read_corporation_wallets.v1",
             "esi-corporations.read_divisions.v1",
         ]
+
+    def get_token(self, scopes, req_roles) -> Token:
+        """Get the token for this corporation."""
+        if "esi-characters.read_corporation_roles.v1" not in scopes:
+            scopes.append("esi-characters.read_corporation_roles.v1")
+
+        char_ids = EveCharacter.objects.filter(
+            corporation_id=self.corporation.corporation_id
+        ).values("character_id")
+
+        tokens = Token.objects.filter(character_id__in=char_ids).require_scopes(scopes)
+
+        for token in tokens:
+            try:
+                roles = esi.client.Character.get_characters_character_id_roles(
+                    character_id=token.character_id, token=token.valid_access_token()
+                ).result()
+
+                has_roles = False
+                for role in roles.get("roles", []):
+                    if role in req_roles:
+                        has_roles = True
+
+                if has_roles:
+                    return token
+            except TokenError as e:
+                logger.error(
+                    "Token ID: %s (%s)",
+                    token.pk,
+                    e,
+                )
+        return False
+
+    @property
+    def get_status(self) -> UpdateStatus:
+        """Get the status of this character."""
+        if self.active is False:
+            return self.UpdateStatus.DISABLED
+
+        qs = OwnerAudit.objects.filter(pk=self.pk).annotate_total_update_status()
+        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
+        return self.UpdateStatus(total_update_status)
+
+    # pylint: disable=duplicate-code
+    def calc_update_needed(self) -> _NeedsUpdate:
+        """Calculate if an update is needed."""
+        sections: models.QuerySet[OwnerUpdateStatus] = self.ts_update_status.all()
+        needs_update = {}
+        for section in sections:
+            needs_update[section.section] = section.need_update()
+        return _NeedsUpdate(section_map=needs_update)
+
+    # pylint: disable=duplicate-code
+    def reset_update_status(self, section: UpdateSection) -> "OwnerUpdateStatus":
+        """Reset the status of a given update section and return it."""
+        update_status_obj: OwnerUpdateStatus = self.ts_update_status.get_or_create(
+            section=section,
+        )[0]
+        update_status_obj.reset()
+        return update_status_obj
+
+    # pylint: disable=duplicate-code
+    def reset_has_token_error(self) -> None:
+        """Reset the has_token_error flag for this corporation."""
+        self.ts_update_status.filter(
+            has_token_error=True,
+        ).update(
+            has_token_error=False,
+        )
+
+    # pylint: disable=duplicate-code
+    def update_section_if_changed(
+        self,
+        section: UpdateSection,
+        fetch_func: Callable,
+        force_refresh: bool = False,
+    ):
+        """Update the status of a specific section if it has changed."""
+        section = self.UpdateSection(section)
+        try:
+            data = fetch_func(owner=self, force_refresh=force_refresh)
+            logger.debug("%s: Update has changed, section: %s", self, section.label)
+        except HTTPInternalServerError as exc:
+            logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except NotModifiedError:
+            logger.debug("%s: Update has not changed, section: %s", self, section.label)
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        except HTTPGatewayTimeoutError:
+            logger.debug(
+                "%s: Update has a gateway timeout error, section: %s",
+                self,
+                section.label,
+            )
+            return UpdateSectionResult(is_changed=False, is_updated=False)
+        return UpdateSectionResult(
+            is_changed=True,
+            is_updated=True,
+            data=data,
+        )
+
+    # pylint: disable=duplicate-code
+    def update_section_log(
+        self,
+        section: UpdateSection,
+        is_success: bool,
+        is_updated: bool = False,
+        error_message: str = None,
+    ) -> None:
+        """Update the status of a specific section."""
+        error_message = error_message if error_message else ""
+        defaults = {
+            "is_success": is_success,
+            "error_message": error_message,
+            "has_token_error": False,
+            "last_run_finished_at": timezone.now(),
+        }
+        obj: OwnerUpdateStatus = self.ts_update_status.update_or_create(
+            section=section,
+            defaults=defaults,
+        )[0]
+        if is_updated:
+            obj.last_update_at = obj.last_run_at
+            obj.last_update_finished_at = timezone.now()
+            obj.save()
+        status = "successfully" if is_success else "with errors"
+        logger.info("%s: %s Update run completed %s", self, section.label, status)
+
+    # pylint: disable=duplicate-code
+    def perform_update_status(
+        self, section: UpdateSection, method: Callable, *args, **kwargs
+    ) -> UpdateSectionResult:
+        """Perform update status."""
+        try:
+            result = method(*args, **kwargs)
+        except Exception as exc:
+            # TODO ADD DISCORD NOTIFICATION?
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            is_token_error = isinstance(exc, (TokenError))
+            logger.error(
+                "%s: %s: Error during update status: %s",
+                self,
+                section.label,
+                error_message,
+                exc_info=not is_token_error,  # do not log token errors
+            )
+            self.ts_update_status.update_or_create(
+                section=section,
+                defaults={
+                    "is_success": False,
+                    "error_message": error_message,
+                    "has_token_error": is_token_error,
+                    "last_update_at": timezone.now(),
+                },
+            )
+            raise exc
+        return result
 
     class Meta:
         default_permissions = ()
@@ -99,7 +373,7 @@ class Members(models.Model):
     character_id = models.PositiveIntegerField(primary_key=True)
 
     corporation = models.ForeignKey(
-        OwnerAudit, on_delete=models.CASCADE, related_name="owner"
+        OwnerAudit, on_delete=models.CASCADE, related_name="ts_members"
     )
 
     status = models.CharField(
@@ -159,7 +433,7 @@ class PaymentSystem(models.Model):
     )
 
     corporation = models.ForeignKey(
-        OwnerAudit, on_delete=models.CASCADE, related_name="+"
+        OwnerAudit, on_delete=models.CASCADE, related_name="ts_payment_system"
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="+")
@@ -250,7 +524,7 @@ class Payments(models.Model):
     entry_id = models.BigIntegerField()
 
     account = models.ForeignKey(
-        PaymentSystem, on_delete=models.CASCADE, related_name="+"
+        PaymentSystem, on_delete=models.CASCADE, related_name="ts_payments"
     )
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
@@ -322,3 +596,78 @@ class Payments(models.Model):
         return _("No date")
 
     objects = PaymentsManager()
+
+
+class OwnerUpdateStatus(models.Model):
+    """A Model to track the status of the last update."""
+
+    owner = models.ForeignKey(
+        OwnerAudit, on_delete=models.CASCADE, related_name="ts_update_status"
+    )
+    section = models.CharField(
+        max_length=32, choices=OwnerAudit.UpdateSection.choices, db_index=True
+    )
+    is_success = models.BooleanField(default=None, null=True, db_index=True)
+    error_message = models.TextField()
+    has_token_error = models.BooleanField(default=False)
+
+    last_run_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last run has been started at this time",
+    )
+    last_run_finished_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last run has been successful finished at this time",
+    )
+    last_update_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last update has been started at this time",
+    )
+    last_update_finished_at = models.DateTimeField(
+        default=None,
+        null=True,
+        db_index=True,
+        help_text="Last update has been successful finished at this time",
+    )
+
+    class Meta:
+        default_permissions = ()
+
+    def __str__(self) -> str:
+        return f"{self.owner} - {self.section} - {self.is_success}"
+
+    def need_update(self) -> bool:
+        """Check if the update is needed."""
+        if not self.is_success or not self.last_update_finished_at:
+            needs_update = True
+        else:
+            section_time_stale = app_settings.TAXSYSTEM_STALE_TYPES.get(
+                self.section, 60
+            )
+            stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
+            needs_update = self.last_run_finished_at <= stale
+
+        if needs_update and self.has_token_error:
+            logger.info(
+                "%s: Ignoring update because of token error, section: %s",
+                self.owner,
+                self.section,
+            )
+            needs_update = False
+
+        return needs_update
+
+    def reset(self) -> None:
+        """Reset this update status."""
+        self.is_success = None
+        self.error_message = ""
+        self.has_token_error = False
+        self.last_run_at = timezone.now()
+        self.last_run_finished_at = None
+        self.save()

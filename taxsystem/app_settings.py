@@ -2,9 +2,10 @@
 App Settings
 """
 
+# Standard Library
 import sys
 
-# Django
+# Alliance Auth (External Libs)
 from app_utils.app_settings import clean_setting
 
 IS_TESTING = sys.argv[1:2] == ["test"]
@@ -28,30 +29,16 @@ ZKILLBOARD_KILLMAIL_URL_REGEX = r"^http[s]?:\/\/zkillboard\.com\/kill\/\d+\/"
 # Set Naming on Auth Hook
 TAXSYSTEM_APP_NAME = clean_setting("TAXSYSTEM_APP_NAME", "Tax System")
 
-# If True you need to set up the Logger
-TAXSYSTEM_LOGGER_USE = clean_setting("TAXSYSTEM_LOGGER_USE", False)
-
 # Task Settings
 # Global timeout for tasks in seconds to reduce task accumulation during outages.
 TAXSYSTEM_TASKS_TIME_LIMIT = clean_setting("TAXSYSTEM_TASKS_TIME_LIMIT", 7200)
 
-# Stale Time
-TAXSYSTEM_STALE_TIME = clean_setting("TAXSYSTEM_STALE_TIME", 3)
-
-# Skip Dates for Tasks
-# Member Skip Date in Hours
-TAXSYSTEM_CORP_MEMBERS_SKIP_DATE = clean_setting("TAXSYSTEM_CORP_MEMBERS_SKIP_DATE", 1)
-# Wallet Skip Date in Hours
-TAXSYSTEM_CORP_WALLET_SKIP_DATE = clean_setting("TAXSYSTEM_CORP_WALLET_SKIP_DATE", 1)
-# Payment Skip Date in Hours
-TAXSYSTEM_CORP_PAYMENTS_SKIP_DATE = clean_setting(
-    "TAXSYSTEM_CORP_PAYMENTS_SKIP_DATE", 1
-)
-# Filter Skip Date in Hours
-TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE = clean_setting(
-    "TAXSYSTEM_CORP_PAYMENT_SYSTEM_SKIP_DATE", 1
-)
-# Payment Payday Skip Date in Hours
-TAXSYSTEM_CORP_PAYMENT_PAYDAY_SKIP_DATE = clean_setting(
-    "TAXSYSTEM_CORP_PAYMENT_PAYDAY_SKIP_DATE", 24
-)
+# Stale time in minutes for each type of data
+TAXSYSTEM_STALE_TYPES = {
+    "wallet": 60,
+    "division": 60,
+    "members": 60,
+    "payments": 60,
+    "payment_system": 60,
+    "payment_payday": 1440,
+}

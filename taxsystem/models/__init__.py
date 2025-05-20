@@ -4,6 +4,7 @@ from .logs import AdminLogs, PaymentHistory
 from .tax import (
     Members,
     OwnerAudit,
+    OwnerUpdateStatus,
     Payments,
 )
 from .wallet import CorporationWalletDivision, CorporationWalletJournalEntry

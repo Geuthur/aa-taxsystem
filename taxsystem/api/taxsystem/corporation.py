@@ -1,9 +1,13 @@
+# Standard Library
 import logging
 
+# Third Party
 from ninja import NinjaAPI
 
+# Django
 from django.utils.translation import gettext_lazy as _
 
+# AA TaxSystem
 from taxsystem.api.helpers import get_corporation, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.own_payments import _own_payments_actions
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions

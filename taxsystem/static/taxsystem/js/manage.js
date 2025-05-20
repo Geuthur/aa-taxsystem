@@ -22,10 +22,7 @@ $(document).ready(function() {
             var tax_amount = parseFloat(data.tax_amount);
             var days = parseFloat(data.tax_period);
             $('#dashboard-info').html(data.corporation_name);
-            $('#last_update_wallet').text(data.last_update_wallet);
-            $('#last_update_members').text(data.last_update_members);
-            $('#last_update_payments').text(data.last_update_payments);
-            $('#last_update_paymentsystem').text(data.last_update_payment_system);
+            $('#update_status').html(data.update_status);
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
 

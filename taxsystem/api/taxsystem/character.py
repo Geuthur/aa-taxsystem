@@ -1,12 +1,16 @@
+# Standard Library
 import logging
 
+# Third Party
 from ninja import NinjaAPI
 
+# Django
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.shortcuts import render
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+# AA TaxSystem
 from taxsystem.api.helpers import get_character_permissions, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.paymentsystem import _get_has_paid_icon
 from taxsystem.helpers import lazy

@@ -1,6 +1,22 @@
 # Changelog
 
-## [0.5.5] - IN DEVELOPMENT
+## [0.5.6] - IN DEVELOPMENT
+
+- Update Section System - Inspired by @\[[Eric Kalkoken](https://gitlab.com/ErikKalkoken/)\]
+  - TokenError Handler
+  - HTTPInternalServerError, HTTPGatewayTimeoutError Handler
+  - Update Section retrieves information between Etag System (Not Updating if NotModified)
+  - Disable Update on Token Error
+  - Update Information
+  - Update Issues Badge
+- Admin Menu (superuser only)
+- Task System
+  - Use Django Manager for Updates
+  - Refactor Tasks
+- Use app_utils `LoggerAddTag` Logger System
+- Make `README` logger settings optional
+
+## [0.5.5] - 2025-04-02
 
 ### Added
 

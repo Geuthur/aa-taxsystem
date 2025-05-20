@@ -1,7 +1,9 @@
+# Django
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+# AA TaxSystem
 from taxsystem.api.helpers import generate_button
 from taxsystem.models.tax import Members
 

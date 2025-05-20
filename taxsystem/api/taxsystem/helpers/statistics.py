@@ -1,8 +1,10 @@
+# Django
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import Count, F, Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+# AA TaxSystem
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
 from taxsystem.models.wallet import CorporationWalletDivision
 

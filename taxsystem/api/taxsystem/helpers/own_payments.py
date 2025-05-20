@@ -1,6 +1,8 @@
+# Django
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+# AA TaxSystem
 from taxsystem.api.helpers import get_info_button
 from taxsystem.models.tax import Payments
 
