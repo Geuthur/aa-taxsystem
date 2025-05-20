@@ -12,8 +12,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from esi.errors import TokenError
-from esi.models import Token
 
 # Alliance Auth
 from allianceauth.authentication.models import OwnershipRecord, User
@@ -23,8 +21,13 @@ from allianceauth.eveonline.models import (
     EveCorporationInfo,
 )
 from allianceauth.services.hooks import get_extension_logger
+from esi.errors import TokenError
+from esi.models import Token
+
+# Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
 
+# AA TaxSystem
 from taxsystem import __title__, app_settings
 from taxsystem.errors import HTTPGatewayTimeoutError, NotModifiedError
 from taxsystem.managers.payment_manager import PaymentsManager, PaymentSystemManager
@@ -153,6 +156,7 @@ class OwnerAudit(models.Model):
     def update_wallet(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the wallet journal for this corporation."""
         # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         return CorporationWalletJournalEntry.objects.update_or_create_esi(

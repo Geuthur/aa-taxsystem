@@ -1,10 +1,14 @@
+# Standard Library
 import logging
 
+# Third Party
 from ninja import NinjaAPI
 
+# Django
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.shortcuts import render
 
+# AA TaxSystem
 from taxsystem.api.helpers import get_manage_corporation
 from taxsystem.api.taxsystem.helpers.administration import _delete_member
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions

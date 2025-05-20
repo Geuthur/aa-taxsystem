@@ -1,10 +1,13 @@
 """Admin models"""
 
+# Django
 from django.contrib import admin
 from django.utils.html import format_html
 
+# Alliance Auth
 from allianceauth.eveonline.evelinks import eveimageserver
 
+# AA TaxSystem
 from taxsystem.models.filters import FilterAmount, FilterReason, SmartFilter, SmartGroup
 from taxsystem.models.tax import OwnerAudit
 

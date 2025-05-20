@@ -1,5 +1,6 @@
 """Initialize the app"""
 
+# AA TaxSystem
 from taxsystem.app_settings import TAXSYSTEM_APP_NAME
 
 __version__ = "0.5.6a1"

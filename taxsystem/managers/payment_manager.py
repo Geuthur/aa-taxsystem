@@ -1,18 +1,22 @@
-# Django
+# Standard Library
 from typing import TYPE_CHECKING
 
+# Django
 from django.db import models, transaction
 from django.utils import timezone
 
+# Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
 
+# AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
 
 if TYPE_CHECKING:
+    # AA TaxSystem
     from taxsystem.models.tax import OwnerAudit
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -41,6 +45,7 @@ class PaymentSystemManagerBase(models.Manager):
     ) -> None:
         """Update or Create payment system entries from objs data."""
         # pylint: disable=import-outside-toplevel, cyclic-import
+        # AA TaxSystem
         from taxsystem.models.filters import SmartGroup
         from taxsystem.models.logs import PaymentHistory
         from taxsystem.models.tax import Payments
@@ -186,6 +191,7 @@ class PaymentsManagerBase(models.Manager):
     ) -> None:
         """Update or Create payment system entries from objs data."""
         # pylint: disable=import-outside-toplevel, cyclic-import
+        # AA TaxSystem
         from taxsystem.models.logs import PaymentHistory
         from taxsystem.models.tax import Payments, PaymentSystem
         from taxsystem.models.wallet import CorporationWalletJournalEntry

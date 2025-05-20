@@ -2,15 +2,18 @@
 Decorators
 """
 
+# Standard Library
 import time
 from functools import wraps
 
+# Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
-from app_utils.esi import EsiDailyDowntime, fetch_esi_status
 
 # Alliance Auth (External Libs)
+from app_utils.esi import EsiDailyDowntime, fetch_esi_status
 from app_utils.logging import LoggerAddTag
 
+# AA TaxSystem
 from taxsystem import __title__
 from taxsystem.app_settings import IS_TESTING
 

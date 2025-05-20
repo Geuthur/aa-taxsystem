@@ -1,14 +1,17 @@
-# Django
+# Standard Library
 from typing import TYPE_CHECKING
 
+# Django
 from django.db import models, transaction
-from eveuniverse.models import EveEntity
 
+# Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
+from eveuniverse.models import EveEntity
 
+# AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
@@ -16,6 +19,7 @@ from taxsystem.providers import esi
 from taxsystem.task_helpers.etag_helpers import etag_results
 
 if TYPE_CHECKING:
+    # AA TaxSystem
     from taxsystem.models.tax import OwnerAudit
     from taxsystem.models.wallet import (
         CorporationWalletDivision,
@@ -43,6 +47,7 @@ class CorporationWalletManagerBase(models.Manager):
     def _fetch_esi_data(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
         """Fetch wallet journal entries from ESI data."""
         # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
         from taxsystem.models.wallet import CorporationWalletDivision
 
         req_scopes = [

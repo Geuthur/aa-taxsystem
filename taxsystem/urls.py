@@ -1,7 +1,9 @@
 """App URLs"""
 
+# Django
 from django.urls import path, re_path
 
+# AA TaxSystem
 from taxsystem import views
 from taxsystem.api import api
 

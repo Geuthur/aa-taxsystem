@@ -2,11 +2,15 @@
 
 # Django
 from django.db import models
+
+# Alliance Auth
+from allianceauth.services.hooks import get_extension_logger
+
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveEntity
 
-from allianceauth.services.hooks import get_extension_logger
-from app_utils.logging import LoggerAddTag
-
+# AA TaxSystem
 from taxsystem import __title__
 from taxsystem.managers.wallet_manager import (
     CorporationDivisionManager,
@@ -107,6 +111,7 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
     def get_visible(cls, user):
         """Get visible objects for the user"""
         # pylint: disable=import-outside-toplevel, cyclic-import
+        # AA TaxSystem
         from taxsystem.models.tax import OwnerAudit
 
         corps_vis = OwnerAudit.objects.visible_to(user)

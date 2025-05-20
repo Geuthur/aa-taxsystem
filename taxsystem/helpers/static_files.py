@@ -2,16 +2,15 @@
 Helper functions for static integrity calculations
 """
 
-import logging
-
 # Standard Library
+import logging
 import os
 from pathlib import Path
 
 # Third Party
 from sri import Algorithm, calculate_integrity
 
-# AA Fleet Pings
+# AA TaxSystem
 from taxsystem import __title__
 from taxsystem.constants import AA_TAXSYSTEM_STATIC_DIR
 

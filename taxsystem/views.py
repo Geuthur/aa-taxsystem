@@ -1,5 +1,6 @@
 """PvE Views"""
 
+# Standard Library
 import logging
 
 # Django
@@ -14,11 +15,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from esi.decorators import token_required
 
+# Alliance Auth
 from allianceauth.authentication.decorators import permissions_required
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from esi.decorators import token_required
 
+# AA TaxSystem
 from taxsystem import forms
 from taxsystem.api.helpers import get_corporation, get_manage_permission
 from taxsystem.helpers.views import add_info_to_context

@@ -4,14 +4,17 @@
 import inspect
 from collections.abc import Callable
 
+# Third Party
 from celery import chain, shared_task
 
+# Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
 
+# AA TaxSystem
 from taxsystem import __title__, app_settings
 from taxsystem.decorators import when_esi_is_available
 from taxsystem.models.tax import OwnerAudit

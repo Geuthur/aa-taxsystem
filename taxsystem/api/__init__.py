@@ -1,10 +1,14 @@
+# Standard Library
 import logging
 
+# Third Party
 from ninja import NinjaAPI
 from ninja.security import django_auth
 
+# Django
 from django.conf import settings
 
+# AA TaxSystem
 from taxsystem.api import taxsystem
 
 logger = logging.getLogger(__name__)

@@ -1,16 +1,19 @@
-# Django
+# Standard Library
 from typing import TYPE_CHECKING
 
+# Django
 from django.db import models, transaction
 from django.db.models import Case, Count, Q, Value, When
-from eveuniverse.models import EveEntity
 
+# Alliance Auth
 from allianceauth.authentication.models import UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
+from eveuniverse.models import EveEntity
 
+# AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
 from taxsystem.providers import esi
@@ -19,6 +22,7 @@ from taxsystem.task_helpers.etag_helpers import etag_results
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
+    # AA TaxSystem
     from taxsystem.models.tax import OwnerAudit
 
 
@@ -101,6 +105,7 @@ class OwnerAuditQuerySet(models.QuerySet):
     def annotate_total_update_status(self):
         """Get the total update status."""
         # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
         from taxsystem.models.tax import OwnerAudit
 
         sections = OwnerAudit.UpdateSection.get_sections()
@@ -252,6 +257,7 @@ class MembersManagerBase(models.Manager):
     ) -> None:
         """Update or Create Members entries from objs data."""
         # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
         from taxsystem.models.tax import Members
 
         _current_members_ids = set(
@@ -330,6 +336,7 @@ class MembersManagerBase(models.Manager):
     def _update_payment_accounts(self, owner: "OwnerAudit", members_ids: list[int]):
         """Update payment accounts for a corporation."""
         # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
         from taxsystem.models.tax import Members, PaymentSystem
 
         logger.debug(
@@ -425,6 +432,7 @@ class MembersManagerBase(models.Manager):
     def _check_payment_accounts(self, owner: "OwnerAudit"):
         """Check payment accounts for a corporation."""
         # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
         from taxsystem.models.tax import OwnerAudit, PaymentSystem
 
         logger.debug(
