@@ -149,7 +149,7 @@ def own_payments(request, corporation_id=None):
 @token_required(scopes=OwnerAudit.get_esi_scopes())
 def add_corp(request, token):
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
-    corp, _ = EveCorporationInfo.objects.get_or_create(
+    corp, __ = EveCorporationInfo.objects.get_or_create(
         corporation_id=char.corporation_id,
         defaults={
             "member_count": 0,
@@ -169,7 +169,7 @@ def add_corp(request, token):
     if created:
         AdminLogs(
             user=request.user,
-            corporation=owner,
+            owner=owner,
             action=AdminLogs.Actions.ADD,
             comment=_("Added to Tax System"),
         ).save()
@@ -203,14 +203,14 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.TaxAcceptForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["accept_info"]
-                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
+                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
                     payment.request_status = Payments.RequestStatus.APPROVED
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
                     account = PaymentSystem.objects.get(
-                        corporation=corp, user=payment.account.user
+                        owner=corp, user=payment.account.user
                     )
                     account.deposit += payment.amount
                     account.save()
@@ -248,12 +248,12 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.TaxUndoForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["undo_reason"]
-                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
+                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
                 if payment.is_approved or payment.is_rejected:
                     # Ensure that the payment is not rejected
                     if not payment.is_rejected:
                         account = PaymentSystem.objects.get(
-                            corporation=corp, user=payment.account.user
+                            owner=corp, user=payment.account.user
                         )
                         account.deposit -= payment.amount
                         account.save()
@@ -294,14 +294,14 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.TaxRejectForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["reject_reason"]
-                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
+                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
                     payment.request_status = Payments.RequestStatus.REJECTED
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
                     account = PaymentSystem.objects.get(
-                        corporation=corp, user=payment.account.user
+                        owner=corp, user=payment.account.user
                     )
                     account.save()
                     msg = _("Payment ID: %s - Amount %s - Name: %s rejected") % (
@@ -343,7 +343,7 @@ def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
         with transaction.atomic():
             form = forms.TaxSwitchUserForm(data=request.POST)
             if form.is_valid():
-                payment_system = PaymentSystem.objects.get(corporation=corp, pk=user_pk)
+                payment_system = PaymentSystem.objects.get(owner=corp, pk=user_pk)
                 if payment_system.is_active:
                     payment_system.status = PaymentSystem.Status.DEACTIVATED
                     msg = _("Payment System User: %s deactivated") % payment_system.name
@@ -353,7 +353,7 @@ def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
 
                 AdminLogs(
                     user=request.user,
-                    corporation=corp,
+                    owner=corp,
                     action=AdminLogs.Actions.CHANGE,
                     comment=msg,
                 ).save()
@@ -390,7 +390,7 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
             msg = _(f"Tax Amount from {corp.name} updated to {value}")
             AdminLogs(
                 user=request.user,
-                corporation=corp,
+                owner=corp,
                 action=AdminLogs.Actions.CHANGE,
                 comment=msg,
             ).save()
@@ -424,7 +424,7 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             msg = _(f"Tax Period from {corp.name} updated to {value}")
             AdminLogs(
                 user=request.user,
-                corporation=corp,
+                owner=corp,
                 action=AdminLogs.Actions.CHANGE,
                 comment=msg,
             ).save()
@@ -451,13 +451,13 @@ def delete_user(request: WSGIRequest, corporation_id: int, member_pk: int):
     form = forms.TaxDeleteForm(data=request.POST)
     if form.is_valid():
         reason = form.cleaned_data["delete_reason"]
-        member = Members.objects.get(corporation=corp, pk=member_pk)
+        member = Members.objects.get(owner=corp, pk=member_pk)
         if member.is_missing:
             msg = _(f"Member {member.character_name} deleted")
             member.delete()
             AdminLogs(
                 user=request.user,
-                corporation=corp,
+                owner=corp,
                 action=AdminLogs.Actions.DELETE,
                 comment=reason,
             ).save()

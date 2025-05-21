@@ -78,6 +78,26 @@ class Migration(migrations.Migration):
                 to="taxsystem.owneraudit",
             ),
         ),
+        migrations.RenameField(
+            model_name="members",
+            old_name="corporation",
+            new_name="owner",
+        ),
+        migrations.RenameField(
+            model_name="paymentsystem",
+            old_name="corporation",
+            new_name="owner",
+        ),
+        migrations.RenameField(
+            model_name="adminlogs",
+            old_name="corporation",
+            new_name="owner",
+        ),
+        migrations.RenameField(
+            model_name="smartgroup",
+            old_name="corporation",
+            new_name="owner",
+        ),
         migrations.CreateModel(
             name="OwnerUpdateStatus",
             fields=[

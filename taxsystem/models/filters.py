@@ -112,8 +112,8 @@ class SmartGroup(models.Model):
     class Meta:
         default_permissions = ()
 
-    corporation = models.OneToOneField(
-        OwnerAudit, on_delete=models.CASCADE, related_name="filter_sets"
+    owner = models.OneToOneField(
+        OwnerAudit, on_delete=models.CASCADE, related_name="ts_filter_sets"
     )
     description = models.CharField(max_length=255)
     name = models.CharField(max_length=100)

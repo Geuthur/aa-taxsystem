@@ -372,7 +372,7 @@ class Members(models.Model):
 
     character_id = models.PositiveIntegerField(primary_key=True)
 
-    corporation = models.ForeignKey(
+    owner = models.ForeignKey(
         OwnerAudit, on_delete=models.CASCADE, related_name="ts_members"
     )
 
@@ -432,7 +432,7 @@ class PaymentSystem(models.Model):
         max_length=100,
     )
 
-    corporation = models.ForeignKey(
+    owner = models.ForeignKey(
         OwnerAudit, on_delete=models.CASCADE, related_name="ts_payment_system"
     )
 
@@ -499,11 +499,11 @@ class PaymentSystem(models.Model):
     @property
     def has_paid(self) -> bool:
         """Return True if user has paid."""
-        if self.deposit >= self.corporation.tax_amount:
+        if self.deposit >= self.owner.tax_amount:
             return True
         if self.last_paid and self.deposit == 0:
             return timezone.now() - self.last_paid < timezone.timedelta(
-                days=self.corporation.tax_period
+                days=self.owner.tax_period
             )
         return False
 

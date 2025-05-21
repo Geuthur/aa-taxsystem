@@ -41,34 +41,32 @@ class AdminApiEndpoints:
         )
         # pylint: disable=too-many-locals
         def get_dashboard(request, corporation_id: int):
-            corporation, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corporation is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
                 return 403, "Permission Denied"
 
-            divisions = CorporationWalletDivision.objects.filter(
-                corporation=corporation
-            )
+            divisions = CorporationWalletDivision.objects.filter(corporation=owner)
 
-            corporation_name = corporation.name
-            corporation_id = corporation.corporation.corporation_id
+            corporation_name = owner.name
+            corporation_id = owner.corporation.corporation_id
             corporation_logo = lazy.get_corporation_logo_url(
                 corporation_id, size=64, as_html=True
             )
-            corporation_tax_amount = corporation.tax_amount
-            corporation_tax_period = corporation.tax_period
+            corporation_tax_amount = owner.tax_amount
+            corporation_tax_period = owner.tax_period
 
             divisions_dict = _get_divisions_dict(divisions)
-            statistics_dict = {corporation.name: _get_statistics_dict(corporation)}
+            statistics_dict = {owner.name: _get_statistics_dict(owner)}
 
             output = {
                 "corporation_name": corporation_name,
                 "corporation_id": corporation_id,
                 "corporation_logo": corporation_logo,
-                "update_status": corporation.get_status.bootstrap_icon(),
+                "update_status": owner.get_status.bootstrap_icon(),
                 "tax_amount": corporation_tax_amount,
                 "tax_period": corporation_tax_period,
                 "divisions": divisions_dict,
@@ -93,7 +91,7 @@ class AdminApiEndpoints:
 
             corporation_dict = {}
 
-            members = Members.objects.filter(corporation=corp)
+            members = Members.objects.filter(owner=corp)
 
             for member in members:
                 actions = _delete_member(
@@ -136,7 +134,7 @@ class AdminApiEndpoints:
 
             payment_system = (
                 PaymentSystem.objects.filter(
-                    corporation=corp,
+                    owner=corp,
                     user__profile__main_character__isnull=False,
                 )
                 .exclude(status=PaymentSystem.Status.MISSING)
@@ -201,7 +199,7 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, "Permission Denied"
 
-            logs = AdminLogs.objects.filter(corporation=corp).order_by("-date")
+            logs = AdminLogs.objects.filter(owner=corp).order_by("-date")
 
             logs_dict = {}
 
@@ -227,16 +225,16 @@ class AdminApiEndpoints:
         def get_main_character_payments(
             request, corporation_id: int, character_id: int
         ):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
                 return 403, "Permission Denied"
 
             payments = Payments.objects.filter(
-                account__corporation=corp,
+                account__owner=owner,
                 account__user__profile__main_character__character_id=character_id,
             )
 

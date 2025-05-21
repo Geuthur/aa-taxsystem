@@ -90,5 +90,5 @@ class SmartGroupAdmin(admin.ModelAdmin):
         "enabled",
         "display_filters",
         "last_update",
-        "corporation",
+        "owner",
     ]

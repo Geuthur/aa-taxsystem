@@ -2,6 +2,8 @@
 
 ## [0.5.6] - IN DEVELOPMENT
 
+### Added
+
 - Update Section System - Inspired by @\[[Eric Kalkoken](https://gitlab.com/ErikKalkoken/)\]
   - TokenError Handler
   - HTTPInternalServerError, HTTPGatewayTimeoutError Handler
@@ -13,8 +15,16 @@
 - Task System
   - Use Django Manager for Updates
   - Refactor Tasks
+
+### Changed
+
 - Use app_utils `LoggerAddTag` Logger System
 - Make `README` logger settings optional
+- Changed model relation: `corporation` to `owner`
+
+### Fixed
+
+- `add_corp` bool error
 
 ## [0.5.5] - 2025-04-02
 

@@ -98,7 +98,7 @@ class AdminLogs(models.Model):
 
     objects = LogsManager()
 
-    corporation = models.ForeignKey(
+    owner = models.ForeignKey(
         OwnerAudit,
         on_delete=models.CASCADE,
         related_name="+",

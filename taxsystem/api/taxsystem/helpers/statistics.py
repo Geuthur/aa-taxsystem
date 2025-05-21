@@ -29,8 +29,8 @@ def _get_divisions_dict(divisions: CorporationWalletDivision):
     return divisions_dict
 
 
-def _get_statistics_dict(corp: OwnerAudit):
-    payments_counts = Payments.objects.filter(account__corporation=corp).aggregate(
+def _get_statistics_dict(owner: OwnerAudit):
+    payments_counts = Payments.objects.filter(account__owner=owner).aggregate(
         total=Count("id"),
         automatic=Count("id", filter=Q(reviser="System")),
         manual=Count("id", filter=~Q(reviser="System") & ~Q(reviser="")),
@@ -45,11 +45,11 @@ def _get_statistics_dict(corp: OwnerAudit):
         ),
     )
 
-    period = timezone.timedelta(days=corp.tax_period)
+    period = timezone.timedelta(days=owner.tax_period)
 
     payment_system_counts = (
         PaymentSystem.objects.filter(
-            corporation=corp,
+            owner=owner,
             user__profile__main_character__isnull=False,
         )
         .exclude(status=PaymentSystem.Status.MISSING)
@@ -60,7 +60,7 @@ def _get_statistics_dict(corp: OwnerAudit):
             deactivated=Count("id", filter=Q(status=PaymentSystem.Status.DEACTIVATED)),
             paid=Count(
                 "id",
-                filter=Q(deposit__gte=F("corporation__tax_amount"))
+                filter=Q(deposit__gte=F("owner__tax_amount"))
                 & Q(status=PaymentSystem.Status.ACTIVE)
                 | Q(deposit=0)
                 & Q(status=PaymentSystem.Status.ACTIVE)
@@ -71,7 +71,7 @@ def _get_statistics_dict(corp: OwnerAudit):
 
     unpaid = payment_system_counts["active"] - payment_system_counts["paid"]
 
-    members_count = Members.objects.filter(corporation=corp).aggregate(
+    members_count = Members.objects.filter(owner=owner).aggregate(
         total=Count("character_id"),
         unregistered=Count("character_id", filter=Q(status=Members.States.NOACCOUNT)),
         alts=Count("character_id", filter=Q(status=Members.States.IS_ALT)),

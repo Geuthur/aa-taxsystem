@@ -56,7 +56,7 @@ class PaymentSystemManagerBase(models.Manager):
         )
 
         payments = Payments.objects.filter(
-            account__corporation=owner, request_status=Payments.RequestStatus.PENDING
+            account__owner=owner, request_status=Payments.RequestStatus.PENDING
         )
 
         _current_payment_ids = set(payments.values_list("id", flat=True))
@@ -64,7 +64,7 @@ class PaymentSystemManagerBase(models.Manager):
 
         # Check for any automatic payments
         try:
-            filters = SmartGroup.objects.get(corporation=owner)
+            filters = SmartGroup.objects.get(owner=owner)
             if filters:
                 payments = filters.filter(payments)
                 for payment in payments:
@@ -75,9 +75,9 @@ class PaymentSystemManagerBase(models.Manager):
                             payment.reviser = "System"
 
                             # Update payment pool for user
-                            self.filter(
-                                corporation=owner, user=payment.account.user
-                            ).update(deposit=payment.account.deposit + payment.amount)
+                            self.filter(owner=owner, user=payment.account.user).update(
+                                deposit=payment.account.deposit + payment.amount
+                            )
 
                             payment.save()
 
@@ -142,7 +142,7 @@ class PaymentSystemManagerBase(models.Manager):
             owner.corporation.corporation_name,
         )
 
-        payment_system = self.filter(corporation=owner, status=self.model.Status.ACTIVE)
+        payment_system = self.filter(owner=owner, status=self.model.Status.ACTIVE)
 
         for user in payment_system:
             if user.last_paid is None:
@@ -201,7 +201,7 @@ class PaymentsManagerBase(models.Manager):
             owner.corporation.corporation_name,
         )
 
-        accounts = PaymentSystem.objects.filter(corporation=owner)
+        accounts = PaymentSystem.objects.filter(owner=owner)
 
         if not accounts:
             return ("No Payment Users for %s", owner.corporation.corporation_name)
@@ -218,9 +218,7 @@ class PaymentsManagerBase(models.Manager):
         ).order_by("-date")
 
         _current_entry_ids = set(
-            Payments.objects.filter(account__corporation=owner).values_list(
-                "entry_id", flat=True
-            )
+            self.filter(account__owner=owner).values_list("entry_id", flat=True)
         )
         with transaction.atomic():
             items = []
@@ -242,11 +240,11 @@ class PaymentsManagerBase(models.Manager):
                         )
                         items.append(payment_item)
 
-            payments = Payments.objects.bulk_create(items, ignore_conflicts=True)
+            payments = self.bulk_create(items, ignore_conflicts=True)
 
             for payment in payments:
                 try:
-                    payment = Payments.objects.get(
+                    payment = self.get(
                         entry_id=payment.entry_id, account=payment.account
                     )
                 except Payments.DoesNotExist:

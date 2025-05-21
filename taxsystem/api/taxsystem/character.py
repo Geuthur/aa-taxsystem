@@ -34,10 +34,10 @@ class CharacterApiEndpoints:
         def get_payment_details(
             request, corporation_id: int, character_id: int, pk: int
         ):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
             perms = perms or get_character_permissions(request, character_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
@@ -46,11 +46,11 @@ class CharacterApiEndpoints:
             try:
                 payment = Payments.objects.get(
                     pk=pk,
-                    account__corporation=corp,
+                    account__owner=owner,
                 )
                 account = PaymentSystem.objects.get(
                     user=payment.account.user,
-                    corporation=corp,
+                    owner=owner,
                 )
             except Payments.DoesNotExist:
                 return 404, "Payment Not Found"
@@ -89,7 +89,7 @@ class CharacterApiEndpoints:
 
             account_dict = {
                 "account_id": account.pk,
-                "corporation": account.corporation.name,
+                "corporation": account.owner.name,
                 "name": account.name,
                 "payment_pool": f"{intcomma(account.deposit)} ISK",
                 "payment_status": _get_has_paid_icon(account),

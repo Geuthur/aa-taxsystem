@@ -256,14 +256,8 @@ class MembersManagerBase(models.Manager):
         objs: list,
     ) -> None:
         """Update or Create Members entries from objs data."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.tax import Members
-
         _current_members_ids = set(
-            Members.objects.filter(corporation=owner).values_list(
-                "character_id", flat=True
-            )
+            self.filter(owner=owner).values_list("character_id", flat=True)
         )
         _esi_members_ids = [member.get("character_id") for member in objs]
         _old_members = []
@@ -277,14 +271,14 @@ class MembersManagerBase(models.Manager):
             logon_date = member.get("logon_date")
             logged_off = member.get("logoff_date")
             character_name = characters.to_name(character_id)
-            member_item = Members(
-                corporation=owner,
+            member_item = self.model(
+                owner=owner,
                 character_id=character_id,
                 character_name=character_name,
                 joined=joined,
                 logon=logon_date,
                 logged_off=logged_off,
-                status=Members.States.ACTIVE,
+                status=self.model.States.ACTIVE,
             )
             if character_id in _current_members_ids:
                 _old_members.append(member_item)
@@ -296,16 +290,16 @@ class MembersManagerBase(models.Manager):
         missing_members_ids = _current_members_ids - old_member_ids
 
         if missing_members_ids:
-            Members.objects.filter(
-                corporation=owner, character_id__in=missing_members_ids
-            ).update(status=Members.States.MISSING)
+            self.filter(owner=owner, character_id__in=missing_members_ids).update(
+                status=self.model.States.MISSING
+            )
             logger.debug(
                 "Marked %s missing members for: %s",
                 len(missing_members_ids),
                 owner.corporation.corporation_name,
             )
         if _old_members:
-            Members.objects.bulk_update(
+            self.bulk_update(
                 _old_members,
                 ["character_name", "status", "logon", "logged_off"],
             )
@@ -315,7 +309,7 @@ class MembersManagerBase(models.Manager):
                 owner.corporation.corporation_name,
             )
         if _new_members:
-            Members.objects.bulk_create(_new_members, ignore_conflicts=True)
+            self.bulk_create(_new_members, ignore_conflicts=True)
             logger.debug(
                 "Added %s new members for: %s",
                 len(_new_members),
@@ -337,7 +331,7 @@ class MembersManagerBase(models.Manager):
         """Update payment accounts for a corporation."""
         # pylint: disable=import-outside-toplevel
         # AA TaxSystem
-        from taxsystem.models.tax import Members, PaymentSystem
+        from taxsystem.models.tax import PaymentSystem
 
         logger.debug(
             "Updating Payment Accounts for: %s",
@@ -354,7 +348,7 @@ class MembersManagerBase(models.Manager):
             "main_character__character_ownership__user__profile__main_character",
         )
 
-        members = Members.objects.filter(corporation=owner)
+        members = self.filter(owner=owner)
 
         if not accounts:
             logger.debug(
@@ -378,11 +372,11 @@ class MembersManagerBase(models.Manager):
                 if alt != main.character_id:
                     # Update the status of the member to alt
                     members.filter(character_id=alt).update(
-                        status=Members.States.IS_ALT
+                        status=self.model.States.IS_ALT
                     )
             try:
                 existing_payment_system = PaymentSystem.objects.get(
-                    user=account.user, corporation=owner
+                    user=account.user, owner=owner
                 )
 
                 if existing_payment_system.status != PaymentSystem.Status.DEACTIVATED:
@@ -392,7 +386,7 @@ class MembersManagerBase(models.Manager):
                 items.append(
                     PaymentSystem(
                         name=main.character_name,
-                        corporation=owner,
+                        owner=owner,
                         user=account.user,
                         status=PaymentSystem.Status.ACTIVE,
                     )
@@ -402,7 +396,7 @@ class MembersManagerBase(models.Manager):
             # Mark members without accounts
             for member_id in members_ids:
                 members.filter(character_id=member_id).update(
-                    status=Members.States.NOACCOUNT
+                    status=self.model.States.NOACCOUNT
                 )
 
             logger.debug(
@@ -461,11 +455,9 @@ class MembersManagerBase(models.Manager):
 
             try:
                 payment_system = PaymentSystem.objects.get(
-                    user=account.user, corporation=owner
+                    user=account.user, owner=owner
                 )
-                payment_system_corp_id = (
-                    payment_system.corporation.corporation.corporation_id
-                )
+                payment_system_corp_id = payment_system.owner.corporation.corporation_id
                 # Check if the user is no longer in the same corporation
                 if (
                     not payment_system.is_missing
@@ -483,18 +475,18 @@ class MembersManagerBase(models.Manager):
                     and payment_system_corp_id != main_corporation_id
                 ):
                     try:
-                        new_audit_corp = OwnerAudit.objects.get(
+                        new_owner = OwnerAudit.objects.get(
                             corporation__corporation_id=main_corporation_id
                         )
-                        payment_system.corporation = new_audit_corp
+                        payment_system.owner = new_owner
                         payment_system.deposit = 0
                         payment_system.status = PaymentSystem.Status.ACTIVE
                         payment_system.last_paid = None
                         payment_system.save()
                         logger.info(
-                            "User %s is now in Corp %s",
+                            "User %s is now in Corporation %s",
                             payment_system.name,
-                            new_audit_corp.corporation.corporation_name,
+                            new_owner.corporation.corporation_name,
                         )
                     except owner.DoesNotExist:
                         continue
@@ -508,9 +500,9 @@ class MembersManagerBase(models.Manager):
                     payment_system.last_paid = None
                     payment_system.save()
                     logger.info(
-                        "User %s is back in Corp %s",
+                        "User %s is back in Corporation %s",
                         payment_system.name,
-                        payment_system.corporation.corporation.corporation_name,
+                        payment_system.owner.corporation.corporation_name,
                     )
             except PaymentSystem.DoesNotExist:
                 logger.debug(
