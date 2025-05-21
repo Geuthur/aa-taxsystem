@@ -454,12 +454,13 @@ def delete_user(request: WSGIRequest, corporation_id: int, member_pk: int):
         member = Members.objects.get(owner=corp, pk=member_pk)
         if member.is_missing:
             msg = _(f"Member {member.character_name} deleted")
+            msg += f" - {reason}"
             member.delete()
             AdminLogs(
                 user=request.user,
                 owner=corp,
                 action=AdminLogs.Actions.DELETE,
-                comment=reason,
+                comment=msg,
             ).save()
             return JsonResponse(
                 data={"success": True, "message": msg}, status=200, safe=False
