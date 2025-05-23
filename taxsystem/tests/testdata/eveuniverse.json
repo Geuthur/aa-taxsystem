@@ -1,0 +1,188 @@
+{
+    "EveCategory": [
+        {
+            "id": 2,
+            "name": "Celestial",
+            "published": true
+        },
+        {
+            "id": 4,
+            "name": "Material",
+            "published": true
+        },
+        {
+            "id": 25,
+            "name": "Asteroid",
+            "published": true
+        },
+        {
+            "id": 65,
+            "name": "Structure",
+            "published": true
+        }
+    ],
+    "EveGroup": [
+        {
+            "eve_category_id": 2,
+            "id": 7,
+            "name": "Planet",
+            "published": false
+        },
+        {
+            "eve_category_id": 25,
+            "id": 450,
+            "name": "Arkonor",
+            "published": true
+        }
+    ],
+    "EveConstellation": [
+        {
+            "eve_region_id": 10000060,
+            "id": 20000699,
+            "name": "LSC-4P",
+            "position_x": -4.055529772550624e17,
+            "position_y": 6.744814196037672e16,
+            "position_z": -2.885111598682538e17
+        },
+        {
+            "eve_region_id": 10000042,
+            "id": 20000304,
+            "name": "Aldodan",
+            "position_x": -1.0747745827663346e+17,
+            "position_y": -6953093208971083.0,
+            "position_z": 4.036681485589451e+16
+        },
+        {
+            "eve_region_id": 10000030,
+            "id": 20000372,
+            "name": "Hed",
+            "position_x": -1.282693384263374e+17,
+            "position_y": 3.8212719069804984e+16,
+            "position_z": 7556108809294752.0
+        }
+    ],
+    "EveRegion": [
+        {
+            "description": "\"Never Again\"",
+            "id": 10000030,
+            "name": "Heimatar"
+        },
+        {
+            "description": "It has long been an established fact of civilization that wherever a seat of government lies, then so will a concentration of its subjects, the better to fuel the halls of bureaucracy.  In this, the Republic has been no exception and in locating their Parliament and Justice Department in the Gedulf constellation, they guaranteed a huge population influx.  This population needs supporting, and so some of the largest Matari corporations also have their head offices here, making the region bustle with activity, not unlike a large Metropolis.",
+            "id": 10000042,
+            "name": "Metropolis"
+        },
+        {
+            "description": "\"Never Again\"",
+            "id": 10000060,
+            "name": "Delve"
+        }
+    ],
+    "EveSolarSystem": [
+        {
+            "enabled_sections": 0,
+            "eve_constellation_id": 20000699,
+            "eve_star_id": null,
+            "id": 30004783,
+            "name": "N8D9-Z",
+            "position_x": -3.997667726720811e17,
+            "position_y": 6.678881359632571e16,
+            "position_z": -2.690098844885066e17,
+            "security_status": -0.47704941034317017
+        },
+        {
+            "enabled_sections": 0,
+            "eve_constellation_id": 20000304,
+            "eve_star_id": null,
+            "id": 30002063,
+            "name": "Helgatild",
+            "position_x": -9.933649837287458e+16,
+            "position_y": -1.0099325834620358e+16,
+            "position_z": 3.0712591164613148e+16,
+            "security_status": 0.151897594332695
+        },
+        {
+            "enabled_sections": 0,
+            "eve_constellation_id": 20000372,
+            "eve_star_id": null,
+            "id": 30002542,
+            "name": "Auga",
+            "position_x": -1.280818422914163e+17,
+            "position_y": 4.273309719085835e+16,
+            "position_z": 6568509050290774.0,
+            "security_status": 0.38548383116722107
+        }
+    ],
+    "EveEntity": [
+        {
+            "id": 1000,
+            "name": "CONCORD",
+            "category": "character"
+        },
+        {
+            "id": 1001,
+            "name": "Gneuten",
+            "category": "character"
+        },
+        {
+            "id": 1002,
+            "name": "rotze Rotineque",
+            "category": "character"
+        },
+        {
+            "id": 1003,
+            "name": "Hector Fieramosca",
+            "category": "character"
+        },
+        {
+            "id": 1004,
+            "name": "Garthd",
+            "category": "character"
+        },
+        {
+            "id": 1005,
+            "name": "Gerthd",
+            "category": "character"
+        },
+        {
+            "id": 1006,
+            "name": "Gorthd",
+            "category": "character"
+        },
+        {
+            "id": 2001,
+            "name": "Hell RiderZ",
+            "category": "corporation"
+        },
+        {
+            "id": 2002,
+            "name": "Eulenclub",
+            "category": "corporation"
+        },
+        {
+            "id": 2003,
+            "name": "Schweinshausen",
+            "category": "corporation"
+        },
+        {
+            "id": 1000125,
+            "name": "CONCORD",
+            "category": "corporation"
+        },
+        {
+            "id": 3001,
+            "name": "Voices of War",
+            "category": "alliance"
+        },
+        {
+            "id": 3002,
+            "name": "Voices of War Inc.",
+            "category": "alliance"
+        },
+        {
+            "id": 3003,
+            "name": "CCP Industries",
+            "category": "alliance"
+        }
+    ]
+}

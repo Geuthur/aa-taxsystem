@@ -22,12 +22,11 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from esi.decorators import token_required
 
 # AA TaxSystem
-from taxsystem import forms
+from taxsystem import forms, tasks
 from taxsystem.api.helpers import get_corporation, get_manage_permission
 from taxsystem.helpers.views import add_info_to_context
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
-from taxsystem.tasks import clear_all_etags, update_all_taxsytem, update_corporation
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +54,10 @@ def admin(request):
             force_refresh = True
         if request.POST.get("run_clear_etag"):
             messages.info(request, _("Queued Clear All ETags"))
-            clear_all_etags.apply_async(priority=1)
+            tasks.clear_all_etags.apply_async(priority=1)
         if request.POST.get("run_taxsystem_updates"):
             messages.info(request, _("Queued Update All Taxsystem"))
-            update_all_taxsytem.apply_async(
+            tasks.update_all_taxsytem.apply_async(
                 kwargs={"force_refresh": force_refresh}, priority=7
             )
     context = {
@@ -174,7 +173,7 @@ def add_corp(request, token):
             comment=_("Added to Tax System"),
         ).save()
 
-    update_corporation.apply_async(
+    tasks.update_corporation.apply_async(
         args=[owner.pk], kwargs={"force_refresh": True}, priority=6
     )
     msg = _("{corporation_name} successfully added/updated to Tax System").format(
