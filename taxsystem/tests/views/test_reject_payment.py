@@ -15,14 +15,11 @@ from app_utils.testing import create_user_from_evecharacter
 from taxsystem import views
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
-    create_user_from_evecharacter_with_access,
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
     create_payment_system,
 )
-
-# AA Skillfarm
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 

@@ -13,8 +13,6 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-
-# AA Skillfarm
 from taxsystem.models.tax import Payments
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,

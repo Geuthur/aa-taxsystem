@@ -59,8 +59,8 @@ urlpatterns = [
     ),
     path(
         "corporation/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
-        views.delete_user,
-        name="delete_user",
+        views.delete_member,
+        name="delete_member",
     ),
     # -- Tax Payment System
     path(

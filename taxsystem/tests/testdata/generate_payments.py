@@ -1,14 +1,6 @@
-# Alliance Auth
-from allianceauth.eveonline.models import EveCharacter
-
-# Alliance Auth (External Libs)
-from app_utils.testing import (
-    create_user_from_evecharacter,
-)
-
-# AA TaxSystem
 # AA Tax System
-from taxsystem.models.tax import OwnerAudit, Payments, PaymentSystem
+# AA TaxSystem
+from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
 
 
 def create_payment(account: PaymentSystem, **kwargs) -> Payments:
@@ -20,6 +12,17 @@ def create_payment(account: PaymentSystem, **kwargs) -> Payments:
     payment = Payments(**params)
     payment.save()
     return payment
+
+
+def create_member(owner: OwnerAudit, **kwargs) -> Members:
+    """Create a Payment System for a Corporation"""
+    params = {
+        "owner": owner,
+    }
+    params.update(kwargs)
+    member = Members(**params)
+    member.save()
+    return member
 
 
 def create_payment_system(owner: OwnerAudit, **kwargs) -> PaymentSystem:

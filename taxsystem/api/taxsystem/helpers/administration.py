@@ -15,7 +15,7 @@ def _delete_member(corporation_id, member: Members, perms, request):
 
     template = "taxsystem/partials/form/button.html"
     url = reverse(
-        viewname="taxsystem:delete_user",
+        viewname="taxsystem:delete_member",
         kwargs={"corporation_id": corporation_id, "member_pk": member.pk},
     )
 

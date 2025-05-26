@@ -452,7 +452,7 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
-def delete_user(request: WSGIRequest, corporation_id: int, member_pk: int):
+def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 

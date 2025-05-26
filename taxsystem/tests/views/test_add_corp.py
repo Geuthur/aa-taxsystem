@@ -13,7 +13,6 @@ from django.urls import reverse
 from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
-# AA Taxsystem
 from taxsystem.models.tax import OwnerAudit
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse

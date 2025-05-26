@@ -13,21 +13,18 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.tax import Members
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
 )
-from taxsystem.tests.testdata.generate_payments import (
-    create_payment,
-    create_payment_system,
-)
+from taxsystem.tests.testdata.generate_payments import create_member
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "taxsystem.views"
 
 
-class TestSwitchUser(TestCase):
+class TestDeleteMember(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -56,38 +53,33 @@ class TestSwitchUser(TestCase):
                 "taxsystem.basic_access",
             ],
         )
-        cls.payment_system = create_payment_system(
-            name=cls.user.username,
+        cls.member = create_member(
+            character_name="Gneuten",
+            character_id=1001,
             owner=cls.audit,
-            user=cls.user,
-        )
-        cls.payment_system_inactive = create_payment_system(
-            name=cls.no_permission_user.username,
-            owner=cls.audit,
-            user=cls.no_permission_user,
-            status=PaymentSystem.Status.DEACTIVATED,
+            status=Members.States.MISSING,
         )
 
-    def test_switch_user_from_active_to_inactive(self):
-        """Test switching user for an active user."""
+    def test_delete_member(self):
+        """Test delete member."""
         corporation_id = self.audit.corporation.corporation_id
-        payment_system_pk = self.payment_system.pk
+        member_pk = self.member.pk
 
         form_data = {
             "corporation_id": corporation_id,
             "confirm": "yes",
-            "user": payment_system_pk,
+            "delete_reason": "Test reason",
         }
 
         request = self.factory.post(
-            reverse("taxsystem:switch_user", args=[corporation_id, payment_system_pk]),
+            reverse("taxsystem:delete_member", args=[corporation_id, member_pk]),
             data=form_data,
         )
 
         request.user = self.user
 
-        response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
+        response = views.delete_member(
+            request, corporation_id=corporation_id, member_pk=member_pk
         )
 
         response_data = json.loads(response.content)
@@ -96,60 +88,29 @@ class TestSwitchUser(TestCase):
         self.assertTrue(response_data["success"])
         self.assertEqual(
             response_data["message"],
-            f"Payment System User: {self.payment_system.user.username} deactivated",
-        )
-
-    def test_switch_user_from_inactive_to_active(self):
-        """Test approving a payment with status rejected."""
-        corporation_id = self.audit.corporation.corporation_id
-        payment_system_pk = self.payment_system_inactive.pk
-
-        form_data = {
-            "corporation_id": corporation_id,
-            "confirm": "yes",
-            "user": payment_system_pk,
-        }
-
-        request = self.factory.post(
-            reverse("taxsystem:switch_user", args=[corporation_id, payment_system_pk]),
-            data=form_data,
-        )
-
-        request.user = self.user
-
-        response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
-        )
-
-        response_data = json.loads(response.content)
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTrue(response_data["success"])
-        self.assertEqual(
-            response_data["message"],
-            f"Payment System User: {self.payment_system_inactive.user.username} activated",
+            f"Member {self.member.character_name} deleted - Test reason",
         )
 
     def test_no_permission(self):
         """Test try undo a payment without permission."""
         corporation_id = self.audit.corporation.corporation_id
-        payment_system_pk = self.payment_system.pk
+        member_pk = self.member.pk
 
         form_data = {
             "corporation_id": corporation_id,
             "confirm": "yes",
-            "user": payment_system_pk,
+            "delete_reason": "Test reason",
         }
 
         request = self.factory.post(
-            reverse("taxsystem:switch_user", args=[corporation_id, payment_system_pk]),
+            reverse("taxsystem:delete_member", args=[corporation_id, member_pk]),
             data=form_data,
         )
 
         request.user = self.no_audit_user
 
-        response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
+        response = views.delete_member(
+            request, corporation_id=corporation_id, member_pk=member_pk
         )
 
         response_data = json.loads(response.content)
@@ -161,23 +122,23 @@ class TestSwitchUser(TestCase):
     def test_no_manage_permission(self):
         """Test undo payment without managing permission."""
         corporation_id = self.audit.corporation.corporation_id
-        payment_system_pk = self.payment_system.pk
+        member_pk = self.member.pk
 
         form_data = {
             "corporation_id": corporation_id,
             "confirm": "yes",
-            "user": payment_system_pk,
+            "delete_reason": "Test reason",
         }
 
         request = self.factory.post(
-            reverse("taxsystem:switch_user", args=[corporation_id, payment_system_pk]),
+            reverse("taxsystem:delete_member", args=[corporation_id, member_pk]),
             data=form_data,
         )
 
         request.user = self.no_permission_user
 
-        response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
+        response = views.delete_member(
+            request, corporation_id=corporation_id, member_pk=member_pk
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
