@@ -64,7 +64,7 @@ urlpatterns = [
     ),
     # -- Tax Payment System
     path(
-        "corporation/<int:corporation_id>/manage/user/<int:user_pk>/switch_user/",
+        "corporation/<int:corporation_id>/manage/user/<int:payment_system_pk>/switch_user/",
         views.switch_user,
         name="switch_user",
     ),

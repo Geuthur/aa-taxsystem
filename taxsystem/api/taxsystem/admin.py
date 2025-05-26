@@ -151,7 +151,7 @@ class AdminApiEndpoints:
 
                 actions = _payment_system_actions(
                     corporation_id=corporation_id,
-                    user=user,
+                    payment_system=user,
                     perms=perms,
                     request=request,
                 )
