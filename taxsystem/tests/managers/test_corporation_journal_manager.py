@@ -28,7 +28,9 @@ MODULE_PATH = "taxsystem.managers.wallet_manager"
 @patch(MODULE_PATH + ".etag_results")
 @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_ids")
 @patch(MODULE_PATH + ".EveEntity.objects.filter")
-class TestCharacterJournalManager(NoSocketsTestCase):
+class TestWalletManager(NoSocketsTestCase):
+    """Test Wallet Manager for Corporation Journal Entries."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
