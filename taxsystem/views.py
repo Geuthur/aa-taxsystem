@@ -381,6 +381,8 @@ def switch_user(request: WSGIRequest, corporation_id: int, payment_system_pk: in
     return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
 
 
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @csrf_exempt
 def update_tax_amount(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
@@ -415,10 +417,12 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
     return JsonResponse({"message": _("Invalid request method")}, status=405)
 
 
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @csrf_exempt
 def update_tax_period(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
-        value = float(request.POST.get("value"))
+        value = int(request.POST.get("value"))
         msg = _("Please enter a valid number")
         try:
             if value < 0:
