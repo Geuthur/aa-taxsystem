@@ -133,7 +133,7 @@ jobs:
                 && matrix.database == 'mariadb:10.11'
               )
             }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
