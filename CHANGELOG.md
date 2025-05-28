@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.5.6] - IN DEVELOPMENT
+## [0.5.6] - 2025-05-28
 
 ### Added
 
