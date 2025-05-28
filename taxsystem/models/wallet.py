@@ -100,7 +100,11 @@ class CorporationWalletDivision(models.Model):
 
 
 class CorporationWalletJournalEntry(WalletJournalEntry):
-    division = models.ForeignKey(CorporationWalletDivision, on_delete=models.CASCADE)
+    division = models.ForeignKey(
+        CorporationWalletDivision,
+        on_delete=models.CASCADE,
+        related_name="ts_corporation_wallet",
+    )
 
     objects = CorporationWalletManager()
 

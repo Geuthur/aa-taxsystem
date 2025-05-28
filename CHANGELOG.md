@@ -15,12 +15,19 @@
 - Task System
   - Use Django Manager for Updates
   - Refactor Tasks
+- Tests
 
 ### Changed
 
 - Use app_utils `LoggerAddTag` Logger System
 - Make `README` logger settings optional
 - Changed model relation: `corporation` to `owner`
+- Renamed payment_system functions args from `user_pk` to `payment_system_pk`
+- Optimized url paths in settings
+- Added related name for filters model
+- Add mariadb 11.4 support
+- Model relation from `corporation` to `owner`
+- Add Permission req. for update tax views
 
 ### Fixed
 

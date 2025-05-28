@@ -6,14 +6,14 @@
         corporation_id: {{ corporation_id }},
         csrf: "{{ csrf_token }}",
         // URLs
-        corporationmanageDashboardUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/dashboard/",
-        corporationPaymentsUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/payments/",
-        corporationOwnPaymentsUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/own-payments/",
-        corporationMembersUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/members/",
-        corporationPaymentSystemUrl: "/taxsystem/api/corporation/{{ corporation_id }}/view/paymentsystem/",
+        corporationmanageDashboardUrl: '{% url "taxsystem:api:get_dashboard" corporation_id=corporation_id %}',
+        corporationPaymentsUrl: '{% url "taxsystem:api:get_payments" corporation_id=corporation_id %}',
+        corporationOwnPaymentsUrl: '{% url "taxsystem:api:get_own_payments" corporation_id=corporation_id %}',
+        corporationMembersUrl: '{% url "taxsystem:api:get_members" corporation_id=corporation_id %}',
+        corporationPaymentSystemUrl: '{% url "taxsystem:api:get_paymentsystem" corporation_id=corporation_id %}',
         // Update URLs
-        corporationUpdateTaxUrl: "/taxsystem/corporation/{{ corporation_id }}/manage/update_tax/",
-        corporationUpdatePeriodUrl: "/taxsystem/corporation/{{ corporation_id }}/manage/update_period/",
+        corporationUpdateTaxUrl: '{% url "taxsystem:update_tax_amount" corporation_id=corporation_id %}',
+        corporationUpdatePeriodUrl: '{% url "taxsystem:update_tax_period" corporation_id=corporation_id %}',
 
         // Translations
         translations: {

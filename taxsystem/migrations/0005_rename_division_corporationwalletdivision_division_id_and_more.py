@@ -98,6 +98,15 @@ class Migration(migrations.Migration):
             old_name="corporation",
             new_name="owner",
         ),
+        migrations.AlterField(
+            model_name="smartgroup",
+            name="owner",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ts_filter_sets",
+                to="taxsystem.owneraudit",
+            ),
+        ),
         migrations.CreateModel(
             name="OwnerUpdateStatus",
             fields=[
