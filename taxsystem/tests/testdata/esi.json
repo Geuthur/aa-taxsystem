@@ -181,6 +181,34 @@
                }
             ]
          }
+      },
+      "get_corporations_corporation_id_membertracking":{
+         "2001": [
+            {
+               "character_id": 1001,
+               "location_id": 30004783,
+               "logoff_date": "2025-05-21T21:42:41Z",
+               "logon_date": "2025-05-21T17:46:43Z",
+               "ship_type_id": 603,
+               "start_date": "2017-10-28T12:45:00Z"
+            },
+            {
+               "character_id": 1002,
+               "location_id": 30004783,
+               "logoff_date": "2025-04-16T21:09:26Z",
+               "logon_date": "2025-04-16T21:08:43Z",
+               "ship_type_id": 670,
+               "start_date": "2019-07-14T19:39:00Z"
+            },
+            {
+               "character_id": 1003,
+               "location_id": 30004783,
+               "logoff_date": "2025-04-16T21:12:51Z",
+               "logon_date": "2025-04-16T21:11:46Z",
+               "ship_type_id": 670,
+               "start_date": "2019-07-25T14:27:00Z"
+            }
+         ]
       }
    },
    "Wallet":{

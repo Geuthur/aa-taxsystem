@@ -28,6 +28,12 @@ _endpoints = [
         needs_token=False,
     ),
     EsiEndpoint(
+        "Corporation",
+        "get_corporations_corporation_id_membertracking",
+        "corporation_id",
+        needs_token=False,
+    ),
+    EsiEndpoint(
         "Wallet",
         "get_corporations_corporation_id_wallets",
         "corporation_id",

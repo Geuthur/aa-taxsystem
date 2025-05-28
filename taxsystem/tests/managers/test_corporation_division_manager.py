@@ -10,7 +10,6 @@ from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-# AA Ledger
 from taxsystem.tests.testdata.esi_stub import esi_client_stub
 from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
 from taxsystem.tests.testdata.generate_walletjournal import (
