@@ -107,6 +107,15 @@ class Migration(migrations.Migration):
                 to="taxsystem.owneraudit",
             ),
         ),
+        migrations.AlterField(
+            model_name="corporationwalletjournalentry",
+            name="division",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ts_corporation_wallet",
+                to="taxsystem.corporationwalletdivision",
+            ),
+        ),
         migrations.CreateModel(
             name="OwnerUpdateStatus",
             fields=[
