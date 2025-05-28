@@ -1,6 +1,40 @@
 # Changelog
 
-## [0.5.5] - IN DEVELOPMENT
+## [0.5.6] - 2025-05-28
+
+### Added
+
+- Update Section System - Inspired by @\[[Eric Kalkoken](https://gitlab.com/ErikKalkoken/)\]
+  - TokenError Handler
+  - HTTPInternalServerError, HTTPGatewayTimeoutError Handler
+  - Update Section retrieves information between Etag System (Not Updating if NotModified)
+  - Disable Update on Token Error
+  - Update Information
+  - Update Issues Badge
+- Admin Menu (superuser only)
+- Task System
+  - Use Django Manager for Updates
+  - Refactor Tasks
+- Tests
+
+### Changed
+
+- Use app_utils `LoggerAddTag` Logger System
+- Make `README` logger settings optional
+- Changed model relation: `corporation` to `owner`
+- Renamed payment_system functions args from `user_pk` to `payment_system_pk`
+- Optimized url paths in settings
+- Added related name for filters model
+- Add mariadb 11.4 support
+- Model relation from `corporation` to `owner`
+- Add Permission req. for update tax views
+- Add Python 3.13 support
+
+### Fixed
+
+- `add_corp` bool error
+
+## [0.5.5] - 2025-04-02
 
 ### Added
 

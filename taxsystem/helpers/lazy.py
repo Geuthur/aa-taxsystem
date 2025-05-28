@@ -1,9 +1,11 @@
 """This module provides lazy loading of some common functions and objects that are not needed for every request."""
 
+# Django
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
 from allianceauth.eveonline.evelinks.eveimageserver import (
     character_portrait_url,
     corporation_logo_url,

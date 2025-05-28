@@ -1,8 +1,10 @@
+# Django
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+# AA TaxSystem
 from taxsystem.api.helpers import generate_button, generate_settings
 from taxsystem.models.tax import PaymentSystem
 
@@ -30,7 +32,9 @@ def _payments_info(corporation_id, user: PaymentSystem, perms, request):
     return format_html(f"{intcomma(user.deposit, use_l10n=True)} ISK {view_payments}")
 
 
-def _payment_system_actions(corporation_id, user: PaymentSystem, perms, request):
+def _payment_system_actions(
+    corporation_id, payment_system: PaymentSystem, perms, request
+):
     # Check if user has permission to view the actions
     if not perms:
         return ""
@@ -38,13 +42,16 @@ def _payment_system_actions(corporation_id, user: PaymentSystem, perms, request)
     template = "taxsystem/partials/form/button.html"
     url = reverse(
         viewname="taxsystem:switch_user",
-        kwargs={"corporation_id": corporation_id, "user_pk": user.pk},
+        kwargs={
+            "corporation_id": corporation_id,
+            "payment_system_pk": payment_system.pk,
+        },
     )
 
-    if user.is_active:
+    if payment_system.is_active:
         confirm_text = (
             _("Are you sure to Confirm")
-            + f"?<br><span class='fw-bold'>{user.name} "
+            + f"?<br><span class='fw-bold'>{payment_system.name} "
             + _("Deactivate")
             + "</span>"
         )
@@ -54,7 +61,7 @@ def _payment_system_actions(corporation_id, user: PaymentSystem, perms, request)
     else:
         confirm_text = (
             _("Are you sure to Confirm")
-            + f"?<br><span class='fw-bold'>{user.name} "
+            + f"?<br><span class='fw-bold'>{payment_system.name} "
             + _("Activate")
             + "</span>"
         )
@@ -73,7 +80,9 @@ def _payment_system_actions(corporation_id, user: PaymentSystem, perms, request)
     )
     # Generate the buttons
     actions = []
-    actions.append(generate_button(corporation_id, template, user, settings, request))
+    actions.append(
+        generate_button(corporation_id, template, payment_system, settings, request)
+    )
 
     actions_html = format_html("".join(actions))
     return format_html('<div class="d-flex justify-content-end">{}</div>', actions_html)

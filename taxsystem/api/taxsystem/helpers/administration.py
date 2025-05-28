@@ -1,7 +1,9 @@
+# Django
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+# AA TaxSystem
 from taxsystem.api.helpers import generate_button
 from taxsystem.models.tax import Members
 
@@ -13,7 +15,7 @@ def _delete_member(corporation_id, member: Members, perms, request):
 
     template = "taxsystem/partials/form/button.html"
     url = reverse(
-        viewname="taxsystem:delete_user",
+        viewname="taxsystem:delete_member",
         kwargs={"corporation_id": corporation_id, "member_pk": member.pk},
     )
 

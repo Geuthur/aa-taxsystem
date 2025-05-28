@@ -1,5 +1,6 @@
 """PvE Views"""
 
+# Standard Library
 import logging
 
 # Django
@@ -14,17 +15,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from esi.decorators import token_required
 
+# Alliance Auth
 from allianceauth.authentication.decorators import permissions_required
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from esi.decorators import token_required
 
-from taxsystem import forms
+# AA TaxSystem
+from taxsystem import forms, tasks
 from taxsystem.api.helpers import get_corporation, get_manage_permission
 from taxsystem.helpers.views import add_info_to_context
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
-from taxsystem.tasks import update_corp
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +38,33 @@ def index(request):
     return redirect(
         "taxsystem:payments", request.user.profile.main_character.corporation_id
     )
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def admin(request):
+    corporation_id = request.user.profile.main_character.corporation_id
+    if not request.user.is_superuser:
+        messages.error(request, _("You do not have permission to access this page."))
+        return redirect("taxsystem:index")
+
+    if request.method == "POST":
+        force_refresh = False
+        if request.POST.get("force_refresh", False):
+            force_refresh = True
+        if request.POST.get("run_clear_etag"):
+            messages.info(request, _("Queued Clear All ETags"))
+            tasks.clear_all_etags.apply_async(priority=1)
+        if request.POST.get("run_taxsystem_updates"):
+            messages.info(request, _("Queued Update All Taxsystem"))
+            tasks.update_all_taxsytem.apply_async(
+                kwargs={"force_refresh": force_refresh}, priority=7
+            )
+    context = {
+        "corporation_id": corporation_id,
+        "title": _("Tax System Superuser Administration"),
+    }
+    return render(request, "taxsystem/admin.html", context=context)
 
 
 @login_required
@@ -119,7 +148,7 @@ def own_payments(request, corporation_id=None):
 @token_required(scopes=OwnerAudit.get_esi_scopes())
 def add_corp(request, token):
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
-    corp, _ = EveCorporationInfo.objects.get_or_create(
+    corp, __ = EveCorporationInfo.objects.get_or_create(
         corporation_id=char.corporation_id,
         defaults={
             "member_count": 0,
@@ -139,13 +168,13 @@ def add_corp(request, token):
     if created:
         AdminLogs(
             user=request.user,
-            corporation=owner,
+            owner=owner,
             action=AdminLogs.Actions.ADD,
             comment=_("Added to Tax System"),
         ).save()
 
-    update_corp.apply_async(
-        args=[char.corporation_id], kwargs={"force_refresh": True}, priority=6
+    tasks.update_corporation.apply_async(
+        args=[owner.pk], kwargs={"force_refresh": True}, priority=6
     )
     msg = _("{corporation_name} successfully added/updated to Tax System").format(
         corporation_name=corp.corporation_name,
@@ -173,14 +202,21 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.TaxAcceptForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["accept_info"]
-                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
+                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
+                    msg = _(
+                        "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
+                    ).format(
+                        pid=payment.pk,
+                        amount=intcomma(payment.amount),
+                        name=payment.name,
+                    )
                     payment.request_status = Payments.RequestStatus.APPROVED
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
                     account = PaymentSystem.objects.get(
-                        corporation=corp, user=payment.account.user
+                        owner=corp, user=payment.account.user
                     )
                     account.deposit += payment.amount
                     account.save()
@@ -218,12 +254,19 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.TaxUndoForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["undo_reason"]
-                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
+                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
                 if payment.is_approved or payment.is_rejected:
+                    msg = _(
+                        "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
+                    ).format(
+                        pid=payment.pk,
+                        amount=intcomma(payment.amount),
+                        name=payment.name,
+                    )
                     # Ensure that the payment is not rejected
                     if not payment.is_rejected:
                         account = PaymentSystem.objects.get(
-                            corporation=corp, user=payment.account.user
+                            owner=corp, user=payment.account.user
                         )
                         account.deposit -= payment.amount
                         account.save()
@@ -264,17 +307,17 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.TaxRejectForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["reject_reason"]
-                payment = Payments.objects.get(account__corporation=corp, pk=payment_pk)
+                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
                 if payment.is_pending or payment.is_needs_approval:
                     payment.request_status = Payments.RequestStatus.REJECTED
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
                     account = PaymentSystem.objects.get(
-                        corporation=corp, user=payment.account.user
+                        owner=corp, user=payment.account.user
                     )
                     account.save()
-                    msg = _("Payment ID: %s - Amount %s - Name: %s rejected") % (
+                    msg = _("Payment ID: %s - Amount: %s - Name: %s rejected") % (
                         payment.pk,
                         intcomma(payment.amount),
                         payment.name,
@@ -298,7 +341,7 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
-def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
+def switch_user(request: WSGIRequest, corporation_id: int, payment_system_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
@@ -313,7 +356,9 @@ def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
         with transaction.atomic():
             form = forms.TaxSwitchUserForm(data=request.POST)
             if form.is_valid():
-                payment_system = PaymentSystem.objects.get(corporation=corp, pk=user_pk)
+                payment_system = PaymentSystem.objects.get(
+                    owner=corp, pk=payment_system_pk
+                )
                 if payment_system.is_active:
                     payment_system.status = PaymentSystem.Status.DEACTIVATED
                     msg = _("Payment System User: %s deactivated") % payment_system.name
@@ -323,7 +368,7 @@ def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
 
                 AdminLogs(
                     user=request.user,
-                    corporation=corp,
+                    owner=corp,
                     action=AdminLogs.Actions.CHANGE,
                     comment=msg,
                 ).save()
@@ -336,6 +381,8 @@ def switch_user(request: WSGIRequest, corporation_id: int, user_pk: int):
     return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
 
 
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @csrf_exempt
 def update_tax_amount(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
@@ -360,7 +407,7 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
             msg = _(f"Tax Amount from {corp.name} updated to {value}")
             AdminLogs(
                 user=request.user,
-                corporation=corp,
+                owner=corp,
                 action=AdminLogs.Actions.CHANGE,
                 comment=msg,
             ).save()
@@ -370,10 +417,12 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
     return JsonResponse({"message": _("Invalid request method")}, status=405)
 
 
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @csrf_exempt
 def update_tax_period(request: WSGIRequest, corporation_id: int):
     if request.method == "POST":
-        value = float(request.POST.get("value"))
+        value = int(request.POST.get("value"))
         msg = _("Please enter a valid number")
         try:
             if value < 0:
@@ -394,7 +443,7 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             msg = _(f"Tax Period from {corp.name} updated to {value}")
             AdminLogs(
                 user=request.user,
-                corporation=corp,
+                owner=corp,
                 action=AdminLogs.Actions.CHANGE,
                 comment=msg,
             ).save()
@@ -407,7 +456,7 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
-def delete_user(request: WSGIRequest, corporation_id: int, member_pk: int):
+def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
@@ -421,15 +470,16 @@ def delete_user(request: WSGIRequest, corporation_id: int, member_pk: int):
     form = forms.TaxDeleteForm(data=request.POST)
     if form.is_valid():
         reason = form.cleaned_data["delete_reason"]
-        member = Members.objects.get(corporation=corp, pk=member_pk)
+        member = Members.objects.get(owner=corp, pk=member_pk)
         if member.is_missing:
             msg = _(f"Member {member.character_name} deleted")
+            msg += f" - {reason}"
             member.delete()
             AdminLogs(
                 user=request.user,
-                corporation=corp,
+                owner=corp,
                 action=AdminLogs.Actions.DELETE,
-                comment=reason,
+                comment=msg,
             ).save()
             return JsonResponse(
                 data={"success": True, "message": msg}, status=200, safe=False

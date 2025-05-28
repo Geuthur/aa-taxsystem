@@ -1,8 +1,10 @@
+# Django
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+# AA TaxSystem
 from taxsystem.models.tax import OwnerAudit, Payments
 
 

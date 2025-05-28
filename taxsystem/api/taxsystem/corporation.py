@@ -1,9 +1,13 @@
+# Standard Library
 import logging
 
+# Third Party
 from ninja import NinjaAPI
 
+# Django
 from django.utils.translation import gettext_lazy as _
 
+# AA TaxSystem
 from taxsystem.api.helpers import get_corporation, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.own_payments import _own_payments_actions
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
@@ -24,12 +28,12 @@ class CorporationApiEndpoints:
             tags=self.tags,
         )
         def get_payments(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
-            payments = Payments.objects.filter(account__corporation=corp)
+            payments = Payments.objects.filter(account__owner=owner)
 
             payments_dict = {}
 
@@ -70,11 +74,9 @@ class CorporationApiEndpoints:
             if corp is None:
                 return 404, "Corporation Not Found"
 
-            account = PaymentSystem.objects.get(corporation=corp, user=request.user)
+            account = PaymentSystem.objects.get(owner=corp, user=request.user)
 
-            payments = Payments.objects.filter(
-                account__corporation=corp, account=account
-            )
+            payments = Payments.objects.filter(account__owner=corp, account=account)
 
             own_payments_dict = {}
 

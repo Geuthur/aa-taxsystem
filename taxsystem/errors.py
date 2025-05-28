@@ -1,5 +1,6 @@
 """Custom exceptions."""
 
+# Alliance Auth
 from esi.errors import TokenError
 
 
@@ -11,5 +12,9 @@ class DatabaseError(Exception):
     pass
 
 
-class CustomError(Exception):
+class NotModifiedError(Exception):
+    pass
+
+
+class HTTPGatewayTimeoutError(Exception):
     pass

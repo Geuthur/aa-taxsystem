@@ -1,11 +1,14 @@
 """Logs Model"""
 
+# Django
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
 from allianceauth.authentication.models import User
 
+# AA TaxSystem
 from taxsystem.managers.logs_manager import LogsManager
 from taxsystem.models.tax import OwnerAudit, Payments
 
@@ -95,7 +98,7 @@ class AdminLogs(models.Model):
 
     objects = LogsManager()
 
-    corporation = models.ForeignKey(
+    owner = models.ForeignKey(
         OwnerAudit,
         on_delete=models.CASCADE,
         related_name="+",

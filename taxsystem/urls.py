@@ -1,7 +1,9 @@
 """App URLs"""
 
+# Django
 from django.urls import path, re_path
 
+# AA TaxSystem
 from taxsystem import views
 from taxsystem.api import api
 
@@ -10,6 +12,7 @@ app_name: str = "taxsystem"
 urlpatterns = [
     # -- Tax System
     path("", views.index, name="index"),
+    path("admin/", views.admin, name="admin"),
     path(
         "corporation/<int:corporation_id>/view/payments/",
         views.payments,
@@ -56,12 +59,12 @@ urlpatterns = [
     ),
     path(
         "corporation/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
-        views.delete_user,
-        name="delete_user",
+        views.delete_member,
+        name="delete_member",
     ),
     # -- Tax Payment System
     path(
-        "corporation/<int:corporation_id>/manage/user/<int:user_pk>/switch_user/",
+        "corporation/<int:corporation_id>/manage/user/<int:payment_system_pk>/switch_user/",
         views.switch_user,
         name="switch_user",
     ),

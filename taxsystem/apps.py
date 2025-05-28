@@ -3,7 +3,7 @@
 # Django
 from django.apps import AppConfig
 
-# AA Example App
+# AA TaxSystem
 from taxsystem import __version__
 
 
@@ -18,4 +18,5 @@ class TaxSystemConfig(AppConfig):
 
     def ready(self):
         # pylint: disable=import-outside-toplevel,unused-import
+        # AA TaxSystem
         import taxsystem.signals
