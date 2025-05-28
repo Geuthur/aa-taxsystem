@@ -28,6 +28,7 @@
 - Add mariadb 11.4 support
 - Model relation from `corporation` to `owner`
 - Add Permission req. for update tax views
+- Add Python 3.13 support
 
 ### Fixed
 
