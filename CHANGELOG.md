@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.7] - 2025-06-17
+
+### Changed
+
+- Divison 1 Name from "" to "Master Wallet"
+
+### Added
+
+- Divison to Payments View & Administration
+
+### Fixed
+
+- `has_paid` property
+
 ## [0.5.6] - 2025-05-28
 
 ### Added
