@@ -28,8 +28,13 @@
                             <td class="text-end">{{ character.payment.amount }}</td>
                         </tr>
                         <tr>
+                            <td>{% trans "Division" %}:</td>
+                            <td class="text-end">{{ character.payment.division }}</td>
+                        </tr>
+                        <tr>
                             <td>{% trans "Reason" %}:</td>
                             <td class="text-end">{{ character.payment.reason }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
