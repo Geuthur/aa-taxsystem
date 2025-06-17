@@ -2,6 +2,7 @@
 
 # Standard Library
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 # Third Party
 from bravado.exception import HTTPInternalServerError
@@ -36,6 +37,10 @@ from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
 from taxsystem.providers import esi
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
+if TYPE_CHECKING:
+    # AA TaxSystem
+    from taxsystem.models.wallet import CorporationWalletJournalEntry
 
 
 class OwnerAudit(models.Model):
@@ -501,7 +506,7 @@ class PaymentSystem(models.Model):
         """Return True if user has paid."""
         if self.deposit >= self.owner.tax_amount:
             return True
-        if self.last_paid and self.deposit == 0:
+        if self.last_paid and self.deposit >= 0:
             return timezone.now() - self.last_paid < timezone.timedelta(
                 days=self.owner.tax_period
             )
@@ -582,6 +587,21 @@ class Payments(models.Model):
             character_id = character.character.character_id
         return character_id
 
+    @property
+    def division(self) -> "CorporationWalletJournalEntry":
+        """Return the division name of the payment."""
+        # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
+        from taxsystem.models.wallet import CorporationWalletJournalEntry
+
+        try:
+            journal = CorporationWalletJournalEntry.objects.filter(
+                division__corporation__corporation=self.account.owner.corporation
+            ).first()
+            return journal.division.name
+        except CorporationWalletJournalEntry.DoesNotExist:
+            return "N/A"
+
     def __str__(self):
         return (
             f"{self.account.name} - {self.date} - {self.amount} - {self.request_status}"
@@ -590,6 +610,7 @@ class Payments(models.Model):
     def get_request_status(self) -> str:
         return self.get_request_status_display()
 
+    @property
     def formatted_payment_date(self) -> str:
         if self.date:
             return timezone.localtime(self.date).strftime("%Y-%m-%d %H:%M:%S")

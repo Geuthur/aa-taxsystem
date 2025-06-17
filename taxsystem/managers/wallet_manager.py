@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -180,6 +181,9 @@ class CorporationDivisionManagerBase(models.Manager):
         division_items = etag_results(division_obj, token, force_refresh=force_refresh)
 
         for division in division_items.get("wallet"):
+            if division.get("division") == 1:
+                names[division.get("division")] = _("Master Wallet")
+                continue
             names[division.get("division")] = division.get("name")
 
         divisions_items_obj = esi.client.Wallet.get_corporations_corporation_id_wallets(

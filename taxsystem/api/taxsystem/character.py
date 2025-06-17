@@ -129,9 +129,10 @@ class CharacterApiEndpoints:
             payment_dict = {
                 "payment_id": payment.pk,
                 "amount": f"{intcomma(payment.amount)} ISK",
-                "date": payment.formatted_payment_date(),
+                "date": payment.formatted_payment_date,
                 "status": format_html(payment_status),
                 "reviser": payment.reviser,
+                "division": payment.division,
                 "reason": payment.reason,
             }
 
