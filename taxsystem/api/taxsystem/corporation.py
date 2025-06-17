@@ -49,11 +49,12 @@ class CorporationApiEndpoints:
 
                 payments_dict[payment.pk] = {
                     "payment_id": payment.pk,
-                    "date": payment.formatted_payment_date(),
+                    "date": payment.formatted_payment_date,
                     "character_portrait": character_portrait,
                     "character_name": payment.account.name,
                     "amount": payment.amount,
                     "request_status": payment.get_request_status_display(),
+                    "division": payment.division,
                     "reason": payment.reason,
                     "actions": actions,
                 }
@@ -85,10 +86,11 @@ class CorporationApiEndpoints:
 
                 own_payments_dict[payment.pk] = {
                     "payment_id": payment.pk,
-                    "date": payment.formatted_payment_date(),
+                    "date": payment.formatted_payment_date,
                     "character_name": payment.account.name,
                     "amount": payment.amount,
                     "request_status": payment.get_request_status_display(),
+                    "division": payment.division,
                     "reason": payment.reason,
                     "actions": actions,
                 }

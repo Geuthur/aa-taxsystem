@@ -271,10 +271,11 @@ class AdminApiEndpoints:
                     "payment_id": payment.pk,
                     "character_portrait": portrait,
                     "character_name": payment.account.name,
-                    "date": payment.date,
+                    "payment_date": payment.formatted_payment_date,
                     "amount": amount,
                     "request_status": payment.get_request_status_display(),
                     "reviser": payment.reviser,
+                    "division": payment.division,
                     "reason": payment.reason,
                     "actions": actions,
                 }
