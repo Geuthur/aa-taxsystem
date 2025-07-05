@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.8] - 05.07.2025
+
+### Changed
+
+- Minimum dependencies
+  - allianceauth>=4.8.0
+
+### Fixed
+
+- Missing Static images
+
 ## [0.5.7] - 2025-06-17
 
 ### Changed
