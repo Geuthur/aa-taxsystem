@@ -147,7 +147,7 @@ The Following Settings can be setting up in the `local.py`
 
 Advanced Settings: Stale Status for Each Section
 
-- LEDGER_STALE_TYPES = `{     "wallet": 60,     "division": 60,     "members": 60,     "payments": 60,     "payment_system": 60,     "payment_payday": 1440 }` - Defines the stale status duration (in minutes) for each section.
+- TAXSYSTEM_STALE_TYPES = `{     "wallet": 60,     "division": 60,     "members": 60,     "payments": 60,     "payment_system": 60,     "payment_payday": 1440 }` - Defines the stale status duration (in minutes) for each section.
 
 > [!NOTE]
 > Contributing
