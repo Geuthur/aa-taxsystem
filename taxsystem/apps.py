@@ -11,7 +11,6 @@ class TaxSystemConfig(AppConfig):
     """App Config"""
 
     default_auto_field = "django.db.models.AutoField"
-    author = "Geuthur"
     name = "taxsystem"
     label = "taxsystem"
     verbose_name = f"Tax System v{__version__}"

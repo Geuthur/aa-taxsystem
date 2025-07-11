@@ -35,12 +35,12 @@ dynamic = [
 dependencies = [
     "allianceauth>=4.8,<5",
     "allianceauth-app-utils>=1.26",
+    "django-esi>=7.0.1",
     "django-eveuniverse>=1.5.7",
     "django-ninja",
 ]
 optional-dependencies.tests-allianceauth-latest = [
     "coverage",
-    "django-webtest",
     "factory-boy",
 ]
 urls.Changelog = "https://github.com/Geuthur/aa-taxsystem/blob/master/CHANGELOG.md"
