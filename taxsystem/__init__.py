@@ -1,9 +1,9 @@
 """Initialize the app"""
 
-# AA TaxSystem
-from taxsystem.app_settings import TAXSYSTEM_APP_NAME
-
 __version__ = "0.5.8"
 __title__ = "Tax System"
 
-USER_AGENT_TEXT = f"{TAXSYSTEM_APP_NAME} v{__version__}"
+__package_name__ = "aa-taxsystem"
+
+__app_name_useragent__ = "AA-TaxSystem"
+__github_url__ = f"https://github.com/Geuthur/{__package_name__}"
