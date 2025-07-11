@@ -4,7 +4,7 @@ title: "[Bug]: "
 labels: ["bug", "triage"]
 projects: ["aa-taxsystem"]
 assignees:
-  - octocat
+  - geuthur
 body:
   - type: markdown
     attributes:
