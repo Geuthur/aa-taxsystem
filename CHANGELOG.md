@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.9] - 11.07.2025
+
+### Added
+
+- dependabot
+- `django-esi` dependency
+
+### Changed
+
+- Use `django-esi` new User Agent Guidelines
+
 ## [0.5.8] - 05.07.2025
 
 ### Changed
