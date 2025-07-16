@@ -85,12 +85,39 @@ class TestOwnerAuditModel(TestCase):
         payment_system = PaymentSystem.objects.get(owner=self.audit)
         self.assertTrue(payment_system.has_paid)
 
+    def test_has_paid_icon(self):
+        """Test the icon representation of has_paid."""
+        self.payment_system.deposit = 1000
+        self.payment_system.save()
+
+        self.payment_system.date = timezone.now()
+
+        payment_system = PaymentSystem.objects.get(owner=self.audit)
+
+        self.assertIn(
+            "fas fa-check",
+            payment_system.has_paid_icon()["display"],
+        )
+        self.assertIn(
+            "badge",
+            payment_system.has_paid_icon(badge=True, text=True)["display"],
+        )
+        self.assertIn(
+            "Paid",
+            payment_system.has_paid_icon(badge=True, text=True)["display"],
+        )
+
     def test_status_html(self):
         """Test the HTML representation of the payment system status."""
         payment_system = PaymentSystem.objects.get(owner=self.audit)
         self.assertIn(
             "bg-success",
             payment_system.Status(payment_system.status).html(),
+        )
+
+        self.assertIn(
+            "Active",
+            payment_system.Status(payment_system.status).html(text=True),
         )
 
     def test_status_color(self):
@@ -103,6 +130,7 @@ class TestOwnerAuditModel(TestCase):
     def test_status_icon(self):
         """Test the icon representation of the payment system status."""
         payment_system = PaymentSystem.objects.get(owner=self.audit)
+
         self.assertEqual(
             payment_system.Status(payment_system.status).icons(),
             "<i class='fas fa-check'></i>",
