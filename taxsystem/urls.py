@@ -28,6 +28,10 @@ urlpatterns = [
         views.administration,
         name="administration",
     ),
+    path("corporation/<int:corporation_id>/view/faq/", views.faq, name="faq"),
+    path(
+        "corporation/<int:corporation_id>/view/account/", views.account, name="account"
+    ),
     # --- Tax Administration
     # -- Tax Payments
     path("corporation/add/", views.add_corp, name="add_corp"),

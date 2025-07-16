@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0] - 11.07.2025
+
+### Changed
+
+- Use `Django SRI` for Cache Busting
+
+### Added
+
+- Account View
+- FAQ View
+- Not Paid Badge in Menu
+- Wallet Activity (Last 30 Days)
+
 ## [0.5.9] - 11.07.2025
 
 ### Added

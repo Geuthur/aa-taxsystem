@@ -6,14 +6,17 @@ from ninja import NinjaAPI
 
 # Django
 from django.contrib.humanize.templatetags.humanize import intcomma
+from django.db.models import Sum
 from django.shortcuts import render
+from django.utils import timezone
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
 from taxsystem.api.helpers import get_manage_corporation
 from taxsystem.api.taxsystem.helpers.administration import _delete_member
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
-    _get_has_paid_icon,
     _payment_system_actions,
     _payments_info,
 )
@@ -24,7 +27,10 @@ from taxsystem.api.taxsystem.helpers.statistics import (
 from taxsystem.helpers import lazy
 from taxsystem.models.logs import AdminLogs
 from taxsystem.models.tax import Members, Payments, PaymentSystem
-from taxsystem.models.wallet import CorporationWalletDivision
+from taxsystem.models.wallet import (
+    CorporationWalletDivision,
+    CorporationWalletJournalEntry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,26 +57,33 @@ class AdminApiEndpoints:
 
             divisions = CorporationWalletDivision.objects.filter(corporation=owner)
 
-            corporation_name = owner.name
             corporation_id = owner.corporation.corporation_id
             corporation_logo = lazy.get_corporation_logo_url(
                 corporation_id, size=64, as_html=True
             )
-            corporation_tax_amount = owner.tax_amount
-            corporation_tax_period = owner.tax_period
-
             divisions_dict = _get_divisions_dict(divisions)
             statistics_dict = {owner.name: _get_statistics_dict(owner)}
 
+            past30_days = CorporationWalletJournalEntry.objects.filter(
+                division__corporation=owner,
+                date__gte=timezone.now() - timezone.timedelta(days=30),
+            ).aggregate(total=Sum("amount"))
+
+            activity_color = (
+                "text-success" if past30_days.get("total", 0) >= 0 else "text-danger"
+            )
+            actibity_html = f"<span class='{activity_color}'>{intcomma(int(past30_days.get('total', 0) or 0), use_l10n=True)}</span> ISK"
+
             output = {
-                "corporation_name": corporation_name,
+                "corporation_name": owner.name,
                 "corporation_id": corporation_id,
                 "corporation_logo": corporation_logo,
                 "update_status": owner.get_status.bootstrap_icon(),
-                "tax_amount": corporation_tax_amount,
-                "tax_period": corporation_tax_period,
+                "tax_amount": owner.tax_amount,
+                "tax_period": owner.tax_period,
                 "divisions": divisions_dict,
                 "statistics": statistics_dict,
+                "activity": format_html(actibity_html),
             }
 
             return output
@@ -161,7 +174,6 @@ class AdminApiEndpoints:
                     perms=perms,
                     request=request,
                 )
-                has_paid = _get_has_paid_icon(user)
                 payment_dict[character_id] = {
                     "character_id": character_id,
                     "character_portrait": lazy.get_character_portrait_url(
@@ -173,8 +185,8 @@ class AdminApiEndpoints:
                     "alts": user.get_alt_ids(),
                     "status": user.get_payment_status(),
                     "deposit": deposit,
-                    "has_paid": has_paid,
-                    "has_paid_filter": has_paid["sort"],
+                    "has_paid": user.has_paid_icon(badge=True),
+                    "has_paid_filter": _("Yes") if user.has_paid else _("No"),
                     "last_paid": lazy.str_normalize_time(user.last_paid, hours=True),
                     "is_active": user.is_active,
                     "actions": actions,
@@ -265,7 +277,7 @@ class AdminApiEndpoints:
                     portrait = ""
 
                 actions = _payments_actions(corporation_id, payment, perms, request)
-                amount = f"{intcomma(payment.amount)} ISK"
+                amount = f"{intcomma(payment.amount, use_l10n=True)} ISK"
 
                 payments_dict[payment.pk] = {
                     "payment_id": payment.pk,

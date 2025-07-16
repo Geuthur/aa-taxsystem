@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load static %}
 
 <div class="d-flex flex-wrap">
     <!-- Dashboard -->
@@ -28,6 +27,13 @@
                             <td class="text-end">
                                 <i class="fa-solid fa-circle-question fa-fw" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Click on the value to edit' %}"></i>
                                 <span href="#" id="period" data-url=""></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Wallet Activity:" %}</td>
+                            <td class="text-end">
+                                <i class="fa-solid fa-circle-question fa-fw" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Last 30 days' %}"></i>
+                                <span id="activity"></span>
                             </td>
                         </tr>
                     </tbody>

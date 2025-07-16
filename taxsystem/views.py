@@ -144,6 +144,51 @@ def own_payments(request, corporation_id=None):
 
 
 @login_required
+@permission_required("taxsystem.basic_access")
+def faq(request, corporation_id):
+    """Payments View"""
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
+    corporations = OwnerAudit.objects.visible_to(request.user)
+
+    context = {
+        "corporation_id": corporation_id,
+        "title": _("FAQ"),
+        "corporations": corporations,
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/faq.html", context=context)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def account(request, corporation_id):
+    """Payments View"""
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+    character_id = request.user.profile.main_character.character_id
+
+    corporations = OwnerAudit.objects.visible_to(request.user)
+
+    perms = get_corporation(request, corporation_id)
+
+    if perms is None:
+        messages.error(request, _("No corporation found."))
+
+    context = {
+        "corporation_id": corporation_id,
+        "title": _("Account"),
+        "corporations": corporations,
+        "character_id": character_id,
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/account.html", context=context)
+
+
+@login_required
 @permission_required("taxsystem.create_access")
 @token_required(scopes=OwnerAudit.get_esi_scopes())
 def add_corp(request, token):
@@ -215,11 +260,11 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
-                    account = PaymentSystem.objects.get(
+                    payment_account = PaymentSystem.objects.get(
                         owner=corp, user=payment.account.user
                     )
-                    account.deposit += payment.amount
-                    account.save()
+                    payment_account.deposit += payment.amount
+                    payment_account.save()
                     PaymentHistory(
                         user=request.user,
                         payment=payment,
@@ -265,11 +310,11 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                     )
                     # Ensure that the payment is not rejected
                     if not payment.is_rejected:
-                        account = PaymentSystem.objects.get(
+                        payment_account = PaymentSystem.objects.get(
                             owner=corp, user=payment.account.user
                         )
-                        account.deposit -= payment.amount
-                        account.save()
+                        payment_account.deposit -= payment.amount
+                        payment_account.save()
                     payment.request_status = Payments.RequestStatus.PENDING
                     payment.reviser = ""
                     payment.save()
@@ -313,10 +358,10 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
-                    account = PaymentSystem.objects.get(
+                    payment_account = PaymentSystem.objects.get(
                         owner=corp, user=payment.account.user
                     )
-                    account.save()
+                    payment_account.save()
                     msg = _("Payment ID: %s - Amount: %s - Name: %s rejected") % (
                         payment.pk,
                         intcomma(payment.amount),
