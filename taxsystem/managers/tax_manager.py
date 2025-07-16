@@ -366,6 +366,7 @@ class MembersManagerBase(models.Manager):
             )
             main = account.main_character
 
+            # Change the status of members if they are alts
             relevant_alts = alts.intersection(members_ids)
             for alt in relevant_alts:
                 members_ids.remove(alt)
@@ -374,6 +375,8 @@ class MembersManagerBase(models.Manager):
                     members.filter(character_id=alt).update(
                         status=self.model.States.IS_ALT
                     )
+
+            # Create or update a Payment System for the main character
             try:
                 existing_payment_system = PaymentSystem.objects.get(
                     user=account.user, owner=owner
