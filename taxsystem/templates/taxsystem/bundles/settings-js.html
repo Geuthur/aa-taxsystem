@@ -4,6 +4,7 @@
     let taxsystemsettings = {
         // Core
         corporation_id: {{ corporation_id }},
+        character_id: {% if character_id %}{{ character_id }}{% else %}0{% endif %},
         csrf: "{{ csrf_token }}",
         // URLs
         corporationmanageDashboardUrl: '{% url "taxsystem:api:get_dashboard" corporation_id=corporation_id %}',
@@ -14,6 +15,7 @@
         // Update URLs
         corporationUpdateTaxUrl: '{% url "taxsystem:update_tax_amount" corporation_id=corporation_id %}',
         corporationUpdatePeriodUrl: '{% url "taxsystem:update_tax_period" corporation_id=corporation_id %}',
+        accountUrl: '{% url "taxsystem:api:get_account_status" corporation_id=corporation_id character_id=1234 %}',
 
         // Translations
         translations: {

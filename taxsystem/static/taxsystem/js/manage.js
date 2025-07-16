@@ -25,6 +25,7 @@ $(document).ready(function() {
             $('#update_status').html(data.update_status);
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
+            $('#activity').html(data.activity);
 
             // Generate URLs dynamically
             const updateTaxAmountUrl = taxsystemsettings.corporationUpdateTaxUrl;

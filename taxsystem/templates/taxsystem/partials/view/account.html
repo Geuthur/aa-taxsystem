@@ -1,0 +1,49 @@
+{% load i18n %}
+
+<div class="card-body d-flex">
+    <!-- Bildbereich -->
+    <div class="text-center" id="portrait">
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Main Info -->
+            <div class="col-md-8 w-auto" id="info-panel">
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Account" %}:</dt>
+                    <dd class="nowrap" id="account_name"></dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Corporation" %}:</dt>
+                    <dd class="nowrap" id="corporation_name"></dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Account Status" %}:</dt>
+                    <dd class="nowrap" id="account_status"></dd>
+                </dl>
+            </div>
+            <!-- Costs Info -->
+            <div class="col-md-8 w-auto" id="info-amounts-panel">
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Balance Due" %}:</dt>
+                    <dd class="nowrap" id="deposit_amount"></dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Payment Status" %}:</dt>
+                    <dd class="nowrap" id="payment_status"></dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Last Paid" %}:</dt>
+                    <dd class="nowrap" id="last_paid"></dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Joined" %}:</dt>
+                    <dd class="nowrap" id="joined"></dd>
+                </dl>
+            </div>
+        </div>
+    </div>

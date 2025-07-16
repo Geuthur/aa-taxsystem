@@ -1,0 +1,42 @@
+{% extends 'taxsystem/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+{% load taxsystem %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Tax System" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block taxsystem_block %}
+<div class="card">
+    <div class="card-header bg-primary rounded-top d-flex align-items-center">
+        <h3 class="me-3">{% translate "Account Status" %}</h3>
+    </div>
+    <div class="card-body">
+        {% include 'taxsystem/partials/view/account.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <!-- load the datatables-js-bs5.html bundle -->
+    {% include 'bundles/datatables-js-bs5.html' %}
+    {% include "bundles/filterdropdown-js.html" %}
+    <!-- load the settings bundle -->
+    {% include "taxsystem/bundles/settings-css.html" %}
+    {% include 'taxsystem/bundles/settings-js.html' %}
+    {% include 'taxsystem/bundles/account-bundle.html' %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+{% endblock extra_script %}

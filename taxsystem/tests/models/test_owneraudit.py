@@ -15,7 +15,7 @@ from taxsystem.tests.testdata.generate_owneraudit import (
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 
-MODULE_PATH = "taxsystem.models.corporationaudit"
+MODULE_PATH = "taxsystem.models.owneraudit"
 
 
 class TestOwnerAuditModel(TestCase):

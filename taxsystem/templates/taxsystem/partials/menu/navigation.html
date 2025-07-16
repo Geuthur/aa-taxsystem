@@ -8,3 +8,11 @@
 <li class="nav-item">
     <a class="nav-link {% navactive request 'taxsystem:own_payments' %}" href="{% url 'taxsystem:own_payments' corporation_id %}">{% translate 'Own Payments' %}</a>
 </li>
+
+<li class="nav-item">
+    <a class="nav-link {% navactive request 'taxsystem:faq' %}" href="{% url 'taxsystem:faq' corporation_id %}">{% translate 'FAQ' %}</a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link {% navactive request 'taxsystem:account' %}" href="{% url 'taxsystem:account' corporation_id %}">{% translate 'Account' %}</a>
+</li>

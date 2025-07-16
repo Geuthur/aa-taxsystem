@@ -433,6 +433,40 @@ class PaymentSystem(models.Model):
         DEACTIVATED = "deactivated", _("Deactivated")
         MISSING = "missing", _("Missing")
 
+        def html(self, text=False) -> str:
+            """Return the badge name for the status."""
+            if text:
+                return mark_safe(
+                    f"<span class='badge bg-{self.color()}' data-tooltip-toggle='taxsystem-tooltip'>{self.label}</span>"
+                )
+            return mark_safe(
+                f"<span class='badge bg-{self.color()}' data-tooltip-toggle='taxsystem-tooltip'>{self.icons()}</span>"
+            )
+
+        def color(self) -> str:
+            """Return bootstrap corresponding icon class."""
+            status_map = {
+                self.ACTIVE: "success",
+                self.INACTIVE: "warning",
+                self.DEACTIVATED: "danger",
+                self.MISSING: "info",
+            }
+            return status_map.get(self, "secondary")
+
+        def icons(self) -> str:
+            """Return description for an enum object."""
+            status_map = {
+                self.ACTIVE: "<i class='fas fa-check'></i>",
+                self.INACTIVE: "<i class='fas fa-user-slash'></i>",
+                self.DEACTIVATED: "<i class='fas fa-user-clock'></i>",
+                self.MISSING: "<i class='fas fa-question'></i> ",
+            }
+            return status_map.get(self, "")
+
+    class Paid(models.TextChoices):
+        PAID = "paid", _("Paid")
+        UNPAID = "unpaid", _("Unpaid")
+
     name = models.CharField(
         max_length=100,
     )
@@ -511,6 +545,26 @@ class PaymentSystem(models.Model):
                 days=self.owner.tax_period
             )
         return False
+
+    def has_paid_icon(self, badge=False, text=False) -> str:
+        """Return the HTML icon for has_paid."""
+        color = "success" if self.has_paid else "danger"
+
+        if self.has_paid:
+            html = f"<i class='fas fa-check' title='{self.Paid('paid').label}' data-tooltip-toggle='taxsystem-tooltip'></i>"
+        else:
+            html = f"<i class='fas fa-times' title='{self.Paid('unpaid').label}' data-tooltip-toggle='taxsystem-tooltip'></i>"
+
+        if text:
+            html += f" {self.Paid('paid').label if self.has_paid else self.Paid('unpaid').label}"
+
+        if badge:
+            html = mark_safe(f"<span class='badge bg-{color}'>{html}</span>")
+        return {
+            "display": html,
+            "sort": _("Yes") if self.has_paid else _("No"),
+            "raw": self.has_paid,
+        }
 
     objects = PaymentSystemManager()
 

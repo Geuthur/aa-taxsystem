@@ -209,3 +209,35 @@ class TestViewAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Own Payments")
+
+    def test_view_faq(self):
+        """Test view FAQ."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "taxsystem:faq",
+                args=[2001],
+            )
+        )
+        request.user = self.user
+        # when
+        response = views.faq(request, 2001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "FAQ")
+
+    def test_view_account(self):
+        """Test view account."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "taxsystem:account",
+                args=[2001],
+            )
+        )
+        request.user = self.user
+        # when
+        response = views.account(request, 2001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Account")

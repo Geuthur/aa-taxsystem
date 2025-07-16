@@ -1,5 +1,8 @@
 """Hook into Alliance Auth"""
 
+# Standard Library
+import logging
+
 # Django
 from django.utils.translation import gettext_lazy as _
 
@@ -9,8 +12,11 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA TaxSystem
 from taxsystem.models.filters import FilterAmount, FilterReason
+from taxsystem.models.tax import PaymentSystem
 
 from . import app_settings, urls
+
+logger = logging.getLogger(__name__)
 
 
 class TaxSystemMenuItem(MenuItemHook):
@@ -26,6 +32,11 @@ class TaxSystemMenuItem(MenuItemHook):
 
     def render(self, request):
         if request.user.has_perm("taxsystem.basic_access"):
+            try:
+                payment_user = PaymentSystem.objects.get(user=request.user)
+                self.count = 1 if not payment_user.has_paid else 0
+            except PaymentSystem.DoesNotExist:
+                self.count = 0
             return MenuItemHook.render(self, request)
         return ""
 

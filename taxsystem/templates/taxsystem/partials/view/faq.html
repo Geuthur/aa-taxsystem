@@ -1,0 +1,17 @@
+{% load i18n %}
+{% load static %}
+
+<div class="card-body">
+    <p>{% translate "Here you can find answers to the most common questions regarding the tax system." %}</p>
+    <p>{% translate "If you have any further questions, please contact the tax administration." %}</p>
+</div>
+<div class="card-body">
+    <h4>{% translate "How do I pay taxes?" %}</h4>
+    <li>{% translate "Click Your Profile then Click the Corporation" %}</li>
+    <li>{% translate "Click on the three dots on the upper right on the Information Screen about your Corporation:" %}</li>
+    <img src="{% static 'taxsystem/images/corpinformation.png' %}" class="mx-4 img-fluid">
+    <li>{% translate "Select 'Give Money':" %}</li>
+    <img src="{% static 'taxsystem/images/givemoney.png' %}" class="mx-4 img-fluid mt-3">
+    <li>{% translate "Enter the appropriate Amount and the Reason(case insensitive):" %}</li>
+    <img src="{% static 'taxsystem/images/einzahlen.png' %}" class="mx-4 img-fluid mt-3">
+</div>

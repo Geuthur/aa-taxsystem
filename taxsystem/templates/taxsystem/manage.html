@@ -1,7 +1,6 @@
 {% extends 'taxsystem/base.html' %}
 {% load i18n %}
 {% load humanize %}
-{% load static %}
 {% load taxsystem %}
 
 {% block page_title %}
@@ -13,18 +12,6 @@
         {{ title }}
     </h1>
 {% endblock page_topic %}
-
-{% block header_nav_collapse_left %}
-
-    {% include 'taxsystem/partials/menu/navigation.html' %}
-
-{% endblock header_nav_collapse_left %}
-
-{% block header_nav_collapse_right %}
-
-    {% include 'taxsystem/partials/menu/administration.html' %}
-
-{% endblock header_nav_collapse_right %}
 
 {% block taxsystem_block %}
     <div class="card">
