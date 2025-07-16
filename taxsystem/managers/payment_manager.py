@@ -64,9 +64,9 @@ class PaymentSystemManagerBase(models.Manager):
 
         # Check for any automatic payments
         try:
-            filters = SmartGroup.objects.get(owner=owner)
-            if filters:
-                payments = filters.filter(payments)
+            smartgroup_obj = SmartGroup.objects.get(owner=owner)
+            if smartgroup_obj:
+                payments = smartgroup_obj.filter(payments)
                 for payment in payments:
                     if payment.request_status == Payments.RequestStatus.PENDING:
                         # Ensure all transfers are processed in a single transaction
