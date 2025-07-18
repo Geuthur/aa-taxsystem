@@ -48,6 +48,7 @@ class OwnerAudit(models.Model):
 
     class UpdateSection(models.TextChoices):
         WALLET = "wallet", _("Wallet Journal")
+        DIVISION_NAMES = "division_names", _("Wallet Division Names")
         DIVISION = "division", _("Wallet Division")
         MEMBERS = "members", _("Members")
         PAYMENTS = "payments", _("Payments")
@@ -151,6 +152,12 @@ class OwnerAudit(models.Model):
 
     def __str__(self):
         return f"{self.corporation.corporation_name} - Status: {self.get_status}"
+
+    def update_division_names(self, force_refresh: bool) -> None:
+        """Update the divisions for this corporation."""
+        return self.ts_corporation_division.update_or_create_esi_names(
+            self, force_refresh=force_refresh
+        )
 
     def update_division(self, force_refresh: bool) -> None:
         """Update the divisions for this corporation."""
