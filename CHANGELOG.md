@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.6.0] - 11.07.2025
+## [0.6.0] - 19.07.2025
+
+### Fixed
+
+- Wallet Balance not updating correctly
+- New Sections not included to Updates
 
 ### Changed
 
