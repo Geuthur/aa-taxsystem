@@ -48,6 +48,7 @@ class OwnerAudit(models.Model):
 
     class UpdateSection(models.TextChoices):
         WALLET = "wallet", _("Wallet Journal")
+        DIVISION_NAMES = "division_names", _("Wallet Division Names")
         DIVISION = "division", _("Wallet Division")
         MEMBERS = "members", _("Members")
         PAYMENTS = "payments", _("Payments")
@@ -152,6 +153,12 @@ class OwnerAudit(models.Model):
     def __str__(self):
         return f"{self.corporation.corporation_name} - Status: {self.get_status}"
 
+    def update_division_names(self, force_refresh: bool) -> None:
+        """Update the divisions for this corporation."""
+        return self.ts_corporation_division.update_or_create_esi_names(
+            self, force_refresh=force_refresh
+        )
+
     def update_division(self, force_refresh: bool) -> None:
         """Update the divisions for this corporation."""
         return self.ts_corporation_division.update_or_create_esi(
@@ -246,11 +253,19 @@ class OwnerAudit(models.Model):
     # pylint: disable=duplicate-code
     def calc_update_needed(self) -> _NeedsUpdate:
         """Calculate if an update is needed."""
-        sections: models.QuerySet[OwnerUpdateStatus] = self.ts_update_status.all()
-        needs_update = {}
-        for section in sections:
-            needs_update[section.section] = section.need_update()
-        return _NeedsUpdate(section_map=needs_update)
+        sections_needs_update = {
+            section: True for section in self.UpdateSection.get_sections()
+        }
+        existing_sections: models.QuerySet[OwnerUpdateStatus] = (
+            self.ts_update_status.all()
+        )
+        needs_update = {
+            obj.section: obj.need_update()
+            for obj in existing_sections
+            if obj.section in sections_needs_update
+        }
+        sections_needs_update.update(needs_update)
+        return _NeedsUpdate(section_map=sections_needs_update)
 
     # pylint: disable=duplicate-code
     def reset_update_status(self, section: UpdateSection) -> "OwnerUpdateStatus":

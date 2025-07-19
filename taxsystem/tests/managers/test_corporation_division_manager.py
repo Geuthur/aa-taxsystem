@@ -39,12 +39,12 @@ class TestDivisionManager(NoSocketsTestCase):
         )
         cls.audit = create_owneraudit_from_user(cls.user)
 
-    def test_update_division(self, mock_etag, mock_esi):
+    def test_update_division_names(self, mock_etag, mock_esi):
         # given
         mock_esi.client = esi_client_stub
         mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
 
-        self.audit.update_division(force_refresh=False)
+        self.audit.update_division_names(force_refresh=False)
 
         obj = self.audit.ts_corporation_division.get(
             corporation__corporation__corporation_id=2001, division_id=2
@@ -60,3 +60,25 @@ class TestDivisionManager(NoSocketsTestCase):
             corporation__corporation__corporation_id=2001, division_id=6
         )
         self.assertEqual(obj.name, "Partner")
+
+    def test_update_division(self, mock_etag, mock_esi):
+        # given
+        mock_esi.client = esi_client_stub
+        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
+
+        self.audit.update_division(force_refresh=False)
+
+        obj = self.audit.ts_corporation_division.get(
+            corporation__corporation__corporation_id=2001, division_id=2
+        )
+        self.assertEqual(obj.balance, 0)
+
+        obj = self.audit.ts_corporation_division.get(
+            corporation__corporation__corporation_id=2001, division_id=4
+        )
+        self.assertEqual(obj.balance, 1600000000)
+
+        obj = self.audit.ts_corporation_division.get(
+            corporation__corporation__corporation_id=2001, division_id=6
+        )
+        self.assertEqual(obj.balance, 0)

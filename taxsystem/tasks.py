@@ -103,6 +103,16 @@ def update_corporation(owner_pk, force_refresh=False):
 
 @shared_task(**_update_taxsystem_params)
 @when_esi_is_available
+def update_owner_division_names(owner_pk: int, force_refresh: bool):
+    return _update_owner_section(
+        owner_pk,
+        section=OwnerAudit.UpdateSection.DIVISION_NAMES,
+        force_refresh=force_refresh,
+    )
+
+
+@shared_task(**_update_taxsystem_params)
+@when_esi_is_available
 def update_owner_division(owner_pk: int, force_refresh: bool):
     return _update_owner_section(
         owner_pk,

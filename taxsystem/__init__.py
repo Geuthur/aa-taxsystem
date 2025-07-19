@@ -1,6 +1,6 @@
 """Initialize the app"""
 
-__version__ = "0.5.9"
+__version__ = "0.6.0"
 __title__ = "Tax System"
 
 __package_name__ = "aa-taxsystem"
