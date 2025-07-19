@@ -69,10 +69,9 @@ class AdminApiEndpoints:
                 date__gte=timezone.now() - timezone.timedelta(days=30),
             ).aggregate(total=Sum("amount"))
 
-            activity_color = (
-                "text-success" if past30_days.get("total", 0) >= 0 else "text-danger"
-            )
-            actibity_html = f"<span class='{activity_color}'>{intcomma(int(past30_days.get('total', 0) or 0), use_l10n=True)}</span> ISK"
+            total_amount = past30_days.get("total", 0) or 0
+            activity_color = "text-success" if total_amount >= 0 else "text-danger"
+            activity_html = f"<span class='{activity_color}'>{intcomma(total_amount, use_l10n=True)}</span> ISK"
 
             output = {
                 "corporation_name": owner.name,
@@ -83,7 +82,7 @@ class AdminApiEndpoints:
                 "tax_period": owner.tax_period,
                 "divisions": divisions_dict,
                 "statistics": statistics_dict,
-                "activity": format_html(actibity_html),
+                "activity": format_html(activity_html),
             }
 
             return output
