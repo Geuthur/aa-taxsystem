@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.1] - 22.07.2025
+
+### Fixed
+
+- NoneType Error in Administration Dashboard
+- Missing Migration
+
+### Removed
+
+- 0006 Migration (created now by `calc_update_needed`)
+
 ## [0.6.0] - 11.07.2025
 
 ### Fixed
