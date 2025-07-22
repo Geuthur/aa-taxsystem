@@ -250,7 +250,6 @@ class OwnerAudit(models.Model):
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
         return self.UpdateStatus(total_update_status)
 
-    # pylint: disable=duplicate-code
     def calc_update_needed(self) -> _NeedsUpdate:
         """Calculate if an update is needed."""
         sections_needs_update = {
@@ -267,7 +266,6 @@ class OwnerAudit(models.Model):
         sections_needs_update.update(needs_update)
         return _NeedsUpdate(section_map=sections_needs_update)
 
-    # pylint: disable=duplicate-code
     def reset_update_status(self, section: UpdateSection) -> "OwnerUpdateStatus":
         """Reset the status of a given update section and return it."""
         update_status_obj: OwnerUpdateStatus = self.ts_update_status.get_or_create(
@@ -276,7 +274,6 @@ class OwnerAudit(models.Model):
         update_status_obj.reset()
         return update_status_obj
 
-    # pylint: disable=duplicate-code
     def reset_has_token_error(self) -> None:
         """Reset the has_token_error flag for this corporation."""
         self.ts_update_status.filter(
@@ -285,7 +282,6 @@ class OwnerAudit(models.Model):
             has_token_error=False,
         )
 
-    # pylint: disable=duplicate-code
     def update_section_if_changed(
         self,
         section: UpdateSection,
@@ -316,7 +312,6 @@ class OwnerAudit(models.Model):
             data=data,
         )
 
-    # pylint: disable=duplicate-code
     def update_section_log(
         self,
         section: UpdateSection,
@@ -343,7 +338,6 @@ class OwnerAudit(models.Model):
         status = "successfully" if is_success else "with errors"
         logger.info("%s: %s Update run completed %s", self, section.label, status)
 
-    # pylint: disable=duplicate-code
     def perform_update_status(
         self, section: UpdateSection, method: Callable, *args, **kwargs
     ) -> UpdateSectionResult:
