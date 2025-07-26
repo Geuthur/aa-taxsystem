@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.6.2] - 26.07.2025
+
+### Added
+
+- Update Status Sections in Administration Dashboard
+
+### Fixed
+
+- Corporation Wallet Journal not Updating until ETag expire
+
+### Changed
+
+- Moved Update Status Icon to Update Status Dashboard
+- `Wallet Activity` Exclude transactions within Corporation
+
 ## [0.6.1] - 22.07.2025
 
 ### Fixed

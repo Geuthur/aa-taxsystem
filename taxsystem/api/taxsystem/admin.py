@@ -64,10 +64,14 @@ class AdminApiEndpoints:
             divisions_dict = _get_divisions_dict(divisions)
             statistics_dict = {owner.name: _get_statistics_dict(owner)}
 
-            past30_days = CorporationWalletJournalEntry.objects.filter(
-                division__corporation=owner,
-                date__gte=timezone.now() - timezone.timedelta(days=30),
-            ).aggregate(total=Sum("amount"))
+            past30_days = (
+                CorporationWalletJournalEntry.objects.filter(
+                    division__corporation=owner,
+                    date__gte=timezone.now() - timezone.timedelta(days=30),
+                )
+                .exclude(first_party_id=corporation_id, second_party_id=corporation_id)
+                .aggregate(total=Sum("amount"))
+            )
 
             total_amount = past30_days.get("total", 0) or 0
             activity_color = "text-success" if total_amount >= 0 else "text-danger"
@@ -77,7 +81,8 @@ class AdminApiEndpoints:
                 "corporation_name": owner.name,
                 "corporation_id": corporation_id,
                 "corporation_logo": corporation_logo,
-                "update_status": owner.get_status.bootstrap_icon(),
+                "update_status_icon": owner.get_status.bootstrap_icon(),
+                "update_status": owner.get_update_status,
                 "tax_amount": owner.tax_amount,
                 "tax_period": owner.tax_period,
                 "divisions": divisions_dict,

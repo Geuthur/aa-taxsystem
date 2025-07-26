@@ -12,10 +12,6 @@
                 <table class="table table-dark table-striped w-100 d-none" id="manage-dashboard">
                     <tbody>
                         <tr>
-                            <td>{% trans "Update Status:" %}</td>
-                            <td class="text-end" id="update_status"></td>
-                        </tr>
-                        <tr>
                             <td>{% trans "Tax Amount:" %}</td>
                             <td class="text-end">
                                <i class="fa-solid fa-circle-question fa-fw" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Click on the value to edit' %}"></i>
@@ -36,6 +32,50 @@
                                 <span id="activity"></span>
                             </td>
                         </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Update Status -->
+    <div class="card flex-grow-1 d-none" style="min-width: 350px;" id="update-status-card">
+        <div class="card-body bg-secondary rounded-top">
+            <h5 class="card-title text-center">
+                <span id="dashboard-update"></span>
+            </h5>
+            <hr>
+            <div>
+                <table class="table table-dark table-striped w-100 d-none" id="manage-update-dashboard">
+                    <tbody>
+                        <tr>
+                            <td>{% trans "Update Status:" %}</td>
+                            <td class="text-end" id="update_status_icon"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Update Wallet Status:" %}</td>
+                            <td class="text-end" id="update_wallet"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Update Division Status:" %}</td>
+                            <td class="text-end" id="update_division"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Update Division Names Status:" %}</td>
+                            <td class="text-end" id="update_division_name"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Update Member Status:" %}</td>
+                            <td class="text-end" id="update_members"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Update Payments Status:" %}</td>
+                            <td class="text-end" id="update_payments"></td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Update Payment System Status:" %}</td>
+                            <td class="text-end" id="update_payment_system"></td>
+                        </tr>
+
                     </tbody>
                 </table>
             </div>
