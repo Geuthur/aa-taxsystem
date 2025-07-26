@@ -1,5 +1,5 @@
 # Standard Library
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 # Django
 from django.test import override_settings
@@ -47,13 +47,15 @@ class TestWalletManager(NoSocketsTestCase):
         cls.division = create_division(
             corporation=cls.audit, name="MEGA KONTO", balance=1000000, division_id=1
         )
+        cls.token = cls.character_ownership.user.token_set.first()
+        cls.audit.get_token = MagicMock(return_value=cls.token)
 
     def test_update_wallet_journal(
         self, mock_filter, mock_entity_bulk, mock_etag, mock_esi
     ):
         # given
         mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
+        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()[0]
         filter_mock = mock_filter.return_value
         filter_mock.count.return_value = 0
 

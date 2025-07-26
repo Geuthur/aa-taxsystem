@@ -1,10 +1,13 @@
-/* global taxsystemsettings, bootstrap */
+/* global taxsystemsettings, bootstrap, moment */
 $(document).ready(function() {
     const entityPk = taxsystemsettings.entity_pk;
 
     // Dashboard-Info
     const manageDashboardVar = $('#dashboard-card');
     const manageDashboardTableVar = $('#manage-dashboard');
+    // Dashboard-Update Status
+    const manageUpdateStatusVar = $('#update-status-card');
+    const manageUpdateStatusTableVar = $('#manage-update-dashboard');
     // Dashboard-Divison
     const manageDashboardDivisionVar = $('#dashboard-division-card');
     const manageDashboardDivisionTableVar = $('#manage-dashboard-division');
@@ -22,7 +25,17 @@ $(document).ready(function() {
             var tax_amount = parseFloat(data.tax_amount);
             var days = parseFloat(data.tax_period);
             $('#dashboard-info').html(data.corporation_name);
-            $('#update_status').html(data.update_status);
+
+            $('#dashboard-update').html(data.corporation_name + ' - Update Status');
+            // Use moment.js to display relative times in German
+            $('#update_status_icon').html(data.update_status_icon);
+            $('#update_wallet').html(moment(data.update_status.wallet.last_run_finished_at).fromNow());
+            $('#update_division').html(moment(data.update_status.division.last_run_finished_at).fromNow());
+            $('#update_division_name').html(moment(data.update_status.division_names.last_run_finished_at).fromNow());
+            $('#update_members').html(moment(data.update_status.members.last_run_finished_at).fromNow());
+            $('#update_payments').html(moment(data.update_status.payments.last_run_finished_at).fromNow());
+            $('#update_payment_system').html(moment(data.update_status.payment_system.last_run_finished_at).fromNow());
+
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
             $('#activity').html(data.activity);
@@ -98,6 +111,10 @@ $(document).ready(function() {
 
             manageDashboardVar.removeClass('d-none');
             manageDashboardTableVar.removeClass('d-none');
+
+            // Update Status
+            manageUpdateStatusVar.removeClass('d-none');
+            manageUpdateStatusTableVar.removeClass('d-none');
 
             // Show Divisions
             const divisions = data.divisions;

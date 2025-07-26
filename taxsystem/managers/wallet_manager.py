@@ -15,7 +15,7 @@ from eveuniverse.models import EveEntity
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
-from taxsystem.errors import DatabaseError
+from taxsystem.errors import DatabaseError, NotModifiedError
 from taxsystem.providers import esi
 from taxsystem.task_helpers.etag_helpers import etag_results
 
@@ -45,6 +45,7 @@ class CorporationWalletManagerBase(models.Manager):
             force_refresh=force_refresh,
         )
 
+    # pylint: disable=too-many-locals
     def _fetch_esi_data(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
         """Fetch wallet journal entries from ESI data."""
         # pylint: disable=import-outside-toplevel
@@ -61,9 +62,11 @@ class CorporationWalletManagerBase(models.Manager):
 
         divisions = CorporationWalletDivision.objects.filter(corporation=owner)
 
-        for division in divisions:
-            division: CorporationWalletDivision
+        # Get the count of divisions to track not modified
+        division_count = divisions.count()
+        not_modified = 0
 
+        for division in divisions:
             current_page = 1
             total_pages = 1
             while current_page <= total_pages:
@@ -71,13 +74,44 @@ class CorporationWalletManagerBase(models.Manager):
                     corporation_id=owner.corporation.corporation_id,
                     division=division.division_id,
                     page=current_page,
+                    token=token.valid_access_token(),
                 )
-                journal_items = etag_results(
-                    journal_items_ob, token, force_refresh=force_refresh
+
+                journal_items_ob.request_config.also_return_response = True
+                __, headers = journal_items_ob.result()
+
+                total_pages = int(headers.headers.get("X-Pages", 1))
+
+                logger.debug(
+                    "Fetching Journal Items for %s - Division: %s - Page: %s/%s",
+                    owner.corporation.corporation_name,
+                    division.division_id,
+                    current_page,
+                    total_pages,
                 )
+
+                try:
+                    journal_items = etag_results(
+                        journal_items_ob,
+                        token,
+                        force_refresh=force_refresh,
+                    )
+                except NotModifiedError:
+                    not_modified += 1
+                    logger.debug(
+                        "NotModifiedError: %s - Division: %s - Page: %s",
+                        owner.corporation.corporation_name,
+                        division.division_id,
+                        current_page,
+                    )
+                    current_page += 1
+                    continue
 
                 self._update_or_create_objs(division, journal_items)
                 current_page += 1
+        # Ensure only raise NotModifiedError if all divisions returned NotModified
+        if not_modified == division_count:
+            raise NotModifiedError()
 
     @transaction.atomic()
     def _update_or_create_objs(

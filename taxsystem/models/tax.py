@@ -250,6 +250,22 @@ class OwnerAudit(models.Model):
         total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
         return self.UpdateStatus(total_update_status)
 
+    @property
+    def get_update_status(self) -> dict[str, str]:
+        """Return a dictionary of update sections and their statuses."""
+        update_status = {}
+        for section in self.UpdateSection.get_sections():
+            try:
+                status = self.ts_update_status.get(section=section)
+                update_status[section] = {
+                    "is_success": status.is_success,
+                    "last_update_finished_at": status.last_update_finished_at,
+                    "last_run_finished_at": status.last_run_finished_at,
+                }
+            except OwnerUpdateStatus.DoesNotExist:
+                continue
+        return update_status
+
     def calc_update_needed(self) -> _NeedsUpdate:
         """Calculate if an update is needed."""
         sections_needs_update = {
