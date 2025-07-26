@@ -79,6 +79,7 @@ class CorporationWalletManagerBase(models.Manager):
 
                 journal_items_ob.request_config.also_return_response = True
                 __, headers = journal_items_ob.result()
+
                 total_pages = int(headers.headers.get("X-Pages"))
 
                 logger.debug(
