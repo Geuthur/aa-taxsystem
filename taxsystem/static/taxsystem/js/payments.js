@@ -15,7 +15,6 @@ $(document).ready(() => {
                 tablePayments.clear().draw();
             }
         },
-        stateSave: true, // Enable state saving
         columns: [
             {
                 data: 'character_portrait',
@@ -58,9 +57,9 @@ $(document).ready(() => {
                 }
             },
         ],
-        order: [[1, 'asc']],
+        order: [[3, 'desc']],
         columnDefs: [
-            { orderable: false, targets: [0, 2] },
+            { orderable: false, targets: [0, 5] },
         ],
         filterDropDown: {
             columns: [

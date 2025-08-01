@@ -15,7 +15,6 @@ $(document).ready(() => {
                 tableOwnPayments.clear().draw();
             }
         },
-        stateSave: true, // Enable state saving
         columns: [
             {
                 data: 'amount',

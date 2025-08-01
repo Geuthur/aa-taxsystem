@@ -263,7 +263,7 @@ $(document).ready(function() {
                 }
             },
         ],
-        order: [[1, 'asc']],
+        order: [[3, 'desc']],
         columnDefs: [
             { orderable: false, targets: [0, 2] },
         ],
@@ -310,7 +310,6 @@ $(document).ready(function() {
                 tablePaymentSystem.clear().draw();
             }
         },
-        stateSave: true, // Enable state saving
         columns: [
             {
                 data: 'character_portrait',
