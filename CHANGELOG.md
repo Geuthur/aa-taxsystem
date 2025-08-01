@@ -8,6 +8,7 @@
 - Updated German Translation
 - Table Sorting for Payments
 - Renamed Last Paid to Last Debit
+- Use Localisation in Administration Dashboard
 
 ## [0.6.2] - 26.07.2025
 
