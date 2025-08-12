@@ -221,7 +221,7 @@ def delete_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: i
     filter_sets = owner.ts_filter_set.all()
 
     filter_set.delete()
-    msg = _(f"Filter {filter_set.name} from {filter_set} deleted")
+    msg = _(f"{filter_set.name} from {owner.name} deleted")
     AdminLogs(
         user=request.user,
         owner=owner,
@@ -263,9 +263,9 @@ def delete_filter(request: WSGIRequest, corporation_id: int, filter_pk: int):
         filter_obj = JournalFilter.objects.get(filter_set__owner=corp, pk=filter_pk)
         if filter_obj:
             msg = _(
-                f"Filter {filter_obj.filter_type} from {filter_obj.filter_set} deleted"
+                f"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} deleted"
             )
-            msg += f" - {form.cleaned_data["delete_reason"]}"
+            msg += f" - {form.cleaned_data['delete_reason']}"
             filter_obj.delete()
             AdminLogs(
                 user=request.user,

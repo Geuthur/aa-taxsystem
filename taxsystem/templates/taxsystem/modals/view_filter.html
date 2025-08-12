@@ -39,11 +39,11 @@
             const tableFilter = filterTableVar.DataTable({
                 "order": [[ 0, "desc" ]],
                 "columnDefs": [
-                    { "orderable": false, "targets": 1 }
+                    { "orderable": false, "targets": 2 }
                 ]
             });
 
-            tableFilter.on('draw', function (row, data) {
+            tableFilter.on('draw', function () {
                 $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
                     trigger: 'hover',
                 });
