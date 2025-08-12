@@ -1,4 +1,4 @@
-from .filters import FilterAmount, FilterBase, FilterReason, SmartFilter, SmartGroup
+from .filters import JournalFilter, JournalFilterSet
 from .general import General
 from .logs import AdminLogs, PaymentHistory
 from .tax import (

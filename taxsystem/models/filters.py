@@ -3,144 +3,97 @@
 # Django
 
 # Django
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Q
+from django.db.models import QuerySet
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
 from taxsystem.models.tax import OwnerAudit, Payments
+from taxsystem.models.wallet import CorporationWalletJournalEntry
 
 
-class SmartFilter(models.Model):
-    """Model to hold a filter and its settings"""
-
-    class Meta:
-        default_permissions = ()
-        verbose_name = _("Smart Filter Binding")
-        verbose_name_plural = _("Smart Filters Catalog")
-
-    content_type = models.ForeignKey(
-        ContentType, on_delete=models.CASCADE, related_name="+"
+class JournalFilterSet(models.Model):
+    owner = models.ForeignKey(
+        OwnerAudit, on_delete=models.CASCADE, related_name="ts_filter_set"
     )
-    object_id = models.PositiveIntegerField()
-    filter_object = GenericForeignKey("content_type", "object_id")
-
-    def __str__(self):
-        try:
-            return f"{self.filter_object.name}: {self.filter_object.description}"
-        # pylint: disable=broad-exception-caught
-        except Exception:
-            return f"Error: {self.content_type.app_label}:{self.content_type} {self.object_id} Not Found"
-
-
-class FilterBase(models.Model):
-    """Base Filter Model"""
-
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=255)
-
-    class Meta:
-        default_permissions = ()
-        abstract = True
-
-    def __str__(self):
-        return f"{self.name}: {self.description}"
-
-    def filter(self):
-        raise NotImplementedError("Please Create a filter!")
-
-    def filter_containts(self):
-        raise NotImplementedError("Please Create a contains filter!")
-
-
-class FilterAmount(FilterBase):
-    """Filter for Amount"""
-
-    class Meta:
-        default_permissions = ()
-        verbose_name = _("Filter Amount")
-        verbose_name_plural = _("Filter Amounts")
-
-    amount = models.DecimalField(max_digits=12, decimal_places=0)
-
-    def filter(self):
-        return {"amount": self.amount}
-
-    def filter_containts(self):
-        return {"amount__gte": self.amount}
-
-
-class FilterReason(FilterBase):
-    """Filter for Reason"""
-
-    class Meta:
-        default_permissions = ()
-        verbose_name = _("Filter Reason")
-        verbose_name_plural = _("Filter Reasons")
-
-    reason = models.CharField(max_length=255)
-
-    def filter(self):
-        return {"reason": self.reason}
-
-    def filter_containts(self):
-        return {"reason__contains": self.reason}
-
-
-class FilterDate(FilterBase):
-    """Filter for Date"""
-
-    class Meta:
-        default_permissions = ()
-        verbose_name = _("Filter Date")
-        verbose_name_plural = _("Filter Dates")
-
-    date = models.DateTimeField()
-
-    def filter(self):
-        return {"date": self.date}
-
-    def filter_containts(self):
-        return {"date__gte": self.date}
-
-
-class SmartGroup(models.Model):
-    """Model to hold a group of filters"""
-
-    class Meta:
-        default_permissions = ()
-
-    owner = models.OneToOneField(
-        OwnerAudit, on_delete=models.CASCADE, related_name="ts_filter_sets"
-    )
-    description = models.CharField(max_length=255)
-    name = models.CharField(max_length=100)
-    filters = models.ManyToManyField(SmartFilter)
-    last_update = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=255, blank=True)
     enabled = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.name
+
+    @property
+    def is_active(self) -> bool:
+        return self.enabled
+
+    @property
+    def is_active_html(self) -> mark_safe:
+        if self.enabled:
+            return mark_safe('<i class="fa-solid fa-check"></i>')
+        return mark_safe('<i class="fa-solid fa-times"></i>')
+
     def filter(self, payments: Payments) -> models.QuerySet[Payments]:
-        if self.enabled is True:
-            q_objects = Q()
-            for smart_filter in self.filters.all():
-                q_objects &= Q(**smart_filter.filter_object.filter())
-            payments = payments.filter(q_objects)
-        return payments
+        if self.is_active:
+            for f in self.ts_filters.all():
+                payments = f.apply_filter(payments)
+            return payments
+        return Payments.objects.none()
 
-    def filter_containts(self, payments: Payments) -> models.QuerySet[Payments]:
-        if self.enabled is True:
-            q_objects = Q()
-            for smart_filter in self.filters.all():
-                q_objects |= Q(**smart_filter.filter_object.filter_containts())
-            payments = payments.filter(q_objects)
-        return payments
+    def filter_contains(
+        self, payments: Payments
+    ) -> models.QuerySet[Payments]:  # not implemented yet
+        if self.is_active:
+            for f in self.ts_filters.all():
+                payments = f.apply_contains(payments)
+            return payments
+        return Payments.objects.none()
 
-    def display_filters(self):
-        return ", ".join([str(f) for f in self.filters.all()])
+    class Meta:
+        verbose_name = _("Journal Filter Set")
+        verbose_name_plural = _("Journal Filter Sets")
+        default_permissions = ()
 
-    display_filters.short_description = "Filters"
+
+class JournalFilter(models.Model):
+    class FilterType(models.TextChoices):
+        REASON = "reason", _("Reason")
+        AMOUNT = "amount", _("Amount")
+
+    filter_set = models.ForeignKey(
+        JournalFilterSet, on_delete=models.CASCADE, related_name="ts_filters"
+    )
+    filter_type = models.CharField(max_length=20, choices=FilterType.choices)
+    value = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.name}: {self.description}"
+        return f"{self.filter_type}: {self.value}"
+
+    def apply_filter(
+        self, qs: QuerySet[CorporationWalletJournalEntry]
+    ) -> QuerySet[CorporationWalletJournalEntry]:
+        if self.filter_type == JournalFilter.FilterType.REASON:
+            return qs.filter(reason=self.value)
+        if self.filter_type == JournalFilter.FilterType.AMOUNT:
+            return qs.filter(amount=self.value)
+        # weitere Felder
+        return qs
+
+    def apply_contains(
+        self, qs: QuerySet[CorporationWalletJournalEntry]
+    ) -> QuerySet[CorporationWalletJournalEntry]:
+        if self.filter_type == JournalFilter.FilterType.REASON:
+            return qs.filter(reason__icontains=self.value)
+        if self.filter_type == JournalFilter.FilterType.AMOUNT:
+            return qs.filter(amount__gte=self.value)
+        # weitere Felder
+        return qs
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["filter_set", "value"], name="unique_filter_value_per_set"
+            )
+        ]
+        default_permissions = ()

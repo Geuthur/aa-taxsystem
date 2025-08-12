@@ -11,7 +11,6 @@ from allianceauth import hooks
 from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA TaxSystem
-from taxsystem.models.filters import FilterAmount, FilterReason
 from taxsystem.models.tax import PaymentSystem
 
 from . import app_settings, urls
@@ -53,8 +52,3 @@ def register_urls():
     """Register app urls"""
 
     return UrlHook(urls, "taxsystem", r"^taxsystem/")
-
-
-@hooks.register("taxsystem_filters")
-def filters():
-    return [FilterAmount, FilterReason]

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.0] - XX.XX.XXXX - IN DEVELOPMENT
+
+### Removed
+
+- Smart Filter, Smart Group
+
+### Added
+
+- Filter System
+  - Add Filter
+  - Add Filter Set
+  - Filter Modal
+- Payments Manager Test
+
+### Chaned
+
+- Add Filter Menu to Administration
+
 ## [0.6.3] - 01.08.2025
 
 ### Changed

@@ -5,6 +5,9 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+# AA TaxSystem
+from taxsystem.models.filters import JournalFilter, JournalFilterSet
+
 
 def get_mandatory_form_label_text(text: str) -> str:
     """Label text for mandatory form fields"""
@@ -47,7 +50,7 @@ class TaxUndoForm(forms.Form):
 
 
 class TaxDeleteForm(forms.Form):
-    """Form for accepting."""
+    """Form for deleting."""
 
     delete_reason = forms.CharField(
         required=False,
@@ -56,7 +59,57 @@ class TaxDeleteForm(forms.Form):
     )
 
 
+class FilterDeleteForm(forms.Form):
+    """Form for deleting."""
+
+    filter = forms.HiddenInput()
+
+
 class TaxSwitchUserForm(forms.Form):
     """Form for switching user."""
 
     user = forms.HiddenInput()
+
+
+class AddJournalFilterForm(forms.Form):
+    filter_set = forms.ModelChoiceField(
+        queryset=None,
+        label=_("Filter Set"),
+        required=True,
+    )
+    filter_type = forms.ChoiceField(
+        choices=JournalFilter.FilterType.choices,
+        label=_("Filter Type"),
+        required=True,
+    )
+    value = forms.CharField(
+        label=_("Filter Value"),
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": _("Enter filter value")}),
+    )
+
+    def __init__(self, *args, queryset=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if queryset is not None:
+            self.fields["filter_set"].queryset = queryset
+
+
+class CreateFilterSetForm(forms.Form):
+    name = forms.CharField(
+        label=_("Filter Set Name"),
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": _("Enter filter set name")}),
+    )
+    description = forms.CharField(
+        label=_("Filter Set Description"),
+        required=False,
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Enter filter set description"), "rows": 3}
+        ),
+    )
+
+
+class EditFilterSetForm(forms.ModelForm):
+    class Meta:
+        model = JournalFilterSet
+        fields = ["name", "description"]
