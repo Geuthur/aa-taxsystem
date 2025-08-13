@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from taxsystem.api.helpers import get_manage_corporation
 from taxsystem.api.taxsystem.helpers.administration import _delete_member
 from taxsystem.api.taxsystem.helpers.filters import _filter_actions
+from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
     _payment_system_actions,
     _payments_info,
@@ -27,7 +28,7 @@ from taxsystem.api.taxsystem.helpers.statistics import (
 from taxsystem.helpers import lazy
 from taxsystem.models.filters import JournalFilter
 from taxsystem.models.logs import AdminLogs
-from taxsystem.models.tax import Members, PaymentSystem
+from taxsystem.models.tax import Members, Payments, PaymentSystem
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
@@ -233,6 +234,84 @@ class AdminApiEndpoints:
             output.append({"logs": logs_dict})
 
             return output
+
+        @api.get(
+            "corporation/{corporation_id}/character/{character_id}/view/payments/",
+            response={200: list, 403: str, 404: str},
+            tags=self.tags,
+        )
+        def get_main_character_payments(
+            request, corporation_id: int, character_id: int
+        ):
+            owner, perms = get_manage_corporation(request, corporation_id)
+
+            if owner is None:
+                return 404, "Corporation Not Found"
+
+            if perms is False:
+                return 403, "Permission Denied"
+
+            payments = Payments.objects.filter(
+                account__owner=owner,
+                account__user__profile__main_character__character_id=character_id,
+            )
+
+            if not payments:
+                return 404, "No Payments Found"
+
+            # Create a dict for the character
+            payments_char_dict = {
+                "title": "Payments for",
+                "character_id": character_id,
+                "character_portrait": lazy.get_character_portrait_url(
+                    character_id, size=32, as_html=True
+                ),
+                "character_name": payments[0].account.name,
+            }
+
+            # Create a dict for each payment
+            payments_dict = {}
+            for payment in payments:
+                try:
+                    character_id = (
+                        payment.account.user.profile.main_character.character_id
+                    )
+                    portrait = lazy.get_character_portrait_url(
+                        character_id, size=32, as_html=True
+                    )
+                except AttributeError:
+                    portrait = ""
+
+                actions = _payments_actions(corporation_id, payment, perms, request)
+                amount = f"{intcomma(payment.amount, use_l10n=True)} ISK"
+
+                payments_dict[payment.pk] = {
+                    "payment_id": payment.pk,
+                    "character_portrait": portrait,
+                    "character_name": payment.account.name,
+                    "payment_date": payment.formatted_payment_date,
+                    "amount": amount,
+                    "request_status": payment.get_request_status_display(),
+                    "reviser": payment.reviser,
+                    "division": payment.division,
+                    "reason": payment.reason,
+                    "actions": actions,
+                }
+
+            # Add payments to the character dict
+            payments_char_dict["payments"] = payments_dict
+
+            context = {
+                "entity_pk": corporation_id,
+                "entity_type": "character",
+                "character": payments_char_dict,
+            }
+
+            return render(
+                request,
+                "taxsystem/modals/view_character_payments.html",
+                context,
+            )
 
         @api.get(
             "corporation/{corporation_id}/filter_set/{filter_set_id}/view/filter/",
