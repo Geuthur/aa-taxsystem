@@ -62,6 +62,12 @@ class TaxDeleteForm(forms.Form):
 class FilterDeleteForm(forms.Form):
     """Form for deleting."""
 
+    delete_reason = forms.CharField(
+        required=False,
+        label=_("Comment") + " (optional)",
+        widget=forms.Textarea(attrs={"rows": 5}),
+    )
+
     filter = forms.HiddenInput()
 
 

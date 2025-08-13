@@ -30,7 +30,7 @@ urlpatterns = [
     ),
     path(
         "corporation/<int:corporation_id>/view/filters/",
-        views.manage_filters,
+        views.manage_filter,
         name="manage_filter",
     ),
     path("corporation/<int:corporation_id>/view/faq/", views.faq, name="faq"),
@@ -74,8 +74,8 @@ urlpatterns = [
     # -- Tax Manage Filters
     path(
         "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/deactivate/",
-        views.deactivate_filterset,
-        name="deactivate_filterset",
+        views.switch_filterset,
+        name="switch_filterset",
     ),
     path(
         "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/edit/",

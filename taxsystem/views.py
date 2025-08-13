@@ -94,7 +94,7 @@ def administration(request: WSGIRequest, corporation_id: int):
 
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
-def manage_filters(request: WSGIRequest, corporation_id: int):
+def manage_filter(request: WSGIRequest, corporation_id: int):
     """Manage View"""
     owner, perms = get_manage_corporation(request, corporation_id)
 
@@ -102,19 +102,18 @@ def manage_filters(request: WSGIRequest, corporation_id: int):
     context = {
         "corporation_id": corporation_id,
         "filter_sets": filter_sets,
-        "title": _("Filters"),
+        "title": _("Manage Filters"),
         "forms": {
             "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
             "filter_set": forms.CreateFilterSetForm(),
             "delete_request": forms.TaxDeleteForm(),
         },
     }
-
     if perms is False:
         messages.error(
             request, _("You do not have permission to manage this corporation.")
         )
-        return redirect("taxsystem:index", corporation_id=corporation_id)
+        return redirect("taxsystem:index")
 
     with transaction.atomic():
         form_add = forms.AddJournalFilterForm(
@@ -174,7 +173,7 @@ def manage_filters(request: WSGIRequest, corporation_id: int):
 
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
-def deactivate_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int):
+def switch_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int):
     """Deactivate Filter Set View"""
     owner, perms = get_manage_corporation(request, corporation_id)
 
@@ -182,7 +181,7 @@ def deactivate_filterset(request: WSGIRequest, corporation_id: int, filter_set_i
         messages.error(
             request, _("You do not have permission to manage this corporation.")
         )
-        return redirect("taxsystem:index", corporation_id=corporation_id)
+        return redirect("taxsystem:index")
 
     filter_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
     filter_sets = owner.ts_filter_set.all()
@@ -201,7 +200,9 @@ def deactivate_filterset(request: WSGIRequest, corporation_id: int, filter_set_i
     }
     context = add_info_to_context(request, context)
 
-    messages.success(request, _("Filter set deactivated successfully."))
+    messages.success(
+        request, _(f"Filter set switched to {filter_set.enabled} successfully.")
+    )
     return redirect("taxsystem:manage_filter", corporation_id=corporation_id)
 
 
@@ -215,7 +216,7 @@ def delete_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: i
         messages.error(
             request, _("You do not have permission to manage this corporation.")
         )
-        return redirect("taxsystem:index", corporation_id=corporation_id)
+        return redirect("taxsystem:index")
 
     filter_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
     filter_sets = owner.ts_filter_set.all()
@@ -263,9 +264,8 @@ def delete_filter(request: WSGIRequest, corporation_id: int, filter_pk: int):
         filter_obj = JournalFilter.objects.get(filter_set__owner=corp, pk=filter_pk)
         if filter_obj:
             msg = _(
-                f"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} deleted"
+                f"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} deleted - {form.cleaned_data['delete_reason']}"
             )
-            msg += f" - {form.cleaned_data['delete_reason']}"
             filter_obj.delete()
             AdminLogs(
                 user=request.user,
@@ -289,7 +289,7 @@ def edit_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int
         messages.error(
             request, _("You do not have permission to manage this corporation.")
         )
-        return redirect("taxsystem:index", corporation_id=corporation_id)
+        return redirect("taxsystem:index")
 
     edit_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
     filter_sets = owner.ts_filter_set.all()
@@ -734,8 +734,7 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
         reason = form.cleaned_data["delete_reason"]
         member = Members.objects.get(owner=corp, pk=member_pk)
         if member.is_missing:
-            msg = _(f"Member {member.character_name} deleted")
-            msg += f" - {reason}"
+            msg = _(f"Member {member.character_name} deleted - {reason}")
             member.delete()
             AdminLogs(
                 user=request.user,
