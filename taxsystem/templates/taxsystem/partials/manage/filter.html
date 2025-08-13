@@ -25,7 +25,7 @@
                     <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-tooltip-toggle="taxsystem-tooltip" data-bs-target="#modalViewFilterContainer" data-ajax_filter="{% url 'taxsystem:api:get_filter_set_filters' corporation_id=corporation_id filter_set_id=filter.id %}" title="{% translate 'Info' %}">
                         <i class="fa-solid fa-info"></i>
                     </a>
-                    <a href="{% url 'taxsystem:deactivate_filterset' corporation_id=corporation_id filter_set_id=filter.id %}" class="btn btn-sm btn-warning" title="{% translate 'Deactivate' %}">
+                    <a href="{% url 'taxsystem:switch_filterset' corporation_id=corporation_id filter_set_id=filter.id %}" class="btn btn-sm btn-warning" title="{% translate 'Deactivate' %}">
                         <i class="fa-solid fa-{% if filter.is_active %}eye-low-vision{% else %}eye{% endif %}"></i>
                     </a>
                     <a href="{% url 'taxsystem:delete_filterset' corporation_id=corporation_id filter_set_id=filter.id %}" class="btn btn-sm btn-danger" title="{% translate 'Delete' %}">
