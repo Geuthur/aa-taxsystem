@@ -100,9 +100,9 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_members(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
@@ -110,7 +110,7 @@ class AdminApiEndpoints:
 
             corporation_dict = {}
 
-            members = Members.objects.filter(owner=corp)
+            members = Members.objects.filter(owner=owner)
 
             for member in members:
                 actions = _delete_member(
@@ -143,9 +143,9 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_paymentsystem(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
@@ -153,7 +153,7 @@ class AdminApiEndpoints:
 
             payment_system = (
                 PaymentSystem.objects.filter(
-                    owner=corp,
+                    owner=owner,
                     user__profile__main_character__isnull=False,
                 )
                 .exclude(status=PaymentSystem.Status.MISSING)
@@ -209,15 +209,15 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_corporation_admin_logs(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
                 return 403, "Permission Denied"
 
-            logs = AdminLogs.objects.filter(owner=corp).order_by("-date")
+            logs = AdminLogs.objects.filter(owner=owner).order_by("-date")
 
             logs_dict = {}
 

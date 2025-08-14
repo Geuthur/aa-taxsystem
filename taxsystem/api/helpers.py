@@ -14,7 +14,7 @@ def get_manage_corporation(request, corporation_id) -> tuple[OwnerAudit | None, 
     try:
         corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
     except OwnerAudit.DoesNotExist:
-        return None
+        return None, None
 
     visible = OwnerAudit.objects.visible_to(request.user)
     if corp not in visible:

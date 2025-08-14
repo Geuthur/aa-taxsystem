@@ -349,10 +349,14 @@ def own_payments(request: WSGIRequest, corporation_id=None):
     if corporation_id is None:
         corporation_id = request.user.profile.main_character.corporation_id
 
-    perms = get_manage_corporation(request, corporation_id)
+    corporations, perms = get_manage_corporation(request, corporation_id)
 
-    if perms is None:
+    if corporations is None:
         messages.error(request, _("No corporation found."))
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
 
     corporations = OwnerAudit.objects.visible_to(request.user)
 
