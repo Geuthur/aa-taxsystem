@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.7.0] - XX.XX.XXXX - IN DEVELOPMENT
+## [0.7.0] - 22.08.2025
 
 ### Removed
 
