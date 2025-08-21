@@ -33,6 +33,9 @@ class CorporationApiEndpoints:
             if owner is None:
                 return 404, "Corporation Not Found"
 
+            if perms is False:
+                return 404, "Permission Denied"
+
             payments = Payments.objects.filter(account__owner=owner)
 
             payments_dict = {}

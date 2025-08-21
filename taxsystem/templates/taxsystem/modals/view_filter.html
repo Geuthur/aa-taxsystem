@@ -1,0 +1,60 @@
+
+{% load i18n %}
+{% load static %}
+
+{% if filters %}
+    <h4 class="d-none" id="modal-title">
+        {% with first_filter=filters.0 %}
+            {{ first_filter.filter_set.name }} - {% translate "Filter Set" %}
+        {% endwith %}
+    </h4>
+    <header class="card-header bg-primary rounded-top">
+        <h3 class="me-3">{% trans "Filters" %}</h3>
+    </header>
+    <input type="hidden" id="modal-hidden-url" value="">
+    <div class="card-body bg-secondary rounded-bottom mb-3">
+        <table class="table table-dark table-striped table-hover w-100" id="filter">
+            <thead>
+                <tr>
+                    <th scope="col">{% translate "Filter Type" %}</th>
+                    <th scope="col">{% translate "Filter Value" %}</th>
+                    <th scope="col">{% translate "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody class="modal-payments-table-body">
+                {% for filter_obj in filters %}
+                    <tr>
+                        <td>{{ filter_obj.filter_type }}</td>
+                        <td>{{ filter_obj.value }}</td>
+                        <td>{{ filter_obj.actions }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(() => {
+            const filterTableVar = $('#filter');
+
+            const tableFilter = filterTableVar.DataTable({
+                "order": [[ 0, "desc" ]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 2 }
+                ]
+            });
+
+            tableFilter.on('draw', function () {
+                $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
+                    trigger: 'hover',
+                });
+            });
+
+            // Tooltip
+            $('[data-tooltip-toggle="taxsystem-tooltip"]').tooltip({
+                trigger: 'hover',
+            });
+        });
+    </script>
+{% else %}
+    {% translate "No Filter found." %}
+{% endif %}

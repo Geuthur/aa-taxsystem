@@ -23,8 +23,13 @@ from esi.decorators import token_required
 
 # AA TaxSystem
 from taxsystem import forms, tasks
-from taxsystem.api.helpers import get_corporation, get_manage_permission
+from taxsystem.api.helpers import (
+    get_corporation,
+    get_manage_corporation,
+    get_manage_permission,
+)
 from taxsystem.helpers.views import add_info_to_context
+from taxsystem.models.filters import JournalFilter, JournalFilterSet
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
 
@@ -33,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def index(request):
+def index(request: WSGIRequest):
     """Index View"""
     return redirect(
         "taxsystem:payments", request.user.profile.main_character.corporation_id
@@ -42,7 +47,7 @@ def index(request):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def admin(request):
+def admin(request: WSGIRequest):
     corporation_id = request.user.profile.main_character.corporation_id
     if not request.user.is_superuser:
         messages.error(request, _("You do not have permission to access this page."))
@@ -69,11 +74,8 @@ def admin(request):
 
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
-def administration(request, corporation_id):
+def administration(request: WSGIRequest, corporation_id: int):
     """Manage View"""
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
-
     context = {
         "corporation_id": corporation_id,
         "title": _("Administration"),
@@ -91,12 +93,233 @@ def administration(request, corporation_id):
 
 
 @login_required
-@permission_required("taxsystem.basic_access")
-def payments(request, corporation_id):
-    """Payments View"""
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+def manage_filter(request: WSGIRequest, corporation_id: int):
+    """Manage View"""
+    owner, perms = get_manage_corporation(request, corporation_id)
 
+    filter_sets = owner.ts_filter_set.all()
+    context = {
+        "corporation_id": corporation_id,
+        "filter_sets": filter_sets,
+        "title": _("Manage Filters"),
+        "forms": {
+            "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
+            "filter_set": forms.CreateFilterSetForm(),
+            "delete_request": forms.TaxDeleteForm(),
+        },
+    }
+    if perms is False:
+        messages.error(
+            request, _("You do not have permission to manage this corporation.")
+        )
+        return redirect("taxsystem:index")
+
+    with transaction.atomic():
+        form_add = forms.AddJournalFilterForm(
+            data=request.POST, queryset=owner.ts_filter_set.all()
+        )
+        form_set = forms.CreateFilterSetForm(data=request.POST)
+
+        if form_add.is_valid():
+            queryset = form_add.cleaned_data["filter_set"]
+            filter_type = form_add.cleaned_data["filter_type"]
+            value = form_add.cleaned_data["value"]
+            try:
+                JournalFilter.objects.create(
+                    filter_set=queryset,
+                    filter_type=filter_type,
+                    value=value,
+                )
+            except IntegrityError:
+                messages.error(request, _("A filter with this name already exists."))
+                return redirect(
+                    "taxsystem:manage_filter", corporation_id=corporation_id
+                )
+            except Exception as e:  # pylint: disable=broad-except
+                messages.error(
+                    request, _("Something went wrong, please try again later.")
+                )
+                logger.error("Error creating journal filter: %s", e)
+                return redirect(
+                    "taxsystem:manage_filter", corporation_id=corporation_id
+                )
+
+        if form_set.is_valid():
+            name = form_set.cleaned_data["name"]
+            description = form_set.cleaned_data["description"]
+            try:
+                JournalFilterSet.objects.create(
+                    owner=owner,
+                    name=name,
+                    description=description,
+                )
+            except IntegrityError:
+                messages.error(
+                    request, _("A filter set with this name already exists.")
+                )
+                return redirect(
+                    "taxsystem:manage_filter", corporation_id=corporation_id
+                )
+            except Exception as e:  # pylint: disable=broad-except
+                messages.error(
+                    request, _("Something went wrong, please try again later.")
+                )
+                logger.error("Error creating journal filter set: %s", e)
+                return render(request, "taxsystem/manage-filter.html", context=context)
+
+    return render(request, "taxsystem/manage-filter.html", context=context)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+def switch_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int):
+    """Deactivate Filter Set View"""
+    owner, perms = get_manage_corporation(request, corporation_id)
+
+    if perms is False:
+        messages.error(
+            request, _("You do not have permission to manage this corporation.")
+        )
+        return redirect("taxsystem:index")
+
+    filter_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
+    filter_sets = owner.ts_filter_set.all()
+
+    filter_set.enabled = not filter_set.enabled
+    filter_set.save()
+
+    context = {
+        "corporation_id": corporation_id,
+        "filter_sets": filter_sets,
+        "forms": {
+            "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
+            "filter_set": forms.CreateFilterSetForm(),
+        },
+        "title": _("Deactivate Filter Set"),
+    }
+    context = add_info_to_context(request, context)
+
+    messages.success(
+        request, _(f"Filter set switched to {filter_set.enabled} successfully.")
+    )
+    return redirect("taxsystem:manage_filter", corporation_id=corporation_id)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+def delete_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int):
+    """Delete Filter Set View"""
+    owner, perms = get_manage_corporation(request, corporation_id)
+
+    if perms is False:
+        messages.error(
+            request, _("You do not have permission to manage this corporation.")
+        )
+        return redirect("taxsystem:index")
+
+    filter_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
+    filter_sets = owner.ts_filter_set.all()
+
+    filter_set.delete()
+    msg = _(f"{filter_set.name} from {owner.name} deleted")
+    AdminLogs(
+        user=request.user,
+        owner=owner,
+        action=AdminLogs.Actions.DELETE,
+        comment=msg,
+    ).save()
+    messages.success(request, _("Filter set deleted successfully."))
+
+    context = {
+        "corporation_id": corporation_id,
+        "filter_sets": filter_sets,
+        "forms": {
+            "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
+            "filter_set": forms.CreateFilterSetForm(),
+        },
+        "title": _("Delete Filter Set"),
+    }
+    context = add_info_to_context(request, context)
+
+    return redirect("taxsystem:manage_filter", corporation_id=corporation_id)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+@require_POST
+def delete_filter(request: WSGIRequest, corporation_id: int, filter_pk: int):
+    msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
+
+    perms = get_manage_permission(request, corporation_id)
+    if not perms:
+        msg = _("Permission Denied")
+        return JsonResponse(
+            data={"success": False, "message": msg}, status=403, safe=False
+        )
+
+    form = forms.FilterDeleteForm(data=request.POST)
+    if form.is_valid():
+        filter_obj = JournalFilter.objects.get(filter_set__owner=corp, pk=filter_pk)
+        if filter_obj:
+            msg = _(
+                f"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} deleted - {form.cleaned_data['delete_reason']}"
+            )
+            filter_obj.delete()
+            AdminLogs(
+                user=request.user,
+                owner=corp,
+                action=AdminLogs.Actions.DELETE,
+                comment=msg,
+            ).save()
+            return JsonResponse(
+                data={"success": True, "message": msg}, status=200, safe=False
+            )
+    return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+def edit_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int):
+    """Edit Filter Set View"""
+    owner, perms = get_manage_corporation(request, corporation_id)
+
+    if perms is False:
+        messages.error(
+            request, _("You do not have permission to manage this corporation.")
+        )
+        return redirect("taxsystem:index")
+
+    edit_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
+    filter_sets = owner.ts_filter_set.all()
+
+    if request.method == "POST":
+        form = forms.EditFilterSetForm(request.POST, instance=edit_set)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Filter set updated successfully."))
+            return redirect("taxsystem:manage_filter", corporation_id=corporation_id)
+    else:
+        form = forms.EditFilterSetForm(instance=edit_set)
+
+    context = {
+        "corporation_id": corporation_id,
+        "filter_sets": filter_sets,
+        "forms": {
+            "edit_filter_set": form,
+        },
+        "title": _("Edit Filter Set"),
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/manage-filter.html", context=context)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def payments(request: WSGIRequest, corporation_id: int):
+    """Payments View"""
     perms = get_corporation(request, corporation_id)
 
     if perms is None:
@@ -121,15 +344,19 @@ def payments(request, corporation_id):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def own_payments(request, corporation_id=None):
+def own_payments(request: WSGIRequest, corporation_id=None):
     """Own Payments View"""
     if corporation_id is None:
         corporation_id = request.user.profile.main_character.corporation_id
 
-    perms = get_corporation(request, corporation_id)
+    corporations, perms = get_manage_corporation(request, corporation_id)
 
-    if perms is None:
+    if corporations is None:
         messages.error(request, _("No corporation found."))
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
 
     corporations = OwnerAudit.objects.visible_to(request.user)
 
@@ -145,11 +372,8 @@ def own_payments(request, corporation_id=None):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def faq(request, corporation_id):
+def faq(request: WSGIRequest, corporation_id: int):
     """Payments View"""
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
-
     corporations = OwnerAudit.objects.visible_to(request.user)
 
     context = {
@@ -164,12 +388,9 @@ def faq(request, corporation_id):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def account(request, corporation_id):
+def account(request: WSGIRequest, corporation_id: int):
     """Payments View"""
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
     character_id = request.user.profile.main_character.character_id
-
     corporations = OwnerAudit.objects.visible_to(request.user)
 
     perms = get_corporation(request, corporation_id)
@@ -517,8 +738,7 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
         reason = form.cleaned_data["delete_reason"]
         member = Members.objects.get(owner=corp, pk=member_pk)
         if member.is_missing:
-            msg = _(f"Member {member.character_name} deleted")
-            msg += f" - {reason}"
+            msg = _(f"Member {member.character_name} deleted - {reason}")
             member.delete()
             AdminLogs(
                 user=request.user,

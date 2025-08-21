@@ -46,7 +46,7 @@ class PaymentSystemManagerBase(models.Manager):
         """Update or Create payment system entries from objs data."""
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
-        from taxsystem.models.filters import SmartGroup
+        from taxsystem.models.filters import JournalFilterSet
         from taxsystem.models.logs import PaymentHistory
         from taxsystem.models.tax import Payments
 
@@ -64,9 +64,9 @@ class PaymentSystemManagerBase(models.Manager):
 
         # Check for any automatic payments
         try:
-            smartgroup_obj = SmartGroup.objects.get(owner=owner)
-            if smartgroup_obj:
-                payments = smartgroup_obj.filter(payments)
+            filters_obj = JournalFilterSet.objects.filter(owner=owner)
+            for filter_obj in filters_obj:
+                payments = filter_obj.filter(payments)
                 for payment in payments:
                     if payment.request_status == Payments.RequestStatus.PENDING:
                         # Ensure all transfers are processed in a single transaction
@@ -91,7 +91,7 @@ class PaymentSystemManagerBase(models.Manager):
 
                             runs = runs + 1
                             _automatic_payment_ids.append(payment.pk)
-        except SmartGroup.DoesNotExist:
+        except JournalFilterSet.DoesNotExist:
             pass
 
         # Check for any payments that need approval

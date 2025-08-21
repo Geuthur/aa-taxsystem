@@ -8,7 +8,6 @@ from django.utils.html import format_html
 from allianceauth.eveonline.evelinks import eveimageserver
 
 # AA TaxSystem
-from taxsystem.models.filters import FilterAmount, FilterReason, SmartFilter, SmartGroup
 from taxsystem.models.tax import OwnerAudit
 
 
@@ -61,34 +60,3 @@ class OwnerAuditAdmin(admin.ModelAdmin):
     # pylint: disable=unused-argument
     def has_change_permission(self, request, obj=None):
         return False
-
-
-@admin.register(FilterAmount)
-class FilterAmountAdmin(admin.ModelAdmin):
-    list_display = ("name", "description", "amount")
-
-
-@admin.register(FilterReason)
-class FilterReasonAdmin(admin.ModelAdmin):
-    list_display = ("name", "description", "reason")
-
-
-@admin.register(SmartFilter)
-class SmartfilterAdmin(admin.ModelAdmin):
-    # pylint: disable=unused-argument
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    list_display = ["__str__"]
-
-
-@admin.register(SmartGroup)
-class SmartGroupAdmin(admin.ModelAdmin):
-    filter_horizontal = ["filters"]
-    list_display = [
-        "__str__",
-        "enabled",
-        "display_filters",
-        "last_update",
-        "owner",
-    ]

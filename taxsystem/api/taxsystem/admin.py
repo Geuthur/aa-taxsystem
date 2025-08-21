@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 # AA TaxSystem
 from taxsystem.api.helpers import get_manage_corporation
 from taxsystem.api.taxsystem.helpers.administration import _delete_member
+from taxsystem.api.taxsystem.helpers.filters import _filter_actions
 from taxsystem.api.taxsystem.helpers.payments import _payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
     _payment_system_actions,
@@ -25,6 +26,7 @@ from taxsystem.api.taxsystem.helpers.statistics import (
     _get_statistics_dict,
 )
 from taxsystem.helpers import lazy
+from taxsystem.models.filters import JournalFilter
 from taxsystem.models.logs import AdminLogs
 from taxsystem.models.tax import Members, Payments, PaymentSystem
 from taxsystem.models.wallet import (
@@ -98,9 +100,9 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_members(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
@@ -108,7 +110,7 @@ class AdminApiEndpoints:
 
             corporation_dict = {}
 
-            members = Members.objects.filter(owner=corp)
+            members = Members.objects.filter(owner=owner)
 
             for member in members:
                 actions = _delete_member(
@@ -141,9 +143,9 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_paymentsystem(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
@@ -151,7 +153,7 @@ class AdminApiEndpoints:
 
             payment_system = (
                 PaymentSystem.objects.filter(
-                    owner=corp,
+                    owner=owner,
                     user__profile__main_character__isnull=False,
                 )
                 .exclude(status=PaymentSystem.Status.MISSING)
@@ -207,15 +209,15 @@ class AdminApiEndpoints:
             tags=self.tags,
         )
         def get_corporation_admin_logs(request, corporation_id: int):
-            corp, perms = get_manage_corporation(request, corporation_id)
+            owner, perms = get_manage_corporation(request, corporation_id)
 
-            if corp is None:
+            if owner is None:
                 return 404, "Corporation Not Found"
 
             if perms is False:
                 return 403, "Permission Denied"
 
-            logs = AdminLogs.objects.filter(owner=corp).order_by("-date")
+            logs = AdminLogs.objects.filter(owner=owner).order_by("-date")
 
             logs_dict = {}
 
@@ -309,4 +311,52 @@ class AdminApiEndpoints:
                 request,
                 "taxsystem/modals/view_character_payments.html",
                 context,
+            )
+
+        @api.get(
+            "corporation/{corporation_id}/filter_set/{filter_set_id}/view/filter/",
+            response={200: list, 403: str, 404: str},
+            tags=self.tags,
+        )
+        def get_filter_set_filters(request, corporation_id: int, filter_set_id: int):
+            owner, perms = get_manage_corporation(request, corporation_id)
+
+            if owner is None:
+                return 404, "Corporation Not Found"
+
+            if perms is False:
+                return 403, "Permission Denied"
+
+            filters = JournalFilter.objects.filter(
+                filter_set__pk=filter_set_id,
+            )
+
+            output = []
+
+            for filter_obj in filters:
+                if filter_obj.filter_type == JournalFilter.FilterType.AMOUNT:
+                    value = f"{intcomma(filter_obj.value)} ISK"
+                else:
+                    value = filter_obj.value
+
+                filter_dict = {
+                    "id": filter_obj.pk,
+                    "filter_set": filter_obj.filter_set,
+                    "filter_type": filter_obj.get_filter_type_display(),
+                    "value": value,
+                    "actions": _filter_actions(
+                        corporation_id=corporation_id,
+                        filter_obj=filter_obj,
+                        perms=perms,
+                        request=request,
+                    ),
+                }
+                output.append(filter_dict)
+
+            return render(
+                request,
+                "taxsystem/modals/view_filter.html",
+                context={
+                    "filters": output,
+                },
             )

@@ -241,3 +241,21 @@ class TestViewAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Account")
+
+    def test_view_manage_filters(self):
+        """Test view manage filters."""
+        # given
+        self.superuser.is_superuser = True
+        self.superuser.save()
+        request = self.factory.get(
+            reverse(
+                "taxsystem:manage_filter",
+                args=[2001],
+            )
+        )
+        request.user = self.superuser
+        # when
+        response = views.manage_filter(request, corporation_id=2001)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Manage Filters")

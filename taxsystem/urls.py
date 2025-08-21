@@ -28,6 +28,11 @@ urlpatterns = [
         views.administration,
         name="administration",
     ),
+    path(
+        "corporation/<int:corporation_id>/view/filters/",
+        views.manage_filter,
+        name="manage_filter",
+    ),
     path("corporation/<int:corporation_id>/view/faq/", views.faq, name="faq"),
     path(
         "corporation/<int:corporation_id>/view/account/", views.account, name="account"
@@ -65,6 +70,27 @@ urlpatterns = [
         "corporation/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
         views.delete_member,
         name="delete_member",
+    ),
+    # -- Tax Manage Filters
+    path(
+        "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/deactivate/",
+        views.switch_filterset,
+        name="switch_filterset",
+    ),
+    path(
+        "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/edit/",
+        views.edit_filterset,
+        name="edit_filterset",
+    ),
+    path(
+        "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/delete/",
+        views.delete_filterset,
+        name="delete_filterset",
+    ),
+    path(
+        "corporation/<int:corporation_id>/manage/filter/<int:filter_pk>/delete/",
+        views.delete_filter,
+        name="delete_filter",
     ),
     # -- Tax Payment System
     path(

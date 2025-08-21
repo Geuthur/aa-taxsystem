@@ -10,8 +10,15 @@ from taxsystem.models.tax import OwnerAudit, Payments
 
 def get_manage_corporation(request, corporation_id) -> tuple[OwnerAudit | None, bool]:
     """Get Corporation and Permission"""
-    corp = get_corporation(request, corporation_id)
-    perms = get_manage_permission(request, corporation_id)
+    perms = True
+    try:
+        corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
+    except OwnerAudit.DoesNotExist:
+        return None, None
+
+    visible = OwnerAudit.objects.visible_to(request.user)
+    if corp not in visible:
+        perms = False
     return corp, perms
 
 
