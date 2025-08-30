@@ -335,7 +335,7 @@ class AdminApiEndpoints:
 
             for filter_obj in filters:
                 if filter_obj.filter_type == JournalFilter.FilterType.AMOUNT:
-                    value = f"{intcomma(filter_obj.value)} ISK"
+                    value = f"{intcomma(filter_obj.value, use_l10n=True)} ISK"
                 else:
                     value = filter_obj.value
 
