@@ -10,7 +10,7 @@ from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.tests.testdata.esi_stub import esi_client_stub
+from taxsystem.tests.testdata.esi_stub import esi_client_stub_openapi
 from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
 from taxsystem.tests.testdata.generate_walletjournal import (
     create_division,
@@ -24,7 +24,6 @@ MODULE_PATH = "taxsystem.managers.wallet_manager"
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
-@patch(MODULE_PATH + ".etag_results")
 class TestDivisionManager(NoSocketsTestCase):
     """Test Division Manager for Corporation Divisions."""
 
@@ -39,10 +38,9 @@ class TestDivisionManager(NoSocketsTestCase):
         )
         cls.audit = create_owneraudit_from_user(cls.user)
 
-    def test_update_division_names(self, mock_etag, mock_esi):
+    def test_update_division_names(self, mock_esi):
         # given
-        mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
+        mock_esi.client = esi_client_stub_openapi
 
         self.audit.update_division_names(force_refresh=False)
 
@@ -61,10 +59,9 @@ class TestDivisionManager(NoSocketsTestCase):
         )
         self.assertEqual(obj.name, "Partner")
 
-    def test_update_division(self, mock_etag, mock_esi):
+    def test_update_division(self, mock_esi):
         # given
-        mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
+        mock_esi.client = esi_client_stub_openapi
 
         self.audit.update_division(force_refresh=False)
 

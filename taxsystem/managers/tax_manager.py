@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 # Django
 from django.db import models, transaction
 from django.db.models import Case, Count, Q, Value, When
+from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
@@ -17,13 +18,24 @@ from eveuniverse.models import EveEntity
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
 from taxsystem.providers import esi
-from taxsystem.task_helpers.etag_helpers import etag_results
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA TaxSystem
     from taxsystem.models.tax import OwnerAudit
+
+
+class CorporationMemberTrackingContext:
+    """Context for corporation member tracking ESI operations."""
+
+    base_id: int
+    character_id: int
+    location_id: int
+    logoff_date: timezone.datetime
+    logon_date: timezone.datetime
+    ship_type_id: int
+    start_date: timezone.datetime
 
 
 class OwnerAuditQuerySet(models.QuerySet):
@@ -235,41 +247,39 @@ class MembersManagerBase(models.Manager):
         # Check Payment Accounts
         self._check_payment_accounts(owner)
 
-        members_ob = (
-            esi.client.Corporation.get_corporations_corporation_id_membertracking(
-                corporation_id=owner.corporation.corporation_id,
-            )
+        members_ob = esi.client.Corporation.GetCorporationsCorporationIdMembertracking(
+            corporation_id=owner.corporation.corporation_id,
+            token=token,
         )
 
-        members_items = etag_results(members_ob, token, force_refresh=force_refresh)
+        objs, __ = members_ob.results(return_response=True)
 
-        self._update_or_create_objs(
-            owner,
-            members_items,
-        )
+        if force_refresh:
+            pass  # TODO Make new Etag Checker
+
+        self._update_or_create_objs(owner=owner, objs=objs)
 
     @transaction.atomic()
     # pylint: disable=too-many-locals
     def _update_or_create_objs(
         self,
         owner: "OwnerAudit",
-        objs: list,
+        objs: list[CorporationMemberTrackingContext],
     ) -> None:
         """Update or Create Members entries from objs data."""
         _current_members_ids = set(
             self.filter(owner=owner).values_list("character_id", flat=True)
         )
-        _esi_members_ids = [member.get("character_id") for member in objs]
+        _esi_members_ids = [member.character_id for member in objs]
         _old_members = []
         _new_members = []
 
         characters = EveEntity.objects.bulk_resolve_names(_esi_members_ids)
-
         for member in objs:
-            character_id = member.get("character_id")
-            joined = member.get("start_date")
-            logon_date = member.get("logon_date")
-            logged_off = member.get("logoff_date")
+            character_id = member.character_id
+            joined = member.start_date
+            logon_date = member.logon_date
+            logged_off = member.logoff_date
             character_name = characters.to_name(character_id)
             member_item = self.model(
                 owner=owner,

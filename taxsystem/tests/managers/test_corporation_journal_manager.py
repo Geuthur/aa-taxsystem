@@ -10,7 +10,7 @@ from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.tests.testdata.esi_stub import esi_client_stub
+from taxsystem.tests.testdata.esi_stub import esi_client_stub_openapi
 from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
 from taxsystem.tests.testdata.generate_walletjournal import (
     create_division,
@@ -24,7 +24,6 @@ MODULE_PATH = "taxsystem.managers.wallet_manager"
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
-@patch(MODULE_PATH + ".etag_results")
 @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_ids")
 @patch(MODULE_PATH + ".EveEntity.objects.filter")
 class TestWalletManager(NoSocketsTestCase):
@@ -50,12 +49,9 @@ class TestWalletManager(NoSocketsTestCase):
         cls.token = cls.character_ownership.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
-    def test_update_wallet_journal(
-        self, mock_filter, mock_entity_bulk, mock_etag, mock_esi
-    ):
+    def test_update_wallet_journal(self, mock_filter, mock_entity_bulk, mock_esi):
         # given
-        mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()[0]
+        mock_esi.client = esi_client_stub_openapi
         filter_mock = mock_filter.return_value
         filter_mock.count.return_value = 0
 
