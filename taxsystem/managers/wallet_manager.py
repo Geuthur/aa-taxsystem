@@ -15,9 +15,8 @@ from eveuniverse.models import EveEntity
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
-from taxsystem.errors import DatabaseError, NotModifiedError
+from taxsystem.errors import DatabaseError
 from taxsystem.providers import esi
-from taxsystem.task_helpers.etag_helpers import etag_results
 
 if TYPE_CHECKING:
     # AA TaxSystem
@@ -27,6 +26,42 @@ if TYPE_CHECKING:
     )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+
+
+class CorporationJournalContext:
+    """Context for corporation wallet journal ESI operations."""
+
+    amount: float
+    balance: float
+    context_id: int
+    context_id_type: str
+    date: str
+    description: str
+    first_party_id: int
+    id: int
+    reason: str
+    ref_type: str
+    second_party_id: int
+    tax: float
+    tax_receiver_id: int
+
+
+class CorporationDivisionContext:
+    class WalletContext:
+        division: int
+        name: str | None
+
+    class HangerContext:
+        division: int
+        name: str | None
+
+    hanger: list[HangerContext]
+    wallet: list[WalletContext]
+
+
+class CorporationWalletContext:
+    division: int
+    balance: float
 
 
 class CorporationWalletQuerySet(models.QuerySet):
@@ -62,62 +97,32 @@ class CorporationWalletManagerBase(models.Manager):
 
         divisions = CorporationWalletDivision.objects.filter(corporation=owner)
 
-        # Get the count of divisions to track not modified
-        division_count = divisions.count()
-        not_modified = 0
-
         for division in divisions:
-            current_page = 1
-            total_pages = 1
-            while current_page <= total_pages:
-                journal_items_ob = esi.client.Wallet.get_corporations_corporation_id_wallets_division_journal(
+            journal_items_ob = (
+                esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
                     corporation_id=owner.corporation.corporation_id,
                     division=division.division_id,
-                    page=current_page,
-                    token=token.valid_access_token(),
+                    token=token,
                 )
+            )
+            logger.debug(
+                "Fetching Journal Items for %s - Division: %s - Page: %s/%s",
+                owner.corporation.corporation_name,
+                division.division_id,
+            )
 
-                journal_items_ob.request_config.also_return_response = True
-                __, headers = journal_items_ob.result()
+            objs, __ = journal_items_ob.results(return_response=True)
 
-                total_pages = int(headers.headers.get("X-Pages", 1))
+            if force_refresh:
+                pass  # TODO Make new Etag Checker
 
-                logger.debug(
-                    "Fetching Journal Items for %s - Division: %s - Page: %s/%s",
-                    owner.corporation.corporation_name,
-                    division.division_id,
-                    current_page,
-                    total_pages,
-                )
-
-                try:
-                    journal_items = etag_results(
-                        journal_items_ob,
-                        token,
-                        force_refresh=force_refresh,
-                    )
-                except NotModifiedError:
-                    not_modified += 1
-                    logger.debug(
-                        "NotModifiedError: %s - Division: %s - Page: %s",
-                        owner.corporation.corporation_name,
-                        division.division_id,
-                        current_page,
-                    )
-                    current_page += 1
-                    continue
-
-                self._update_or_create_objs(division, journal_items)
-                current_page += 1
-        # Ensure only raise NotModifiedError if all divisions returned NotModified
-        if not_modified == division_count:
-            raise NotModifiedError()
+            self._update_or_create_objs(division=division, objs=objs)
 
     @transaction.atomic()
     def _update_or_create_objs(
         self,
         division: "CorporationWalletDivision",
-        objs: list,
+        objs: list[CorporationJournalContext],
     ) -> None:
         """Update or Create wallet journal entries from objs data."""
         _new_names = []
@@ -134,29 +139,29 @@ class CorporationWalletManagerBase(models.Manager):
 
         items = []
         for item in objs:
-            if item.get("id") not in _current_journal:
-                if item.get("second_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("second_party_id"))
-                    _current_eve_ids.add(item.get("second_party_id"))
-                if item.get("first_party_id") not in _current_eve_ids:
-                    _new_names.append(item.get("first_party_id"))
-                    _current_eve_ids.add(item.get("first_party_id"))
+            if item.id not in _current_journal:
+                if item.second_party_id not in _current_eve_ids:
+                    _new_names.append(item.second_party_id)
+                    _current_eve_ids.add(item.second_party_id)
+                if item.first_party_id not in _current_eve_ids:
+                    _new_names.append(item.first_party_id)
+                    _current_eve_ids.add(item.first_party_id)
 
                 wallet_item = self.model(
                     division=division,
-                    amount=item.get("amount"),
-                    balance=item.get("balance"),
-                    context_id=item.get("context_id"),
-                    context_id_type=item.get("context_id_type"),
-                    date=item.get("date"),
-                    description=item.get("description"),
-                    first_party_id=item.get("first_party_id"),
-                    entry_id=item.get("id"),
-                    reason=item.get("reason"),
-                    ref_type=item.get("ref_type"),
-                    second_party_id=item.get("second_party_id"),
-                    tax=item.get("tax"),
-                    tax_receiver_id=item.get("tax_receiver_id"),
+                    amount=item.amount,
+                    balance=item.balance,
+                    context_id=item.context_id,
+                    context_id_type=item.context_id_type,
+                    date=item.date,
+                    description=item.description,
+                    first_party_id=item.first_party_id,
+                    entry_id=item.id,
+                    reason=item.reason,
+                    ref_type=item.ref_type,
+                    second_party_id=item.second_party_id,
+                    tax=item.tax,
+                    tax_receiver_id=item.tax_receiver_id,
                 )
 
                 items.append(wallet_item)
@@ -217,13 +222,16 @@ class CorporationDivisionManagerBase(models.Manager):
 
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        division_obj = esi.client.Corporation.get_corporations_corporation_id_divisions(
-            corporation_id=owner.corporation.corporation_id,
+        division_obj = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
+            corporation_id=owner.corporation.corporation_id, token=token
         )
 
-        division_names = etag_results(division_obj, token, force_refresh=force_refresh)
+        objs, __ = division_obj.results(return_response=True)
 
-        self._update_or_create_objs_division(owner, division_names)
+        if force_refresh:
+            pass  # TODO Make new Etag Checker
+
+        self._update_or_create_objs_division(owner=owner, objs=objs)
 
     def _fetch_esi_data(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
         """Fetch division entries from ESI data."""
@@ -236,56 +244,56 @@ class CorporationDivisionManagerBase(models.Manager):
 
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        divisions_items_obj = esi.client.Wallet.get_corporations_corporation_id_wallets(
-            corporation_id=owner.corporation.corporation_id
+        divisions_items_obj = esi.client.Wallet.GetCorporationsCorporationIdWallets(
+            corporation_id=owner.corporation.corporation_id, token=token
         )
 
-        division_balances = etag_results(
-            divisions_items_obj, token, force_refresh=force_refresh
-        )
-        self._update_or_create_objs(owner, division_balances)
+        objs, __ = divisions_items_obj.results(return_response=True)
+        if force_refresh:
+            pass  # TODO Make new Etag Checker
+
+        self._update_or_create_objs(owner=owner, objs=objs)
 
     @transaction.atomic()
     def _update_or_create_objs_division(
         self,
         owner: "OwnerAudit",
-        objs: list,
+        objs: list[CorporationDivisionContext],
     ) -> None:
         """Update or Create division entries from objs data."""
-        for division in objs.get("wallet"):
-            if division.get("division") == 1:
-                name = _("Master Wallet")
-            else:
-                name = division.get("name", _("Unknown"))
-
-            obj, created = self.get_or_create(
-                corporation=owner,
-                division_id=division.get("division"),
-                defaults={"balance": 0, "name": name},
-            )
-            if not created:
-                obj.name = name
-                obj.save()
+        for division in objs:  # list (hanger, wallet)
+            for wallet_data in division.wallet:
+                obj, created = self.get_or_create(
+                    corporation=owner,
+                    division_id=wallet_data.division,
+                    defaults={
+                        "balance": 0,
+                        "name": wallet_data.name if wallet_data.name else _("Unknown"),
+                    },
+                )
+                if not created:
+                    obj.name = wallet_data.name
+                    obj.save()
 
     @transaction.atomic()
     def _update_or_create_objs(
         self,
         owner: "OwnerAudit",
-        objs: list,
+        objs: list[CorporationWalletContext],
     ) -> None:
         """Update or Create division entries from objs data."""
         for division in objs:
             obj, created = self.get_or_create(
                 corporation=owner,
-                division_id=division.get("division"),
+                division_id=division.division,
                 defaults={
-                    "balance": division.get("balance"),
+                    "balance": division.balance,
                     "name": _("Unknown"),
                 },
             )
 
             if not created:
-                obj.balance = division.get("balance")
+                obj.balance = division.balance
                 obj.save()
 
 

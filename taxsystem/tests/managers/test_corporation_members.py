@@ -11,7 +11,7 @@ from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.models.tax import Members
-from taxsystem.tests.testdata.esi_stub import esi_client_stub
+from taxsystem.tests.testdata.esi_stub import esi_client_stub_openapi
 from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
 from taxsystem.tests.testdata.generate_payments import (
     create_member,
@@ -24,7 +24,6 @@ MODULE_PATH = "taxsystem.managers.tax_manager"
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
-@patch(MODULE_PATH + ".etag_results")
 @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
 @patch(MODULE_PATH + ".logger")
 class TestMembersManager(NoSocketsTestCase):
@@ -55,10 +54,9 @@ class TestMembersManager(NoSocketsTestCase):
             status=Members.States.ACTIVE,
         )
 
-    def test_update_members(self, mock_logger, mock_bulk_resolve, mock_etag, mock_esi):
+    def test_update_members(self, mock_logger, mock_bulk_resolve, mock_esi):
         # given
-        mock_esi.client = esi_client_stub
-        mock_etag.side_effect = lambda ob, token, force_refresh=False: ob.results()
+        mock_esi.client = esi_client_stub_openapi
 
         mock_bulk_resolve.return_value.to_name.side_effect = (
             "Member 1",
