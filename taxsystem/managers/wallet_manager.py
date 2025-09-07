@@ -263,16 +263,21 @@ class CorporationDivisionManagerBase(models.Manager):
         """Update or Create division entries from objs data."""
         for division in objs:  # list (hanger, wallet)
             for wallet_data in division.wallet:
+                if wallet_data.division == 1:
+                    name = _("Master Wallet")
+                else:
+                    name = getattr(wallet_data, "name", _("Unknown"))
+
                 obj, created = self.get_or_create(
                     corporation=owner,
                     division_id=wallet_data.division,
                     defaults={
                         "balance": 0,
-                        "name": wallet_data.name if wallet_data.name else _("Unknown"),
+                        "name": name,
                     },
                 )
                 if not created:
-                    obj.name = wallet_data.name
+                    obj.name = name
                     obj.save()
 
     @transaction.atomic()
