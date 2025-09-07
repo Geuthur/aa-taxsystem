@@ -26,24 +26,28 @@ _endpoints = [
         "GetCorporationsCorporationIdDivisions",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Corporation",
         "GetCorporationsCorporationIdMembertracking",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Wallet",
         "GetCorporationsCorporationIdWallets",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Wallet",
         "GetCorporationsCorporationIdWalletsDivisionJournal",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
 ]
 
