@@ -98,10 +98,13 @@ $(document).ready(() => {
             }
         });
     }).on('hide.bs.modal', () => {
+        modalRequestUndo.find('undo_reason').val('');
         modalRequestUndo.find('textarea[name="undo_reason"]').val('');
         modalRequestUndo.find('textarea[name="undo_reason"]').removeClass('is-invalid');
         modalRequestUndo.find('.alert-danger').remove();
         modalRequestUndoError.addClass('d-none');
         $('#modal-button-confirm-undo-request').unbind('click');
+        // Reload the AJAX request from the previous modal
+        $('#modalViewPaymentsContainer').modal('show');
     });
 });
