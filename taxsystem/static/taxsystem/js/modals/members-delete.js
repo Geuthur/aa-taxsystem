@@ -49,5 +49,7 @@ $(document).ready(() => {
     }).on('hide.bs.modal', () => {
         modalRequestApprove.find('.alert-danger').remove();
         $('#modal-button-confirm-approve-request').unbind('click');
+        // Reload the AJAX request from the previous modal
+        $('#modalViewPaymentsContainer').modal('show');
     });
 });

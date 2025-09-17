@@ -72,5 +72,7 @@ $(document).ready(() => {
     }).on('hide.bs.modal', () => {
         modalRequestSwitchuser.find('.alert-danger').remove();
         $('#modal-button-confirm-switchuser-request').unbind('click');
+        // Reload the AJAX request from the previous modal
+        $('#modalViewPaymentsContainer').modal('show');
     });
 });

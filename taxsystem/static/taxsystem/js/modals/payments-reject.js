@@ -93,10 +93,13 @@ $(document).ready(() => {
             }
         });
     }).on('hide.bs.modal', () => {
+        modalRequestDecline.find('reject_reason').val('');
         modalRequestDecline.find('textarea[name="reject_reason"]').val('');
         modalRequestDecline.find('textarea[name="reject_reason"]').removeClass('is-invalid');
         modalRequestDecline.find('.alert-danger').remove();
         modalRequestDeclineError.addClass('d-none');
         $('#modal-button-confirm-reject-request').unbind('click');
+        // Reload the AJAX request from the previous modal
+        $('#modalViewPaymentsContainer').modal('show');
     });
 });

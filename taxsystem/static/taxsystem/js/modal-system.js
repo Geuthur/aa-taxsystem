@@ -1,9 +1,15 @@
+let previousModal = null;
+
+// Function to setup a modal with AJAX content loading
 function setupModal(modalId, ajaxDataAttr, contentId, loaderId) {
     $(modalId).on('show.bs.modal', function (event) {
         const button = $(event.relatedTarget);
         let ajaxUrl = button.data(ajaxDataAttr);
         const modal = $(this);
         let hiddenUrl = modal.find('#modal-hidden-url').val();
+
+        // Save the previous modal to reload it on close
+        previousModal = $(button.closest('.modal'));
 
         // If ajaxUrl does not exist, use hiddenUrl
         if (!ajaxUrl) {
@@ -40,8 +46,13 @@ function setupModal(modalId, ajaxDataAttr, contentId, loaderId) {
                 modal.find('#modal-hidden-url').val(ajaxUrl);
             }
         );
-    }).on('hidden.bs.modal', function () {
+    }).on('hide.bs.modal', () => {
         // Clear the modal content when it is hidden
         $(this).find(contentId).html('');
+        // Reload the previous modal if it exists
+        if (previousModal) {
+            previousModal.modal('show');
+            previousModal = null;
+        }
     });
 }
