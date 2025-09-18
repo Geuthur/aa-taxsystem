@@ -43,11 +43,14 @@ $(document).ready(() => {
 
         $('#modal-button-confirm-approve-request').on('click', () => {
             const form = modalRequestApprove.find('form');
+            const approveInfoField = form.find('textarea[name="accept_info"]');
+            const approveInfo = approveInfoField.val();
             const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
             const posting = $.post(
                 url,
                 {
+                    accept_info: approveInfo,
                     csrfmiddlewaretoken: csrfMiddlewareToken
                 }
             );
@@ -76,7 +79,7 @@ $(document).ready(() => {
             });
         });
     }).on('hide.bs.modal', () => {
-        modalRequestApprove.find('.alert-danger').remove();
+        modalRequestApprove.find('textarea[name="accept_info"]').val('');
         $('#modal-button-confirm-approve-request').unbind('click');
         // Reload the AJAX request from the previous modal
         $('#modalViewPaymentsContainer').modal('show');
