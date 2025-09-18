@@ -1,31 +1,11 @@
 $(document).ready(() => {
     /* global tablePayments */
     /* global taxsystemsettings */
+    /* global reloadStatistics */
+
     const modalRequestDecline = $('#payments-reject');
     const modalRequestDeclineError = modalRequestDecline.find('#modal-error-field');
     const previousDeclineModal = $('#modalViewPaymentsContainer');
-
-    // Funktion zum Neuladen der Statistikdaten
-    function reloadStatistics() {
-        $.ajax({
-            url: taxsystemsettings.corporationmanageDashboardUrl,
-            type: 'GET',
-            success: function (data) {
-                // Statistics
-                const statistics = data.statistics;
-                const statisticsKey = Object.keys(statistics)[0];
-                const stat = statistics[statisticsKey];
-
-                $('#statistics_payments').text(stat.payments);
-                $('#statistics_payments_pending').text(stat.payments_pending);
-                $('#statistics_payments_auto').text(stat.payments_auto);
-                $('#statistics_payments_manually').text(stat.payments_manually);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching statistics data:', error);
-            }
-        });
-    }
 
     // Decline Request Modal
     modalRequestDecline.on('show.bs.modal', (event) => {
@@ -93,7 +73,6 @@ $(document).ready(() => {
             }
         });
     }).on('hide.bs.modal', () => {
-        modalRequestDecline.find('reject_reason').val('');
         modalRequestDecline.find('textarea[name="reject_reason"]').val('');
         modalRequestDecline.find('textarea[name="reject_reason"]').removeClass('is-invalid');
         modalRequestDecline.find('.alert-danger').remove();

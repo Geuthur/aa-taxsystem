@@ -47,9 +47,8 @@ $(document).ready(() => {
             });
         });
     }).on('hide.bs.modal', () => {
+        modalRequestApprove.find('textarea[name="delete_reason"]').val('');
         modalRequestApprove.find('.alert-danger').remove();
         $('#modal-button-confirm-members-delete-request').unbind('click');
-        // Reload the AJAX request from the previous modal
-        $('#modalViewPaymentsContainer').modal('show');
     });
 });

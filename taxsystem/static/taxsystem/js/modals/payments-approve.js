@@ -1,30 +1,10 @@
 $(document).ready(() => {
     /* global tablePayments */
     /* global taxsystemsettings */
+    /* global reloadStatistics */
+
     const modalRequestApprove = $('#payments-approve');
     const previousApproveModal = $('#modalViewPaymentsContainer');
-
-    // Funktion zum Neuladen der Statistikdaten
-    function reloadStatistics() {
-        $.ajax({
-            url: taxsystemsettings.corporationmanageDashboardUrl,
-            type: 'GET',
-            success: function (data) {
-                // Statistics
-                const statistics = data.statistics;
-                const statisticsKey = Object.keys(statistics)[0];
-                const stat = statistics[statisticsKey];
-
-                $('#statistics_payments').text(stat.payments);
-                $('#statistics_payments_pending').text(stat.payments_pending);
-                $('#statistics_payments_auto').text(stat.payments_auto);
-                $('#statistics_payments_manually').text(stat.payments_manually);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching statistics data:', error);
-            }
-        });
-    }
 
     // Approve Request Modal
     modalRequestApprove.on('show.bs.modal', (event) => {
