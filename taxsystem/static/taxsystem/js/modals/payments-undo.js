@@ -1,31 +1,11 @@
 $(document).ready(() => {
     /* global tablePayments */
     /* global taxsystemsettings */
+    /* global reloadStatistics */
+
     const modalRequestUndo = $('#payments-undo');
     const modalRequestUndoError = modalRequestUndo.find('#modal-error-field');
     const previousUndoModal = $('#modalViewPaymentsContainer');
-
-    // Funktion zum Neuladen der Statistikdaten
-    function reloadStatistics() {
-        $.ajax({
-            url: taxsystemsettings.corporationmanageDashboardUrl,
-            type: 'GET',
-            success: function (data) {
-                // Statistics
-                const statistics = data.statistics;
-                const statisticsKey = Object.keys(statistics)[0];
-                const stat = statistics[statisticsKey];
-
-                $('#statistics_payments').text(stat.payments);
-                $('#statistics_payments_pending').text(stat.payments_pending);
-                $('#statistics_payments_auto').text(stat.payments_auto);
-                $('#statistics_payments_manually').text(stat.payments_manually);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching statistics data:', error);
-            }
-        });
-    }
 
     // Undo Request Modal
     modalRequestUndo.on('show.bs.modal', (event) => {
@@ -98,7 +78,6 @@ $(document).ready(() => {
             }
         });
     }).on('hide.bs.modal', () => {
-        modalRequestUndo.find('undo_reason').val('');
         modalRequestUndo.find('textarea[name="undo_reason"]').val('');
         modalRequestUndo.find('textarea[name="undo_reason"]').removeClass('is-invalid');
         modalRequestUndo.find('.alert-danger').remove();
