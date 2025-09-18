@@ -18,7 +18,7 @@ $(document).ready(() => {
         const modalDiv = modalRequestApprove.find('#modal-request-text');
         modalDiv.html(modalText);
 
-        $('#modal-button-confirm-approve-request').on('click', () => {
+        $('#modal-button-confirm-members-delete-request').on('click', () => {
             const form = modalRequestApprove.find('form');
             const deleteInfoField = form.find('textarea[name="delete_reason"]');
             const deleteInfo = deleteInfoField.val();
@@ -48,7 +48,7 @@ $(document).ready(() => {
         });
     }).on('hide.bs.modal', () => {
         modalRequestApprove.find('.alert-danger').remove();
-        $('#modal-button-confirm-approve-request').unbind('click');
+        $('#modal-button-confirm-members-delete-request').unbind('click');
         // Reload the AJAX request from the previous modal
         $('#modalViewPaymentsContainer').modal('show');
     });
