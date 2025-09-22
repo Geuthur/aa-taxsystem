@@ -23,6 +23,7 @@ from allianceauth.eveonline.models import (
 )
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
+from esi.exceptions import HTTPNotModified
 from esi.models import Token
 
 # Alliance Auth (External Libs)
@@ -30,7 +31,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__, app_settings
-from taxsystem.errors import HTTPGatewayTimeoutError, NotModifiedError
+from taxsystem.errors import HTTPGatewayTimeoutError
 from taxsystem.managers.payment_manager import PaymentsManager, PaymentSystemManager
 from taxsystem.managers.tax_manager import MembersManager, OwnerAuditManager
 from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
@@ -312,7 +313,7 @@ class OwnerAudit(models.Model):
         except HTTPInternalServerError as exc:
             logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
-        except NotModifiedError:
+        except HTTPNotModified:
             logger.debug("%s: Update has not changed, section: %s", self, section.label)
             return UpdateSectionResult(is_changed=False, is_updated=False)
         except HTTPGatewayTimeoutError:

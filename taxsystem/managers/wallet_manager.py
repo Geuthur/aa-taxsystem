@@ -98,6 +98,8 @@ class CorporationWalletManagerBase(models.Manager):
         divisions = CorporationWalletDivision.objects.filter(corporation=owner)
 
         for division in divisions:
+
+            # Make the ESI request
             journal_items_ob = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
                     corporation_id=owner.corporation.corporation_id,
@@ -105,18 +107,12 @@ class CorporationWalletManagerBase(models.Manager):
                     token=token,
                 )
             )
-            logger.debug(
-                "Fetching Journal Items for %s - Division: %s - Page: %s/%s",
-                owner.corporation.corporation_name,
-                division.division_id,
+            journal_items, response = journal_items_ob.results(
+                return_response=True, force_refresh=force_refresh
             )
+            logger.debug("ESI response Status: %s", response.status_code)
 
-            objs, __ = journal_items_ob.results(return_response=True)
-
-            if force_refresh:
-                pass  # TODO Make new Etag Checker
-
-            self._update_or_create_objs(division=division, objs=objs)
+            self._update_or_create_objs(division=division, objs=journal_items)
 
     @transaction.atomic()
     def _update_or_create_objs(
@@ -219,19 +215,20 @@ class CorporationDivisionManagerBase(models.Manager):
             "esi-corporations.read_divisions.v1",
         ]
         req_roles = ["CEO", "Director"]
-
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
-        division_obj = esi.client.Corporation.GetCorporationsCorporationIdDivisions(
-            corporation_id=owner.corporation.corporation_id, token=token
+        # Make the ESI request
+        division_names_obj = (
+            esi.client.Corporation.GetCorporationsCorporationIdDivisions(
+                corporation_id=owner.corporation.corporation_id, token=token
+            )
         )
+        division_names_items, response = division_names_obj.results(
+            return_response=True, force_refresh=force_refresh
+        )
+        logger.debug("ESI response Status: %s", response.status_code)
 
-        objs, __ = division_obj.results(return_response=True)
-
-        if force_refresh:
-            pass  # TODO Make new Etag Checker
-
-        self._update_or_create_objs_division(owner=owner, objs=objs)
+        self._update_or_create_objs_division(owner=owner, objs=division_names_items)
 
     def _fetch_esi_data(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
         """Fetch division entries from ESI data."""
@@ -241,18 +238,18 @@ class CorporationDivisionManagerBase(models.Manager):
             "esi-corporations.read_divisions.v1",
         ]
         req_roles = ["CEO", "Director", "Accountant", "Junior_Accountant"]
-
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
 
+        # Make the ESI request
         divisions_items_obj = esi.client.Wallet.GetCorporationsCorporationIdWallets(
             corporation_id=owner.corporation.corporation_id, token=token
         )
+        division_items, response = divisions_items_obj.results(
+            return_response=True, force_refresh=force_refresh
+        )
+        logger.debug("ESI response Status: %s", response.status_code)
 
-        objs, __ = divisions_items_obj.results(return_response=True)
-        if force_refresh:
-            pass  # TODO Make new Etag Checker
-
-        self._update_or_create_objs(owner=owner, objs=objs)
+        self._update_or_create_objs(owner=owner, objs=division_items)
 
     @transaction.atomic()
     def _update_or_create_objs_division(

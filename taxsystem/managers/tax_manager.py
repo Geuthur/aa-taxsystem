@@ -247,17 +247,18 @@ class MembersManagerBase(models.Manager):
         # Check Payment Accounts
         self._check_payment_accounts(owner)
 
+        # Make the ESI request
         members_ob = esi.client.Corporation.GetCorporationsCorporationIdMembertracking(
             corporation_id=owner.corporation.corporation_id,
             token=token,
         )
 
-        objs, __ = members_ob.results(return_response=True)
+        members_items, response = members_ob.results(
+            return_response=True, force_refresh=force_refresh
+        )
+        logger.debug("ESI response Status: %s", response.status_code)
 
-        if force_refresh:
-            pass  # TODO Make new Etag Checker
-
-        self._update_or_create_objs(owner=owner, objs=objs)
+        self._update_or_create_objs(owner=owner, objs=members_items)
 
     @transaction.atomic()
     # pylint: disable=too-many-locals
