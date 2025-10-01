@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
+from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
 from app_utils.logging import LoggerAddTag
@@ -98,7 +99,6 @@ class CorporationWalletManagerBase(models.Manager):
         divisions = CorporationWalletDivision.objects.filter(corporation=owner)
 
         for division in divisions:
-
             # Make the ESI request
             journal_items_ob = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
@@ -107,10 +107,15 @@ class CorporationWalletManagerBase(models.Manager):
                     token=token,
                 )
             )
-            journal_items, response = journal_items_ob.results(
-                return_response=True, force_refresh=force_refresh
-            )
-            logger.debug("ESI response Status: %s", response.status_code)
+
+            try:
+                journal_items, response = journal_items_ob.results(
+                    return_response=True, force_refresh=force_refresh
+                )
+                logger.debug("ESI response Status: %s", response.status_code)
+            except HTTPNotModified as exc:
+                logger.debug("Update has not changed %s", exc.status_code)
+                continue
 
             self._update_or_create_objs(division=division, objs=journal_items)
 
