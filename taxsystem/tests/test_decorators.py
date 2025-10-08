@@ -13,7 +13,7 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import (
-    _wait_for_lock_or_cache,
+    acquire_lock_or_wait_for_cache,
     log_timing,
     when_esi_is_available,
 )
@@ -148,9 +148,7 @@ class TestDecorators(TestCase):
         redis_client.get.return_value = "1"
         mock_get_redis_client.return_value = redis_client
 
-        result, cache_available = _wait_for_lock_or_cache(
-            redis_client, "esi_status_is_up", "esi_status_lock", "token", 5
-        )
+        result, cache_available = acquire_lock_or_wait_for_cache(redis_client)
         # then
         self.assertFalse(result)
         self.assertTrue(cache_available)
@@ -169,9 +167,7 @@ class TestDecorators(TestCase):
         redis_client.setex.return_value = None
         mock_get_redis_client.return_value = redis_client
 
-        result, cache_available = _wait_for_lock_or_cache(
-            redis_client, "esi_status_is_up", "esi_status_lock", "token", 5
-        )
+        result, cache_available = acquire_lock_or_wait_for_cache(redis_client)
         # then
         self.assertTrue(result)
         self.assertFalse(cache_available)
@@ -190,9 +186,7 @@ class TestDecorators(TestCase):
         redis_client.setex.return_value = None
         mock_get_redis_client.return_value = redis_client
 
-        result, cache_available = _wait_for_lock_or_cache(
-            redis_client, "esi_status_is_up", "esi_status_lock", "token", 5
-        )
+        result, cache_available = acquire_lock_or_wait_for_cache(redis_client)
         # then
         self.assertFalse(result)
         self.assertFalse(cache_available)
