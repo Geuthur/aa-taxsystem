@@ -176,19 +176,38 @@ class TestDecorators(TestCase):
     @patch(DECORATOR_PATH + "fetch_esi_status")
     @patch(DECORATOR_PATH + "get_redis_client")
     @patch(DECORATOR_PATH + "IS_TESTING", new=False)
-    def test_wait_for_lock_or_cache_redis_exception(
+    def test_wait_for_lock_or_cache_redis_lock_not_acquired(
         self, mock_get_redis_client, mock_fetch_esi_status
     ):
-        """Test wait_for_lock_or_cache when Redis raises exceptions."""
+        """Test wait_for_lock_or_cache when lock is not acquired ."""
         # make the redis client behave as if no cache is set and we can acquire the lock
         redis_client = MagicMock()
         redis_client.get.return_value = None
-        redis_client.set.side_effect = Exception("Simulated Redis Error")
+        redis_client.set.return_value = False
         redis_client.setex.return_value = None
         mock_get_redis_client.return_value = redis_client
 
         result, cache_available = acquire_lock_or_wait_for_cache(redis_client)
         # then
+        self.assertFalse(result)
+        self.assertFalse(cache_available)
+
+    @patch(DECORATOR_PATH + "fetch_esi_status")
+    @patch(DECORATOR_PATH + "get_redis_client")
+    @patch(DECORATOR_PATH + "IS_TESTING", new=False)
+    def test_wait_for_lock_or_cache_when_redis_get_raises_exception(
+        self, mock_get_redis_client, mock_fetch_esi_status
+    ):
+        """Test wait_for_lock_or_cache when redis_client.get raises exceptions."""
+        redis_client = MagicMock()
+        # Make get() raise an exception to hit the except branch inside the poll loop
+        redis_client.get.side_effect = Exception("Simulated Redis GET Error")
+        # ensure set() doesn't unexpectedly break the flow if called
+        redis_client.set.return_value = False
+        mock_get_redis_client.return_value = redis_client
+
+        result, cache_available = acquire_lock_or_wait_for_cache(redis_client)
+
         self.assertFalse(result)
         self.assertFalse(cache_available)
 
