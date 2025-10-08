@@ -21,6 +21,7 @@ from taxsystem.decorators import (
 DECORATOR_PATH = "taxsystem.decorators."
 
 
+@patch(DECORATOR_PATH + "ESI_STATUS_ROUTE_RATE_LIMIT", new=1)
 class TestDecorators(TestCase):
     @patch(DECORATOR_PATH + "fetch_esi_status")
     @patch(DECORATOR_PATH + "IS_TESTING", new=True)
