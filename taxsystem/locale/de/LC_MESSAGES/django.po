@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-10-14 12:44+0200\n"
-"PO-Revision-Date: 2025-10-14 11:00+0000\n"
+"PO-Revision-Date: 2025-10-14 11:26+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
@@ -662,8 +662,6 @@ msgid "Filter set updated successfully."
 msgstr "Aktualisierungen erfolgreich abgeschlossen."
 
 #: taxsystem/views.py:326 taxsystem/views.py:355 taxsystem/views.py:399
-#, fuzzy
-#| msgid "No corporation found."
 msgid "No Corporation found."
 msgstr "Keine Corporationen gefunden."
 
