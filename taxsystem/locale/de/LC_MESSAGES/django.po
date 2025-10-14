@@ -661,6 +661,9 @@ msgstr ""
 msgid "Filter set updated successfully."
 msgstr "Aktualisierungen erfolgreich abgeschlossen."
 
+#: taxsystem/views.py:326 taxsystem/views.py:355 taxsystem/views.py:399
+#, fuzzy
+#| msgid "No corporation found."
 msgid "No Corporation found."
 msgstr "Keine Corporationen gefunden."
 
