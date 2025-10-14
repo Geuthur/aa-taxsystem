@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-10-14 12:44+0200\n"
-"PO-Revision-Date: 2025-10-11 07:17+0000\n"
+"PO-Revision-Date: 2025-10-14 11:00+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
@@ -50,10 +50,8 @@ msgstr "Lösche"
 msgid "Delete Member"
 msgstr "Lösche Mitglied"
 
-#, fuzzy
-#| msgid "Delete Member"
 msgid "Delete Filter"
-msgstr "Lösche Mitglied"
+msgstr "Lösche Filter"
 
 msgid "Approve Payment"
 msgstr "Zahlung freigeben"
@@ -426,10 +424,8 @@ msgstr "Kein Charakter gefunden."
 msgid "Filters"
 msgstr ""
 
-#, fuzzy
-#| msgid "No character found."
 msgid "No Filter found."
-msgstr "Kein Charakter gefunden."
+msgstr "Kein Filter gefunden."
 
 msgid "Payment Information"
 msgstr "Zahlungsinformation"
@@ -482,10 +478,8 @@ msgstr ""
 msgid "Filters:"
 msgstr ""
 
-#, fuzzy
-#| msgid "Automated Payments"
 msgid "Automatic Payments Filters"
-msgstr "Automatische Zahlungen"
+msgstr "Automatische Zahlungen Filter"
 
 msgid "Update Status:"
 msgstr "Update Status:"
@@ -550,10 +544,8 @@ msgstr "Steuer nicht Gezahlt"
 msgid "Name"
 msgstr ""
 
-#, fuzzy
-#| msgid "Actions"
 msgid "Descriptions"
-msgstr "Aktionen"
+msgstr "Beschreibungen"
 
 msgid "Info"
 msgstr ""
@@ -626,10 +618,8 @@ msgstr ""
 msgid "Manage Filters"
 msgstr ""
 
-#, fuzzy
-#| msgid "You do not have permission to access this page."
 msgid "You do not have permission to manage this corporation."
-msgstr "Du hast keine Berechtigung diese Seite zu sehen."
+msgstr "Du hast keine Berechtigung diese Corporation zu verwalten."
 
 msgid "A filter with this name already exists."
 msgstr ""
@@ -640,10 +630,8 @@ msgstr ""
 msgid "A filter set with this name already exists."
 msgstr ""
 
-#, fuzzy
-#| msgid "Deactivate User"
 msgid "Deactivate Filter Set"
-msgstr "Deaktiviere User"
+msgstr "Deaktiviere Filtersatz"
 
 #, python-brace-format
 msgid "Filter set switched to {filter_set.enabled} successfully."
@@ -653,15 +641,11 @@ msgstr ""
 msgid "{filter_set.name} from {owner.name} deleted"
 msgstr ""
 
-#, fuzzy
-#| msgid "Updates completed successfully"
 msgid "Filter set deleted successfully."
-msgstr "Aktualisierungen erfolgreich abgeschlossen"
+msgstr "Filtersatz wurde erfolgreich gelöscht."
 
-#, fuzzy
-#| msgid "Delete Member"
 msgid "Delete Filter Set"
-msgstr "Lösche Mitglied"
+msgstr "Lösche Filtersatz"
 
 msgid "Invalid Method"
 msgstr "Ungültige methode"
@@ -674,11 +658,10 @@ msgid ""
 "deleted - {form.cleaned_data['delete_reason']}"
 msgstr ""
 
-#, fuzzy
-#| msgid "Updates completed successfully"
 msgid "Filter set updated successfully."
-msgstr "Aktualisierungen erfolgreich abgeschlossen"
+msgstr "Aktualisierungen erfolgreich abgeschlossen."
 
+#: taxsystem/views.py:326 taxsystem/views.py:355 taxsystem/views.py:399
 #, fuzzy
 #| msgid "No corporation found."
 msgid "No Corporation found."
