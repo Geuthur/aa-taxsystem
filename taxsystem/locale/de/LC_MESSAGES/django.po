@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-01 07:41+0200\n"
-"PO-Revision-Date: 2025-10-11 07:17+0000\n"
+"PO-Revision-Date: 2025-10-14 09:58+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
@@ -413,7 +413,7 @@ msgid "Deposit"
 msgstr ""
 
 msgid "Corporation"
-msgstr "Corporation"
+msgstr ""
 
 msgid "Payment Status"
 msgstr "Zahlungsstatus"
@@ -621,7 +621,7 @@ msgstr "Ungültige anfragen methode"
 
 #, python-brace-format
 msgid "Tax Period from {corp.name} updated to {value}"
-msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
+msgstr "Steuer Periode von {corp.name} aktualisiert auf {value}"
 
 #, python-brace-format
 msgid "Member {member.character_name} deleted"
