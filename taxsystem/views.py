@@ -396,7 +396,7 @@ def account(request: WSGIRequest, corporation_id: int):
     perms = get_corporation(request, corporation_id)
 
     if perms is None:
-        messages.error(request, _("No corporation found."))
+        messages.error(request, _("No Corporation found."))
 
     context = {
         "corporation_id": corporation_id,
