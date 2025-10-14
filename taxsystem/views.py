@@ -583,10 +583,12 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                         owner=corp, user=payment.account.user
                     )
                     payment_account.save()
-                    msg = _("Payment ID: %s - Amount: %s - Name: %s rejected") % (
-                        payment.pk,
-                        intcomma(payment.amount),
-                        payment.name,
+                    msg = _(
+                        "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
+                    ).format(
+                        pid=payment.pk,
+                        amount=intcomma(payment.amount),
+                        name=payment.name,
                     )
 
                     PaymentHistory(
