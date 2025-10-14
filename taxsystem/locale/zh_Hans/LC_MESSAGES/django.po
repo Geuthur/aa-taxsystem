@@ -657,7 +657,6 @@ msgstr ""
 msgid "Filter set updated successfully."
 msgstr ""
 
-#: taxsystem/views.py:326 taxsystem/views.py:355 taxsystem/views.py:399
 msgid "No Corporation found."
 msgstr ""
 
