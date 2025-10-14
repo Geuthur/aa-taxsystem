@@ -676,7 +676,7 @@ msgstr ""
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:61
 #: taxsystem/templates/taxsystem/partials/view/account.html:17
 msgid "Corporation"
-msgstr "Corporation"
+msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:74
 #: taxsystem/templates/taxsystem/partials/view/account.html:34
@@ -1059,7 +1059,7 @@ msgstr "Ungültige anfragen methode"
 #: taxsystem/views.py:709
 #, python-brace-format
 msgid "Tax Period from {corp.name} updated to {value}"
-msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
+msgstr "Steuer Periode von {corp.name} aktualisiert auf {value}"
 
 #: taxsystem/views.py:741
 #, python-brace-format
