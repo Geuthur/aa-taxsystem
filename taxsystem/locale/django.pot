@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-10-14 12:44+0200\n"
+"POT-Creation-Date: 2025-10-14 13:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -949,13 +949,13 @@ msgid "Delete Filter Set"
 msgstr ""
 
 #: taxsystem/views.py:252 taxsystem/views.py:456 taxsystem/views.py:508
-#: taxsystem/views.py:561 taxsystem/views.py:611 taxsystem/views.py:726
+#: taxsystem/views.py:561 taxsystem/views.py:613 taxsystem/views.py:728
 msgid "Invalid Method"
 msgstr ""
 
 #: taxsystem/views.py:257 taxsystem/views.py:358 taxsystem/views.py:461
-#: taxsystem/views.py:513 taxsystem/views.py:566 taxsystem/views.py:616
-#: taxsystem/views.py:668 taxsystem/views.py:704 taxsystem/views.py:731
+#: taxsystem/views.py:513 taxsystem/views.py:566 taxsystem/views.py:618
+#: taxsystem/views.py:670 taxsystem/views.py:706 taxsystem/views.py:733
 msgid "Permission Denied"
 msgstr ""
 
@@ -987,8 +987,8 @@ msgstr ""
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
 msgstr ""
 
-#: taxsystem/views.py:500 taxsystem/views.py:553 taxsystem/views.py:603
-#: taxsystem/views.py:646
+#: taxsystem/views.py:500 taxsystem/views.py:553 taxsystem/views.py:605
+#: taxsystem/views.py:648
 msgid "Transaction failed. Please try again."
 msgstr ""
 
@@ -997,40 +997,40 @@ msgstr ""
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
 msgstr ""
 
-#: taxsystem/views.py:586
-#, python-format
-msgid "Payment ID: %s - Amount: %s - Name: %s rejected"
+#: taxsystem/views.py:587
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
 msgstr ""
 
-#: taxsystem/views.py:630
+#: taxsystem/views.py:632
 #, python-format
 msgid "Payment System User: %s deactivated"
 msgstr ""
 
-#: taxsystem/views.py:633
+#: taxsystem/views.py:635
 #, python-format
 msgid "Payment System User: %s activated"
 msgstr ""
 
-#: taxsystem/views.py:656 taxsystem/views.py:692
+#: taxsystem/views.py:658 taxsystem/views.py:694
 msgid "Please enter a valid number"
 msgstr ""
 
-#: taxsystem/views.py:673
+#: taxsystem/views.py:675
 #, python-brace-format
 msgid "Tax Amount from {corp.name} updated to {value}"
 msgstr ""
 
-#: taxsystem/views.py:683 taxsystem/views.py:719
+#: taxsystem/views.py:685 taxsystem/views.py:721
 msgid "Invalid request method"
 msgstr ""
 
-#: taxsystem/views.py:709
+#: taxsystem/views.py:711
 #, python-brace-format
 msgid "Tax Period from {corp.name} updated to {value}"
 msgstr ""
 
-#: taxsystem/views.py:741
+#: taxsystem/views.py:743
 #, python-brace-format
 msgid "Member {member.character_name} deleted - {reason}"
 msgstr ""
