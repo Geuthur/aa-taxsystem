@@ -323,7 +323,7 @@ def payments(request: WSGIRequest, corporation_id: int):
     perms = get_corporation(request, corporation_id)
 
     if perms is None:
-        messages.error(request, _("No corporation found."))
+        messages.error(request, _("No Corporation found."))
 
     corporations = OwnerAudit.objects.visible_to(request.user)
 
@@ -352,7 +352,7 @@ def own_payments(request: WSGIRequest, corporation_id=None):
     corporations, perms = get_manage_corporation(request, corporation_id)
 
     if corporations is None:
-        messages.error(request, _("No corporation found."))
+        messages.error(request, _("No Corporation found."))
 
     if perms is False:
         messages.error(request, _("Permission Denied"))

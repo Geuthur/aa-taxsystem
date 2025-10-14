@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-10-14 11:14+0200\n"
+"POT-Creation-Date: 2025-10-14 12:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -972,11 +972,7 @@ msgstr ""
 msgid "Filter set updated successfully."
 msgstr ""
 
-#: taxsystem/views.py:326 taxsystem/views.py:355
-msgid "No corporation found."
-msgstr ""
-
-#: taxsystem/views.py:399
+#: taxsystem/views.py:326 taxsystem/views.py:355 taxsystem/views.py:399
 msgid "No Corporation found."
 msgstr ""
 
