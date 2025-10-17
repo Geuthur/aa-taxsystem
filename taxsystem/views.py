@@ -1,8 +1,5 @@
 """PvE Views"""
 
-# Standard Library
-import logging
-
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -18,12 +15,18 @@ from django.views.decorators.http import require_POST
 
 # Alliance Auth
 from allianceauth.authentication.decorators import permissions_required
+from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA TaxSystem
-from taxsystem import forms, tasks
+from taxsystem import __title__, forms, tasks
 from taxsystem.api.helpers import (
+    get_character_permissions,
     get_corporation,
     get_manage_corporation,
     get_manage_permission,
@@ -33,7 +36,7 @@ from taxsystem.models.filters import JournalFilter, JournalFilterSet
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
@@ -388,21 +391,76 @@ def faq(request: WSGIRequest, corporation_id: int):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def account(request: WSGIRequest, corporation_id: int):
-    """Payments View"""
-    character_id = request.user.profile.main_character.character_id
-    corporations = OwnerAudit.objects.visible_to(request.user)
+def account(request: WSGIRequest, character_id=None):
+    """Account View"""
+    if character_id is None:
+        character_id = request.user.profile.main_character.character_id
+    logger.error(f"Character ID not provided, using main character ID: {character_id}")
 
-    perms = get_corporation(request, corporation_id)
+    user_profile = UserProfile.objects.filter(
+        main_character__character_id=character_id
+    ).first()
 
-    if perms is None:
-        messages.error(request, _("No Corporation found."))
+    if not user_profile:
+        messages.error(request, _("No User found."))
+        return redirect("taxsystem:index")
+
+    try:
+        corporation_id = user_profile.main_character.corporation_id
+        owner, perms = get_manage_corporation(request, corporation_id)
+        perms = perms or get_character_permissions(request, character_id)
+    except AttributeError:
+        messages.error(request, _("User has no main character set."))
+        return redirect("taxsystem:index")
+
+    payment_user = PaymentSystem.objects.filter(
+        user__profile=user_profile,
+        owner=owner,
+    ).first()
+
+    if not payment_user:
+        messages.error(request, _("No Payment System User found."))
+        return redirect("taxsystem:index")
+
+    if owner is None:
+        messages.error(request, _("Corporation not Found"))
+        return redirect("taxsystem:index")
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    try:
+        member = owner.ts_members.get(character_id=character_id)
+    except owner.ts_members.model.DoesNotExist:
+        member = None
 
     context = {
-        "corporation_id": corporation_id,
         "title": _("Account"),
-        "corporations": corporations,
         "character_id": character_id,
+        "corporation_id": corporation_id,
+        "account": {
+            "name": payment_user.name,
+            "corporation": owner,
+            "status": payment_user.Status(payment_user.status).html(text=True),
+            "deposit": (
+                payment_user.deposit_html
+                if payment_user.status != PaymentSystem.Status.MISSING
+                else "N/A"
+            ),
+            "has_paid": (
+                payment_user.has_paid_icon(badge=True, text=True)
+                if payment_user.status != PaymentSystem.Status.MISSING
+                else "N/A"
+            ),
+            "last_paid": (
+                payment_user.last_paid
+                if payment_user.status != PaymentSystem.Status.MISSING
+                else "N/A"
+            ),
+            "joined": member.joined if member else "N/A",
+            "last_login": member.logon if member else "N/A",
+        },
     }
     context = add_info_to_context(request, context)
 

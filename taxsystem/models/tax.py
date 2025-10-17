@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from bravado.exception import HTTPInternalServerError
 
 # Django
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -571,6 +572,17 @@ class PaymentSystem(models.Model):
             )
         return False
 
+    @property
+    def deposit_html(self) -> str:
+        if self.deposit < 0:
+            # Make text red for negative deposits
+            return f"<span class='text-danger'>{intcomma(self.deposit, use_l10n=True)} ISK</span>"
+        if self.deposit > 0:
+            return f"<span class='text-success'>{intcomma(self.deposit, use_l10n=True)} ISK</span>"
+        return (
+            f"{intcomma(self.deposit, use_l10n=True)} ISK" if self.deposit else "0 ISK"
+        )
+
     def has_paid_icon(self, badge=False, text=False) -> str:
         """Return the HTML icon for has_paid."""
         color = "success" if self.has_paid else "danger"
@@ -610,6 +622,8 @@ class Payments(models.Model):
     account = models.ForeignKey(
         PaymentSystem, on_delete=models.CASCADE, related_name="ts_payments"
     )
+
+    corporation_id = models.IntegerField(null=True, blank=True)
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
@@ -673,13 +687,12 @@ class Payments(models.Model):
         # AA TaxSystem
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
-        try:
-            journal = CorporationWalletJournalEntry.objects.filter(
-                division__corporation__corporation=self.account.owner.corporation
-            ).first()
-            return journal.division.name
-        except CorporationWalletJournalEntry.DoesNotExist:
+        journal = CorporationWalletJournalEntry.objects.filter(
+            division__corporation__corporation=self.account.owner.corporation
+        ).first()
+        if not journal:
             return "N/A"
+        return journal.division.name
 
     def __str__(self):
         return (

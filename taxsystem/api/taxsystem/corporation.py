@@ -36,7 +36,14 @@ class CorporationApiEndpoints:
             if perms is False:
                 return 404, "Permission Denied"
 
-            payments = Payments.objects.filter(account__owner=owner)
+            payments = (
+                Payments.objects.filter(
+                    account__owner=owner,
+                    corporation_id=owner.corporation.corporation_id,
+                )
+                .select_related("account")
+                .order_by("-date")
+            )
 
             payments_dict = {}
 
@@ -80,7 +87,15 @@ class CorporationApiEndpoints:
 
             account = PaymentSystem.objects.get(owner=corp, user=request.user)
 
-            payments = Payments.objects.filter(account__owner=corp, account=account)
+            payments = (
+                Payments.objects.filter(
+                    account__owner=corp,
+                    account=account,
+                    corporation_id=corp.corporation.corporation_id,
+                )
+                .select_related("account")
+                .order_by("-date")
+            )
 
             own_payments_dict = {}
 
