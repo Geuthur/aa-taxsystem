@@ -233,7 +233,6 @@ class TestViewAccess(TestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:account",
-                args=[2001],
             )
         )
         request.user = self.user
@@ -242,7 +241,7 @@ class TestViewAccess(TestCase):
         middleware.process_request(request)
 
         # when
-        response = views.account(request, 2001)
+        response = views.account(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called()
