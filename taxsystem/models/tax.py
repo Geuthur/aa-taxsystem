@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 
 # Third Party
 from bravado.exception import HTTPInternalServerError
-from humanize import intcomma
 
 # Django
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -576,10 +576,12 @@ class PaymentSystem(models.Model):
     def deposit_html(self) -> str:
         if self.deposit < 0:
             # Make text red for negative deposits
-            return f"<span class='text-danger'>{intcomma(self.deposit)} ISK</span>"
+            return f"<span class='text-danger'>{intcomma(self.deposit, use_l10n=True)} ISK</span>"
         if self.deposit > 0:
-            return f"<span class='text-success'>{intcomma(self.deposit)} ISK</span>"
-        return f"{intcomma(self.deposit)} ISK" if self.deposit else "0 ISK"
+            return f"<span class='text-success'>{intcomma(self.deposit, use_l10n=True)} ISK</span>"
+        return (
+            f"{intcomma(self.deposit, use_l10n=True)} ISK" if self.deposit else "0 ISK"
+        )
 
     def has_paid_icon(self, badge=False, text=False) -> str:
         """Return the HTML icon for has_paid."""
