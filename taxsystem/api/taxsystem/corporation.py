@@ -42,7 +42,7 @@ class CorporationApiEndpoints:
                     corporation_id=owner.corporation.corporation_id,
                 )
                 .select_related("account")
-                .order_by("-payment_date")
+                .order_by("-date")
             )
 
             payments_dict = {}
@@ -94,7 +94,7 @@ class CorporationApiEndpoints:
                     corporation_id=corp.corporation.corporation_id,
                 )
                 .select_related("account")
-                .order_by("-payment_date")
+                .order_by("-date")
             )
 
             own_payments_dict = {}

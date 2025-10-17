@@ -22,7 +22,7 @@ from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 MODULE_PATH = "taxsystem.models.tax"
 
 
-class TestOwnerAuditModel(TestCase):
+class TestPaymentSystemModel(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -134,4 +134,23 @@ class TestOwnerAuditModel(TestCase):
         self.assertEqual(
             payment_system.Status(payment_system.status).icons(),
             "<i class='fas fa-check'></i>",
+        )
+
+    def test_deposit_html(self):
+        """Test the HTML representation of the deposit."""
+        payment_system = PaymentSystem.objects.get(owner=self.audit)
+        self.assertIn("0 ISK", payment_system.deposit_html)
+
+        payment_system.deposit = 1500000
+        payment_system.save()
+        self.assertIn(
+            "<span class='text-success'>1,500,000 ISK</span>",
+            payment_system.deposit_html,
+        )
+
+        payment_system = PaymentSystem.objects.get(owner=self.audit)
+        payment_system.deposit = -500000
+        payment_system.save()
+        self.assertIn(
+            "<span class='text-danger'>-500,000 ISK</span>", payment_system.deposit_html
         )

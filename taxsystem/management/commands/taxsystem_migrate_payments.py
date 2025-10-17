@@ -42,6 +42,7 @@ class Command(BaseCommand):
                         )
                         continue
 
+                    successful = 0
                     for journal in journals:
                         if journal.entry_id in payments_entry_ids:
                             try:
@@ -55,11 +56,16 @@ class Command(BaseCommand):
                                 self.stdout.write(
                                     f"Updated Payment {payment.pk} and assigned to {corporation} for entry_id {journal.entry_id}."
                                 )
+                                successful += 1
+                                continue
                             except Payments.DoesNotExist:
                                 self.stdout.write(
                                     f"Payment with entry_id {journal.entry_id} not found, skipping."
                                 )
                                 continue
+                    self.stdout.write(
+                        f"Migration report for {corporation}: {successful} entries migrated."
+                    )
             except IntegrityError as e:
                 self.stdout.write(f"Failed to create Payment for {corporation}: {e}")
                 continue
