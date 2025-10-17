@@ -226,7 +226,8 @@ class TestViewAccess(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "FAQ")
 
-    def test_view_account(self):
+    @patch(INDEX_PATH + ".messages")
+    def test_view_account(self, mock_messages):
         """Test view account."""
         # given
         request = self.factory.get(
@@ -236,11 +237,15 @@ class TestViewAccess(TestCase):
             )
         )
         request.user = self.user
+
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+
         # when
         response = views.account(request, 2001)
         # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Account")
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.error.assert_called()
 
     def test_view_manage_filters(self):
         """Test view manage filters."""
