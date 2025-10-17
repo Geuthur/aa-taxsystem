@@ -621,6 +621,8 @@ class Payments(models.Model):
         PaymentSystem, on_delete=models.CASCADE, related_name="ts_payments"
     )
 
+    corporation_id = models.IntegerField(null=True, blank=True)
+
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
     date = models.DateTimeField(null=True, blank=True)

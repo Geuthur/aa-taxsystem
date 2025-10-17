@@ -254,6 +254,7 @@ class AdminApiEndpoints:
             payments = Payments.objects.filter(
                 account__owner=owner,
                 account__user__profile__main_character__character_id=character_id,
+                corporation_id=owner.corporation.corporation_id,
             )
 
             if not payments:
