@@ -683,13 +683,12 @@ class Payments(models.Model):
         # AA TaxSystem
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
-        try:
-            journal = CorporationWalletJournalEntry.objects.filter(
-                division__corporation__corporation=self.account.owner.corporation
-            ).first()
-            return journal.division.name
-        except CorporationWalletJournalEntry.DoesNotExist:
+        journal = CorporationWalletJournalEntry.objects.filter(
+            division__corporation__corporation=self.account.owner.corporation
+        ).first()
+        if not journal:
             return "N/A"
+        return journal.division.name
 
     def __str__(self):
         return (
