@@ -38,6 +38,16 @@ urlpatterns = [
     # -- Tax Payments
     path("corporation/add/", views.add_corp, name="add_corp"),
     path(
+        "corporation/<int:corporation_id>/payment/<int:payment_system_pk>/add/",
+        views.add_payment,
+        name="add_payment",
+    ),
+    path(
+        "corporation/<int:corporation_id>/payment/<int:payment_pk>/delete/",
+        views.delete_payment,
+        name="delete_payment",
+    ),
+    path(
         "corporation/<int:corporation_id>/payment/<int:payment_pk>/approve/",
         views.approve_payment,
         name="approve_payment",

@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 # AA TaxSystem
 from taxsystem.api.helpers import get_corporation, get_manage_corporation
 from taxsystem.api.taxsystem.helpers.own_payments import _own_payments_actions
-from taxsystem.api.taxsystem.helpers.payments import _payments_actions
+from taxsystem.api.taxsystem.helpers.payments import payments_actions
 from taxsystem.helpers import lazy
 from taxsystem.models.tax import Payments, PaymentSystem
 
@@ -55,7 +55,7 @@ class CorporationApiEndpoints:
                 except ValueError:
                     character_portrait = ""
 
-                actions = _payments_actions(corporation_id, payment, perms, request)
+                actions = payments_actions(corporation_id, payment, perms, request)
 
                 payments_dict[payment.pk] = {
                     "payment_id": payment.pk,
