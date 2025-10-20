@@ -100,6 +100,34 @@ class TestDeletePayment(TestCase):
             f"Payment ID: {self.payment.pk} - Amount: 1,000 - Name: Gneuten deleted - This is a test deletion",
         )
 
+    def test_delete_payment_esi(self):
+        """Test deleting esi a payment."""
+        # given
+        corporation_id = self.audit.corporation.corporation_id
+        form_data = {
+            "corporation_id": corporation_id,
+            "delete_reason": "This is a test deletion",
+        }
+        request = self.factory.post(
+            reverse(
+                "taxsystem:delete_payment", args=[corporation_id, self.payment_esi.pk]
+            ),
+            data=form_data,
+        )
+        request.user = self.user
+        # when
+        response = views.delete_payment(
+            request, corporation_id=corporation_id, payment_pk=self.payment_esi.pk
+        )
+        response_data = json.loads(response.content)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertFalse(response_data["success"])
+        self.assertEqual(
+            response_data["message"],
+            f"Payment ID: {self.payment_esi.pk} - Amount: 2,000 - Name: Gneuten deletion failed - ESI imported payments cannot be deleted",
+        )
+
     def test_no_permission(self):
         """Test try deleting a payment without permission."""
         # given
