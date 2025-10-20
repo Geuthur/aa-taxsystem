@@ -60,6 +60,10 @@ $(document).ready(() => {
                             // Reload the parent modal with the same URL
                             $('#modalViewPaymentsContainer').modal('show');
 
+                            // Reload the payment system table
+                            const paymentsystemTable = $('#payment-system').DataTable();
+                            paymentsystemTable.ajax.reload();
+
                             // Reload the statistics
                             reloadStatistics();
                         } else {
@@ -76,10 +80,17 @@ $(document).ready(() => {
             }
         });
     }).on('hide.bs.modal', () => {
-        modalRequestDecline.find('textarea[name="add_reason"]').val('');
-        modalRequestDecline.find('textarea[name="add_reason"]').removeClass('is-invalid');
+        // Reset the form to its initial state
+        const form = modalRequestDecline.find('form');
+        // trigger native reset (works for inputs, textareas, selects)
+        form.trigger('reset');
+
+        // Clear validation state and any appended error messages
+        modalRequestDecline.find('.is-invalid').removeClass('is-invalid');
         modalRequestDecline.find('.alert-danger').remove();
         modalRequestDeclineError.addClass('d-none');
-        $('#modal-button-confirm-add-request').unbind('click');
+
+        // Unbind the confirm button click handler
+        $('#modal-button-confirm-add-request').off('click');
     });
 });
