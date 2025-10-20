@@ -16,10 +16,10 @@ from django.utils.translation import gettext_lazy as _
 from taxsystem.api.helpers import get_manage_corporation
 from taxsystem.api.taxsystem.helpers.administration import _delete_member
 from taxsystem.api.taxsystem.helpers.filters import _filter_actions
-from taxsystem.api.taxsystem.helpers.payments import _payments_actions
+from taxsystem.api.taxsystem.helpers.payments import payments_actions
 from taxsystem.api.taxsystem.helpers.paymentsystem import (
-    _payment_system_actions,
     _payments_info,
+    payment_system_actions,
 )
 from taxsystem.api.taxsystem.helpers.statistics import (
     _get_divisions_dict,
@@ -168,7 +168,7 @@ class AdminApiEndpoints:
                 character_id = user.user.profile.main_character.character_id
                 character_name = user.user.profile.main_character.character_name
 
-                actions = _payment_system_actions(
+                actions = payment_system_actions(
                     corporation_id=corporation_id,
                     payment_system=user,
                     perms=perms,
@@ -283,7 +283,7 @@ class AdminApiEndpoints:
                 except AttributeError:
                     portrait = ""
 
-                actions = _payments_actions(corporation_id, payment, perms, request)
+                actions = payments_actions(corporation_id, payment, perms, request)
                 amount = f"{intcomma(payment.amount, use_l10n=True)} ISK"
 
                 payments_dict[payment.pk] = {
