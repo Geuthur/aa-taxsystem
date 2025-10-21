@@ -1,5 +1,36 @@
 # Changelog
 
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate to new payments
+
+```bash
+python manage.py taxsystem_migrate_payments
+```
+
+## [0.7.1] - 21.10.2025
+
+### Added
+
+- Makefile System
+- Custom Payments
+- Contributing Guidelines
+
+### Changed
+
+- Open previous Modal if exist
+- Updated Translations
+- Updated Pre-Commit
+- Updated npm
+- moved `reloadStatistics` to bundle
+- Updated ESI Status Check to fit new rate-limit guidelines
+
+### Fixed
+
+- CSS Issues
+- Approve Modal not working in Admin View
+- NoneType error in `division` property
+- Payments should be Corporation related
+
 ## [0.7.0] - 22.08.2025
 
 ### Removed

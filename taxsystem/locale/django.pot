@@ -6,9 +6,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System \n"
-"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-10-14 13:35+0200\n"
+"Project-Id-Version: AA Tax System 0.7.1
+"
+"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues
+"
+"POT-Creation-Date: 2025-10-21 08:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,31 +28,31 @@ msgstr ""
 msgid "View Payment Details"
 msgstr ""
 
-#: taxsystem/api/taxsystem/admin.py:195 taxsystem/models/tax.py:590
+#: taxsystem/api/taxsystem/admin.py:195 taxsystem/models/tax.py:602
 msgid "Yes"
 msgstr ""
 
-#: taxsystem/api/taxsystem/admin.py:195 taxsystem/models/tax.py:590
+#: taxsystem/api/taxsystem/admin.py:195 taxsystem/models/tax.py:602
 msgid "No"
 msgstr ""
 
-#: taxsystem/api/taxsystem/character.py:72 taxsystem/models/tax.py:396
-#: taxsystem/models/tax.py:456
+#: taxsystem/api/taxsystem/character.py:72 taxsystem/models/tax.py:397
+#: taxsystem/models/tax.py:457
 #: taxsystem/templates/taxsystem/partials/manage/filter.html:9
 msgid "Active"
 msgstr ""
 
-#: taxsystem/api/taxsystem/character.py:79 taxsystem/models/tax.py:458
+#: taxsystem/api/taxsystem/character.py:79 taxsystem/models/tax.py:459
 msgid "Deactivated"
 msgstr ""
 
-#: taxsystem/api/taxsystem/character.py:86 taxsystem/models/tax.py:457
+#: taxsystem/api/taxsystem/character.py:86 taxsystem/models/tax.py:458
 msgid "Inactive"
 msgstr ""
 
 #: taxsystem/api/taxsystem/helpers/administration.py:24
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:53
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:63
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:50
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:60
 msgid "Are you sure to Confirm"
 msgstr ""
 
@@ -68,48 +70,63 @@ msgstr ""
 msgid "Delete Filter"
 msgstr ""
 
+#: taxsystem/api/taxsystem/helpers/payments.py:20
 #: taxsystem/api/taxsystem/helpers/payments.py:23
-#: taxsystem/api/taxsystem/helpers/payments.py:26
 msgid "Approve Payment"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/payments.py:28
-#: taxsystem/api/taxsystem/helpers/payments.py:54
-#: taxsystem/api/taxsystem/helpers/payments.py:81
+#: taxsystem/api/taxsystem/helpers/payments.py:25
+#: taxsystem/api/taxsystem/helpers/payments.py:55
+#: taxsystem/api/taxsystem/helpers/payments.py:85
+#: taxsystem/api/taxsystem/helpers/payments.py:115
 msgid "from"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/payments.py:49
-#: taxsystem/api/taxsystem/helpers/payments.py:52
+#: taxsystem/api/taxsystem/helpers/payments.py:50
+#: taxsystem/api/taxsystem/helpers/payments.py:53
 msgid "Reject Payment"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/payments.py:76
-#: taxsystem/api/taxsystem/helpers/payments.py:79
+#: taxsystem/api/taxsystem/helpers/payments.py:80
+#: taxsystem/api/taxsystem/helpers/payments.py:83
 msgid "Undo Payment"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:21
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:24
+#: taxsystem/api/taxsystem/helpers/payments.py:110
+#: taxsystem/api/taxsystem/helpers/payments.py:113
+msgid "Delete Payment"
+msgstr ""
+
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:23
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:26
 #: taxsystem/templates/taxsystem/partials/view/corporations.html:30
 msgid "View Payments"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:55
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:52
 #: taxsystem/templates/taxsystem/partials/manage/filter.html:28
 msgid "Deactivate"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:58
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:55
 msgid "Deactivate User"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:65
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:62
 msgid "Activate"
 msgstr ""
 
-#: taxsystem/api/taxsystem/helpers/paymentsystem.py:68
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:65
 msgid "Activate User"
+msgstr ""
+
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:96
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:99
+msgid "Add Payment"
+msgstr ""
+
+#: taxsystem/api/taxsystem/helpers/paymentsystem.py:100
+msgid "for"
 msgstr ""
 
 #: taxsystem/api/taxsystem/helpers/statistics.py:25
@@ -121,48 +138,61 @@ msgstr ""
 msgid "Reason for rejecting"
 msgstr ""
 
-#: taxsystem/forms.py:37 taxsystem/forms.py:57 taxsystem/forms.py:67
+#: taxsystem/forms.py:37
+msgid "Reason for deleting payment"
+msgstr ""
+
+#: taxsystem/forms.py:47 taxsystem/models/filters.py:62
+#: taxsystem/templates/taxsystem/modals/view_payment_details.html:27
+msgid "Amount"
+msgstr ""
+
+#: taxsystem/forms.py:53
+msgid "Reason for adding payment"
+msgstr ""
+
+#: taxsystem/forms.py:63 taxsystem/forms.py:83 taxsystem/forms.py:93
 #: taxsystem/models/logs.py:72 taxsystem/models/logs.py:134
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:96
 msgid "Comment"
 msgstr ""
 
-#: taxsystem/forms.py:47
+#: taxsystem/forms.py:73
 msgid "Reason for undoing"
 msgstr ""
 
-#: taxsystem/forms.py:83
+#: taxsystem/forms.py:109
 #: taxsystem/templates/taxsystem/modals/view_filter.html:8
 msgid "Filter Set"
 msgstr ""
 
-#: taxsystem/forms.py:88
+#: taxsystem/forms.py:114
 #: taxsystem/templates/taxsystem/modals/view_filter.html:19
 msgid "Filter Type"
 msgstr ""
 
-#: taxsystem/forms.py:92
+#: taxsystem/forms.py:118
 #: taxsystem/templates/taxsystem/modals/view_filter.html:20
 msgid "Filter Value"
 msgstr ""
 
-#: taxsystem/forms.py:94
+#: taxsystem/forms.py:120
 msgid "Enter filter value"
 msgstr ""
 
-#: taxsystem/forms.py:105
+#: taxsystem/forms.py:131
 msgid "Filter Set Name"
 msgstr ""
 
-#: taxsystem/forms.py:107
+#: taxsystem/forms.py:133
 msgid "Enter filter set name"
 msgstr ""
 
-#: taxsystem/forms.py:110
+#: taxsystem/forms.py:136
 msgid "Filter Set Description"
 msgstr ""
 
-#: taxsystem/forms.py:113
+#: taxsystem/forms.py:139
 msgid "Enter filter set description"
 msgstr ""
 
@@ -188,11 +218,6 @@ msgstr ""
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:35
 #: taxsystem/templates/taxsystem/partials/table/own-payments.html:10
 msgid "Reason"
-msgstr ""
-
-#: taxsystem/models/filters.py:62
-#: taxsystem/templates/taxsystem/modals/view_payment_details.html:27
-msgid "Amount"
 msgstr ""
 
 #: taxsystem/models/general.py:18
@@ -245,6 +270,7 @@ msgstr ""
 
 #: taxsystem/models/logs.py:50 taxsystem/models/logs.py:113
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:93
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:4
 msgid "User"
 msgstr ""
 
@@ -297,121 +323,122 @@ msgstr ""
 msgid "Deleted"
 msgstr ""
 
-#: taxsystem/models/tax.py:50
+#: taxsystem/models/tax.py:51
 msgid "Wallet Journal"
 msgstr ""
 
-#: taxsystem/models/tax.py:51
+#: taxsystem/models/tax.py:52
 msgid "Wallet Division Names"
 msgstr ""
 
-#: taxsystem/models/tax.py:52
+#: taxsystem/models/tax.py:53
 msgid "Wallet Division"
 msgstr ""
 
-#: taxsystem/models/tax.py:53
+#: taxsystem/models/tax.py:54
 #: taxsystem/templates/taxsystem/partials/manage/dashboard.html:175
 #: taxsystem/templates/taxsystem/partials/manage/members.html:4
 msgid "Members"
 msgstr ""
 
-#: taxsystem/models/tax.py:54
+#: taxsystem/models/tax.py:55
 #: taxsystem/templates/taxsystem/modals/view_character_payments.html:14
 #: taxsystem/templates/taxsystem/partials/manage/dashboard.html:159
 #: taxsystem/templates/taxsystem/partials/menu/navigation.html:5
-#: taxsystem/views.py:332
+#: taxsystem/views.py:338
 msgid "Payments"
 msgstr ""
 
-#: taxsystem/models/tax.py:55
+#: taxsystem/models/tax.py:56
 #: taxsystem/templates/taxsystem/partials/manage/paymentsystem.html:4
 msgid "Payment System"
 msgstr ""
 
-#: taxsystem/models/tax.py:56
+#: taxsystem/models/tax.py:57
 msgid "Payday"
 msgstr ""
 
-#: taxsystem/models/tax.py:69
+#: taxsystem/models/tax.py:70
 msgid "disabled"
 msgstr ""
 
-#: taxsystem/models/tax.py:70
+#: taxsystem/models/tax.py:71
 msgid "token error"
 msgstr ""
 
-#: taxsystem/models/tax.py:71
+#: taxsystem/models/tax.py:72
 msgid "error"
 msgstr ""
 
-#: taxsystem/models/tax.py:72
+#: taxsystem/models/tax.py:73
 msgid "ok"
 msgstr ""
 
-#: taxsystem/models/tax.py:73
+#: taxsystem/models/tax.py:74
 msgid "incomplete"
 msgstr ""
 
-#: taxsystem/models/tax.py:74
+#: taxsystem/models/tax.py:75
 msgid "in progress"
 msgstr ""
 
-#: taxsystem/models/tax.py:108
+#: taxsystem/models/tax.py:109
 msgid "Update is disabled"
 msgstr ""
 
-#: taxsystem/models/tax.py:109
+#: taxsystem/models/tax.py:110
 msgid "One section has a token error during update"
 msgstr ""
 
-#: taxsystem/models/tax.py:110
+#: taxsystem/models/tax.py:111
 msgid "One or more sections have not been updated"
 msgstr ""
 
-#: taxsystem/models/tax.py:111
+#: taxsystem/models/tax.py:112
 msgid "Update is in progress"
 msgstr ""
 
-#: taxsystem/models/tax.py:112
+#: taxsystem/models/tax.py:113
 msgid "An error occurred during update"
 msgstr ""
 
-#: taxsystem/models/tax.py:113
+#: taxsystem/models/tax.py:114
 msgid "Updates completed successfully"
 msgstr ""
 
-#: taxsystem/models/tax.py:140
+#: taxsystem/models/tax.py:141
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/tax.py:147
+#: taxsystem/models/tax.py:148
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/tax.py:388
+#: taxsystem/models/tax.py:389
 msgid "Tax System Audit"
 msgstr ""
 
-#: taxsystem/models/tax.py:389
+#: taxsystem/models/tax.py:390
 msgid "Tax System Audits"
 msgstr ""
 
-#: taxsystem/models/tax.py:397 taxsystem/models/tax.py:459
+#: taxsystem/models/tax.py:398 taxsystem/models/tax.py:460
 msgid "Missing"
 msgstr ""
 
-#: taxsystem/models/tax.py:398
+#: taxsystem/models/tax.py:399
 #: taxsystem/templates/taxsystem/partials/manage/dashboard.html:187
 msgid "Unregistered"
 msgstr ""
 
-#: taxsystem/models/tax.py:399
+#: taxsystem/models/tax.py:400
 msgid "Is Alt"
 msgstr ""
 
-#: taxsystem/models/tax.py:410
+#: taxsystem/models/tax.py:411
 #: taxsystem/templates/taxsystem/modals/view_character_payments.html:23
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:97
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:13
 #: taxsystem/templates/taxsystem/partials/manage/members.html:13
 #: taxsystem/templates/taxsystem/partials/manage/paymentsystem.html:13
 #: taxsystem/templates/taxsystem/partials/table/own-payments.html:9
@@ -419,63 +446,63 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: taxsystem/models/tax.py:423
+#: taxsystem/models/tax.py:424
 msgid "Tax Member System"
 msgstr ""
 
-#: taxsystem/models/tax.py:424
+#: taxsystem/models/tax.py:425
 msgid "Tax Member Systems"
 msgstr ""
 
-#: taxsystem/models/tax.py:492
+#: taxsystem/models/tax.py:493
 msgid "Paid"
 msgstr ""
 
-#: taxsystem/models/tax.py:493
+#: taxsystem/models/tax.py:494
 msgid "Unpaid"
 msgstr ""
 
-#: taxsystem/models/tax.py:518
+#: taxsystem/models/tax.py:519
 msgid "Deposit Pool in ISK. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/tax.py:531
+#: taxsystem/models/tax.py:532
 msgid "Tax Payment System"
 msgstr ""
 
-#: taxsystem/models/tax.py:532
+#: taxsystem/models/tax.py:533
 msgid "Tax Payment Systems"
 msgstr ""
 
-#: taxsystem/models/tax.py:601
+#: taxsystem/models/tax.py:613
 msgid "Approved"
 msgstr ""
 
-#: taxsystem/models/tax.py:602
+#: taxsystem/models/tax.py:614
 msgid "Pending"
 msgstr ""
 
-#: taxsystem/models/tax.py:603
+#: taxsystem/models/tax.py:615
 msgid "Rejected"
 msgstr ""
 
-#: taxsystem/models/tax.py:604
+#: taxsystem/models/tax.py:616
 msgid "Requires Auditor"
 msgstr ""
 
-#: taxsystem/models/tax.py:624
+#: taxsystem/models/tax.py:638
 msgid "Request Status"
 msgstr ""
 
-#: taxsystem/models/tax.py:631
+#: taxsystem/models/tax.py:645
 msgid "Reviser that approved or rejected the payment"
 msgstr ""
 
-#: taxsystem/models/tax.py:636 taxsystem/models/tax.py:637
+#: taxsystem/models/tax.py:650 taxsystem/models/tax.py:651
 msgid "Tax Payments"
 msgstr ""
 
-#: taxsystem/models/tax.py:696
+#: taxsystem/models/tax.py:709
 msgid "No date"
 msgstr ""
 
@@ -489,12 +516,12 @@ msgid "Tax System"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/account.html:20
-#: taxsystem/templates/taxsystem/partials/view/account.html:22
+#: taxsystem/templates/taxsystem/partials/view/account.html:24
 msgid "Account Status"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/admin.html:29
-#: taxsystem/templates/taxsystem/manage.html:19 taxsystem/views.py:81
+#: taxsystem/templates/taxsystem/manage.html:19 taxsystem/views.py:85
 msgid "Administration"
 msgstr ""
 
@@ -537,24 +564,25 @@ msgstr ""
 msgid "No Permission"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/bundles/settings-js.html:21
+#: taxsystem/templates/taxsystem/bundles/settings-js.html:20
 msgid "days"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/bundles/settings-js.html:22
+#: taxsystem/templates/taxsystem/bundles/settings-js.html:21
 msgid "Enter Tax Amount"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/bundles/settings-js.html:23
+#: taxsystem/templates/taxsystem/bundles/settings-js.html:22
 msgid "Enter Tax Period"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/bundles/settings-js.html:24
+#: taxsystem/templates/taxsystem/bundles/settings-js.html:23
 msgid "Internal Server Error"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/bundles/settings-js.html:25
+#: taxsystem/templates/taxsystem/bundles/settings-js.html:24
 #: taxsystem/templates/taxsystem/partials/manage/dashboard.html:222
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:16
 #: taxsystem/templates/taxsystem/partials/manage/paymentsystem.html:15
 msgid "Tax Paid"
 msgstr ""
@@ -579,13 +607,15 @@ msgstr ""
 msgid "Add Filter Set"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/manage-filter.html:67 taxsystem/views.py:312
+#: taxsystem/templates/taxsystem/manage-filter.html:67 taxsystem/views.py:318
 msgid "Edit Filter Set"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/filter-delete.html:29
 #: taxsystem/templates/taxsystem/modals/members-delete.html:29
+#: taxsystem/templates/taxsystem/modals/payments-add.html:30
 #: taxsystem/templates/taxsystem/modals/payments-approve.html:29
+#: taxsystem/templates/taxsystem/modals/payments-delete.html:30
 #: taxsystem/templates/taxsystem/modals/payments-reject.html:30
 #: taxsystem/templates/taxsystem/modals/payments-undo.html:30
 #: taxsystem/templates/taxsystem/modals/paymentsystem-switchuser.html:29
@@ -594,7 +624,9 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/filter-delete.html:33
 #: taxsystem/templates/taxsystem/modals/members-delete.html:33
+#: taxsystem/templates/taxsystem/modals/payments-add.html:34
 #: taxsystem/templates/taxsystem/modals/payments-approve.html:33
+#: taxsystem/templates/taxsystem/modals/payments-delete.html:34
 #: taxsystem/templates/taxsystem/modals/payments-reject.html:34
 #: taxsystem/templates/taxsystem/modals/payments-undo.html:34
 #: taxsystem/templates/taxsystem/modals/paymentsystem-switchuser.html:33
@@ -654,23 +686,24 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:53
 #: taxsystem/templates/taxsystem/partials/menu/navigation.html:17
-#: taxsystem/templates/taxsystem/partials/view/account.html:12
-#: taxsystem/views.py:403
+#: taxsystem/templates/taxsystem/partials/view/account.html:14
+#: taxsystem/views.py:444
 msgid "Account"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:57
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:17
 #: taxsystem/templates/taxsystem/partials/manage/paymentsystem.html:14
 msgid "Deposit"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:61
-#: taxsystem/templates/taxsystem/partials/view/account.html:17
+#: taxsystem/templates/taxsystem/partials/view/account.html:19
 msgid "Corporation"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:74
-#: taxsystem/templates/taxsystem/partials/view/account.html:34
+#: taxsystem/templates/taxsystem/partials/view/account.html:36
 msgid "Payment Status"
 msgstr ""
 
@@ -680,7 +713,7 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/own-payments.html:25
 #: taxsystem/templates/taxsystem/partials/menu/navigation.html:9
-#: taxsystem/views.py:365
+#: taxsystem/views.py:373
 msgid "Own Payments"
 msgstr ""
 
@@ -814,20 +847,31 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:12
+msgid "Account Name"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:14
+#: taxsystem/templates/taxsystem/partials/manage/members.html:14
+#: taxsystem/templates/taxsystem/partials/view/account.html:46
+msgid "Joined"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:15
+#: taxsystem/templates/taxsystem/partials/view/account.html:50
+msgid "Last Login"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/manage/manage-user.html:18
+#: taxsystem/templates/taxsystem/partials/manage/paymentsystem.html:16
+#: taxsystem/templates/taxsystem/partials/view/account.html:41
+msgid "Last Debit"
+msgstr ""
+
 #: taxsystem/templates/taxsystem/partials/manage/members.html:12
 #: taxsystem/templates/taxsystem/partials/manage/paymentsystem.html:12
 #: taxsystem/templates/taxsystem/partials/table/payments.html:8
 msgid "Character Name"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/manage/members.html:14
-#: taxsystem/templates/taxsystem/partials/view/account.html:44
-msgid "Joined"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/manage/paymentsystem.html:16
-#: taxsystem/templates/taxsystem/partials/view/account.html:39
-msgid "Last Debit"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/menu/administration.html:7
@@ -840,11 +884,11 @@ msgid "Manage Tax System"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/menu/navigation.html:13
-#: taxsystem/views.py:381
+#: taxsystem/views.py:389
 msgid "FAQ"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/partials/view/account.html:29
+#: taxsystem/templates/taxsystem/partials/view/account.html:31
 msgid "Balance Due"
 msgstr ""
 
@@ -889,148 +933,183 @@ msgstr ""
 msgid "Incoming Payments"
 msgstr ""
 
-#: taxsystem/views.py:53
+#: taxsystem/views.py:57
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: taxsystem/views.py:61
+#: taxsystem/views.py:65
 msgid "Queued Clear All ETags"
 msgstr ""
 
-#: taxsystem/views.py:64
+#: taxsystem/views.py:68
 msgid "Queued Update All Taxsystem"
 msgstr ""
 
-#: taxsystem/views.py:70
+#: taxsystem/views.py:74
 msgid "Tax System Superuser Administration"
 msgstr ""
 
-#: taxsystem/views.py:105
+#: taxsystem/views.py:111
 msgid "Manage Filters"
 msgstr ""
 
-#: taxsystem/views.py:114 taxsystem/views.py:182 taxsystem/views.py:217
-#: taxsystem/views.py:290
+#: taxsystem/views.py:120 taxsystem/views.py:188 taxsystem/views.py:223
+#: taxsystem/views.py:296
 msgid "You do not have permission to manage this corporation."
 msgstr ""
 
-#: taxsystem/views.py:135
+#: taxsystem/views.py:141
 msgid "A filter with this name already exists."
 msgstr ""
 
-#: taxsystem/views.py:141 taxsystem/views.py:166
+#: taxsystem/views.py:147 taxsystem/views.py:172
 msgid "Something went wrong, please try again later."
 msgstr ""
 
-#: taxsystem/views.py:159
+#: taxsystem/views.py:165
 msgid "A filter set with this name already exists."
 msgstr ""
 
-#: taxsystem/views.py:199
+#: taxsystem/views.py:205
 msgid "Deactivate Filter Set"
 msgstr ""
 
-#: taxsystem/views.py:204
+#: taxsystem/views.py:210
 #, python-brace-format
 msgid "Filter set switched to {filter_set.enabled} successfully."
 msgstr ""
 
-#: taxsystem/views.py:225
+#: taxsystem/views.py:231
 #, python-brace-format
 msgid "{filter_set.name} from {owner.name} deleted"
 msgstr ""
 
-#: taxsystem/views.py:232
+#: taxsystem/views.py:238
 msgid "Filter set deleted successfully."
 msgstr ""
 
-#: taxsystem/views.py:241
+#: taxsystem/views.py:247
 msgid "Delete Filter Set"
 msgstr ""
 
-#: taxsystem/views.py:252 taxsystem/views.py:456 taxsystem/views.py:508
-#: taxsystem/views.py:561 taxsystem/views.py:613 taxsystem/views.py:728
+#: taxsystem/views.py:258 taxsystem/views.py:519 taxsystem/views.py:571
+#: taxsystem/views.py:624 taxsystem/views.py:676 taxsystem/views.py:744
+#: taxsystem/views.py:815 taxsystem/views.py:930
 msgid "Invalid Method"
 msgstr ""
 
-#: taxsystem/views.py:257 taxsystem/views.py:358 taxsystem/views.py:461
-#: taxsystem/views.py:513 taxsystem/views.py:566 taxsystem/views.py:618
-#: taxsystem/views.py:670 taxsystem/views.py:706 taxsystem/views.py:733
+#: taxsystem/views.py:263 taxsystem/views.py:366 taxsystem/views.py:435
+#: taxsystem/views.py:524 taxsystem/views.py:576 taxsystem/views.py:629
+#: taxsystem/views.py:681 taxsystem/views.py:749 taxsystem/views.py:820
+#: taxsystem/views.py:872 taxsystem/views.py:908 taxsystem/views.py:935
 msgid "Permission Denied"
 msgstr ""
 
-#: taxsystem/views.py:267
+#: taxsystem/views.py:273
 msgid ""
 "{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} "
 "deleted - {form.cleaned_data['delete_reason']}"
 msgstr ""
 
-#: taxsystem/views.py:301
+#: taxsystem/views.py:307
 msgid "Filter set updated successfully."
 msgstr ""
 
-#: taxsystem/views.py:326 taxsystem/views.py:355 taxsystem/views.py:399
+#: taxsystem/views.py:332 taxsystem/views.py:363
 msgid "No Corporation found."
 msgstr ""
 
-#: taxsystem/views.py:439
+#: taxsystem/views.py:410
+msgid "No User found."
+msgstr ""
+
+#: taxsystem/views.py:418
+msgid "User has no main character set."
+msgstr ""
+
+#: taxsystem/views.py:427
+msgid "No Payment System User found."
+msgstr ""
+
+#: taxsystem/views.py:431
+msgid "Corporation not Found"
+msgstr ""
+
+#: taxsystem/views.py:502
 msgid "Added to Tax System"
 msgstr ""
 
-#: taxsystem/views.py:445
+#: taxsystem/views.py:508
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
 msgstr ""
 
-#: taxsystem/views.py:474
+#: taxsystem/views.py:537
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
 msgstr ""
 
-#: taxsystem/views.py:500 taxsystem/views.py:553 taxsystem/views.py:605
-#: taxsystem/views.py:648
+#: taxsystem/views.py:563 taxsystem/views.py:616 taxsystem/views.py:668
+#: taxsystem/views.py:736 taxsystem/views.py:807 taxsystem/views.py:850
 msgid "Transaction failed. Please try again."
 msgstr ""
 
-#: taxsystem/views.py:526
+#: taxsystem/views.py:589
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
 msgstr ""
 
-#: taxsystem/views.py:587
+#: taxsystem/views.py:650
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
 msgstr ""
 
-#: taxsystem/views.py:632
+#: taxsystem/views.py:695
+#, python-brace-format
+msgid ""
+"Payment ID: {pid} - Amount: {amount} - Name: {name} deletion failed - ESI "
+"imported payments cannot be deleted"
+msgstr ""
+
+#: taxsystem/views.py:706
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
+msgstr ""
+
+#: taxsystem/views.py:780
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} added"
+msgstr ""
+
+#: taxsystem/views.py:834
 #, python-format
 msgid "Payment System User: %s deactivated"
 msgstr ""
 
-#: taxsystem/views.py:635
+#: taxsystem/views.py:837
 #, python-format
 msgid "Payment System User: %s activated"
 msgstr ""
 
-#: taxsystem/views.py:658 taxsystem/views.py:694
+#: taxsystem/views.py:860 taxsystem/views.py:896
 msgid "Please enter a valid number"
 msgstr ""
 
-#: taxsystem/views.py:675
+#: taxsystem/views.py:877
 #, python-brace-format
 msgid "Tax Amount from {corp.name} updated to {value}"
 msgstr ""
 
-#: taxsystem/views.py:685 taxsystem/views.py:721
+#: taxsystem/views.py:887 taxsystem/views.py:923
 msgid "Invalid request method"
 msgstr ""
 
-#: taxsystem/views.py:711
+#: taxsystem/views.py:913
 #, python-brace-format
 msgid "Tax Period from {corp.name} updated to {value}"
 msgstr ""
 
-#: taxsystem/views.py:743
+#: taxsystem/views.py:945
 #, python-brace-format
 msgid "Member {member.character_name} deleted - {reason}"
 msgstr ""
