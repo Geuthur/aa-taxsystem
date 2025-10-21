@@ -15,4 +15,4 @@ node_modules/
 /coverage.xml
 testing/
 
-./make/myauth-path
+.make/myauth-path
