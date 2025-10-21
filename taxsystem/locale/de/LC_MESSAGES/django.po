@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-01 07:41+0200\n"
-"PO-Revision-Date: 2025-10-11 07:17+0000\n"
+"Project-Id-Version: AA Tax System\n"
+"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
+"POT-Creation-Date: 2025-10-14 13:35+0200\n"
+"PO-Revision-Date: 2025-10-16 05:25+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.voices-of-war.de/projects/"
@@ -50,6 +50,9 @@ msgstr "Lösche"
 msgid "Delete Member"
 msgstr "Lösche Mitglied"
 
+msgid "Delete Filter"
+msgstr "Lösche Filter"
+
 msgid "Approve Payment"
 msgstr "Zahlung freigeben"
 
@@ -89,35 +92,47 @@ msgstr "Kommentar"
 msgid "Reason for undoing"
 msgstr "Grund des Zurücksetzens"
 
+msgid "Filter Set"
+msgstr ""
+
+msgid "Filter Type"
+msgstr ""
+
+msgid "Filter Value"
+msgstr ""
+
+msgid "Enter filter value"
+msgstr ""
+
+msgid "Filter Set Name"
+msgstr ""
+
+msgid "Enter filter set name"
+msgstr ""
+
+msgid "Filter Set Description"
+msgstr ""
+
+msgid "Enter filter set description"
+msgstr ""
+
 msgid "Master Wallet"
 msgstr "Haupt Konto"
 
 msgid "Unknown"
 msgstr "Unbekannt"
 
-msgid "Smart Filter Binding"
+msgid "Journal Filter Set"
 msgstr ""
 
-msgid "Smart Filters Catalog"
+msgid "Journal Filter Sets"
 msgstr ""
 
-msgid "Filter Amount"
-msgstr ""
+msgid "Reason"
+msgstr "Grund"
 
-msgid "Filter Amounts"
-msgstr ""
-
-msgid "Filter Reason"
-msgstr ""
-
-msgid "Filter Reasons"
-msgstr ""
-
-msgid "Filter Date"
-msgstr ""
-
-msgid "Filter Dates"
-msgstr ""
+msgid "Amount"
+msgstr "Betrag"
 
 msgid "Can access the Tax System"
 msgstr "Kann Steuer System verwalten"
@@ -272,7 +287,7 @@ msgid "Is Alt"
 msgstr "Ist Alt"
 
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 msgid "Tax Member System"
 msgstr "Steuer Mitglied System"
@@ -347,7 +362,7 @@ msgid "Actions"
 msgstr "Aktionen"
 
 msgid "Show"
-msgstr "Anzeigen"
+msgstr "Zeige"
 
 msgid "No Permission"
 msgstr "Keine Berechtigung"
@@ -370,6 +385,21 @@ msgstr "Steuer Gezahlt"
 msgid "Frequently Asked Questions"
 msgstr ""
 
+msgid "Filter Sets"
+msgstr ""
+
+msgid "Filter Setup"
+msgstr ""
+
+msgid "Add Filter"
+msgstr ""
+
+msgid "Add Filter Set"
+msgstr ""
+
+msgid "Edit Filter Set"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -385,23 +415,23 @@ msgstr ""
 msgid "Edited by"
 msgstr "Bearbeitet von"
 
-msgid "Reason"
-msgstr "Grund"
-
 msgid "Division"
 msgstr "Abteilung"
 
 msgid "No character found."
 msgstr "Kein Charakter gefunden."
 
+msgid "Filters"
+msgstr ""
+
+msgid "No Filter found."
+msgstr "Kein Filter gefunden."
+
 msgid "Payment Information"
 msgstr "Zahlungsinformation"
 
 msgid "Payment Account"
 msgstr "Zahlungs Account"
-
-msgid "Amount"
-msgstr "Betrag"
 
 msgid "Dashboard"
 msgstr ""
@@ -413,7 +443,7 @@ msgid "Deposit"
 msgstr ""
 
 msgid "Corporation"
-msgstr "Corporation"
+msgstr ""
 
 msgid "Payment Status"
 msgstr "Zahlungsstatus"
@@ -444,6 +474,12 @@ msgstr ""
 
 msgid "Last 30 days"
 msgstr ""
+
+msgid "Filters:"
+msgstr ""
+
+msgid "Automatic Payments Filters"
+msgstr "Automatische Zahlungen Filter"
 
 msgid "Update Status:"
 msgstr "Update Status:"
@@ -505,6 +541,15 @@ msgstr "Deaktivierte Accounts"
 msgid "Tax Unpaid"
 msgstr "Steuer nicht Gezahlt"
 
+msgid "Name"
+msgstr "Name"
+
+msgid "Descriptions"
+msgstr "Beschreibungen"
+
+msgid "Info"
+msgstr ""
+
 msgid "Character Name"
 msgstr ""
 
@@ -515,7 +560,7 @@ msgid "Last Debit"
 msgstr "Letzte Abbuchung"
 
 msgid "Add Corporation"
-msgstr "Corporation Hinzufügen"
+msgstr "Corporation hinzufügen"
 
 msgid "Manage Tax System"
 msgstr "Verwalte Steuer System"
@@ -526,7 +571,7 @@ msgstr ""
 msgid "Balance Due"
 msgstr ""
 
-msgid "No corporations found."
+msgid "No Corporations found."
 msgstr "Keine Corporationen gefunden."
 
 msgid ""
@@ -570,7 +615,53 @@ msgstr ""
 msgid "Tax System Superuser Administration"
 msgstr ""
 
-msgid "No corporation found."
+msgid "Manage Filters"
+msgstr ""
+
+msgid "You do not have permission to manage this corporation."
+msgstr "Du hast keine Berechtigung diese Corporation zu verwalten."
+
+msgid "A filter with this name already exists."
+msgstr ""
+
+msgid "Something went wrong, please try again later."
+msgstr ""
+
+msgid "A filter set with this name already exists."
+msgstr ""
+
+msgid "Deactivate Filter Set"
+msgstr "Deaktiviere Filtersatz"
+
+#, python-brace-format
+msgid "Filter set switched to {filter_set.enabled} successfully."
+msgstr ""
+
+#, python-brace-format
+msgid "{filter_set.name} from {owner.name} deleted"
+msgstr ""
+
+msgid "Filter set deleted successfully."
+msgstr "Filtersatz wurde erfolgreich gelöscht."
+
+msgid "Delete Filter Set"
+msgstr "Lösche Filtersatz"
+
+msgid "Invalid Method"
+msgstr "Ungültige methode"
+
+msgid "Permission Denied"
+msgstr "Zugriff verweigert"
+
+msgid ""
+"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} "
+"deleted - {form.cleaned_data['delete_reason']}"
+msgstr ""
+
+msgid "Filter set updated successfully."
+msgstr "Aktualisierungen erfolgreich abgeschlossen."
+
+msgid "No Corporation found."
 msgstr "Keine Corporationen gefunden."
 
 msgid "Added to Tax System"
@@ -579,12 +670,6 @@ msgstr "Zum Steuersystem hinzugefügt"
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
 msgstr "{corporation_name} erfolgreich hinzugefügt/geupdated in Steuer System"
-
-msgid "Invalid Method"
-msgstr "Ungültige methode"
-
-msgid "Permission Denied"
-msgstr "Zugriff verweigert"
 
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
@@ -597,9 +682,9 @@ msgstr "Transcation fehlgeschlagen. Versuche es später erneut."
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
 msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} Rückgängig gemacht"
 
-#, python-format
-msgid "Payment ID: %s - Amount: %s - Name: %s rejected"
-msgstr "Zahlungs ID: %s - Betrag %s - Name: %s abgelehnt"
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
+msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} abgelehnt"
 
 #, python-format
 msgid "Payment System User: %s deactivated"
@@ -621,8 +706,15 @@ msgstr "Ungültige anfragen methode"
 
 #, python-brace-format
 msgid "Tax Period from {corp.name} updated to {value}"
-msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
+msgstr "Steuer Periode von {corp.name} aktualisiert auf {value}"
 
 #, python-brace-format
-msgid "Member {member.character_name} deleted"
+msgid "Member {member.character_name} deleted - {reason}"
 msgstr ""
+
+#, python-format
+#~ msgid "Payment ID: %s - Amount: %s - Name: %s rejected"
+#~ msgstr "Zahlungs ID: %s - Betrag %s - Name: %s abgelehnt"
+
+#~ msgid "No corporation found."
+#~ msgstr "Keine Corporationen gefunden."

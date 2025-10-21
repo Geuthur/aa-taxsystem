@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-01 07:41+0200\n"
+"Project-Id-Version: AA Tax System \n"
+"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
+"POT-Creation-Date: 2025-10-14 13:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,6 +47,9 @@ msgid "Delete"
 msgstr ""
 
 msgid "Delete Member"
+msgstr ""
+
+msgid "Delete Filter"
 msgstr ""
 
 msgid "Approve Payment"
@@ -88,34 +91,46 @@ msgstr ""
 msgid "Reason for undoing"
 msgstr ""
 
+msgid "Filter Set"
+msgstr ""
+
+msgid "Filter Type"
+msgstr ""
+
+msgid "Filter Value"
+msgstr ""
+
+msgid "Enter filter value"
+msgstr ""
+
+msgid "Filter Set Name"
+msgstr ""
+
+msgid "Enter filter set name"
+msgstr ""
+
+msgid "Filter Set Description"
+msgstr ""
+
+msgid "Enter filter set description"
+msgstr ""
+
 msgid "Master Wallet"
 msgstr ""
 
 msgid "Unknown"
 msgstr ""
 
-msgid "Smart Filter Binding"
+msgid "Journal Filter Set"
 msgstr ""
 
-msgid "Smart Filters Catalog"
+msgid "Journal Filter Sets"
 msgstr ""
 
-msgid "Filter Amount"
+msgid "Reason"
 msgstr ""
 
-msgid "Filter Amounts"
-msgstr ""
-
-msgid "Filter Reason"
-msgstr ""
-
-msgid "Filter Reasons"
-msgstr ""
-
-msgid "Filter Date"
-msgstr ""
-
-msgid "Filter Dates"
+msgid "Amount"
 msgstr ""
 
 msgid "Can access the Tax System"
@@ -367,6 +382,21 @@ msgstr ""
 msgid "Frequently Asked Questions"
 msgstr ""
 
+msgid "Filter Sets"
+msgstr ""
+
+msgid "Filter Setup"
+msgstr ""
+
+msgid "Add Filter"
+msgstr ""
+
+msgid "Add Filter Set"
+msgstr ""
+
+msgid "Edit Filter Set"
+msgstr ""
+
 msgid "Cancel"
 msgstr ""
 
@@ -382,22 +412,22 @@ msgstr ""
 msgid "Edited by"
 msgstr ""
 
-msgid "Reason"
-msgstr ""
-
 msgid "Division"
 msgstr ""
 
 msgid "No character found."
 msgstr ""
 
+msgid "Filters"
+msgstr ""
+
+msgid "No Filter found."
+msgstr ""
+
 msgid "Payment Information"
 msgstr ""
 
 msgid "Payment Account"
-msgstr ""
-
-msgid "Amount"
 msgstr ""
 
 msgid "Dashboard"
@@ -440,6 +470,12 @@ msgid "Wallet Activity:"
 msgstr ""
 
 msgid "Last 30 days"
+msgstr ""
+
+msgid "Filters:"
+msgstr ""
+
+msgid "Automatic Payments Filters"
 msgstr ""
 
 msgid "Update Status:"
@@ -502,6 +538,15 @@ msgstr ""
 msgid "Tax Unpaid"
 msgstr ""
 
+msgid "Name"
+msgstr ""
+
+msgid "Descriptions"
+msgstr ""
+
+msgid "Info"
+msgstr ""
+
 msgid "Character Name"
 msgstr ""
 
@@ -523,7 +568,7 @@ msgstr ""
 msgid "Balance Due"
 msgstr ""
 
-msgid "No corporations found."
+msgid "No Corporations found."
 msgstr ""
 
 msgid ""
@@ -567,7 +612,53 @@ msgstr ""
 msgid "Tax System Superuser Administration"
 msgstr ""
 
-msgid "No corporation found."
+msgid "Manage Filters"
+msgstr ""
+
+msgid "You do not have permission to manage this corporation."
+msgstr ""
+
+msgid "A filter with this name already exists."
+msgstr ""
+
+msgid "Something went wrong, please try again later."
+msgstr ""
+
+msgid "A filter set with this name already exists."
+msgstr ""
+
+msgid "Deactivate Filter Set"
+msgstr ""
+
+#, python-brace-format
+msgid "Filter set switched to {filter_set.enabled} successfully."
+msgstr ""
+
+#, python-brace-format
+msgid "{filter_set.name} from {owner.name} deleted"
+msgstr ""
+
+msgid "Filter set deleted successfully."
+msgstr ""
+
+msgid "Delete Filter Set"
+msgstr ""
+
+msgid "Invalid Method"
+msgstr ""
+
+msgid "Permission Denied"
+msgstr ""
+
+msgid ""
+"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} "
+"deleted - {form.cleaned_data['delete_reason']}"
+msgstr ""
+
+msgid "Filter set updated successfully."
+msgstr ""
+
+msgid "No Corporation found."
 msgstr ""
 
 msgid "Added to Tax System"
@@ -575,12 +666,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
-msgstr ""
-
-msgid "Invalid Method"
-msgstr ""
-
-msgid "Permission Denied"
 msgstr ""
 
 #, python-brace-format
@@ -594,8 +679,8 @@ msgstr ""
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
 msgstr ""
 
-#, python-format
-msgid "Payment ID: %s - Amount: %s - Name: %s rejected"
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
 msgstr ""
 
 #, python-format
@@ -621,5 +706,5 @@ msgid "Tax Period from {corp.name} updated to {value}"
 msgstr ""
 
 #, python-brace-format
-msgid "Member {member.character_name} deleted"
+msgid "Member {member.character_name} deleted - {reason}"
 msgstr ""

@@ -1,8 +1,10 @@
 {% load i18n %}
+{% load humanize %}
 
 <div class="card-body d-flex">
     <!-- Bildbereich -->
     <div class="text-center" id="portrait">
+        <img src="https://images.evetech.net/characters/{{ character_id }}/portrait?size=256" class="img-thumbnail rounded-circle">
     </div>
     <div class="card-body">
         <div class="row">
@@ -10,39 +12,43 @@
             <div class="col-md-8 w-auto" id="info-panel">
                 <dl class="dl-horizontal">
                     <dt>{% trans "Account" %}:</dt>
-                    <dd class="nowrap" id="account_name"></dd>
+                    <dd class="nowrap" id="account_name">{{ account.name }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Corporation" %}:</dt>
-                    <dd class="nowrap" id="corporation_name"></dd>
+                    <dd class="nowrap" id="corporation_name">{{ account.corporation.name }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Account Status" %}:</dt>
-                    <dd class="nowrap" id="account_status"></dd>
+                    <dd class="nowrap" id="account_status">{{ account.status }}</dd>
                 </dl>
             </div>
             <!-- Costs Info -->
             <div class="col-md-8 w-auto" id="info-amounts-panel">
                 <dl class="dl-horizontal">
                     <dt>{% trans "Balance Due" %}:</dt>
-                    <dd class="nowrap" id="deposit_amount"></dd>
+                    <dd class="nowrap" id="deposit_amount">{{ account.deposit|safe }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Payment Status" %}:</dt>
-                    <dd class="nowrap" id="payment_status"></dd>
+                    <dd class="nowrap" id="payment_status">{{ account.has_paid.display|safe }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Last Debit" %}:</dt>
-                    <dd class="nowrap" id="last_paid"></dd>
+                    <dd class="nowrap" id="last_paid">{{ account.last_paid }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Joined" %}:</dt>
-                    <dd class="nowrap" id="joined"></dd>
+                    <dd class="nowrap" id="joined">{{ account.joined }}</dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Last Login" %}:</dt>
+                    <dd class="nowrap" id="last_login">{{ account.last_login }}</dd>
                 </dl>
             </div>
         </div>

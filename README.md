@@ -8,6 +8,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Tests](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml)
 [![codecov](https://codecov.io/gh/Geuthur/aa-taxsystem/graph/badge.svg?token=IGpkrAuv42)](https://codecov.io/gh/Geuthur/aa-taxsystem)
+[![Translation status](https://weblate.voices-of-war.de/widget/allianceauth/aa-memberaudit-doctrine-checker/svg-badge.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
@@ -26,6 +27,8 @@ ______________________________________________________________________
     - [Step 4 - Migration to AA](#step4)
     - [Step 5 - Setting up Permissions](#step5)
     - [Step 6 - (Optional) Setting up Compatibilies](#step6)
+  - [Translations](#translations)
+  - [Contributing](#contributing)
 
 ## Features<a name="features"></a>
 
@@ -147,10 +150,17 @@ The Following Settings can be setting up in the `local.py`
 
 Advanced Settings: Stale Status for Each Section
 
-- TAXSYSTEM_STALE_TYPES = `{     "wallet": 60,     "division": 60,     "members": 60,     "payments": 60,     "payment_system": 60,     "payment_payday": 1440 }` - Defines the stale status duration (in minutes) for each section.
+- TAXSYSTEM_STALE_TYPES = \`{ "wallet": 60, "division": 60, "members": 60, "payments": 60, "payment_system":
 
-> [!NOTE]
-> Contributing
-> You want to improve the project?
-> Just Make a [Pull Request](https://github.com/Geuthur/aa-taxsystem/pulls) with the Guidelines.
-> We Using pre-commit
+60, "payment_payday": 1440 }\` - Defines the stale status duration (in minutes) for each section.
+
+## Translations<a name="translations"></a>
+
+[![Translations](https://weblate.voices-of-war.de/widget/allianceauth/aa-taxsystem/multi-auto.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
+
+Help us translate this app into your language or improve existing translations. Join our team!"
+
+## Contributing <a name="contributing"></a>
+
+You want to improve the project?
+Please ensure you read the [contribution guidelines](https://github.com/Geuthur/aa-taxsystem/blob/master/CONTRIBUTING.md)

@@ -8,6 +8,8 @@ from django.utils.translation import gettext as _
 from taxsystem.api.helpers import generate_button, generate_settings
 from taxsystem.models.tax import PaymentSystem
 
+PAYMENT_SYSTEM_TEMPLATE = "taxsystem/partials/form/button.html"
+
 
 def _payments_info(corporation_id, user: PaymentSystem, perms, request):
     if not perms:
@@ -32,14 +34,9 @@ def _payments_info(corporation_id, user: PaymentSystem, perms, request):
     return format_html(f"{intcomma(user.deposit, use_l10n=True)} ISK {view_payments}")
 
 
-def _payment_system_actions(
-    corporation_id, payment_system: PaymentSystem, perms, request
+def _switch_user(
+    actions: list, corporation_id: int, payment_system: PaymentSystem, request
 ):
-    # Check if user has permission to view the actions
-    if not perms:
-        return ""
-
-    template = "taxsystem/partials/form/button.html"
     url = reverse(
         viewname="taxsystem:switch_user",
         kwargs={
@@ -78,10 +75,68 @@ def _payment_system_actions(
         action=url,
         ajax="action",
     )
+    actions.append(
+        generate_button(
+            corporation_id, PAYMENT_SYSTEM_TEMPLATE, payment_system, settings, request
+        )
+    )
+
+    return actions
+
+
+def _add_payment(
+    actions: list, corporation_id: int, payment_system: PaymentSystem, request
+):
+    actions.append(
+        generate_button(
+            corporation_id=corporation_id,
+            template="taxsystem/partials/form/button.html",
+            queryset=payment_system,
+            settings={
+                "title": _("Add Payment"),
+                "icon": "fas fa-fas fa-dollar-sign",
+                "color": "success",
+                "text": _("Add Payment")
+                + _("for")
+                + f" {payment_system.user.username}",
+                "modal": "payments-add",
+                "action": reverse(
+                    viewname="taxsystem:add_payment",
+                    kwargs={
+                        "corporation_id": corporation_id,
+                        "payment_system_pk": payment_system.pk,
+                    },
+                ),
+                "ajax": "action",
+            },
+            request=request,
+        )
+    )
+    return actions
+
+
+def payment_system_actions(
+    corporation_id, payment_system: PaymentSystem, perms, request
+):
+    # Check if user has permission to view the actions
+    if not perms:
+        return ""
+
     # Generate the buttons
     actions = []
-    actions.append(
-        generate_button(corporation_id, template, payment_system, settings, request)
+
+    # Add Switch User Button
+    _add_payment(
+        actions=actions,
+        corporation_id=corporation_id,
+        payment_system=payment_system,
+        request=request,
+    )
+    _switch_user(
+        actions=actions,
+        corporation_id=corporation_id,
+        payment_system=payment_system,
+        request=request,
     )
 
     actions_html = format_html("".join(actions))

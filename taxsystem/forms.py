@@ -19,8 +19,8 @@ def get_mandatory_form_label_text(text: str) -> str:
     )
 
 
-class TaxRejectForm(forms.Form):
-    """Form for rejecting."""
+class PaymentRejectForm(forms.Form):
+    """Form for payment rejecting."""
 
     reject_reason = forms.CharField(
         required=True,
@@ -29,8 +29,34 @@ class TaxRejectForm(forms.Form):
     )
 
 
-class TaxAcceptForm(forms.Form):
-    """Form for accepting."""
+class PaymentDeleteForm(forms.Form):
+    """Form for payment deleting."""
+
+    delete_reason = forms.CharField(
+        required=True,
+        label=get_mandatory_form_label_text(text=_("Reason for deleting payment")),
+        widget=forms.Textarea(attrs={"rows": 5}),
+    )
+
+
+class PaymentAddForm(forms.Form):
+    """Form for payment adding."""
+
+    amount = forms.IntegerField(
+        required=True,
+        label=get_mandatory_form_label_text(text=_("Amount")),
+        widget=forms.NumberInput(attrs={"min": "0"}),
+    )
+
+    add_reason = forms.CharField(
+        required=True,
+        label=get_mandatory_form_label_text(text=_("Reason for adding payment")),
+        widget=forms.Textarea(attrs={"rows": 5}),
+    )
+
+
+class PaymentAcceptForm(forms.Form):
+    """Form for payment accepting."""
 
     accept_info = forms.CharField(
         required=False,
@@ -39,8 +65,8 @@ class TaxAcceptForm(forms.Form):
     )
 
 
-class TaxUndoForm(forms.Form):
-    """Form for undoing."""
+class PaymentUndoForm(forms.Form):
+    """Form for payment undoing."""
 
     undo_reason = forms.CharField(
         required=True,
@@ -49,8 +75,8 @@ class TaxUndoForm(forms.Form):
     )
 
 
-class TaxDeleteForm(forms.Form):
-    """Form for deleting."""
+class MemberDeleteForm(forms.Form):
+    """Form for member deleting."""
 
     delete_reason = forms.CharField(
         required=False,

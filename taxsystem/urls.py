@@ -34,12 +34,19 @@ urlpatterns = [
         name="manage_filter",
     ),
     path("corporation/<int:corporation_id>/view/faq/", views.faq, name="faq"),
-    path(
-        "corporation/<int:corporation_id>/view/account/", views.account, name="account"
-    ),
     # --- Tax Administration
     # -- Tax Payments
     path("corporation/add/", views.add_corp, name="add_corp"),
+    path(
+        "corporation/<int:corporation_id>/payment/<int:payment_system_pk>/add/",
+        views.add_payment,
+        name="add_payment",
+    ),
+    path(
+        "corporation/<int:corporation_id>/payment/<int:payment_pk>/delete/",
+        views.delete_payment,
+        name="delete_payment",
+    ),
     path(
         "corporation/<int:corporation_id>/payment/<int:payment_pk>/approve/",
         views.approve_payment,
@@ -93,6 +100,8 @@ urlpatterns = [
         name="delete_filter",
     ),
     # -- Tax Payment System
+    path("corporation/view/account/", views.account, name="account"),
+    path("corporation/view/account/<int:character_id>/", views.account, name="account"),
     path(
         "corporation/<int:corporation_id>/manage/user/<int:payment_system_pk>/switch_user/",
         views.switch_user,

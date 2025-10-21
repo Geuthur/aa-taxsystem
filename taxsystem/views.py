@@ -1,8 +1,5 @@
 """PvE Views"""
 
-# Standard Library
-import logging
-
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -12,18 +9,25 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 # Alliance Auth
 from allianceauth.authentication.decorators import permissions_required
+from allianceauth.authentication.models import UserProfile
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
+# Alliance Auth (External Libs)
+from app_utils.logging import LoggerAddTag
+
 # AA TaxSystem
-from taxsystem import forms, tasks
+from taxsystem import __title__, forms, tasks
 from taxsystem.api.helpers import (
+    get_character_permissions,
     get_corporation,
     get_manage_corporation,
     get_manage_permission,
@@ -33,7 +37,7 @@ from taxsystem.models.filters import JournalFilter, JournalFilterSet
 from taxsystem.models.logs import AdminLogs, PaymentHistory
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
 
-logger = logging.getLogger(__name__)
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @login_required
@@ -80,11 +84,13 @@ def administration(request: WSGIRequest, corporation_id: int):
         "corporation_id": corporation_id,
         "title": _("Administration"),
         "forms": {
-            "accept_request": forms.TaxAcceptForm(),
-            "reject_request": forms.TaxRejectForm(),
-            "undo_request": forms.TaxUndoForm(),
+            "accept_request": forms.PaymentAcceptForm(),
+            "reject_request": forms.PaymentRejectForm(),
+            "add_request": forms.PaymentAddForm(),
+            "payment_delete_request": forms.PaymentDeleteForm(),
+            "undo_request": forms.PaymentUndoForm(),
             "switchuser_request": forms.TaxSwitchUserForm(),
-            "delete_request": forms.TaxDeleteForm(),
+            "delete_request": forms.MemberDeleteForm(),
         },
     }
     context = add_info_to_context(request, context)
@@ -106,7 +112,7 @@ def manage_filter(request: WSGIRequest, corporation_id: int):
         "forms": {
             "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
             "filter_set": forms.CreateFilterSetForm(),
-            "delete_request": forms.TaxDeleteForm(),
+            "delete_request": forms.MemberDeleteForm(),
         },
     }
     if perms is False:
@@ -323,7 +329,7 @@ def payments(request: WSGIRequest, corporation_id: int):
     perms = get_corporation(request, corporation_id)
 
     if perms is None:
-        messages.error(request, _("No corporation found."))
+        messages.error(request, _("No Corporation found."))
 
     corporations = OwnerAudit.objects.visible_to(request.user)
 
@@ -331,9 +337,11 @@ def payments(request: WSGIRequest, corporation_id: int):
         "corporation_id": corporation_id,
         "title": _("Payments"),
         "forms": {
-            "accept_request": forms.TaxAcceptForm(),
-            "reject_request": forms.TaxRejectForm(),
-            "undo_request": forms.TaxUndoForm(),
+            "add_request": forms.PaymentAddForm(),
+            "payment_delete_request": forms.PaymentDeleteForm(),
+            "accept_request": forms.PaymentAcceptForm(),
+            "reject_request": forms.PaymentRejectForm(),
+            "undo_request": forms.PaymentUndoForm(),
         },
         "corporations": corporations,
     }
@@ -352,7 +360,7 @@ def own_payments(request: WSGIRequest, corporation_id=None):
     corporations, perms = get_manage_corporation(request, corporation_id)
 
     if corporations is None:
-        messages.error(request, _("No corporation found."))
+        messages.error(request, _("No Corporation found."))
 
     if perms is False:
         messages.error(request, _("Permission Denied"))
@@ -388,21 +396,76 @@ def faq(request: WSGIRequest, corporation_id: int):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def account(request: WSGIRequest, corporation_id: int):
-    """Payments View"""
-    character_id = request.user.profile.main_character.character_id
-    corporations = OwnerAudit.objects.visible_to(request.user)
+def account(request: WSGIRequest, character_id=None):
+    """Account View"""
+    if character_id is None:
+        character_id = request.user.profile.main_character.character_id
+    logger.error(f"Character ID not provided, using main character ID: {character_id}")
 
-    perms = get_corporation(request, corporation_id)
+    user_profile = UserProfile.objects.filter(
+        main_character__character_id=character_id
+    ).first()
 
-    if perms is None:
-        messages.error(request, _("No corporation found."))
+    if not user_profile:
+        messages.error(request, _("No User found."))
+        return redirect("taxsystem:index")
+
+    try:
+        corporation_id = user_profile.main_character.corporation_id
+        owner, perms = get_manage_corporation(request, corporation_id)
+        perms = perms or get_character_permissions(request, character_id)
+    except AttributeError:
+        messages.error(request, _("User has no main character set."))
+        return redirect("taxsystem:index")
+
+    payment_user = PaymentSystem.objects.filter(
+        user__profile=user_profile,
+        owner=owner,
+    ).first()
+
+    if not payment_user:
+        messages.error(request, _("No Payment System User found."))
+        return redirect("taxsystem:index")
+
+    if owner is None:
+        messages.error(request, _("Corporation not Found"))
+        return redirect("taxsystem:index")
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    try:
+        member = owner.ts_members.get(character_id=character_id)
+    except owner.ts_members.model.DoesNotExist:
+        member = None
 
     context = {
-        "corporation_id": corporation_id,
         "title": _("Account"),
-        "corporations": corporations,
         "character_id": character_id,
+        "corporation_id": corporation_id,
+        "account": {
+            "name": payment_user.name,
+            "corporation": owner,
+            "status": payment_user.Status(payment_user.status).html(text=True),
+            "deposit": (
+                payment_user.deposit_html
+                if payment_user.status != PaymentSystem.Status.MISSING
+                else "N/A"
+            ),
+            "has_paid": (
+                payment_user.has_paid_icon(badge=True, text=True)
+                if payment_user.status != PaymentSystem.Status.MISSING
+                else "N/A"
+            ),
+            "last_paid": (
+                payment_user.last_paid
+                if payment_user.status != PaymentSystem.Status.MISSING
+                else "N/A"
+            ),
+            "joined": member.joined if member else "N/A",
+            "last_login": member.logon if member else "N/A",
+        },
     }
     context = add_info_to_context(request, context)
 
@@ -465,7 +528,7 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
     try:
         with transaction.atomic():
-            form = forms.TaxAcceptForm(data=request.POST)
+            form = forms.PaymentAcceptForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["accept_info"]
                 payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
@@ -517,7 +580,7 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
     try:
         with transaction.atomic():
-            form = forms.TaxUndoForm(data=request.POST)
+            form = forms.PaymentUndoForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["undo_reason"]
                 payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
@@ -570,7 +633,7 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
     try:
         with transaction.atomic():
-            form = forms.TaxRejectForm(data=request.POST)
+            form = forms.PaymentRejectForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["reject_reason"]
                 payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
@@ -583,10 +646,12 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                         owner=corp, user=payment.account.user
                     )
                     payment_account.save()
-                    msg = _("Payment ID: %s - Amount: %s - Name: %s rejected") % (
-                        payment.pk,
-                        intcomma(payment.amount),
-                        payment.name,
+                    msg = _(
+                        "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
+                    ).format(
+                        pid=payment.pk,
+                        amount=intcomma(payment.amount),
+                        name=payment.name,
                     )
 
                     PaymentHistory(
@@ -599,6 +664,145 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                     return JsonResponse(
                         data={"success": True, "message": msg}, status=200, safe=False
                     )
+    except IntegrityError:
+        msg = _("Transaction failed. Please try again.")
+    return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+@require_POST
+def delete_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
+    msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
+
+    perms = get_manage_permission(request, corporation_id)
+    if not perms:
+        msg = _("Permission Denied")
+        return JsonResponse(
+            data={"success": False, "message": msg}, status=403, safe=False
+        )
+
+    try:
+        with transaction.atomic():
+            form = forms.PaymentDeleteForm(data=request.POST)
+            if form.is_valid():
+                reason = form.cleaned_data["delete_reason"]
+                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
+
+                if payment.entry_id != 0:  # Prevent deletion of ESI imported payments
+                    msg = _(
+                        "Payment ID: {pid} - Amount: {amount} - Name: {name} deletion failed - ESI imported payments cannot be deleted"
+                    ).format(
+                        pid=payment.pk,
+                        amount=intcomma(payment.amount),
+                        name=payment.name,
+                    )
+                    return JsonResponse(
+                        data={"success": False, "message": msg}, status=400, safe=False
+                    )
+
+                msg = _(
+                    "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
+                ).format(
+                    pid=payment.pk,
+                    amount=intcomma(payment.amount),
+                    name=payment.name,
+                    reason=reason,
+                )
+
+                # Refund if approved
+                if payment.is_approved:
+                    payment_user = PaymentSystem.objects.get(
+                        owner=corp, user=payment.account.user
+                    )
+                    payment_user.deposit -= payment.amount
+                    payment_user.save()
+                # Delete Payment
+                payment.delete()
+
+                # Log Payment Action
+                AdminLogs(
+                    user=request.user,
+                    owner=corp,
+                    action=AdminLogs.Actions.DELETE,
+                    comment=msg,
+                ).save()
+
+                return JsonResponse(
+                    data={"success": True, "message": msg}, status=200, safe=False
+                )
+    except IntegrityError:
+        msg = _("Transaction failed. Please try again.")
+    return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
+@require_POST
+def add_payment(request: WSGIRequest, corporation_id: int, payment_system_pk: int):
+    msg = _("Invalid Method")
+    corp = get_corporation(request, corporation_id)
+
+    perms = get_manage_permission(request, corporation_id)
+    if not perms:
+        msg = _("Permission Denied")
+        return JsonResponse(
+            data={"success": False, "message": msg}, status=403, safe=False
+        )
+
+    try:
+        with transaction.atomic():
+            form = forms.PaymentAddForm(data=request.POST)
+            if form.is_valid():
+                amount = form.cleaned_data["amount"]
+                reason = form.cleaned_data["add_reason"]
+                payment_account = PaymentSystem.objects.get(
+                    owner=corp, pk=payment_system_pk
+                )
+
+                payment = Payments(
+                    name=payment_account.user.username,
+                    entry_id=0,  # Manual Entry
+                    amount=amount,
+                    account=payment_account,
+                    date=timezone.now(),
+                    reason=reason,
+                    request_status=Payments.RequestStatus.APPROVED,
+                    reviser=request.user.username,
+                    corporation_id=corporation_id,
+                )
+                payment.save()
+                payment_account.deposit += amount
+                payment_account.save()
+
+                msg = _(
+                    "Payment ID: {pid} - Amount: {amount} - Name: {name} added"
+                ).format(
+                    pid=payment.pk,
+                    amount=intcomma(payment.amount),
+                    name=payment.name,
+                )
+
+                PaymentHistory(
+                    user=request.user,
+                    payment=payment,
+                    action=PaymentHistory.Actions.PAYMENT_ADDED,
+                    comment=reason,
+                    new_status=Payments.RequestStatus.APPROVED,
+                ).save()
+
+                # Log Admin Action
+                AdminLogs(
+                    user=request.user,
+                    owner=corp,
+                    action=AdminLogs.Actions.ADD,
+                    comment=msg,
+                ).save()
+
+                return JsonResponse(
+                    data={"success": True, "message": msg}, status=200, safe=False
+                )
     except IntegrityError:
         msg = _("Transaction failed. Please try again.")
     return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
@@ -733,7 +937,7 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
             data={"success": False, "message": msg}, status=403, safe=False
         )
 
-    form = forms.TaxDeleteForm(data=request.POST)
+    form = forms.MemberDeleteForm(data=request.POST)
     if form.is_valid():
         reason = form.cleaned_data["delete_reason"]
         member = Members.objects.get(owner=corp, pk=member_pk)
