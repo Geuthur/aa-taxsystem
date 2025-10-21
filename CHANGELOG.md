@@ -7,6 +7,12 @@
 python manage.py taxsystem_migrate_payments
 ```
 
+## [0.7.2] - 21.10.2025
+
+### Fixed
+
+- Long loading issue in Payments View
+
 ## [0.7.1] - 21.10.2025
 
 ### Added

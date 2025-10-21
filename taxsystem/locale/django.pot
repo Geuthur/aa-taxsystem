@@ -6,11 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System 0.7.1
-"
-"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues
-"
-"POT-Creation-Date: 2025-10-21 08:58+0200\n"
+"Project-Id-Version: AA Tax System 0.7.2\n"
+"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
+"POT-Creation-Date: 2025-10-21 09:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
