@@ -90,6 +90,11 @@ The project uses a `Makefile` to simplify common tasks. Run `make` in the projec
 
 Some Make targets that run Django management commands rely on `manage.py`.
 To make those targets work, the Makefile needs to know the absolute path to your auth directory.
+You can do so by providing a `.make/myauth-path` file in the project root with the following content:
+
+```makefile
+/absolute/path/to/myauth
+```
 
 #### General Commands<a name="general-commands"></a>
 
