@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 # Alliance Auth (External Libs)
-from app_utils.esi_testing import EsiClientStub, EsiEndpoint
+from app_utils.esi_testing import EsiClientStub, EsiClientStubOpenApi, EsiEndpoint
 
 
 def load_test_data():
@@ -17,35 +17,40 @@ _esi_data = load_test_data()
 _endpoints = [
     EsiEndpoint(
         "Character",
-        "get_characters_character_id_roles",
+        "GetCharactersCharacterIdRoles",
         "character_id",
         needs_token=False,
     ),
     EsiEndpoint(
         "Corporation",
-        "get_corporations_corporation_id_divisions",
+        "GetCorporationsCorporationIdDivisions",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Corporation",
-        "get_corporations_corporation_id_membertracking",
+        "GetCorporationsCorporationIdMembertracking",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Wallet",
-        "get_corporations_corporation_id_wallets",
+        "GetCorporationsCorporationIdWallets",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
     EsiEndpoint(
         "Wallet",
-        "get_corporations_corporation_id_wallets_division_journal",
+        "GetCorporationsCorporationIdWalletsDivisionJournal",
         "corporation_id",
         needs_token=False,
+        return_response=True,
     ),
 ]
 
 esi_client_stub = EsiClientStub(_esi_data, endpoints=_endpoints)
+esi_client_stub_openapi = EsiClientStubOpenApi(_esi_data, endpoints=_endpoints)
 esi_client_error_stub = EsiClientStub(_esi_data, endpoints=_endpoints, http_error=502)
