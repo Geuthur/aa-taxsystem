@@ -689,7 +689,7 @@ class Payments(models.Model):
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         journal = CorporationWalletJournalEntry.objects.filter(
-            division__corporation__corporation=self.account.owner.corporation
+            entry_id=self.entry_id
         ).first()
         if not journal:
             return "N/A"
