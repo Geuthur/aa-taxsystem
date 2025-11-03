@@ -1,5 +1,28 @@
 # Changelog
 
+## [In Development] - Unreleased
+
+<!--
+Section Order:
+
+### Added
+### Fixed
+### Changed
+### Removed
+-->
+
+## [1.0.0-beta.1] - 2025-11-03
+
+> [!CAUTION]
+>
+> This is a BETA version, not intended for production use!
+> Please test it in a test environment first and [report any issues].
+
+### Changed
+
+- Switch to OPENAPI3 ESI Client
+- Updated dependencies
+
 > [!WARNING]
 > We changed the Payments Information, please use the following django command to migrate to new payments
 
@@ -297,3 +320,7 @@ python manage.py taxsystem_migrate_payments
 ### Added
 
 - Initial public release
+
+[1.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...1.0.0-beta.1 "1.0.0-beta.1"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...HEAD "In Development"
+[report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
