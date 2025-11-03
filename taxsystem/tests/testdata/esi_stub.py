@@ -3,7 +3,13 @@ import json
 from pathlib import Path
 
 # Alliance Auth (External Libs)
-from app_utils.esi_testing import EsiClientStub, EsiClientStubOpenApi, EsiEndpoint
+from app_utils.esi_testing import EsiClientStub
+
+# AA TaxSystem
+from taxsystem.tests.testdata.esi_stub_migration import (
+    EsiClientStubOpenApi,
+    EsiEndpoint,
+)
 
 
 def load_test_data():
