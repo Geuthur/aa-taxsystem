@@ -8,7 +8,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Tests](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml)
 [![codecov](https://codecov.io/gh/Geuthur/aa-taxsystem/graph/badge.svg?token=IGpkrAuv42)](https://codecov.io/gh/Geuthur/aa-taxsystem)
-[![Translation status](https://weblate.voices-of-war.de/widget/allianceauth/aa-memberaudit-doctrine-checker/svg-badge.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
+[![Translation status](https://weblate.geuthur.de/widget/allianceauth/aa-memberaudit-doctrine-checker/svg-badge.svg)](https://weblate.geuthur.de/engage/allianceauth/)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
@@ -156,7 +156,7 @@ Advanced Settings: Stale Status for Each Section
 
 ## Translations<a name="translations"></a>
 
-[![Translations](https://weblate.voices-of-war.de/widget/allianceauth/aa-taxsystem/multi-auto.svg)](https://weblate.voices-of-war.de/engage/allianceauth/)
+[![Translations](https://weblate.geuthur.de/widget/allianceauth/aa-taxsystem/multi-auto.svg)](https://weblate.geuthur.de/engage/allianceauth/)
 
 Help us translate this app into your language or improve existing translations. Join our team!"
 
