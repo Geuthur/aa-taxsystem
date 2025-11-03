@@ -33,8 +33,8 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth>=4.8,<5",
-    "allianceauth-app-utils @ git+https://gitlab.com/Geuthur/allianceauth-app-utils.git@openapi",
+    "allianceauth>=4.10,<5",
+    "allianceauth-app-utils>=1.27",
     "django-esi>=8b2",
     "django-eveuniverse>=1.5.7",
     "django-ninja",
