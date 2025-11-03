@@ -22,6 +22,7 @@ Section Order:
 
 - Switch to OPENAPI3 ESI Client
 - Updated dependencies
+- Updated README url for translations
 
 > [!WARNING]
 > We changed the Payments Information, please use the following django command to migrate to new payments
@@ -321,6 +322,6 @@ python manage.py taxsystem_migrate_payments
 
 - Initial public release
 
-[1.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...1.0.0-beta.1 "1.0.0-beta.1"
+[1.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.0-beta.1 "1.0.0-beta.1"
 [in development]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
