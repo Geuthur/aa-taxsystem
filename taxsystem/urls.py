@@ -7,7 +7,7 @@ from django.urls import path, re_path
 from taxsystem import views
 from taxsystem.api import api
 
-app_name: str = "taxsystem"
+app_name: str = "taxsystem"  # pylint: disable=invalid-name
 
 urlpatterns = [
     # -- Tax System
