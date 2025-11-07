@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 # AA TaxSystem
-from taxsystem.api.helpers import generate_button, generate_settings
+from taxsystem.api.helpers.core import generate_button, generate_settings
 from taxsystem.models.tax import PaymentSystem
 
 PAYMENT_SYSTEM_TEMPLATE = "taxsystem/partials/form/button.html"

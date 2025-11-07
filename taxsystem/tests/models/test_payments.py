@@ -123,4 +123,4 @@ class TestPaymentsModel(TestCase):
     def test_division(self):
         """Test if the division is correct."""
         payments = Payments.objects.get(account=self.payment_system)
-        self.assertEqual(payments.division, "Main Division")
+        self.assertEqual(payments.division_name, "Main Division")

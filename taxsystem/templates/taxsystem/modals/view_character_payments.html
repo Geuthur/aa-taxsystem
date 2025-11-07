@@ -4,11 +4,11 @@
 {% load evelinks %}
 {% load humanize %}
 
-{% if character %}
+{% if payment_details %}
     <h4 class="d-none" id="modal-title">
-        {{ character.title }}:
-        <img src="{{ character.character_id|character_portrait_url:32 }}" class="rounded-circle">
-        {{character.character_name}}
+        {% translate "Payments for" %}:
+            <img src="{{ character.character_id|character_portrait_url:32 }}" class="rounded-circle">
+            {{ character.character_name }}
     </h4>
     <header class="card-header bg-primary rounded-top">
         <h3 class="me-3">{% trans "Payments" %}</h3>
@@ -28,15 +28,15 @@
                 </tr>
             </thead>
             <tbody class="modal-payments-table-body">
-                {% for payment_id, payment in character.payments.items %}
+                {% for payment in payment_details %}
                     <tr>
-                        <td>{{ payment.amount }}</td>
-                        <td>{{ payment.payment_date }}</td>
-                        <td>{{ payment.request_status }}</td>
+                        <td>{{ payment.amount|intcomma }}</td>
+                        <td>{{ payment.date }}</td>
+                        <td>{{ payment.request_status.status }}</td>
                         <td>{{ payment.reviser }}</td>
                         <td>{{ payment.reason }}</td>
-                        <td>{{ payment.division }}</td>
-                        <td>{{ payment.actions }}</td>
+                        <td>{{ payment.division_name }}</td>
+                        <td>{{ payment.actions|safe }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -12,6 +12,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -460,14 +461,14 @@ class PaymentSystem(models.Model):
         DEACTIVATED = "deactivated", _("Deactivated")
         MISSING = "missing", _("Missing")
 
-        def html(self, text=False) -> str:
-            """Return the badge name for the status."""
+        def html(self, text=False) -> mark_safe:
+            """Return the HTML for the status."""
             if text:
-                return mark_safe(
-                    f"<span class='badge bg-{self.color()}' data-tooltip-toggle='taxsystem-tooltip'>{self.label}</span>"
+                return format_html(
+                    f"<span class='badge bg-{self.color()}' data-tooltip-toggle='taxsystem-tooltip' title='{self.label}'>{self.label}</span>"
                 )
-            return mark_safe(
-                f"<span class='badge bg-{self.color()}' data-tooltip-toggle='taxsystem-tooltip'>{self.icons()}</span>"
+            return format_html(
+                f"<span class='btn btn-sm btn-square bg-{self.color()}' data-tooltip-toggle='taxsystem-tooltip' title='{self.label}'>{self.icon()}</span>"
             )
 
         def color(self) -> str:
@@ -480,7 +481,7 @@ class PaymentSystem(models.Model):
             }
             return status_map.get(self, "secondary")
 
-        def icons(self) -> str:
+        def icon(self) -> str:
             """Return description for an enum object."""
             status_map = {
                 self.ACTIVE: "<i class='fas fa-check'></i>",
@@ -493,6 +494,14 @@ class PaymentSystem(models.Model):
     class Paid(models.TextChoices):
         PAID = "paid", _("Paid")
         UNPAID = "unpaid", _("Unpaid")
+
+        def color(self) -> str:
+            """Return bootstrap corresponding icon class."""
+            paid_map = {
+                self.PAID: "success",
+                self.UNPAID: "danger",
+            }
+            return paid_map.get(self, "secondary")
 
     name = models.CharField(
         max_length=100,
@@ -598,11 +607,7 @@ class PaymentSystem(models.Model):
 
         if badge:
             html = mark_safe(f"<span class='badge bg-{color}'>{html}</span>")
-        return {
-            "display": html,
-            "sort": _("Yes") if self.has_paid else _("No"),
-            "raw": self.has_paid,
-        }
+        return html
 
     objects = PaymentSystemManager()
 
@@ -615,6 +620,16 @@ class Payments(models.Model):
         PENDING = "pending", _("Pending")
         REJECTED = "rejected", _("Rejected")
         NEEDS_APPROVAL = "needs_approval", _("Requires Auditor")
+
+        def color(self) -> str:
+            """Return bootstrap corresponding icon class."""
+            status_map = {
+                self.APPROVED: "success",
+                self.PENDING: "warning",
+                self.REJECTED: "danger",
+                self.NEEDS_APPROVAL: "info",
+            }
+            return status_map.get(self, "secondary")
 
     name = models.CharField(max_length=100)
 
@@ -682,7 +697,7 @@ class Payments(models.Model):
         return character_id
 
     @property
-    def division(self) -> "CorporationWalletJournalEntry":
+    def division_name(self) -> "CorporationWalletJournalEntry":
         """Return the division name of the payment."""
         # pylint: disable=import-outside-toplevel
         # AA TaxSystem

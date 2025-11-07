@@ -8,7 +8,7 @@ $(document).ready(() => {
             url: taxsystemsettings.corporationOwnPaymentsUrl,
             type: 'GET',
             dataSrc: function (data) {
-                return Object.values(data[0].corporation);
+                return data.corporation;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);
@@ -33,7 +33,7 @@ $(document).ready(() => {
                 }
             },
             {
-                data: 'request_status',
+                data: 'request_status.status',
                 render: function (data, _, row) {
                     return data;
                 }

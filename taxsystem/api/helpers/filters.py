@@ -4,7 +4,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
-from taxsystem.api.helpers import generate_button
+from taxsystem.api.helpers.core import generate_button
 from taxsystem.models.filters import JournalFilter
 
 

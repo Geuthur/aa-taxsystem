@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<button type="button" class="btn btn-success btn-sm btn-square me-2"
+    data-bs-toggle="modal"
+    data-tooltip-toggle="taxsystem-tooltip"
+    data-character-id="{{ character.character.character_id }}"
+    data-title="{% translate 'Approve Payment' %}"
+    data-text="{% translate 'Approve Payment' %} {{ payment.amount }} ISK {% translate 'from' %} {{ payment.account.user.username }}"
+    data-bs-target="#payments-approve"
+    data-action="{% url 'taxsystem:approve_payment' payment_pk=payment.pk corporation_id=payment.corporation_id %}"
+
+    title="{% translate 'Approve Payment' %}"
+    >
+    <span class="fas fa-check"></span>
+</button>

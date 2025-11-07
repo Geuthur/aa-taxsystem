@@ -26,7 +26,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__, forms, tasks
-from taxsystem.api.helpers import (
+from taxsystem.api.helpers.core import (
     get_character_permissions,
     get_corporation,
     get_manage_corporation,

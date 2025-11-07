@@ -4,7 +4,7 @@
 {% load evelinks %}
 {% load humanize %}
 
-{% if character %}
+{% if payment_details %}
     <h4 class="d-none" id="modal-title">
         {% translate "Payment Details" %}
     </h4>
@@ -21,19 +21,19 @@
                     <tbody>
                         <tr>
                             <td>{% trans "Payment Account" %}:</td>
-                            <td class="text-end">{{ character.character_portrait }} {{ character.character_name }}</td>
+                            <td class="text-end">{{ payment_details.account.character.character_portrait|safe }} {{ payment_details.account.character.character_name }}</td>
                         </tr>
                         <tr>
                             <td>{% trans "Amount" %}:</td>
-                            <td class="text-end">{{ character.payment.amount }}</td>
+                            <td class="text-end">{{ payment_details.payment.amount|intcomma }} ISK</td>
                         </tr>
                         <tr>
                             <td>{% trans "Division" %}:</td>
-                            <td class="text-end">{{ character.payment.division }}</td>
+                            <td class="text-end">{{ payment_details.payment.division_name }}</td>
                         </tr>
                         <tr>
                             <td>{% trans "Reason" %}:</td>
-                            <td class="text-end">{{ character.payment.reason }}</td>
+                            <td class="text-end">{{ payment_details.payment.reason }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -51,15 +51,15 @@
                         <tbody>
                             <tr>
                                 <td>{% trans "Account" %}:</td>
-                                <td class="text-end">{{ character.payment_system.status }}</td>
+                                <td class="text-end">{{ payment_details.account.payment_status|safe }}</td>
                             </tr>
                             <tr>
                                 <td>{% trans "Deposit" %}:</td>
-                                <td class="text-end">{{ character.payment_system.payment_pool }}</td>
+                                <td class="text-end">{{ payment_details.account.payment_pool|intcomma }} ISK</td>
                             </tr>
                             <tr>
                                 <td>{% trans "Corporation" %}:</td>
-                                <td class="text-end">{{ character.payment_system.corporation }}</td>
+                                <td class="text-end">{{ payment_details.account.character.corporation_name }}</td>
                         </tbody>
                     </table>
                 </div>
@@ -74,7 +74,7 @@
                     <span id="dashboard-statistics">{% translate "Payment Status" %}</span>
                 </h5>
                 <hr>
-                {{ character.payment.status }}
+                {% include "taxsystem/partials/icons/payment-status.html" with request_status=payment_details.payment.request_status %}
             </div>
         </div>
     </div>
@@ -98,7 +98,7 @@
                             </tr>
                         </thead>
                         <tbody class="modal-payments-table-body">
-                            {% for payment_id, payment in character.payment_history.items %}
+                            {% for payment in payment_details.payment_histories %}
                             <tr>
                                 <td>{{ payment.reviser }}</td>
                                 <td>{{ payment.date }}</td>
