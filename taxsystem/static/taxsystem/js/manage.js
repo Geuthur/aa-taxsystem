@@ -29,12 +29,24 @@ $(document).ready(function() {
             $('#dashboard-update').html(data.corporation.corporation_name + ' - Update Status');
             // Use moment.js to display relative times in German
             $('#update_status_icon').html(data.update_status.icon);
-            $('#update_wallet').html(moment(data.update_status.status.wallet.last_run_finished_at).fromNow());
-            $('#update_division').html(moment(data.update_status.status.division.last_run_finished_at).fromNow());
-            $('#update_division_name').html(moment(data.update_status.status.division_names.last_run_finished_at).fromNow());
-            $('#update_members').html(moment(data.update_status.status.members.last_run_finished_at).fromNow());
-            $('#update_payments').html(moment(data.update_status.status.payments.last_run_finished_at).fromNow());
-            $('#update_payment_system').html(moment(data.update_status.status.payment_system.last_run_finished_at).fromNow());
+            $('#update_wallet').html(data.update_status.status.wallet && data.update_status.status.wallet.last_run_finished_at
+                ? moment(data.update_status.status.wallet.last_run_finished_at).fromNow()
+                : 'N/A');
+            $('#update_division').html(data.update_status.status.division && data.update_status.status.division.last_run_finished_at
+                ? moment(data.update_status.status.division.last_run_finished_at).fromNow()
+                : 'N/A');
+            $('#update_division_name').html(data.update_status.status.division_names && data.update_status.status.division_names.last_run_finished_at
+                ? moment(data.update_status.status.division_names.last_run_finished_at).fromNow()
+                : 'N/A');
+            $('#update_members').html(data.update_status.status.members && data.update_status.status.members.last_run_finished_at
+                ? moment(data.update_status.status.members.last_run_finished_at).fromNow()
+                : 'N/A');
+            $('#update_payments').html(data.update_status.status.payments && data.update_status.status.payments.last_run_finished_at
+                ? moment(data.update_status.status.payments.last_run_finished_at).fromNow()
+                : 'N/A');
+            $('#update_payment_system').html(data.update_status.status.payment_system && data.update_status.status.payment_system.last_run_finished_at
+                ? moment(data.update_status.status.payment_system.last_run_finished_at).fromNow()
+                : 'N/A');
 
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
@@ -162,47 +174,26 @@ $(document).ready(function() {
 
             // Statistics
             const statistics = data.statistics;
-            const statisticsKey = Object.keys(statistics)[0];
-            const stat = statistics[statisticsKey];
 
             try {
-                if (stat) {
-                    $('#statistics_name').text(statisticsKey);
-                    $('#statistics_payments').text(stat.payments);
-                    $('#statistics_payments_pending').text(stat.payments_pending);
-                    $('#statistics_payments_auto').text(stat.payments_auto);
-                    $('#statistics_payments_manually').text(stat.payments_manually);
-                    // Members
-                    $('#statistics_members').text(stat.members);
-                    $('#statistics_members_mains').text(stat.members_mains);
-                    $('#statistics_members_alts').text(stat.members_alts);
-                    $('#statistics_members_not_registered').text(stat.members_unregistered);
-                    // Payment Users
-                    $('#statistics_payment_users').text(stat.payment_users);
-                    $('#statistics_payment_users_active').text(stat.payment_users_active);
-                    $('#statistics_payment_users_inactive').text(stat.payment_users_inactive);
-                    $('#statistics_payment_users_deactivated').text(stat.payment_users_deactivated);
-                    $('#psystem_payment_users_paid').text(stat.payment_users_paid);
-                    $('#psystem_payment_users_unpaid').text(stat.payment_users_unpaid);
-                } else {
-                    $('#statistics_name').hide();
-                    $('#statistics_payments').hide();
-                    $('#statistics_payments_pending').hide();
-                    $('#statistics_payments_auto').hide();
-                    $('#statistics_payments_manually').hide();
-                    // Members
-                    $('#statistics_members').hide();
-                    $('#statistics_members_mains').hide();
-                    $('#statistics_members_alts').hide();
-                    $('#statistics_members_not_registered').hide();
-                    // Payment Users
-                    $('#statistics_payment_users').hide();
-                    $('#statistics_payment_users_active').hide();
-                    $('#statistics_payment_users_inactive').hide();
-                    $('#statistics_payment_users_deactivated').hide();
-                    $('#psystem_payment_users_paid').hide();
-                    $('#psystem_payment_users_unpaid').hide();
-                }
+                $('#statistics_payment_users').text(statistics.payment_system.ps_count);
+                $('#statistics_payment_users_active').text(statistics.payment_system.ps_count_active);
+                $('#statistics_payment_users_inactive').text(statistics.payment_system.ps_count_inactive);
+                $('#statistics_payment_users_deactivated').text(statistics.payment_system.ps_count_deactivated);
+                $('#psystem_payment_users_paid').text(statistics.payment_system.ps_count_paid);
+                $('#psystem_payment_users_unpaid').text(statistics.payment_system.ps_count_unpaid);
+
+                // Payments
+                $('#statistics_payments').text(statistics.payments.payments_count);
+                $('#statistics_payments_pending').text(statistics.payments.payments_pending);
+                $('#statistics_payments_auto').text(statistics.payments.payments_automatic);
+                $('#statistics_payments_manually').text(statistics.payments.payments_manual);
+
+                // Members
+                $('#statistics_members').text(statistics.members.members_count);
+                $('#statistics_members_mains').text(statistics.members.members_mains);
+                $('#statistics_members_alts').text(statistics.members.members_alts);
+                $('#statistics_members_not_registered').text(statistics.members.members_unregistered);
             } catch (e) {
                 console.error('Error fetching statistics data:', e);
                 $('#statistics_name').hide();
