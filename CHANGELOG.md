@@ -19,6 +19,10 @@ Section Order:
 
 - Refactored API
 
+### Fixed
+
+- Statistics is not showing when Data is `null`
+
 ## [1.0.0-beta.1] - 2025-11-03
 
 > [!CAUTION]
