@@ -9,18 +9,25 @@ from ninja.security import django_auth
 from django.conf import settings
 
 # AA TaxSystem
-from taxsystem.api import taxsystem
+from taxsystem.api import admin, character, corporation
 
 logger = logging.getLogger(__name__)
 
 api = NinjaAPI(
-    title="Geuthur API",
-    version="0.1.0",
+    title="TaxSystem API",
+    version="0.5.0",
     urls_namespace="taxsystem:api",
     auth=django_auth,
     csrf=True,
     openapi_url=settings.DEBUG and "/openapi.json" or "",
 )
 
-# Add the taxsystem endpoints
-taxsystem.setup(api)
+
+def setup(ninja_api):
+    corporation.CorporationApiEndpoints(ninja_api)
+    character.CharacterApiEndpoints(ninja_api)
+    admin.AdminApiEndpoints(ninja_api)
+
+
+# Initialize API endpoints
+setup(api)

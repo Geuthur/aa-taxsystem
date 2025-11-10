@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<button type="button" class="btn btn-primary btn-sm btn-square me-2"
+    data-bs-toggle="modal"
+    data-tooltip-toggle="taxsystem-tooltip"
+    data-title="{% translate 'View Payments' %}"
+    data-bs-target="#modalViewPaymentsContainer"
+    data-ajax_payments="{% url 'taxsystem:api:get_member_payments' character_id=account.user.profile.main_character.character_id corporation_id=account.owner.corporation.corporation_id %}"
+    title="{% translate 'View Payments' %}"
+    >
+    <span class="fas fa-info"></span>
+</button>

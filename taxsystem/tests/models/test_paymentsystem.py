@@ -96,15 +96,19 @@ class TestPaymentSystemModel(TestCase):
 
         self.assertIn(
             "fas fa-check",
-            payment_system.has_paid_icon()["display"],
+            payment_system.has_paid_icon(),
         )
         self.assertIn(
             "badge",
-            payment_system.has_paid_icon(badge=True, text=True)["display"],
+            payment_system.has_paid_icon(badge=True, text=True),
         )
         self.assertIn(
             "Paid",
-            payment_system.has_paid_icon(badge=True, text=True)["display"],
+            payment_system.has_paid_icon(badge=True, text=True),
+        )
+        self.assertNotIn(
+            "badge",
+            payment_system.has_paid_icon(badge=False, text=True),
         )
 
     def test_status_html(self):
@@ -132,7 +136,7 @@ class TestPaymentSystemModel(TestCase):
         payment_system = PaymentSystem.objects.get(owner=self.audit)
 
         self.assertEqual(
-            payment_system.Status(payment_system.status).icons(),
+            payment_system.Status(payment_system.status).icon(),
             "<i class='fas fa-check'></i>",
         )
 
@@ -144,7 +148,7 @@ class TestPaymentSystemModel(TestCase):
         payment_system.deposit = 1500000
         payment_system.save()
         self.assertIn(
-            "<span class='text-success'>1,500,000 ISK</span>",
+            "<span class='text-success'>1,500,000</span> ISK",
             payment_system.deposit_html,
         )
 
@@ -152,5 +156,5 @@ class TestPaymentSystemModel(TestCase):
         payment_system.deposit = -500000
         payment_system.save()
         self.assertIn(
-            "<span class='text-danger'>-500,000 ISK</span>", payment_system.deposit_html
+            "<span class='text-danger'>-500,000</span> ISK", payment_system.deposit_html
         )

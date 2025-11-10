@@ -64,26 +64,6 @@ def get_character_permissions(request, character_id) -> bool:
     return perms
 
 
-def get_info_button(corporation_id, payment: Payments, request) -> mark_safe:
-    details = generate_settings(
-        title=_("Payment Details"),
-        icon="fas fa-info",
-        color="primary",
-        text=_("View Payment Details"),
-        modal="modalViewDetailsContainer",
-        action=f"/taxsystem/api/corporation/{corporation_id}/character/{payment.character_id}/payment/{payment.pk}/view/details/",
-        ajax="ajax_details",
-    )
-    button = generate_button(
-        corporation_id=corporation_id,
-        template="taxsystem/partials/form/button.html",
-        queryset=payment,
-        settings=details,
-        request=request,
-    )
-    return button
-
-
 def generate_button(
     corporation_id: int, template, queryset, settings, request
 ) -> mark_safe:
@@ -115,3 +95,28 @@ def generate_settings(
         "action": action,
         "ajax": ajax,
     }
+
+
+def generate_status_icon(payment: Payments) -> mark_safe:
+    """Generate a status icon for the tax system"""
+    return format_html(
+        render_to_string(
+            "taxsystem/partials/icons/payment-status.html",
+            {
+                "payment": payment,
+                "color": Payments.RequestStatus(payment.request_status).color(),
+            },
+        )
+    )
+
+
+def generate_info_button(payment: Payments) -> mark_safe:
+    """Generate a info button for the tax system"""
+    return format_html(
+        render_to_string(
+            "taxsystem/partials/buttons/payment-info.html",
+            {
+                "payment": payment,
+            },
+        )
+    )

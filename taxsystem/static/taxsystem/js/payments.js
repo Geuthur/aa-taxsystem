@@ -8,7 +8,7 @@ $(document).ready(() => {
             url: taxsystemsettings.corporationPaymentsUrl,
             type: 'GET',
             dataSrc: function (data) {
-                return Object.values(data[0].corporation);
+                return data.corporation;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);
@@ -17,13 +17,13 @@ $(document).ready(() => {
         },
         columns: [
             {
-                data: 'character_portrait',
+                data: 'character.character_portrait',
                 render: function (data, _, row) {
                     return data;
                 }
             },
             {
-                data: 'character_name',
+                data: 'character.character_name',
                 render: function (data, _, row) {
                     return data;
                 }
@@ -45,7 +45,7 @@ $(document).ready(() => {
                 }
             },
             {
-                data: 'request_status',
+                data: 'request_status.status',
                 render: function (data, _, row) {
                     return data;
                 }

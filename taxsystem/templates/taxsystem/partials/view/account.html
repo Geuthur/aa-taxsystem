@@ -34,12 +34,12 @@
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Payment Status" %}:</dt>
-                    <dd class="nowrap" id="payment_status">{{ account.has_paid.display|safe }}</dd>
+                    <dd class="nowrap" id="payment_status">{{ account.has_paid|safe }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Last Debit" %}:</dt>
-                    <dd class="nowrap" id="last_paid">{{ account.last_paid }}</dd>
+                    <dd class="nowrap" id="last_paid">{{ account.last_paid|default:"N/A" }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">

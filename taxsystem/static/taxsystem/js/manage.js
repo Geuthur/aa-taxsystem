@@ -1,4 +1,4 @@
-/* global taxsystemsettings, bootstrap, moment */
+/* global taxsystemsettings, bootstrap, moment, numberFormatter */
 $(document).ready(function() {
     const entityPk = taxsystemsettings.entity_pk;
 
@@ -24,17 +24,17 @@ $(document).ready(function() {
         success: function (data) {
             var tax_amount = parseFloat(data.tax_amount);
             var days = parseFloat(data.tax_period);
-            $('#dashboard-info').html(data.corporation_name);
+            $('#dashboard-info').html(data.corporation.corporation_name);
 
-            $('#dashboard-update').html(data.corporation_name + ' - Update Status');
+            $('#dashboard-update').html(data.corporation.corporation_name + ' - Update Status');
             // Use moment.js to display relative times in German
-            $('#update_status_icon').html(data.update_status_icon);
-            $('#update_wallet').html(moment(data.update_status.wallet.last_run_finished_at).fromNow());
-            $('#update_division').html(moment(data.update_status.division.last_run_finished_at).fromNow());
-            $('#update_division_name').html(moment(data.update_status.division_names.last_run_finished_at).fromNow());
-            $('#update_members').html(moment(data.update_status.members.last_run_finished_at).fromNow());
-            $('#update_payments').html(moment(data.update_status.payments.last_run_finished_at).fromNow());
-            $('#update_payment_system').html(moment(data.update_status.payment_system.last_run_finished_at).fromNow());
+            $('#update_status_icon').html(data.update_status.icon);
+            $('#update_wallet').html(moment(data.update_status.status.wallet.last_run_finished_at).fromNow());
+            $('#update_division').html(moment(data.update_status.status.division.last_run_finished_at).fromNow());
+            $('#update_division_name').html(moment(data.update_status.status.division_names.last_run_finished_at).fromNow());
+            $('#update_members').html(moment(data.update_status.status.members.last_run_finished_at).fromNow());
+            $('#update_payments').html(moment(data.update_status.status.payments.last_run_finished_at).fromNow());
+            $('#update_payment_system').html(moment(data.update_status.status.payment_system.last_run_finished_at).fromNow());
 
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
@@ -117,17 +117,24 @@ $(document).ready(function() {
             manageUpdateStatusTableVar.removeClass('d-none');
 
             // Show Divisions
-            const divisions = data.divisions;
-            const divisionKeys = Object.keys(divisions);
+            const divisionsData = data.divisions;
+            const divisions = divisionsData.divisions; // Das Array mit den Divisionen
 
-            for (let i = 0; i < divisionKeys.length; i++) {
-                const divisionKey = divisionKeys[i];
-                const division = divisions[divisionKey];
+            for (let i = 0; i < divisions.length; i++) {
+                const division = divisions[i];
 
                 try {
                     if (division && division.name && division.balance) {
                         $(`#division${i + 1}_name`).text(division.name);
-                        $(`#division${i + 1}`).text(division.balance + ' ISK');
+                        $(`#division${i + 1}`).text(
+                            numberFormatter({
+                                value: division.balance,
+                                options: {
+                                    style: 'currency',
+                                    currency: 'ISK'
+                                }
+                            })
+                        );
                     } else {
                         $(`#division${i + 1}_name`).hide();
                         $(`#division${i + 1}`).hide();
@@ -138,6 +145,17 @@ $(document).ready(function() {
                     $(`#division${i + 1}`).hide();
                 }
             }
+
+            // Optional: Gesamtbilanz anzeigen
+            $('#total_balance').text(
+                numberFormatter({
+                    value: divisionsData.total_balance,
+                    options: {
+                        style: 'currency',
+                        currency: 'ISK'
+                    }
+                })
+            );
 
             manageDashboardDivisionVar.removeClass('d-none');
             manageDashboardDivisionTableVar.removeClass('d-none');
@@ -224,7 +242,7 @@ $(document).ready(function() {
             url: taxsystemsettings.corporationMembersUrl,
             type: 'GET',
             dataSrc: function (data) {
-                return Object.values(data[0].corporation);
+                return data.corporation;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);
@@ -233,13 +251,13 @@ $(document).ready(function() {
         },
         columns: [
             {
-                data: 'character_portrait',
+                data: 'character.character_portrait',
                 render: function (data, _, __) {
                     return data;
                 }
             },
             {
-                data: 'character_name',
+                data: 'character.character_name',
                 render: function (data, _, __) {
                     return data;
                 }
@@ -253,7 +271,11 @@ $(document).ready(function() {
             {
                 data: 'joined',
                 render: function (data, _, __) {
-                    return data;
+                    const date = moment(data);
+                    if (!data || !date.isValid()) {
+                        return 'N/A';
+                    }
+                    return date.fromNow();
                 }
             },
             {
@@ -303,7 +325,8 @@ $(document).ready(function() {
             url: taxsystemsettings.corporationPaymentSystemUrl,
             type: 'GET',
             dataSrc: function (data) {
-                return Object.values(data[0].corporation);
+
+                return data.corporation;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);
@@ -312,13 +335,13 @@ $(document).ready(function() {
         },
         columns: [
             {
-                data: 'character_portrait',
+                data: 'account.character_portrait',
                 render: function (data, _, row) {
                     return data;
                 }
             },
             {
-                data: 'character_name',
+                data: 'account.character_name',
                 render: function (data, _, row) {
                     return data;
                 }
@@ -331,8 +354,22 @@ $(document).ready(function() {
             },
             {
                 data: 'deposit',
-                render: function (data, _, row) {
-                    return data;
+                render: {
+                    display: function (data, _, row) {
+                        return numberFormatter({
+                            value: data,
+                            options: {
+                                style: 'currency',
+                                currency: 'ISK'
+                            }
+                        });
+                    },
+                    filter: function (data, _, row) {
+                        return data;
+                    },
+                    _: function (data, _, row) {
+                        return data;
+                    }
                 },
                 className: 'text-end'
             },
@@ -346,7 +383,11 @@ $(document).ready(function() {
             {
                 data: 'last_paid',
                 render: function (data, _, row) {
-                    return data;
+                    const date = moment(data);
+                    if (!data || !date.isValid()) {
+                        return 'N/A';
+                    }
+                    return date.format('YYYY-MM-DD HH:mm:ss');
                 }
             },
             {
@@ -358,14 +399,14 @@ $(document).ready(function() {
             },
             // Hidden columns
             {
-                data: 'has_paid_filter',
+                data: 'has_paid.dropdown_text',
             },
         ],
         order: [[1, 'asc']],
         columnDefs: [
             {
                 orderable: false,
-                targets: [0, 4]
+                targets: [0, 4, 6]
             },
             // Filter Has Paid column
             {

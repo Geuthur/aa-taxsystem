@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<button type="button" class="btn btn-{{ account.is_active|yesno:'warning,success' }} btn-sm btn-square me-2"
+    data-bs-toggle="modal"
+    data-tooltip-toggle="taxsystem-tooltip"
+    data-title="
+        {% if account.is_active %}
+            {% translate 'Deactivate User' %}
+        {% else %}
+            {% translate 'Activate User' %}
+        {% endif %}
+        <span class='fw-bold'>{{ account.name }}</span>
+    "
+    data-text="{% translate 'Are you sure to Confirm' %}?"
+    data-bs-target="#paymentsystem-switchuser"
+    data-action="{% url 'taxsystem:switch_user' payment_system_pk=account.pk corporation_id=account.owner.corporation.corporation_id %}"
+
+    title="{% translate 'Deactivate User' %}"
+    >
+    {% if account.is_active %}
+        <span class="fas fa-eye"></span>
+    {% else %}
+        <span class="fas fa-eye-low-vision"></span>
+    {% endif %}
+</button>
