@@ -11,6 +11,14 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- API Tests
+
+### Changed
+
+- Refactored API
+
 ## [1.0.0-beta.1] - 2025-11-03
 
 > [!CAUTION]
