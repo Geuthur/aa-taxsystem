@@ -6,7 +6,8 @@ from django.utils.safestring import mark_safe
 
 # AA TaxSystem
 from taxsystem.api.helpers import core
-from taxsystem.models.tax import Members, Payments
+from taxsystem.models.filters import JournalFilter
+from taxsystem.models.tax import Members, Payments, PaymentSystem
 
 
 def manage_payments(request: WSGIRequest, perms: str, payment: Payments) -> str:
@@ -86,6 +87,42 @@ def generate_member_delete_button(member: Members) -> mark_safe:
             "taxsystem/partials/buttons/member-delete.html",
             {
                 "member": member,
+            },
+        )
+    )
+
+
+def generate_ps_toggle_button(account: PaymentSystem) -> mark_safe:
+    """Generate a payment system toggle user button for the tax system"""
+    return format_html(
+        render_to_string(
+            "taxsystem/partials/buttons/payment-system-toggle.html",
+            {
+                "account": account,
+            },
+        )
+    )
+
+
+def generate_ps_info_button(account: PaymentSystem) -> mark_safe:
+    """Generate a payment system info button for the tax system"""
+    return format_html(
+        render_to_string(
+            "taxsystem/partials/buttons/payment-system-info.html",
+            {
+                "account": account,
+            },
+        )
+    )
+
+
+def generate_filter_delete_button(filter_obj: JournalFilter) -> mark_safe:
+    """Generate a filter delete button for the tax system"""
+    return format_html(
+        render_to_string(
+            "taxsystem/partials/buttons/filter-delete.html",
+            {
+                "filter": filter_obj,
             },
         )
     )

@@ -148,7 +148,7 @@ class TestPaymentSystemModel(TestCase):
         payment_system.deposit = 1500000
         payment_system.save()
         self.assertIn(
-            "<span class='text-success'>1,500,000 ISK</span>",
+            "<span class='text-success'>1,500,000</span> ISK",
             payment_system.deposit_html,
         )
 
@@ -156,5 +156,5 @@ class TestPaymentSystemModel(TestCase):
         payment_system.deposit = -500000
         payment_system.save()
         self.assertIn(
-            "<span class='text-danger'>-500,000 ISK</span>", payment_system.deposit_html
+            "<span class='text-danger'>-500,000</span> ISK", payment_system.deposit_html
         )

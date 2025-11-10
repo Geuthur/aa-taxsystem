@@ -60,3 +60,11 @@ class LogHistorySchema(Schema):
     action: str
     comment: str
     status: str
+
+
+class AdminHistorySchema(Schema):
+    log_id: int
+    user_name: str
+    date: str
+    action: str
+    comment: str

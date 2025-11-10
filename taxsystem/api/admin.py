@@ -19,18 +19,18 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.filters import _filter_actions
-from taxsystem.api.helpers.manage import generate_member_delete_button
-from taxsystem.api.helpers.paymentsystem import (
-    _payments_info,
-    payment_system_actions,
+from taxsystem.api.helpers.manage import (
+    generate_filter_delete_button,
+    generate_member_delete_button,
+    generate_ps_info_button,
+    generate_ps_toggle_button,
 )
 from taxsystem.api.helpers.statistics import (
-    _get_divisions_dict,
     _get_statistics_dict,
 )
 from taxsystem.api.schema import (
     AccountSchema,
+    AdminHistorySchema,
     CharacterSchema,
     CorporationSchema,
     DataTableSchema,
@@ -52,36 +52,65 @@ class MembersSchema(Schema):
     character: CharacterSchema
     is_faulty: bool
     status: str
-    joined: str
+    joined: datetime
     actions: str
-
-
-class MembersResponseSchema(Schema):
-    corporation: list[MembersSchema]
-
-
-class DashboardResponseSchema(Schema):
-    corporation: CorporationSchema
-    update_status: UpdateStatusSchema
-    tax_amount: int
-    tax_period: int
-    divisions: dict
-    statistics: dict
-    activity: str
 
 
 class PaymentSystemSchema(Schema):
     account: AccountSchema
     status: str
-    deposit: str
+    deposit: int
     has_paid: DataTableSchema
     last_paid: datetime | None = None
     is_active: bool
     actions: str
 
 
+class MembersResponse(Schema):
+    corporation: list[MembersSchema]
+
+
+class DivisionSchema(Schema):
+    name: str
+    balance: float
+
+
+class DashboardDivisionsSchema(Schema):
+    divisions: list[DivisionSchema]
+    total_balance: float
+
+
+class DashboardResponse(Schema):
+    corporation: CorporationSchema
+    update_status: UpdateStatusSchema
+    tax_amount: int
+    tax_period: int
+    divisions: DashboardDivisionsSchema
+    statistics: dict
+    activity: str
+
+
 class PaymentSystemResponse(Schema):
     corporation: list[PaymentSystemSchema]
+
+
+class AdminLogResponse(Schema):
+    corporation: list[AdminHistorySchema]
+
+
+class FilterSetModelSchema(Schema):
+    owner_id: int
+    name: str
+    description: str
+    enabled: bool
+    actions: str | None = None
+
+
+class FilterModelSchema(Schema):
+    filter_set: FilterSetModelSchema
+    filter_type: str
+    value: str
+    actions: str | None = None
 
 
 class AdminApiEndpoints:
@@ -91,7 +120,7 @@ class AdminApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "corporation/{corporation_id}/view/dashboard/",
-            response={200: DashboardResponseSchema, 403: dict, 404: dict},
+            response={200: DashboardResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         # pylint: disable=too-many-locals
@@ -109,7 +138,22 @@ class AdminApiEndpoints:
             corporation_logo = lazy.get_corporation_logo_url(
                 corporation_id, size=64, as_html=True
             )
-            divisions_dict = _get_divisions_dict(divisions)
+
+            # Create divisions
+            response_divisions_list: list[DivisionSchema] = []
+            total_balance = 0
+            for i, division in enumerate(divisions, start=1):
+                division_name = (
+                    division.name if division.name else f"{i}. {_('Division')}"
+                )
+                response_divisions_list.append(
+                    DivisionSchema(
+                        name=division_name,
+                        balance=division.balance,
+                    )
+                )
+                total_balance += division.balance
+
             statistics_dict = {owner.name: _get_statistics_dict(owner)}
 
             past30_days = (
@@ -125,7 +169,7 @@ class AdminApiEndpoints:
             activity_color = "text-success" if total_amount >= 0 else "text-danger"
             activity_html = f"<span class='{activity_color}'>{intcomma(total_amount, use_l10n=True)}</span> ISK"
 
-            dashboard_response = DashboardResponseSchema(
+            dashboard_response = DashboardResponse(
                 corporation=CorporationSchema(
                     corporation_id=owner.corporation.corporation_id,
                     corporation_name=owner.corporation.corporation_name,
@@ -138,7 +182,10 @@ class AdminApiEndpoints:
                 ),
                 tax_amount=owner.tax_amount,
                 tax_period=owner.tax_period,
-                divisions=divisions_dict,
+                divisions=DashboardDivisionsSchema(
+                    divisions=response_divisions_list,
+                    total_balance=total_balance,
+                ),
                 statistics=statistics_dict,
                 activity=format_html(activity_html),
             )
@@ -146,7 +193,7 @@ class AdminApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/view/members/",
-            response={200: MembersResponseSchema, 403: dict, 404: dict},
+            response={200: MembersResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_members(request, corporation_id: int):
@@ -178,12 +225,12 @@ class AdminApiEndpoints:
                     ),
                     is_faulty=member.is_faulty,
                     status=member.get_status_display(),
-                    joined=lazy.str_normalize_time(member.joined, hours=False),
+                    joined=member.joined,
                     actions=actions,
                 )
                 response_members_list.append(response_member)
 
-            return MembersResponseSchema(corporation=response_members_list)
+            return MembersResponse(corporation=response_members_list)
 
         @api.get(
             "corporation/{corporation_id}/view/paymentsystem/",
@@ -212,43 +259,39 @@ class AdminApiEndpoints:
             )
 
             payment_accounts_list: list[PaymentSystemSchema] = []
-            for user in payment_system:
-                character_id = user.user.profile.main_character.character_id
-                character_name = user.user.profile.main_character.character_name
+            for account in payment_system:
+                character_id = account.user.profile.main_character.character_id
+                character_name = account.user.profile.main_character.character_name
 
-                actions = payment_system_actions(
-                    corporation_id=corporation_id,
-                    payment_system=user,
-                    perms=perms,
-                    request=request,
+                # Create the action buttons
+                actions = []
+                actions.append(generate_ps_toggle_button(account=account))
+                actions.append(generate_ps_info_button(account=account))
+                actions = format_html(
+                    f'<div class="d-flex justify-content-end">{format_html("".join(actions))}</div>'
                 )
-                deposit = _payments_info(
-                    corporation_id=corporation_id,
-                    user=user,
-                    perms=perms,
-                    request=request,
-                )
+
                 response_payment_account = PaymentSystemSchema(
-                    payment_id=user.pk,
+                    payment_id=account.pk,
                     account=AccountSchema(
                         character_id=character_id,
                         character_name=character_name,
                         character_portrait=lazy.get_character_portrait_url(
                             character_id, size=32, as_html=True
                         ),
-                        alt_ids=user.get_alt_ids(),
+                        alt_ids=account.get_alt_ids(),
                     ),
-                    status=user.get_payment_status(),
-                    deposit=deposit,
+                    status=account.get_payment_status(),
+                    deposit=account.deposit,
                     has_paid=DataTableSchema(
-                        raw=str(user.has_paid),
-                        display=user.has_paid_icon(badge=True),
-                        sort=str(int(user.has_paid)),
+                        raw=str(account.has_paid),
+                        display=account.has_paid_icon(badge=True),
+                        sort=str(int(account.has_paid)),
                         translation=_("Has Paid"),
-                        dropdown_text=_("Yes") if user.has_paid else _("No"),
+                        dropdown_text=_("Yes") if account.has_paid else _("No"),
                     ),
-                    last_paid=user.last_paid,
-                    is_active=user.is_active,
+                    last_paid=account.last_paid,
+                    is_active=account.is_active,
                     actions=actions,
                 )
                 payment_accounts_list.append(response_payment_account)
@@ -257,7 +300,7 @@ class AdminApiEndpoints:
 
         @api.get(
             "corporation/admin/{corporation_id}/view/logs/",
-            response={200: list, 403: str},
+            response={200: AdminLogResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_corporation_admin_logs(request, corporation_id: int):
@@ -271,66 +314,67 @@ class AdminApiEndpoints:
 
             logs = AdminLogs.objects.filter(owner=owner).order_by("-date")
 
-            logs_dict = {}
-
+            response_admin_logs_list: list[AdminHistorySchema] = []
             for log in logs:
-                date = lazy.str_normalize_time(log.date, hours=True)
-                logs_dict[log.pk] = {
-                    "date": date,
-                    "user_name": log.user.username,
-                    "action": log.action,
-                    "log": log.log,
-                }
+                response_admin_log = AdminHistorySchema(
+                    log_id=log.pk,
+                    user_name=log.user.username,
+                    date=timezone.localtime(log.date).strftime("%Y-%m-%d %H:%M"),
+                    action=log.action,
+                    comment=log.comment,
+                )
+                response_admin_logs_list.append(response_admin_log)
 
-            output = []
-            output.append({"logs": logs_dict})
-
-            return output
+            return AdminLogResponse(corporation=response_admin_logs_list)
 
         @api.get(
-            "corporation/{corporation_id}/filter_set/{filter_set_id}/view/filter/",
-            response={200: list, 403: str, 404: str},
+            "corporation/{corporation_id}/filter-set/{filter_set_id}/view/filter/",
+            response={200: list[FilterModelSchema], 403: str, 404: str},
             tags=self.tags,
         )
         def get_filter_set_filters(request, corporation_id: int, filter_set_id: int):
             owner, perms = core.get_manage_corporation(request, corporation_id)
 
             if owner is None:
-                return 404, "Corporation Not Found"
+                return 404, {"error": _("Corporation Not Found")}
 
             if perms is False:
-                return 403, "Permission Denied"
+                return 403, {"error": _("Permission Denied")}
 
             filters = JournalFilter.objects.filter(
                 filter_set__pk=filter_set_id,
             )
 
-            output = []
-
+            response_filter_list: list[FilterModelSchema] = []
             for filter_obj in filters:
                 if filter_obj.filter_type == JournalFilter.FilterType.AMOUNT:
                     value = f"{intcomma(filter_obj.value, use_l10n=True)} ISK"
                 else:
                     value = filter_obj.value
 
-                filter_dict = {
-                    "id": filter_obj.pk,
-                    "filter_set": filter_obj.filter_set,
-                    "filter_type": filter_obj.get_filter_type_display(),
-                    "value": value,
-                    "actions": _filter_actions(
-                        corporation_id=corporation_id,
-                        filter_obj=filter_obj,
-                        perms=perms,
-                        request=request,
+                actions = []
+                actions.append(generate_filter_delete_button(filter_obj=filter_obj))
+                actions = format_html(
+                    f'<div class="d-flex justify-content-end">{format_html("".join(actions))}</div>'
+                )
+
+                response_filter = FilterModelSchema(
+                    filter_set=FilterSetModelSchema(
+                        owner_id=filter_obj.filter_set.owner.pk,
+                        name=filter_obj.filter_set.name,
+                        description=filter_obj.filter_set.description,
+                        enabled=filter_obj.filter_set.enabled,
                     ),
-                }
-                output.append(filter_dict)
+                    filter_type=filter_obj.get_filter_type_display(),
+                    value=value,
+                    actions=actions,
+                )
+                response_filter_list.append(response_filter)
 
             return render(
                 request,
                 "taxsystem/modals/view_filter.html",
                 context={
-                    "filters": output,
+                    "filters": response_filter_list,
                 },
             )

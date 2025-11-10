@@ -586,9 +586,9 @@ class PaymentSystem(models.Model):
     def deposit_html(self) -> str:
         if self.deposit < 0:
             # Make text red for negative deposits
-            return f"<span class='text-danger'>{intcomma(self.deposit, use_l10n=True)} ISK</span>"
+            return f"<span class='text-danger'>{intcomma(self.deposit, use_l10n=True)}</span> ISK"
         if self.deposit > 0:
-            return f"<span class='text-success'>{intcomma(self.deposit, use_l10n=True)} ISK</span>"
+            return f"<span class='text-success'>{intcomma(self.deposit, use_l10n=True)}</span> ISK"
         return (
             f"{intcomma(self.deposit, use_l10n=True)} ISK" if self.deposit else "0 ISK"
         )

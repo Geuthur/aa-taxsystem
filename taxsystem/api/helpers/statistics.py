@@ -1,32 +1,10 @@
 # Django
-from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import Count, F, Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
 # AA TaxSystem
 from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
-from taxsystem.models.wallet import CorporationWalletDivision
-
-
-def _get_divisions_dict(divisions: CorporationWalletDivision):
-    divisions_dict = {}
-    total_balance = 0
-    for i, division in enumerate(divisions, start=1):
-        division_name = division.name if division.name else f"{i}. {_('Division')}"
-        division_balance = intcomma(division.balance)
-        divisions_dict[division_name] = {
-            "name": division_name,
-            "balance": division_balance,
-        }
-        total_balance += division.balance
-
-    divisions_dict["total"] = {
-        "name": _("Total"),
-        "balance": intcomma(total_balance),
-    }
-
-    return divisions_dict
 
 
 def _get_statistics_dict(owner: OwnerAudit):

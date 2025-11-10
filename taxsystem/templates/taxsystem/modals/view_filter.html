@@ -26,7 +26,7 @@
                     <tr>
                         <td>{{ filter_obj.filter_type }}</td>
                         <td>{{ filter_obj.value }}</td>
-                        <td>{{ filter_obj.actions }}</td>
+                        <td>{{ filter_obj.actions|safe }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

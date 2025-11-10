@@ -1,7 +1,6 @@
 """This module provides lazy loading of some common functions and objects that are not needed for every request."""
 
 # Django
-from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -67,10 +66,3 @@ def get_type_render_url(
         )
         return render_html
     return render_url
-
-
-def str_normalize_time(evetime, hours: bool = False) -> str:
-    """Normalize time to a string."""
-    if hours:
-        return timezone.localtime(evetime).strftime("%Y-%m-%d %H:%M")
-    return timezone.localtime(evetime).strftime("%Y-%m-%d")
