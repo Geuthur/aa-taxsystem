@@ -37,7 +37,7 @@ class CorporationApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "corporation/{corporation_id}/view/payments/",
-            response={200: PaymentsResponse, 403: str, 404: str},
+            response={200: PaymentsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_payments(request, corporation_id: int):
@@ -47,7 +47,7 @@ class CorporationApiEndpoints:
                 return 404, {"error": "Corporation Not Found"}
 
             if perms is False:
-                return 404, {"error": "Permission Denied"}
+                return 403, {"error": "Permission Denied"}
 
             # Get Payments
             payments = (
@@ -97,7 +97,7 @@ class CorporationApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/view/own-payments/",
-            response={200: PaymentsResponse, 403: str, 404: str},
+            response={200: PaymentsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_own_payments(request, corporation_id: int):

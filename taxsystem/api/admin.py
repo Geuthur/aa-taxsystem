@@ -329,7 +329,7 @@ class AdminApiEndpoints:
 
         @api.get(
             "corporation/{corporation_id}/filter-set/{filter_set_id}/view/filter/",
-            response={200: list[FilterModelSchema], 403: str, 404: str},
+            response={200: list[FilterModelSchema], 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_filter_set_filters(request, corporation_id: int, filter_set_id: int):
