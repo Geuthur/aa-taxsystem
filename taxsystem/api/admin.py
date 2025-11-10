@@ -26,7 +26,8 @@ from taxsystem.api.helpers.manage import (
     generate_ps_toggle_button,
 )
 from taxsystem.api.helpers.statistics import (
-    _get_statistics_dict,
+    StatisticsResponse,
+    _create_statistics,
 )
 from taxsystem.api.schema import (
     AccountSchema,
@@ -86,7 +87,7 @@ class DashboardResponse(Schema):
     tax_amount: int
     tax_period: int
     divisions: DashboardDivisionsSchema
-    statistics: dict
+    statistics: StatisticsResponse
     activity: str
 
 
@@ -154,7 +155,8 @@ class AdminApiEndpoints:
                 )
                 total_balance += division.balance
 
-            statistics_dict = {owner.name: _get_statistics_dict(owner)}
+            # Create statistics
+            response_statistics = _create_statistics(owner)
 
             past30_days = (
                 CorporationWalletJournalEntry.objects.filter(
@@ -186,7 +188,7 @@ class AdminApiEndpoints:
                     divisions=response_divisions_list,
                     total_balance=total_balance,
                 ),
-                statistics=statistics_dict,
+                statistics=response_statistics,
                 activity=format_html(activity_html),
             )
             return dashboard_response
