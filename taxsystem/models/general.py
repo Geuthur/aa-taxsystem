@@ -28,6 +28,8 @@ class UpdateSectionResult(NamedTuple):
 
     is_changed: bool | None
     is_updated: bool
+    has_token_error: bool = False
+    error_message: str | None = None
     data: Any = None
 
 
