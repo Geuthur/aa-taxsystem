@@ -183,9 +183,7 @@ def _update_owner_section(owner_pk: int, section: str, force_refresh: bool):
         kwargs = {}
 
     result = corporation.perform_update_status(section, method, **kwargs)
-    corporation.update_section_log(
-        section, is_success=True, is_updated=result.is_updated
-    )
+    corporation.update_section_log(section, result)
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)

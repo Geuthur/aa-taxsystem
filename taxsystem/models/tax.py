@@ -5,7 +5,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 # Third Party
-from bravado.exception import HTTPInternalServerError
+from aiopenapi3.errors import HTTPClientError, HTTPServerError
 
 # Django
 from django.contrib.humanize.templatetags.humanize import intcomma
@@ -33,7 +33,6 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__, app_settings
-from taxsystem.errors import HTTPGatewayTimeoutError
 from taxsystem.managers.payment_manager import PaymentsManager, PaymentSystemManager
 from taxsystem.managers.tax_manager import MembersManager, OwnerAuditManager
 from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
@@ -312,19 +311,28 @@ class OwnerAudit(models.Model):
         try:
             data = fetch_func(owner=self, force_refresh=force_refresh)
             logger.debug("%s: Update has changed, section: %s", self, section.label)
-        except HTTPInternalServerError as exc:
+        except HTTPServerError as exc:
             logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
             return UpdateSectionResult(is_changed=False, is_updated=False)
         except HTTPNotModified:
             logger.debug("%s: Update has not changed, section: %s", self, section.label)
             return UpdateSectionResult(is_changed=False, is_updated=False)
-        except HTTPGatewayTimeoutError:
-            logger.debug(
-                "%s: Update has a gateway timeout error, section: %s",
+        except HTTPClientError as exc:
+            error_message = f"{type(exc).__name__}: {str(exc)}"
+            # TODO ADD DISCORD/AUTH NOTIFICATION?
+            logger.error(
+                "%s: %s: Update has Client Error: %s %s",
                 self,
                 section.label,
+                error_message,
+                exc.status_code,
             )
-            return UpdateSectionResult(is_changed=False, is_updated=False)
+            return UpdateSectionResult(
+                is_changed=False,
+                is_updated=False,
+                has_token_error=True,
+                error_message=error_message,
+            )
         return UpdateSectionResult(
             is_changed=True,
             is_updated=True,
@@ -334,23 +342,22 @@ class OwnerAudit(models.Model):
     def update_section_log(
         self,
         section: UpdateSection,
-        is_success: bool,
-        is_updated: bool = False,
-        error_message: str = None,
+        result: UpdateSectionResult,
     ) -> None:
         """Update the status of a specific section."""
-        error_message = error_message if error_message else ""
+        error_message = result.error_message if result.error_message else ""
+        is_success = result.is_updated and not result.has_token_error
         defaults = {
             "is_success": is_success,
             "error_message": error_message,
-            "has_token_error": False,
+            "has_token_error": result.has_token_error,
             "last_run_finished_at": timezone.now(),
         }
         obj: OwnerUpdateStatus = self.ts_update_status.update_or_create(
             section=section,
             defaults=defaults,
         )[0]
-        if is_updated:
+        if result.is_updated:
             obj.last_update_at = obj.last_run_at
             obj.last_update_finished_at = timezone.now()
             obj.save()
@@ -364,7 +371,6 @@ class OwnerAudit(models.Model):
         try:
             result = method(*args, **kwargs)
         except Exception as exc:
-            # TODO ADD DISCORD NOTIFICATION?
             error_message = f"{type(exc).__name__}: {str(exc)}"
             is_token_error = isinstance(exc, (TokenError))
             logger.error(
