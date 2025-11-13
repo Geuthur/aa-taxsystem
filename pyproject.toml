@@ -38,7 +38,7 @@ dependencies = [
     "allianceauth-app-utils>=1.27",
     "django-esi>=8b2",
     "django-eveuniverse>=1.5.7",
-    "django-ninja<=1.5",
+    "django-ninja<1.5",
 ]
 optional-dependencies.tests-allianceauth-latest = [
     "coverage",
