@@ -11,17 +11,25 @@ Section Order:
 ### Removed
 -->
 
+## [1.0.1] - 2025-11-13
+
 ### Added
 
-- API Tests
-
-### Changed
-
-- Refactored API
+- Temporary pin `django-ninja` to `django-ninja<=1.5`
+  - https://github.com/vitalik/django-ninja/pull/1524
 
 ### Fixed
 
 - Statistics is not showing when Data is `null`
+
+### Changed
+
+- Switch to OPENAPI3 ESI Client
+  - Dependency `django-esi` set to `>=8,<9`
+  - Dependency `allianceauth-app-utils` set to `2b1`
+  - Use new ETag System from `django-esi`
+- Updated dependencies
+- Updated README url for translations
 
 ## [1.0.0-beta.1] - 2025-11-03
 
