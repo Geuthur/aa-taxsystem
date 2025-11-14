@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.eveonline.evelinks.eveimageserver import (
+    alliance_logo_url,
     character_portrait_url,
     corporation_logo_url,
     type_render_url,
@@ -46,6 +47,26 @@ def get_corporation_logo_url(
             '<img class="corporation-logo rounded-circle" src="{}" alt="{}">',
             render_url,
             corporation_name,
+        )
+        return render_html
+    return render_url
+
+
+def get_alliance_logo_url(
+    alliance_id: int,
+    size: int = 32,
+    alliance_name: str = None,
+    as_html: bool = False,
+) -> str:
+    """Get the alliance logo for a alliance ID."""
+
+    render_url = alliance_logo_url(alliance_id=alliance_id, size=size)
+
+    if as_html:
+        render_html = format_html(
+            '<img class="alliance-logo rounded-circle" src="{}" alt="{}">',
+            render_url,
+            alliance_name,
         )
         return render_html
     return render_url
