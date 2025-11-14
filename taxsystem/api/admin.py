@@ -27,7 +27,9 @@ from taxsystem.api.helpers.manage import (
 )
 from taxsystem.api.helpers.statistics import (
     StatisticsResponse,
-    _create_statistics,
+    get_members_statistics,
+    get_payment_system_statistics,
+    get_payments_statistics,
 )
 from taxsystem.api.schema import (
     AccountSchema,
@@ -156,7 +158,13 @@ class AdminApiEndpoints:
                 total_balance += division.balance
 
             # Create statistics
-            response_statistics = _create_statistics(owner)
+            response_statistics = StatisticsResponse(
+                owner_id=owner.corporation.corporation_id,
+                owner_name=owner.corporation.corporation_name,
+                payment_system=get_payment_system_statistics(owner),
+                payments=get_payments_statistics(owner),
+                members=get_members_statistics(owner),
+            )
 
             past30_days = (
                 CorporationWalletJournalEntry.objects.filter(
