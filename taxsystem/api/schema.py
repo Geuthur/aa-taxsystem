@@ -17,6 +17,16 @@ class CorporationSchema(Schema):
     corporation_ticker: str | None = None
 
 
+class AllianceSchema(Schema):
+    alliance_id: int
+    alliance_name: str
+    alliance_logo: str | None = None
+    alliance_ticker: str | None = None
+    main_corporation_id: int
+    main_corporation_name: str | None = None
+    main_corporation_ticker: str | None = None
+
+
 class CharacterSchema(Schema):
     character_id: int
     character_name: str
