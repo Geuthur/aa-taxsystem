@@ -41,7 +41,25 @@
                     </div>
                     <div class="mb-3 form-check">
                         <input class="form-check-input" type="checkbox" name="run_taxsystem_updates" id="run_taxsystem_updates">
-                        <label class="form-check-label" for="run_taxsystem_updates">{% translate "Update Taxsystem Updates" %}</label>
+                        <label class="form-check-label" for="run_taxsystem_updates">{% translate "All Taxsystem Updates" %}</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" name="run_taxsystem_corporation_updates" id="run_taxsystem_corporation_updates">
+                        <label class="form-check-label" for="run_taxsystem_corporation_updates">{% translate "Update Taxsystem Corporation Updates" %}</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="corporation_id" class="form-label">{% translate "Corporation ID (optional)" %}</label>
+                        <input type="number" class="form-control" name="corporation_id" id="corporation_id" placeholder="{% translate 'Enter Corporation ID' %}">
+                        <small class="form-text text-muted">{% translate "Leave empty to update all corporations" %}</small>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" name="run_taxsystem_alliance_updates" id="run_taxsystem_alliance_updates">
+                        <label class="form-check-label" for="run_taxsystem_alliance_updates">{% translate "Update Taxsystem Alliance Updates" %}</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alliance_id" class="form-label">{% translate "Alliance ID (optional)" %}</label>
+                        <input type="number" class="form-control" name="alliance_id" id="alliance_id" placeholder="{% translate 'Enter Alliance ID' %}">
+                        <small class="form-text text-muted">{% translate "Leave empty to update all alliances" %}</small>
                     </div>
                     <input type="submit" value="{% translate 'Submit' %}" class="btn col-md-12 btn-primary" />
                 </form>
