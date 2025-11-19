@@ -1,5 +1,8 @@
 """Models for Tax System."""
 
+# Standard Library
+from typing import ClassVar
+
 # Django
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -7,7 +10,6 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.eveonline.models import (
     EveAllianceInfo,
-    EveCorporationInfo,
 )
 from allianceauth.services.hooks import get_extension_logger
 
@@ -16,6 +18,11 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.managers.alliance_manager import (
+    AllianceOwnerManager,
+    AlliancePaymentAccountManager,
+    AlliancePaymentManager,
+)
 from taxsystem.models.base import (
     AdminHistoryBase,
     FilterBase,
@@ -26,6 +33,7 @@ from taxsystem.models.base import (
     PaymentsBase,
     UpdateStatusBase,
 )
+from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.general import AllianceUpdateSection
 from taxsystem.models.wallet import CorporationWalletJournalEntry
 
@@ -35,7 +43,7 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 class AllianceUpdateStatus(UpdateStatusBase):
     """Model representing the update status of an alliance owner in the tax system."""
 
-    owner = models.OneToOneField(
+    owner = models.ForeignKey(
         "AllianceOwner",
         on_delete=models.CASCADE,
         related_name="ts_alliance_update_status",
@@ -58,20 +66,23 @@ class AllianceOwner(OwnerBase):
     class Meta:
         default_permissions = ()
 
+    objects: ClassVar[AllianceOwnerManager] = AllianceOwnerManager()
+
     eve_alliance = models.OneToOneField(
         EveAllianceInfo,
         on_delete=models.CASCADE,
         related_name="+",
     )
 
-    eve_corporation = models.OneToOneField(
-        EveCorporationInfo,
+    corporation = models.ForeignKey(
+        CorporationOwner,
         on_delete=models.CASCADE,
         related_name="+",
+        help_text=_("The corporation that owns this alliance tax system."),
     )
 
     def __str__(self) -> str:
-        return f"{self.eve_alliance.alliance_name} - {self.eve_corporation.corporation_name}"
+        return f"{self.eve_alliance.alliance_name}"
 
     def update_payments(self, force_refresh: bool) -> AllianceUpdateStatus:
         """Update the Payments for this alliance."""
@@ -102,9 +113,9 @@ class AllianceOwner(OwnerBase):
         return self.UpdateStatus(total_update_status)
 
     @property
-    def update_status_manager(self):
+    def update_status_manager(self) -> models.QuerySet[AllianceUpdateStatus]:
         """Return the related manager for alliance update status objects."""
-        return self.ts_alliance_update_status
+        return AllianceUpdateStatus.objects.filter(owner=self)
 
     @property
     def update_section_enum(self):
@@ -115,14 +126,16 @@ class AllianceOwner(OwnerBase):
 class AlliancePaymentAccount(PaymentAccountBase):
     """Model representing an alliance payment account in the tax system."""
 
+    objects: ClassVar[AlliancePaymentAccountManager] = AlliancePaymentAccountManager()
+
+    class Meta:
+        default_permissions = ()
+
     owner = models.ForeignKey(
         AllianceOwner,
         on_delete=models.CASCADE,
         related_name="ts_alliance_payment_accounts",
     )
-
-    class Meta:
-        default_permissions = ()
 
     def __str__(self) -> str:
         return f"{self.name}"
@@ -131,14 +144,16 @@ class AlliancePaymentAccount(PaymentAccountBase):
 class AlliancePayments(PaymentsBase):
     """Model representing payments made by alliance members in the tax system."""
 
+    objects: ClassVar[AlliancePaymentManager] = AlliancePaymentManager()
+
+    class Meta:
+        default_permissions = ()
+
     account = models.ForeignKey(
         AlliancePaymentAccount,
         on_delete=models.CASCADE,
         related_name="ts_alliance_payments",
     )
-
-    class Meta:
-        default_permissions = ()
 
     def __str__(self) -> str:
         return f"{self.account.name} - {self.amount} ISK"
