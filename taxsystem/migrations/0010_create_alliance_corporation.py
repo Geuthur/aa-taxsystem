@@ -16,6 +16,22 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RenameModel(
+            old_name="OwnerAudit",
+            new_name="CorporationOwner",
+        ),
+        migrations.RenameModel(
+            old_name="Payments",
+            new_name="CorporationPayments",
+        ),
+        migrations.RenameModel(
+            old_name="PaymentSystem",
+            new_name="CorporationPaymentAccount",
+        ),
+        migrations.RenameModel(
+            old_name="OwnerUpdateStatus",
+            new_name="CorporationUpdateStatus",
+        ),
         migrations.CreateModel(
             name="AllianceOwner",
             fields=[
@@ -59,11 +75,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "eve_corporation",
-                    models.OneToOneField(
+                    "corporation",
+                    models.ForeignKey(
+                        help_text="The corporation that owns this alliance tax system.",
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="+",
-                        to="eveonline.evecorporationinfo",
+                        to="taxsystem.corporationowner",
                     ),
                 ),
             ],
@@ -139,7 +156,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "owner",
-                    models.OneToOneField(
+                    models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="ts_alliance_update_status",
                         to="taxsystem.allianceowner",
@@ -266,21 +283,5 @@ class Migration(migrations.Migration):
             options={
                 "default_permissions": (),
             },
-        ),
-        migrations.RenameModel(
-            old_name="OwnerAudit",
-            new_name="CorporationOwner",
-        ),
-        migrations.RenameModel(
-            old_name="Payments",
-            new_name="CorporationPayments",
-        ),
-        migrations.RenameModel(
-            old_name="PaymentSystem",
-            new_name="CorporationPaymentAccount",
-        ),
-        migrations.RenameModel(
-            old_name="OwnerUpdateStatus",
-            new_name="CorporationUpdateStatus",
         ),
     ]
