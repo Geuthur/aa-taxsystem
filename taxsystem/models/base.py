@@ -155,6 +155,7 @@ class OwnerBase(models.Model):
     def reset_update_status(self, section):
         """Reset the status of a given update section and return it."""
         update_status_obj = self.update_status_manager.get_or_create(
+            owner=self,
             section=section,
         )[0]
         update_status_obj.reset()
