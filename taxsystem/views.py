@@ -68,15 +68,81 @@ def admin(request: WSGIRequest):
         messages.error(request, _("You do not have permission to access this page."))
         return redirect("taxsystem:index")
 
+    def _handle_taxsystem_updates(force_refresh):
+        messages.info(request, _("Queued Update All Taxsystem"))
+        tasks.update_all_taxsytem.apply_async(
+            kwargs={"force_refresh": force_refresh}, priority=7
+        )
+
+    def _handle_corporation_updates(force_refresh):
+        corporation_id_input = request.POST.get("corporation_id")
+        if corporation_id_input:
+            try:
+                corp_id = int(corporation_id_input)
+                corporation = CorporationOwner.objects.get(
+                    eve_corporation__corporation_id=corp_id
+                )
+                messages.info(
+                    request,
+                    _("Queued Update for Corporation: %s") % corporation.name,
+                )
+                tasks.update_corporation.apply_async(
+                    args=[corporation.pk],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+            except (ValueError, CorporationOwner.DoesNotExist):
+                messages.error(
+                    request,
+                    _("Corporation with ID %s not found") % corporation_id_input,
+                )
+        else:
+            messages.info(request, _("Queued Update All Taxsystem Corporations"))
+            corporations = CorporationOwner.objects.filter(active=True)
+            for corporation in corporations:
+                tasks.update_corporation.apply_async(
+                    args=[corporation.pk],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+
+    def _handle_alliance_updates(force_refresh):
+        alliance_id_input = request.POST.get("alliance_id")
+        if alliance_id_input:
+            try:
+                ally_id = int(alliance_id_input)
+                alliance = AllianceOwner.objects.get(eve_alliance__alliance_id=ally_id)
+                messages.info(
+                    request, _("Queued Update for Alliance: %s") % alliance.name
+                )
+                tasks.update_alliance.apply_async(
+                    args=[alliance.pk],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+            except (ValueError, AllianceOwner.DoesNotExist):
+                messages.error(
+                    request, _("Alliance with ID %s not found") % alliance_id_input
+                )
+        else:
+            messages.info(request, _("Queued Update All Taxsystem Alliances"))
+            alliances = AllianceOwner.objects.filter(active=True)
+            for alliance in alliances:
+                tasks.update_alliance.apply_async(
+                    args=[alliance.pk],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+
     if request.method == "POST":
-        force_refresh = False
-        if request.POST.get("force_refresh", False):
-            force_refresh = True
+        force_refresh = bool(request.POST.get("force_refresh", False))
         if request.POST.get("run_taxsystem_updates"):
-            messages.info(request, _("Queued Update All Taxsystem"))
-            tasks.update_all_taxsytem.apply_async(
-                kwargs={"force_refresh": force_refresh}, priority=7
-            )
+            _handle_taxsystem_updates(force_refresh)
+        if request.POST.get("run_taxsystem_corporation_updates"):
+            _handle_corporation_updates(force_refresh)
+        if request.POST.get("run_taxsystem_alliance_updates"):
+            _handle_alliance_updates(force_refresh)
+
     context = {
         "corporation_id": corporation_id,
         "title": _("Tax System Superuser Administration"),
@@ -532,6 +598,10 @@ def add_corp(request, token):
 @token_required(scopes=CorporationOwner.get_esi_scopes())
 def add_alliance(request, token):
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
+    tax_corp = get_object_or_404(
+        CorporationOwner, eve_corporation__corporation_id=char.corporation_id
+    )
+
     ally, __ = EveAllianceInfo.objects.get_or_create(
         alliance_id=char.alliance_id,
         defaults={
@@ -540,17 +610,14 @@ def add_alliance(request, token):
             "alliance_name": char.alliance_name,
         },
     )
-    corp, __ = EveCorporationInfo.objects.get_or_create(
-        corporation_id=char.corporation_id,
-        defaults={
-            "member_count": 0,
-            "corporation_ticker": char.corporation_ticker,
-            "corporation_name": char.corporation_name,
-        },
-    )
 
     owner_alliance, created = AllianceOwner.objects.update_or_create(
-        eve_alliance=ally, eve_corporation=corp
+        eve_alliance=ally,
+        defaults={
+            "corporation": tax_corp,
+            "name": char.alliance_name,
+            "active": True,
+        },
     )
 
     if created:
@@ -558,7 +625,9 @@ def add_alliance(request, token):
             user=request.user,
             owner=owner_alliance,
             action=AllianceAdminHistory.Actions.ADD,
-            comment=_("Added Alliance to Tax System"),
+            comment=_("Added Alliance to Tax System with Corporation {corp}").format(
+                corp=tax_corp.name
+            ),
         ).save()
 
     tasks.update_alliance.apply_async(
