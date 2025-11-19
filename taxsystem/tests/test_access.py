@@ -5,6 +5,7 @@ from http import HTTPStatus
 from unittest.mock import Mock, patch
 
 # Django
+from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -38,6 +39,7 @@ class TestViewAdministrationAccess(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1002
         )
+        cls.audit = create_owneraudit_from_user(cls.user)
         cls.superuser, cls.character_ownership = (
             create_user_from_evecharacter_with_access(1001)
         )
@@ -69,24 +71,6 @@ class TestViewAdministrationAccess(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertTrue(mock_messages.error.called)
-
-    def test_admin_clear_all_etags(self, mock_messages):
-        """Test clear all etags."""
-        # given
-        self.superuser.is_superuser = True
-        self.superuser.save()
-        request = self.factory.post(
-            reverse("taxsystem:admin"), data={"run_clear_etag": True}
-        )
-        request.user = self.superuser
-
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        # when
-        response = views.admin(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        mock_messages.info.assert_called_once_with(request, "Queued Clear All ETags")
 
     def test_force_refresh(self, mock_messages):
         """Test force refresh."""
@@ -187,6 +171,9 @@ class TestViewAccess(TestCase):
                 args=[2001],
             )
         )
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
         response = views.payments(request, 2001)
@@ -200,12 +187,15 @@ class TestViewAccess(TestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:own_payments",
-                args=[2001],
+                args=[2002],
             )
         )
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.own_payments(request, 2001)
+        response = views.own_payments(request, 2002)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Own Payments")

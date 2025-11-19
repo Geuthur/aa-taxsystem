@@ -13,7 +13,7 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.tax import Payments
+from taxsystem.models.corporation import CorporationPayments
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
 )
@@ -65,7 +65,7 @@ class TestAddPayment(TestCase):
     def test_add_payment(self):
         """Test adding a payment."""
         # given
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         form_data = {
             "corporation_id": corporation_id,
             "add_reason": "This is a test addition",
@@ -84,7 +84,7 @@ class TestAddPayment(TestCase):
             corporation_id=corporation_id,
             payment_system_pk=self.payment_system.pk,
         )
-        payment = Payments.objects.get(
+        payment = CorporationPayments.objects.get(
             account=self.payment_system, amount=1000, reason="This is a test addition"
         )
         response_data = json.loads(response.content)
@@ -99,7 +99,7 @@ class TestAddPayment(TestCase):
     def test_no_permission(self):
         """Test try adding a payment without permission."""
         # given
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         form_data = {
             "corporation_id": corporation_id,
             "add_reason": "This is a test addition",
@@ -127,7 +127,7 @@ class TestAddPayment(TestCase):
     def test_no_manage_permission(self):
         """Test reject payment without managing permission."""
         # given
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         form_data = {
             "corporation_id": corporation_id,
             "add_reason": "This is a test addition",

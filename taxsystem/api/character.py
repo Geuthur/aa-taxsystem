@@ -22,8 +22,11 @@ from taxsystem.api.schema import (
     RequestStatusSchema,
 )
 from taxsystem.helpers.lazy import get_character_portrait_url
-from taxsystem.models.logs import PaymentHistory
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.corporation import (
+    CorporationPaymentAccount,
+    CorporationPaymentHistory,
+    CorporationPayments,
+)
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -79,15 +82,15 @@ class CharacterApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            payment = get_object_or_404(Payments, pk=pk)
+            payment = get_object_or_404(CorporationPayments, pk=pk)
             account = get_object_or_404(
-                PaymentSystem,
+                CorporationPaymentAccount,
                 user=payment.account.user,
                 owner=owner,
             )
 
             response_payment_histories: list[LogHistorySchema] = []
-            payments_history = PaymentHistory.objects.filter(
+            payments_history = CorporationPaymentHistory.objects.filter(
                 payment=payment,
             ).order_by("-date")
 
@@ -105,7 +108,7 @@ class CharacterApiEndpoints:
                     corporation_name=account.owner.name,
                 ),
                 payment_pool=account.deposit,
-                payment_status=PaymentSystem.Status(account.status).html(),
+                payment_status=CorporationPaymentAccount.Status(account.status).html(),
             )
 
             # Create a list for the payment histories
@@ -172,11 +175,12 @@ class CharacterApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            payments = Payments.objects.filter(
+            # Filter the last 10000 payments by character
+            payments = CorporationPayments.objects.filter(
                 account__owner=owner,
                 account__user__profile__main_character__character_id=character_id,
-                corporation_id=owner.corporation.corporation_id,
-            )
+                corporation_id=owner.eve_corporation.corporation_id,
+            ).order_by("-date")[:10000]
 
             if not payments:
                 return 404, {"error": _("No Payments Found")}

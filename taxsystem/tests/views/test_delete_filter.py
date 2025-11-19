@@ -13,7 +13,7 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.filters import JournalFilter
+from taxsystem.models.corporation import CorporationFilter
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
@@ -62,13 +62,13 @@ class TestDeleteFilter(TestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
         )
 
     def test_delete_filter(self):
         """Test delete filter."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filter_id = self.filter_amount.id
 
         form_data = {
@@ -97,7 +97,7 @@ class TestDeleteFilter(TestCase):
 
     def test_no_permission(self):
         """Test try undo a payment without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filter_id = self.filter_amount.id
 
         form_data = {
@@ -125,7 +125,7 @@ class TestDeleteFilter(TestCase):
 
     def test_no_manage_permission(self):
         """Test undo payment without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filter_id = self.filter_amount.id
 
         form_data = {

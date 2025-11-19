@@ -17,7 +17,7 @@ from taxsystem.api.helpers import core
 from taxsystem.api.helpers.manage import manage_payments
 from taxsystem.api.schema import CharacterSchema, PaymentSchema, RequestStatusSchema
 from taxsystem.helpers import lazy
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.corporation import CorporationPaymentAccount, CorporationPayments
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -51,9 +51,9 @@ class CorporationApiEndpoints:
 
             # Get Payments
             payments = (
-                Payments.objects.filter(
+                CorporationPayments.objects.filter(
                     account__owner=owner,
-                    corporation_id=owner.corporation.corporation_id,
+                    corporation_id=owner.eve_corporation.corporation_id,
                 )
                 .select_related("account")
                 .order_by("-date")
@@ -106,14 +106,16 @@ class CorporationApiEndpoints:
             if owner is None:
                 return 404, {"error": "Corporation Not Found"}
 
-            account = get_object_or_404(PaymentSystem, owner=owner, user=request.user)
+            account = get_object_or_404(
+                CorporationPaymentAccount, owner=owner, user=request.user
+            )
 
             # Get Payments
             payments = (
-                Payments.objects.filter(
+                CorporationPayments.objects.filter(
                     account__owner=owner,
                     account=account,
-                    corporation_id=owner.corporation.corporation_id,
+                    corporation_id=owner.eve_corporation.corporation_id,
                 )
                 .select_related("account")
                 .order_by("-date")

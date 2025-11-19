@@ -54,7 +54,7 @@ class TestUpdateTaxPeriod(TestCase):
 
     def test_update_tax_period(self):
         """Test update tax period."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
 
         form_data = {
             "corporation_id": corporation_id,
@@ -75,12 +75,12 @@ class TestUpdateTaxPeriod(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(
             response_data["message"],
-            f"Tax Period from {self.audit.corporation.corporation_name} updated to 30",
+            f"Tax Period from {self.audit.eve_corporation.corporation_name} updated to 30",
         )
 
     def test_no_permission(self):
         """Test update tax period without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
 
         form_data = {
             "corporation_id": corporation_id,
@@ -103,7 +103,7 @@ class TestUpdateTaxPeriod(TestCase):
 
     def test_no_manage_permission(self):
         """Test update tax period without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
 
         form_data = {
             "corporation_id": corporation_id,
@@ -154,7 +154,7 @@ class TestUpdateTaxAmount(TestCase):
 
     def test_update_tax_amount(self):
         """Test update tax amount."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
 
         form_data = {
             "corporation_id": corporation_id,
@@ -175,12 +175,12 @@ class TestUpdateTaxAmount(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(
             response_data["message"],
-            f"Tax Amount from {self.audit.corporation.corporation_name} updated to 100000000.0",
+            f"Tax Amount from {self.audit.eve_corporation.corporation_name} updated to 100000000.0",
         )
 
     def test_no_permission(self):
         """Test update tax amount without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
 
         form_data = {
             "corporation_id": corporation_id,
@@ -203,7 +203,7 @@ class TestUpdateTaxAmount(TestCase):
 
     def test_no_manage_permission(self):
         """Test update tax amount without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
 
         form_data = {
             "corporation_id": corporation_id,

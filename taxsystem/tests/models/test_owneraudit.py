@@ -1,5 +1,4 @@
 # Django
-from django.contrib.auth.models import Permission
 from django.test import TestCase
 
 # Alliance Auth
@@ -9,7 +8,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
-from taxsystem.models.tax import OwnerAudit
+from taxsystem.models.corporation import CorporationOwner
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
 )
@@ -34,7 +33,7 @@ class TestOwnerAuditModel(TestCase):
         cls.audit2 = create_owneraudit_from_user(cls.user2)
 
     def test_str(self):
-        expected_str = OwnerAudit.objects.get(id=self.audit.pk)
+        expected_str = CorporationOwner.objects.get(id=self.audit.pk)
         self.assertEqual(self.audit, expected_str)
 
     def test_get_esi_scopes(self):
@@ -53,7 +52,7 @@ class TestOwnerAuditModel(TestCase):
 
     def test_access_no_perms(self):
         """Test should return only own corporation if basic_access is set."""
-        corporation = OwnerAudit.objects.visible_to(self.user)
+        corporation = CorporationOwner.objects.visible_to(self.user)
         self.assertIn(self.audit, corporation)
         self.assertNotIn(self.audit2, corporation)
 
@@ -63,7 +62,7 @@ class TestOwnerAuditModel(TestCase):
             "taxsystem.manage_own_corp", self.user
         )
         self.user.refresh_from_db()
-        corporation = OwnerAudit.objects.visible_to(self.user)
+        corporation = CorporationOwner.objects.visible_to(self.user)
         self.assertIn(self.audit, corporation)
         self.assertNotIn(self.audit2, corporation)
 
@@ -73,13 +72,13 @@ class TestOwnerAuditModel(TestCase):
             "taxsystem.manage_corps", self.user
         )
         self.user.refresh_from_db()
-        corporation = OwnerAudit.objects.visible_to(self.user)
+        corporation = CorporationOwner.objects.visible_to(self.user)
         self.assertIn(self.audit, corporation)
         self.assertIn(self.audit2, corporation)
 
     def test_manage_to_no_perms(self):
         """Test should return None if no permissions are set."""
-        corporation = OwnerAudit.objects.manage_to(self.user)
+        corporation = CorporationOwner.objects.manage_to(self.user)
         self.assertNotIn(self.audit, corporation)
         self.assertNotIn(self.audit2, corporation)
 
@@ -89,7 +88,7 @@ class TestOwnerAuditModel(TestCase):
             "taxsystem.manage_own_corp", self.user
         )
         self.user.refresh_from_db()
-        corporation = OwnerAudit.objects.manage_to(self.user)
+        corporation = CorporationOwner.objects.manage_to(self.user)
         self.assertIn(self.audit, corporation)
         self.assertNotIn(self.audit2, corporation)
 
@@ -99,6 +98,6 @@ class TestOwnerAuditModel(TestCase):
             "taxsystem.manage_corps", self.user
         )
         self.user.refresh_from_db()
-        corporation = OwnerAudit.objects.manage_to(self.user)
+        corporation = CorporationOwner.objects.manage_to(self.user)
         self.assertIn(self.audit, corporation)
         self.assertIn(self.audit2, corporation)

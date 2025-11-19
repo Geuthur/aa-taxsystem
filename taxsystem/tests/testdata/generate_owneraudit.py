@@ -12,33 +12,35 @@ from app_utils.testing import add_character_to_user
 
 # AA TaxSystem
 # AA Taxsystem
-from taxsystem.models.tax import OwnerAudit, OwnerUpdateStatus
+from taxsystem.models.corporation import CorporationOwner, CorporationUpdateStatus
 
 
-def create_character(eve_character: EveCharacter, **kwargs) -> OwnerAudit:
+def create_character(eve_character: EveCharacter, **kwargs) -> CorporationOwner:
     """Create a Taxsystem Character from EveCharacter"""
     params = {
         "name": eve_character.corporation.corporation_name,
-        "corporation": eve_character.corporation,
+        "eve_corporation": eve_character.corporation,
     }
     params.update(kwargs)
-    corporation = OwnerAudit(**params)
+    corporation = CorporationOwner(**params)
     corporation.save()
     return corporation
 
 
-def create_update_status(owner_audit: OwnerAudit, **kwargs) -> OwnerUpdateStatus:
+def create_update_status(
+    owner_audit: CorporationOwner, **kwargs
+) -> CorporationUpdateStatus:
     """Create a Update Status for a Character Audit"""
     params = {
         "owner": owner_audit,
     }
     params.update(kwargs)
-    update_status = OwnerUpdateStatus(**params)
+    update_status = CorporationUpdateStatus(**params)
     update_status.save()
     return update_status
 
 
-def create_owneraudit_from_user(user: User, **kwargs) -> OwnerAudit:
+def create_owneraudit_from_user(user: User, **kwargs) -> CorporationOwner:
     """Create a Character Audit from a user"""
     eve_character = user.profile.main_character
     if not eve_character:
@@ -62,13 +64,15 @@ def create_user_from_evecharacter_with_access(
         user,
         auth_character,
         is_main=True,
-        scopes=OwnerAudit.get_esi_scopes(),
+        scopes=CorporationOwner.get_esi_scopes(),
         disconnect_signals=disconnect_signals,
     )
     return user, character_ownership
 
 
-def create_owneraudit_from_evecharacter(character_id: int, **kwargs) -> OwnerAudit:
+def create_owneraudit_from_evecharacter(
+    character_id: int, **kwargs
+) -> CorporationOwner:
     """Create a Audit Character from a existing EveCharacter"""
 
     _, character_ownership = create_user_from_evecharacter_with_access(
@@ -85,14 +89,14 @@ def add_auth_character_to_user(
         user,
         auth_character,
         is_main=False,
-        scopes=OwnerAudit.get_esi_scopes(),
+        scopes=CorporationOwner.get_esi_scopes(),
         disconnect_signals=disconnect_signals,
     )
 
 
 def add_owneraudit_character_to_user(
     user: User, character_id: int, disconnect_signals: bool = True, **kwargs
-) -> OwnerAudit:
+) -> CorporationOwner:
     """Add a Character Audit Character to a user"""
     character_ownership = add_auth_character_to_user(
         user,

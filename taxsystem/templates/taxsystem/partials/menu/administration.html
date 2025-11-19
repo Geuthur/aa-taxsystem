@@ -7,6 +7,11 @@
             <span class="btn btn-success">{% translate 'Add Corporation' %}</span>
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link py-0" href="{% url 'taxsystem:add_alliance' %}">
+            <span class="btn btn-success">{% translate 'Add Alliance' %}</span>
+        </a>
+    </li>
 {% endif %}
 
 {% if perms.taxsystem.manage_own_corp or perms.taxsystem.manage_corps %}

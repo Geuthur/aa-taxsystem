@@ -10,14 +10,16 @@ from django.urls import reverse
 
 # Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserMainFactory
+from app_utils.testing import (
+    create_user_from_evecharacter,
+)
 
 # AA TaxSystem
 from taxsystem.api.admin import AdminApiEndpoints
-from taxsystem.models.filters import JournalFilter
+from taxsystem.models.corporation import CorporationFilter
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_evecharacter,
-    create_user_from_evecharacter_with_access,
+    add_owneraudit_character_to_user,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
@@ -36,11 +38,15 @@ class TestCoreHelpers(TestCase):
         cls.api = NinjaAPI()
         cls.admin_endpoint = AdminApiEndpoints(cls.api)
 
-        cls.audit = create_owneraudit_from_evecharacter(1001)
         cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001
+        cls.user, cls.character_ownership = create_user_from_evecharacter(
+            1001,
+            permissions=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_corps",
+            ],
         )
+        cls.audit = add_owneraudit_character_to_user(user=cls.user, character_id=1001)
         cls.no_evecharacter_user = UserMainFactory(permissions=[])
 
         cls.filter_set = create_filterset(
@@ -51,7 +57,7 @@ class TestCoreHelpers(TestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=100_000_000,
         )
 

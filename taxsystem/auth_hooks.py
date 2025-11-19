@@ -11,7 +11,7 @@ from allianceauth import hooks
 from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA TaxSystem
-from taxsystem.models.tax import PaymentSystem
+from taxsystem.models.corporation import CorporationPaymentAccount
 
 from . import app_settings, urls
 
@@ -32,9 +32,9 @@ class TaxSystemMenuItem(MenuItemHook):
     def render(self, request):
         if request.user.has_perm("taxsystem.basic_access"):
             try:
-                payment_user = PaymentSystem.objects.get(user=request.user)
+                payment_user = CorporationPaymentAccount.objects.get(user=request.user)
                 self.count = 1 if not payment_user.has_paid else 0
-            except PaymentSystem.DoesNotExist:
+            except CorporationPaymentAccount.DoesNotExist:
                 self.count = 0
             return MenuItemHook.render(self, request)
         return ""

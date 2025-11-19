@@ -17,7 +17,11 @@ from django.views.decorators.http import require_POST
 # Alliance Auth
 from allianceauth.authentication.decorators import permissions_required
 from allianceauth.authentication.models import UserProfile
-from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from allianceauth.eveonline.models import (
+    EveAllianceInfo,
+    EveCharacter,
+    EveCorporationInfo,
+)
 from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
@@ -30,12 +34,19 @@ from taxsystem.api.helpers.core import (
     get_character_permissions,
     get_corporation,
     get_manage_corporation,
-    get_manage_permission,
 )
 from taxsystem.helpers.views import add_info_to_context
-from taxsystem.models.filters import JournalFilter, JournalFilterSet
-from taxsystem.models.logs import AdminLogs, PaymentHistory
-from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
+from taxsystem.models.alliance import AllianceAdminHistory, AllianceOwner
+from taxsystem.models.corporation import (
+    CorporationAdminHistory,
+    CorporationFilter,
+    CorporationFilterSet,
+    CorporationOwner,
+    CorporationPaymentAccount,
+    CorporationPaymentHistory,
+    CorporationPayments,
+    Members,
+)
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -61,9 +72,6 @@ def admin(request: WSGIRequest):
         force_refresh = False
         if request.POST.get("force_refresh", False):
             force_refresh = True
-        if request.POST.get("run_clear_etag"):
-            messages.info(request, _("Queued Clear All ETags"))
-            tasks.clear_all_etags.apply_async(priority=1)
         if request.POST.get("run_taxsystem_updates"):
             messages.info(request, _("Queued Update All Taxsystem"))
             tasks.update_all_taxsytem.apply_async(
@@ -82,6 +90,7 @@ def administration(request: WSGIRequest, corporation_id: int):
     """Manage View"""
     context = {
         "corporation_id": corporation_id,
+        "corporations": CorporationOwner.objects.visible_to(request.user),
         "title": _("Administration"),
         "forms": {
             "accept_request": forms.PaymentAcceptForm(),
@@ -104,13 +113,15 @@ def manage_filter(request: WSGIRequest, corporation_id: int):
     """Manage View"""
     owner, perms = get_manage_corporation(request, corporation_id)
 
-    filter_sets = owner.ts_filter_set.all()
+    filter_sets = owner.ts_corporation_filter_set.all()
     context = {
         "corporation_id": corporation_id,
         "filter_sets": filter_sets,
         "title": _("Manage Filters"),
         "forms": {
-            "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
+            "filter": forms.AddJournalFilterForm(
+                queryset=owner.ts_corporation_filter_set.all()
+            ),
             "filter_set": forms.CreateFilterSetForm(),
             "delete_request": forms.MemberDeleteForm(),
         },
@@ -123,7 +134,7 @@ def manage_filter(request: WSGIRequest, corporation_id: int):
 
     with transaction.atomic():
         form_add = forms.AddJournalFilterForm(
-            data=request.POST, queryset=owner.ts_filter_set.all()
+            data=request.POST, queryset=owner.ts_corporation_filter_set.all()
         )
         form_set = forms.CreateFilterSetForm(data=request.POST)
 
@@ -132,7 +143,7 @@ def manage_filter(request: WSGIRequest, corporation_id: int):
             filter_type = form_add.cleaned_data["filter_type"]
             value = form_add.cleaned_data["value"]
             try:
-                JournalFilter.objects.create(
+                CorporationFilter.objects.create(
                     filter_set=queryset,
                     filter_type=filter_type,
                     value=value,
@@ -155,7 +166,7 @@ def manage_filter(request: WSGIRequest, corporation_id: int):
             name = form_set.cleaned_data["name"]
             description = form_set.cleaned_data["description"]
             try:
-                JournalFilterSet.objects.create(
+                CorporationFilterSet.objects.create(
                     owner=owner,
                     name=name,
                     description=description,
@@ -189,8 +200,8 @@ def switch_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: i
         )
         return redirect("taxsystem:index")
 
-    filter_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
-    filter_sets = owner.ts_filter_set.all()
+    filter_set = get_object_or_404(owner.ts_corporation_filter_set, id=filter_set_id)
+    filter_sets = owner.ts_corporation_filter_set.all()
 
     filter_set.enabled = not filter_set.enabled
     filter_set.save()
@@ -199,7 +210,9 @@ def switch_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: i
         "corporation_id": corporation_id,
         "filter_sets": filter_sets,
         "forms": {
-            "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
+            "filter": forms.AddJournalFilterForm(
+                queryset=owner.ts_corporation_filter_set.all()
+            ),
             "filter_set": forms.CreateFilterSetForm(),
         },
         "title": _("Deactivate Filter Set"),
@@ -224,15 +237,15 @@ def delete_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: i
         )
         return redirect("taxsystem:index")
 
-    filter_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
-    filter_sets = owner.ts_filter_set.all()
+    filter_set = get_object_or_404(owner.ts_corporation_filter_set, id=filter_set_id)
+    filter_sets = owner.ts_corporation_filter_set.all()
 
     filter_set.delete()
     msg = _(f"{filter_set.name} from {owner.name} deleted")
-    AdminLogs(
+    CorporationAdminHistory(
         user=request.user,
         owner=owner,
-        action=AdminLogs.Actions.DELETE,
+        action=CorporationAdminHistory.Actions.DELETE,
         comment=msg,
     ).save()
     messages.success(request, _("Filter set deleted successfully."))
@@ -241,7 +254,9 @@ def delete_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: i
         "corporation_id": corporation_id,
         "filter_sets": filter_sets,
         "forms": {
-            "filter": forms.AddJournalFilterForm(queryset=owner.ts_filter_set.all()),
+            "filter": forms.AddJournalFilterForm(
+                queryset=owner.ts_corporation_filter_set.all()
+            ),
             "filter_set": forms.CreateFilterSetForm(),
         },
         "title": _("Delete Filter Set"),
@@ -258,7 +273,7 @@ def delete_filter(request: WSGIRequest, corporation_id: int, filter_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -267,16 +282,16 @@ def delete_filter(request: WSGIRequest, corporation_id: int, filter_pk: int):
 
     form = forms.FilterDeleteForm(data=request.POST)
     if form.is_valid():
-        filter_obj = JournalFilter.objects.get(filter_set__owner=corp, pk=filter_pk)
+        filter_obj = CorporationFilter.objects.get(filter_set__owner=corp, pk=filter_pk)
         if filter_obj:
             msg = _(
                 f"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} deleted - {form.cleaned_data['delete_reason']}"
             )
             filter_obj.delete()
-            AdminLogs(
+            CorporationAdminHistory(
                 user=request.user,
                 owner=corp,
-                action=AdminLogs.Actions.DELETE,
+                action=CorporationAdminHistory.Actions.DELETE,
                 comment=msg,
             ).save()
             return JsonResponse(
@@ -297,8 +312,8 @@ def edit_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int
         )
         return redirect("taxsystem:index")
 
-    edit_set = get_object_or_404(owner.ts_filter_set, id=filter_set_id)
-    filter_sets = owner.ts_filter_set.all()
+    edit_set = get_object_or_404(owner.ts_corporation_filter_set, id=filter_set_id)
+    filter_sets = owner.ts_corporation_filter_set.all()
 
     if request.method == "POST":
         form = forms.EditFilterSetForm(request.POST, instance=edit_set)
@@ -331,7 +346,7 @@ def payments(request: WSGIRequest, corporation_id: int):
     if perms is None:
         messages.error(request, _("No Corporation found."))
 
-    corporations = OwnerAudit.objects.visible_to(request.user)
+    corporations = CorporationOwner.objects.visible_to(request.user)
 
     context = {
         "corporation_id": corporation_id,
@@ -366,7 +381,7 @@ def own_payments(request: WSGIRequest, corporation_id=None):
         messages.error(request, _("Permission Denied"))
         return redirect("taxsystem:index")
 
-    corporations = OwnerAudit.objects.visible_to(request.user)
+    corporations = CorporationOwner.objects.visible_to(request.user)
 
     context = {
         "corporation_id": corporation_id,
@@ -382,7 +397,7 @@ def own_payments(request: WSGIRequest, corporation_id=None):
 @permission_required("taxsystem.basic_access")
 def faq(request: WSGIRequest, corporation_id: int):
     """Payments View"""
-    corporations = OwnerAudit.objects.visible_to(request.user)
+    corporations = CorporationOwner.objects.visible_to(request.user)
 
     context = {
         "corporation_id": corporation_id,
@@ -418,7 +433,7 @@ def account(request: WSGIRequest, character_id=None):
         messages.error(request, _("User has no main character set."))
         return redirect("taxsystem:index")
 
-    payment_user = PaymentSystem.objects.filter(
+    payment_user = CorporationPaymentAccount.objects.filter(
         user__profile=user_profile,
         owner=owner,
     ).first()
@@ -450,17 +465,17 @@ def account(request: WSGIRequest, character_id=None):
             "status": payment_user.Status(payment_user.status).html(text=True),
             "deposit": (
                 payment_user.deposit_html
-                if payment_user.status != PaymentSystem.Status.MISSING
+                if payment_user.status != CorporationPaymentAccount.Status.MISSING
                 else "N/A"
             ),
             "has_paid": (
                 payment_user.has_paid_icon(badge=True, text=True)
-                if payment_user.status != PaymentSystem.Status.MISSING
+                if payment_user.status != CorporationPaymentAccount.Status.MISSING
                 else "N/A"
             ),
             "last_paid": (
                 payment_user.last_paid
-                if payment_user.status != PaymentSystem.Status.MISSING
+                if payment_user.status != CorporationPaymentAccount.Status.MISSING
                 else "N/A"
             ),
             "joined": member.joined if member else "N/A",
@@ -474,7 +489,7 @@ def account(request: WSGIRequest, character_id=None):
 
 @login_required
 @permission_required("taxsystem.create_access")
-@token_required(scopes=OwnerAudit.get_esi_scopes())
+@token_required(scopes=CorporationOwner.get_esi_scopes())
 def add_corp(request, token):
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
     corp, __ = EveCorporationInfo.objects.get_or_create(
@@ -486,19 +501,19 @@ def add_corp(request, token):
         },
     )
 
-    owner, created = OwnerAudit.objects.update_or_create(
-        corporation=corp,
+    owner, created = CorporationOwner.objects.update_or_create(
+        eve_corporation=corp,
         defaults={
-            "name": corp.corporation_name,
+            "name": char.corporation_name,
             "active": True,
         },
     )
 
     if created:
-        AdminLogs(
+        CorporationAdminHistory(
             user=request.user,
             owner=owner,
-            action=AdminLogs.Actions.ADD,
+            action=CorporationAdminHistory.Actions.ADD,
             comment=_("Added to Tax System"),
         ).save()
 
@@ -506,7 +521,51 @@ def add_corp(request, token):
         args=[owner.pk], kwargs={"force_refresh": True}, priority=6
     )
     msg = _("{corporation_name} successfully added/updated to Tax System").format(
-        corporation_name=corp.corporation_name,
+        corporation_name=char.corporation_name,
+    )
+    messages.info(request, msg)
+    return redirect("taxsystem:index")
+
+
+@login_required
+@permission_required("taxsystem.create_access")
+@token_required(scopes=CorporationOwner.get_esi_scopes())
+def add_alliance(request, token):
+    char = get_object_or_404(EveCharacter, character_id=token.character_id)
+    ally, __ = EveAllianceInfo.objects.get_or_create(
+        alliance_id=char.alliance_id,
+        defaults={
+            "member_count": 0,
+            "alliance_ticker": char.alliance_ticker,
+            "alliance_name": char.alliance_name,
+        },
+    )
+    corp, __ = EveCorporationInfo.objects.get_or_create(
+        corporation_id=char.corporation_id,
+        defaults={
+            "member_count": 0,
+            "corporation_ticker": char.corporation_ticker,
+            "corporation_name": char.corporation_name,
+        },
+    )
+
+    owner_alliance, created = AllianceOwner.objects.update_or_create(
+        eve_alliance=ally, eve_corporation=corp
+    )
+
+    if created:
+        AllianceAdminHistory(
+            user=request.user,
+            owner=owner_alliance,
+            action=AllianceAdminHistory.Actions.ADD,
+            comment=_("Added Alliance to Tax System"),
+        ).save()
+
+    tasks.update_alliance.apply_async(
+        args=[owner_alliance.pk], kwargs={"force_refresh": True}, priority=6
+    )
+    msg = _("{alliance_name} successfully added/updated to Tax System").format(
+        alliance_name=char.alliance_name,
     )
     messages.info(request, msg)
     return redirect("taxsystem:index")
@@ -519,7 +578,7 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -531,7 +590,9 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.PaymentAcceptForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["accept_info"]
-                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
+                payment = CorporationPayments.objects.get(
+                    account__owner=corp, pk=payment_pk
+                )
                 if payment.is_pending or payment.is_needs_approval:
                     msg = _(
                         "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
@@ -540,21 +601,21 @@ def approve_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                         amount=intcomma(payment.amount),
                         name=payment.name,
                     )
-                    payment.request_status = Payments.RequestStatus.APPROVED
+                    payment.request_status = CorporationPayments.RequestStatus.APPROVED
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
-                    payment_account = PaymentSystem.objects.get(
+                    payment_account = CorporationPaymentAccount.objects.get(
                         owner=corp, user=payment.account.user
                     )
                     payment_account.deposit += payment.amount
                     payment_account.save()
-                    PaymentHistory(
+                    CorporationPaymentHistory(
                         user=request.user,
                         payment=payment,
-                        action=PaymentHistory.Actions.STATUS_CHANGE,
+                        action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
                         comment=reason,
-                        new_status=Payments.RequestStatus.APPROVED,
+                        new_status=CorporationPayments.RequestStatus.APPROVED,
                     ).save()
                     return JsonResponse(
                         data={"success": True, "message": msg}, status=200, safe=False
@@ -571,7 +632,7 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -583,7 +644,9 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.PaymentUndoForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["undo_reason"]
-                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
+                payment = CorporationPayments.objects.get(
+                    account__owner=corp, pk=payment_pk
+                )
                 if payment.is_approved or payment.is_rejected:
                     msg = _(
                         "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
@@ -594,20 +657,20 @@ def undo_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                     )
                     # Ensure that the payment is not rejected
                     if not payment.is_rejected:
-                        payment_account = PaymentSystem.objects.get(
+                        payment_account = CorporationPaymentAccount.objects.get(
                             owner=corp, user=payment.account.user
                         )
                         payment_account.deposit -= payment.amount
                         payment_account.save()
-                    payment.request_status = Payments.RequestStatus.PENDING
+                    payment.request_status = CorporationPayments.RequestStatus.PENDING
                     payment.reviser = ""
                     payment.save()
-                    PaymentHistory(
+                    CorporationPaymentHistory(
                         user=request.user,
                         payment=payment,
-                        action=PaymentHistory.Actions.STATUS_CHANGE,
+                        action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
                         comment=reason,
-                        new_status=Payments.RequestStatus.PENDING,
+                        new_status=CorporationPayments.RequestStatus.PENDING,
                     ).save()
                     return JsonResponse(
                         data={"success": True, "message": msg}, status=200, safe=False
@@ -624,7 +687,7 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -636,13 +699,15 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.PaymentRejectForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["reject_reason"]
-                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
+                payment = CorporationPayments.objects.get(
+                    account__owner=corp, pk=payment_pk
+                )
                 if payment.is_pending or payment.is_needs_approval:
-                    payment.request_status = Payments.RequestStatus.REJECTED
+                    payment.request_status = CorporationPayments.RequestStatus.REJECTED
                     payment.reviser = request.user.profile.main_character.character_name
                     payment.save()
 
-                    payment_account = PaymentSystem.objects.get(
+                    payment_account = CorporationPaymentAccount.objects.get(
                         owner=corp, user=payment.account.user
                     )
                     payment_account.save()
@@ -654,12 +719,12 @@ def reject_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                         name=payment.name,
                     )
 
-                    PaymentHistory(
+                    CorporationPaymentHistory(
                         user=request.user,
                         payment=payment,
-                        action=PaymentHistory.Actions.STATUS_CHANGE,
+                        action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
                         comment=reason,
-                        new_status=Payments.RequestStatus.REJECTED,
+                        new_status=CorporationPayments.RequestStatus.REJECTED,
                     ).save()
                     return JsonResponse(
                         data={"success": True, "message": msg}, status=200, safe=False
@@ -676,7 +741,7 @@ def delete_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -688,7 +753,9 @@ def delete_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
             form = forms.PaymentDeleteForm(data=request.POST)
             if form.is_valid():
                 reason = form.cleaned_data["delete_reason"]
-                payment = Payments.objects.get(account__owner=corp, pk=payment_pk)
+                payment = CorporationPayments.objects.get(
+                    account__owner=corp, pk=payment_pk
+                )
 
                 if payment.entry_id != 0:  # Prevent deletion of ESI imported payments
                     msg = _(
@@ -713,7 +780,7 @@ def delete_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
 
                 # Refund if approved
                 if payment.is_approved:
-                    payment_user = PaymentSystem.objects.get(
+                    payment_user = CorporationPaymentAccount.objects.get(
                         owner=corp, user=payment.account.user
                     )
                     payment_user.deposit -= payment.amount
@@ -722,10 +789,10 @@ def delete_payment(request: WSGIRequest, corporation_id: int, payment_pk: int):
                 payment.delete()
 
                 # Log Payment Action
-                AdminLogs(
+                CorporationAdminHistory(
                     user=request.user,
                     owner=corp,
-                    action=AdminLogs.Actions.DELETE,
+                    action=CorporationAdminHistory.Actions.DELETE,
                     comment=msg,
                 ).save()
 
@@ -744,7 +811,7 @@ def add_payment(request: WSGIRequest, corporation_id: int, payment_system_pk: in
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -757,18 +824,18 @@ def add_payment(request: WSGIRequest, corporation_id: int, payment_system_pk: in
             if form.is_valid():
                 amount = form.cleaned_data["amount"]
                 reason = form.cleaned_data["add_reason"]
-                payment_account = PaymentSystem.objects.get(
+                payment_account = CorporationPaymentAccount.objects.get(
                     owner=corp, pk=payment_system_pk
                 )
 
-                payment = Payments(
+                payment = CorporationPayments(
                     name=payment_account.user.username,
                     entry_id=0,  # Manual Entry
                     amount=amount,
                     account=payment_account,
                     date=timezone.now(),
                     reason=reason,
-                    request_status=Payments.RequestStatus.APPROVED,
+                    request_status=CorporationPayments.RequestStatus.APPROVED,
                     reviser=request.user.username,
                     corporation_id=corporation_id,
                 )
@@ -784,19 +851,19 @@ def add_payment(request: WSGIRequest, corporation_id: int, payment_system_pk: in
                     name=payment.name,
                 )
 
-                PaymentHistory(
+                CorporationPaymentHistory(
                     user=request.user,
                     payment=payment,
-                    action=PaymentHistory.Actions.PAYMENT_ADDED,
+                    action=CorporationPaymentHistory.Actions.PAYMENT_ADDED,
                     comment=reason,
-                    new_status=Payments.RequestStatus.APPROVED,
+                    new_status=CorporationPayments.RequestStatus.APPROVED,
                 ).save()
 
                 # Log Admin Action
-                AdminLogs(
+                CorporationAdminHistory(
                     user=request.user,
                     owner=corp,
-                    action=AdminLogs.Actions.ADD,
+                    action=CorporationAdminHistory.Actions.ADD,
                     comment=msg,
                 ).save()
 
@@ -815,7 +882,7 @@ def switch_user(request: WSGIRequest, corporation_id: int, payment_system_pk: in
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -826,20 +893,20 @@ def switch_user(request: WSGIRequest, corporation_id: int, payment_system_pk: in
         with transaction.atomic():
             form = forms.TaxSwitchUserForm(data=request.POST)
             if form.is_valid():
-                payment_system = PaymentSystem.objects.get(
+                payment_system = CorporationPaymentAccount.objects.get(
                     owner=corp, pk=payment_system_pk
                 )
                 if payment_system.is_active:
-                    payment_system.status = PaymentSystem.Status.DEACTIVATED
+                    payment_system.status = CorporationPaymentAccount.Status.DEACTIVATED
                     msg = _("Payment System User: %s deactivated") % payment_system.name
                 else:
-                    payment_system.status = PaymentSystem.Status.ACTIVE
+                    payment_system.status = CorporationPaymentAccount.Status.ACTIVE
                     msg = _("Payment System User: %s activated") % payment_system.name
 
-                AdminLogs(
+                CorporationAdminHistory(
                     user=request.user,
                     owner=corp,
-                    action=AdminLogs.Actions.CHANGE,
+                    action=CorporationAdminHistory.Actions.CHANGE,
                     comment=msg,
                 ).save()
                 payment_system.save()
@@ -866,7 +933,7 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
 
         corp = get_corporation(request, corporation_id)
 
-        perms = get_manage_permission(request, corporation_id)
+        perms = get_manage_corporation(request, corporation_id)[1]
 
         if not perms:
             return JsonResponse({"message": _("Permission Denied")}, status=403)
@@ -875,10 +942,10 @@ def update_tax_amount(request: WSGIRequest, corporation_id: int):
             corp.tax_amount = value
             corp.save()
             msg = _(f"Tax Amount from {corp.name} updated to {value}")
-            AdminLogs(
+            CorporationAdminHistory(
                 user=request.user,
                 owner=corp,
-                action=AdminLogs.Actions.CHANGE,
+                action=CorporationAdminHistory.Actions.CHANGE,
                 comment=msg,
             ).save()
         except ValidationError:
@@ -902,7 +969,7 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
 
         corp = get_corporation(request, corporation_id)
 
-        perms = get_manage_permission(request, corporation_id)
+        perms = get_manage_corporation(request, corporation_id)[1]
 
         if not perms:
             return JsonResponse({"message": _("Permission Denied")}, status=403)
@@ -911,10 +978,10 @@ def update_tax_period(request: WSGIRequest, corporation_id: int):
             corp.tax_period = value
             corp.save()
             msg = _(f"Tax Period from {corp.name} updated to {value}")
-            AdminLogs(
+            CorporationAdminHistory(
                 user=request.user,
                 owner=corp,
-                action=AdminLogs.Actions.CHANGE,
+                action=CorporationAdminHistory.Actions.CHANGE,
                 comment=msg,
             ).save()
         except ValidationError:
@@ -930,7 +997,7 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
     msg = _("Invalid Method")
     corp = get_corporation(request, corporation_id)
 
-    perms = get_manage_permission(request, corporation_id)
+    perms = get_manage_corporation(request, corporation_id)[1]
     if not perms:
         msg = _("Permission Denied")
         return JsonResponse(
@@ -944,13 +1011,40 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
         if member.is_missing:
             msg = _(f"Member {member.character_name} deleted - {reason}")
             member.delete()
-            AdminLogs(
+            CorporationAdminHistory(
                 user=request.user,
                 owner=corp,
-                action=AdminLogs.Actions.DELETE,
+                action=CorporationAdminHistory.Actions.DELETE,
                 comment=msg,
             ).save()
             return JsonResponse(
                 data={"success": True, "message": msg}, status=200, safe=False
             )
     return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
+
+
+@login_required
+@permissions_required(["taxsystem.manage_own_alliance", "taxsystem.manage_alliances"])
+def administration_alliance(request: WSGIRequest, alliance_id: int = None):
+    """Alliance Administration View"""
+    if alliance_id is None:
+        alliance_id = request.user.profile.main_character.alliance_id
+
+    context = {
+        "corporation_id": request.user.profile.main_character.corporation_id,
+        "alliance_id": alliance_id,
+        "corporations": CorporationOwner.objects.visible_to(request.user),
+        "title": _("Alliance Tax System"),
+        "forms": {
+            "accept_request": forms.PaymentAcceptForm(),
+            "reject_request": forms.PaymentRejectForm(),
+            "add_request": forms.PaymentAddForm(),
+            "payment_delete_request": forms.PaymentDeleteForm(),
+            "undo_request": forms.PaymentUndoForm(),
+            "switchuser_request": forms.TaxSwitchUserForm(),
+            "delete_request": forms.MemberDeleteForm(),
+        },
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/manage-alliance.html", context=context)

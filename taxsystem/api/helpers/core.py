@@ -5,51 +5,71 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 # AA TaxSystem
-from taxsystem.models.tax import OwnerAudit, Payments
+from taxsystem.models.alliance import AllianceOwner
+from taxsystem.models.corporation import CorporationOwner, CorporationPayments
 
 
-def get_manage_corporation(request, corporation_id) -> tuple[OwnerAudit | None, bool]:
-    """Get Corporation and Permission"""
-    perms = True
-    try:
-        corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
-    except OwnerAudit.DoesNotExist:
-        return None, None
-
-    visible = OwnerAudit.objects.visible_to(request.user)
-    if corp not in visible:
-        perms = False
-    return corp, perms
-
-
-def get_corporation(request, corporation_id) -> OwnerAudit | None:
+def get_corporation(request, corporation_id) -> CorporationOwner | None:
     """Get Corporation"""
     try:
-        corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
-    except OwnerAudit.DoesNotExist:
+        corp = CorporationOwner.objects.get(
+            eve_corporation__corporation_id=corporation_id
+        )
+    except CorporationOwner.DoesNotExist:
         return None
 
     # Check access
-    visible = OwnerAudit.objects.visible_to(request.user)
+    visible = CorporationOwner.objects.visible_to(request.user)
     if corp not in visible:
         corp = None
     return corp
 
 
-def get_manage_permission(request, corporation_id) -> bool:
-    """Get Permission for Corporation"""
+def get_manage_corporation(
+    request, corporation_id
+) -> tuple[CorporationOwner | None, bool]:
+    """Get Corporation and Permission"""
     perms = True
-
     try:
-        corp = OwnerAudit.objects.get(corporation__corporation_id=corporation_id)
-    except OwnerAudit.DoesNotExist:
-        return False
+        corp = CorporationOwner.objects.get(
+            eve_corporation__corporation_id=corporation_id
+        )
+    except CorporationOwner.DoesNotExist:
+        return None, None
 
-    # Check access
-    visible = OwnerAudit.objects.manage_to(request.user)
+    visible = CorporationOwner.objects.manage_to(request.user)
     if corp not in visible:
         perms = False
-    return perms
+    return corp, perms
+
+
+def get_alliance(request, alliance_id) -> AllianceOwner | None:
+    """Get Alliance"""
+    try:
+        owner = AllianceOwner.objects.get(alliance__alliance_id=alliance_id)
+    except AllianceOwner.DoesNotExist:
+        return None
+
+    # Check access
+    visible = AllianceOwner.objects.visible_to(request.user)
+    if owner not in visible:
+        owner = None
+    return owner
+
+
+def get_manage_alliance(request, alliance_id) -> tuple[AllianceOwner | None, bool]:
+    """Get Permission for Alliance"""
+    perms = True
+    try:
+        owner = AllianceOwner.objects.get(alliance__alliance_id=alliance_id)
+    except AllianceOwner.DoesNotExist:
+        return None, None
+
+    # Check access
+    visible = AllianceOwner.objects.manage_to(request.user)
+    if owner not in visible:
+        perms = False
+    return owner, perms
 
 
 def get_character_permissions(request, character_id) -> bool:
@@ -97,20 +117,22 @@ def generate_settings(
     }
 
 
-def generate_status_icon(payment: Payments) -> mark_safe:
+def generate_status_icon(payment: CorporationPayments) -> mark_safe:
     """Generate a status icon for the tax system"""
     return format_html(
         render_to_string(
             "taxsystem/partials/icons/payment-status.html",
             {
                 "payment": payment,
-                "color": Payments.RequestStatus(payment.request_status).color(),
+                "color": CorporationPayments.RequestStatus(
+                    payment.request_status
+                ).color(),
             },
         )
     )
 
 
-def generate_info_button(payment: Payments) -> mark_safe:
+def generate_info_button(payment: CorporationPayments) -> mark_safe:
     """Generate a info button for the tax system"""
     return format_html(
         render_to_string(

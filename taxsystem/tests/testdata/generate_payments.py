@@ -1,20 +1,25 @@
 # AA Tax System
 # AA TaxSystem
-from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
+from taxsystem.models.corporation import (
+    CorporationPaymentAccount,
+    CorporationPayments,
+    CorporationUpdateStatus,
+    Members,
+)
 
 
-def create_payment(account: PaymentSystem, **kwargs) -> Payments:
+def create_payment(account: CorporationPaymentAccount, **kwargs) -> CorporationPayments:
     """Create a Payment for a Corporation"""
     params = {
         "account": account,
     }
     params.update(kwargs)
-    payment = Payments(**params)
+    payment = CorporationPayments(**params)
     payment.save()
     return payment
 
 
-def create_member(owner: OwnerAudit, **kwargs) -> Members:
+def create_member(owner: CorporationUpdateStatus, **kwargs) -> Members:
     """Create a Payment System for a Corporation"""
     params = {
         "owner": owner,
@@ -25,12 +30,14 @@ def create_member(owner: OwnerAudit, **kwargs) -> Members:
     return member
 
 
-def create_payment_system(owner: OwnerAudit, **kwargs) -> PaymentSystem:
+def create_payment_system(
+    owner: CorporationUpdateStatus, **kwargs
+) -> CorporationPaymentAccount:
     """Create a Payment System for a Corporation"""
     params = {
         "owner": owner,
     }
     params.update(kwargs)
-    payment_system = PaymentSystem(**params)
+    payment_system = CorporationPaymentAccount(**params)
     payment_system.save()
     return payment_system

@@ -8,50 +8,55 @@ from django.utils.html import format_html
 from allianceauth.eveonline.evelinks import eveimageserver
 
 # AA TaxSystem
-from taxsystem.models.tax import OwnerAudit
+from taxsystem.models.corporation import CorporationOwner
 
 
-@admin.register(OwnerAudit)
-class OwnerAuditAdmin(admin.ModelAdmin):
+@admin.register(CorporationOwner)
+class CorporationOwnerAdmin(admin.ModelAdmin):
     list_display = (
         "_entity_pic",
-        "_corporation__corporation_id",
-        "_corporation__corporation_name",
+        "_eve_corporation__corporation_id",
+        "_eve_corporation__corporation_name",
     )
 
     list_display_links = (
         "_entity_pic",
-        "_corporation__corporation_id",
-        "_corporation__corporation_name",
+        "_eve_corporation__corporation_id",
+        "_eve_corporation__corporation_name",
     )
 
     list_select_related = ("corporation",)
 
-    ordering = ["corporation__corporation_name"]
+    ordering = ["eve_corporation__corporation_name"]
 
-    search_fields = ["corporation__corporation_name", "corporation__corporation_id"]
+    search_fields = [
+        "eve_corporation__corporation_name",
+        "eve_corporation__corporation_id",
+    ]
 
     actions = [
         "delete_objects",
     ]
 
     @admin.display(description="")
-    def _entity_pic(self, obj: OwnerAudit):
-        eve_id = obj.corporation.corporation_id
+    def _entity_pic(self, obj: CorporationOwner):
+        eve_id = obj.eve_corporation.corporation_id
         return format_html(
             '<img src="{}" class="img-circle">',
             eveimageserver._eve_entity_image_url("corporation", eve_id, 32),
         )
 
-    @admin.display(description="Corporation ID", ordering="corporation__corporation_id")
-    def _corporation__corporation_id(self, obj: OwnerAudit):
-        return obj.corporation.corporation_id
+    @admin.display(
+        description="Corporation ID", ordering="eve_corporation__corporation_id"
+    )
+    def _eve_corporation__corporation_id(self, obj: CorporationOwner):
+        return obj.eve_corporation.corporation_id
 
     @admin.display(
-        description="Corporation Name", ordering="corporation__corporation_name"
+        description="Corporation Name", ordering="eve_corporation__corporation_name"
     )
-    def _corporation__corporation_name(self, obj: OwnerAudit):
-        return obj.corporation.corporation_name
+    def _eve_corporation__corporation_name(self, obj: CorporationOwner):
+        return obj.eve_corporation.corporation_name
 
     # pylint: disable=unused-argument
     def has_add_permission(self, request):

@@ -10,8 +10,11 @@ from django.utils import timezone
 from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
 
 # AA TaxSystem
-from taxsystem.models.filters import JournalFilter
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.corporation import (
+    CorporationFilter,
+    CorporationPaymentAccount,
+    CorporationPayments,
+)
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
 from taxsystem.tests.testdata.generate_payments import (
@@ -49,7 +52,7 @@ class TestPaymentsManager(NoSocketsTestCase):
             name=cls.character_ownership.character.character_name,
             owner=cls.audit,
             user=cls.user,
-            status=PaymentSystem.Status.ACTIVE,
+            status=CorporationPaymentAccount.Status.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
@@ -61,7 +64,7 @@ class TestPaymentsManager(NoSocketsTestCase):
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",
-            request_status=Payments.RequestStatus.PENDING,
+            request_status=CorporationPayments.RequestStatus.PENDING,
             reviser="",
         )
 
@@ -72,7 +75,7 @@ class TestPaymentsManager(NoSocketsTestCase):
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
             reason="Mining Stuff",
-            request_status=Payments.RequestStatus.PENDING,
+            request_status=CorporationPayments.RequestStatus.PENDING,
             reviser="",
         )
 
@@ -84,7 +87,7 @@ class TestPaymentsManager(NoSocketsTestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
         )
 
@@ -94,13 +97,19 @@ class TestPaymentsManager(NoSocketsTestCase):
         self.audit.update_payment_system(force_refresh=False)
 
         self.assertSetEqual(
-            set(self.payment_system.ts_payments.values_list("entry_id", flat=True)),
+            set(
+                self.payment_system.ts_corporation_payments.values_list(
+                    "entry_id", flat=True
+                )
+            ),
             {1, 2},
         )
-        obj = self.payment_system.ts_payments.get(entry_id=1)
+        obj = self.payment_system.ts_corporation_payments.get(entry_id=1)
         self.assertEqual(obj.amount, 1000)
-        self.assertEqual(obj.request_status, Payments.RequestStatus.APPROVED)
+        self.assertEqual(obj.request_status, CorporationPayments.RequestStatus.APPROVED)
 
-        obj = self.payment_system.ts_payments.get(entry_id=2)
+        obj = self.payment_system.ts_corporation_payments.get(entry_id=2)
         self.assertEqual(obj.amount, 6000)
-        self.assertEqual(obj.request_status, Payments.RequestStatus.NEEDS_APPROVAL)
+        self.assertEqual(
+            obj.request_status, CorporationPayments.RequestStatus.NEEDS_APPROVAL
+        )

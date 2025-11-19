@@ -11,6 +11,18 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Alliance Tax System
+
+### Changed
+
+- Refactor Tax System and prepare for Alliance Tax System migration
+
+### Removed
+
+- Own ETag System since `django-esi` handles ETag caching
+
 ## [1.0.1] - 2025-11-13
 
 ### Added

@@ -16,7 +16,7 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.filters import JournalFilter
+from taxsystem.models.corporation import CorporationFilter
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
@@ -65,7 +65,7 @@ class TestSwitchSetFilter(TestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
         )
 
@@ -77,7 +77,7 @@ class TestSwitchSetFilter(TestCase):
     @patch(MODULE_PATH + ".messages")
     def test_switch_filterset(self, mock_messages):
         """Test switch filter."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filterset_id = self.filter_set.id
 
         request = self.factory.get(
@@ -101,7 +101,7 @@ class TestSwitchSetFilter(TestCase):
     @patch(MODULE_PATH + ".messages")
     def test_no_permission(self, mock_messages):
         """Test try switch without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filterset_id = self.filter_set.id
 
         request = self.factory.get(
@@ -123,7 +123,7 @@ class TestSwitchSetFilter(TestCase):
 
     def test_no_manage_permission(self):
         """Test switch without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filterset_id = self.filter_set.id
 
         request = self.factory.get(

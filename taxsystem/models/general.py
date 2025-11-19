@@ -23,6 +23,40 @@ class General(models.Model):
         default_permissions = ()
 
 
+class UpdateSection(models.TextChoices):
+    """Base class for update sections."""
+
+    @classmethod
+    def get_sections(cls) -> list[str]:
+        """Return list of section values."""
+        return [choice.value for choice in cls]
+
+    @property
+    def method_name(self) -> str:
+        """Return method name for this section."""
+        return f"update_{self.value}"
+
+
+class CorporationUpdateSection(UpdateSection):
+    """Sections for corporation updates."""
+
+    WALLET = "wallet", _("Wallet Journal")
+    DIVISION_NAMES = "division_names", _("Wallet Division Names")
+    DIVISION = "division", _("Wallet Division")
+    MEMBERS = "members", _("Members")
+    PAYMENTS = "payments", _("Payments")
+    PAYMENT_SYSTEM = "payment_system", _("Payment System")
+    PAYDAY = "payday", _("Payday")
+
+
+class AllianceUpdateSection(UpdateSection):
+    """Sections for alliance updates."""
+
+    PAYMENTS = "payments", _("Payments")
+    PAYMENT_SYSTEM = "payment_system", _("Payment System")
+    PAYDAY = "payday", _("Payday")
+
+
 class UpdateSectionResult(NamedTuple):
     """A result of an attempted section update."""
 

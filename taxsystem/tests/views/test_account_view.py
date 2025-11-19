@@ -15,7 +15,7 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.corporation import CorporationPaymentAccount, CorporationPayments
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
 )
@@ -67,7 +67,7 @@ class TestAccountView(TestCase):
             name=cls.no_permission_user.username,
             owner=cls.audit,
             user=cls.no_permission_user,
-            status=PaymentSystem.Status.DEACTIVATED,
+            status=CorporationPaymentAccount.Status.DEACTIVATED,
         )
 
     @patch(MODULE_PATH + ".messages")
