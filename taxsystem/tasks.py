@@ -44,12 +44,22 @@ _update_taxsystem_params = {
 @when_esi_is_available
 def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
     """Update all taxsystem data"""
-    corporations = CorporationOwner.objects.select_related("eve_corporation").filter(
-        active=1
-    )
+    corporations: list[CorporationOwner] = CorporationOwner.objects.select_related(
+        "eve_corporation"
+    ).filter(active=1)
+    alliances: list[AllianceOwner] = AllianceOwner.objects.select_related(
+        "eve_alliance"
+    ).filter(active=1)
+    # Queue tasks for all corporations
     for corporation in corporations:
         update_corporation.apply_async(
             args=[corporation.pk], kwargs={"force_refresh": force_refresh}
+        )
+        runs = runs + 1
+    # Queue tasks for all alliances
+    for alliance in alliances:
+        update_alliance.apply_async(
+            args=[alliance.pk], kwargs={"force_refresh": force_refresh}
         )
         runs = runs + 1
     logger.info("Queued %s Owner Tasks", runs)
@@ -59,7 +69,7 @@ def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
 @when_esi_is_available
 def update_corporation(owner_pk, force_refresh=False):
     """Update a corporation"""
-    owner = CorporationOwner.objects.prefetch_related(
+    owner: CorporationOwner = CorporationOwner.objects.prefetch_related(
         "ts_corporation_update_status"
     ).get(pk=owner_pk)
 
@@ -173,7 +183,7 @@ def update_corp_payday(owner_pk: int, force_refresh: bool):
 def _update_corp_section(owner_pk: int, section: str, force_refresh: bool):
     """Update a specific section of the corporation."""
     section = CorporationUpdateSection(section)
-    corporation = CorporationOwner.objects.get(pk=owner_pk)
+    corporation: CorporationOwner = CorporationOwner.objects.get(pk=owner_pk)
     logger.debug("Updating %s for %s", section.label, corporation.name)
 
     corporation.reset_update_status(section)
@@ -197,9 +207,9 @@ def _update_corp_section(owner_pk: int, section: str, force_refresh: bool):
 @when_esi_is_available
 def update_alliance(owner_pk, force_refresh=False):
     """Update an alliance"""
-    owner = AllianceOwner.objects.prefetch_related("ts_alliance_update_status").get(
-        pk=owner_pk
-    )
+    owner: AllianceOwner = AllianceOwner.objects.prefetch_related(
+        "ts_alliance_update_status"
+    ).get(pk=owner_pk)
 
     que = []
     priority = 7
@@ -275,7 +285,7 @@ def update_ally_payday(owner_pk: int, force_refresh: bool):
 def _update_ally_section(owner_pk: int, section: str, force_refresh: bool):
     """Update a specific section of the alliance."""
     section = AllianceUpdateSection(section)
-    alliance = AllianceOwner.objects.get(pk=owner_pk)
+    alliance: AllianceOwner = AllianceOwner.objects.get(pk=owner_pk)
     logger.debug("Updating %s for %s", section.label, alliance.name)
     alliance.reset_update_status(section)
 
