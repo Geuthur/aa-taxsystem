@@ -19,6 +19,8 @@ class General(models.Model):
             ("create_access", _("Can add Corporation")),
             ("manage_own_corp", _("Can manage own Corporation")),
             ("manage_corps", _("Can manage all Corporations")),
+            ("manage_own_alliance", _("Can manage own Alliance")),
+            ("manage_alliances", _("Can manage all Alliances")),
         )
         default_permissions = ()
 
