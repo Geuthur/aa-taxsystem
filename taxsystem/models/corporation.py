@@ -176,9 +176,9 @@ class CorporationOwner(OwnerBase):
         return self.UpdateStatus(total_update_status)
 
     @property
-    def update_status_manager(self):
+    def update_status_manager(self) -> models.QuerySet[CorporationUpdateStatus]:
         """Return the related manager for corporation update status objects."""
-        return self.ts_corporation_update_status
+        return CorporationUpdateStatus.objects.filter(owner=self)
 
     @property
     def update_section_enum(self):
