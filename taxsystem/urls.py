@@ -35,6 +35,13 @@ urlpatterns = [
     ),
     path("corporation/<int:corporation_id>/view/faq/", views.faq, name="faq"),
     # --- Tax Administration
+    # -- Alliance Management
+    path(
+        "alliance/<int:alliance_id>/view/administration/",
+        views.administration_alliance,
+        name="administration_alliance",
+    ),
+    path("alliance/add/", views.add_alliance, name="add_alliance"),
     # -- Tax Payments
     path("corporation/add/", views.add_corp, name="add_corp"),
     path(

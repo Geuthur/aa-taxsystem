@@ -7,7 +7,7 @@ from app_utils.testing import create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.models.tax import Payments
+from taxsystem.models.corporation import CorporationPayments
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
 )
@@ -79,48 +79,48 @@ class TestPaymentsModel(TestCase):
         )
 
     def test_str(self):
-        expected_str = Payments.objects.get(account=self.payment_system)
+        expected_str = CorporationPayments.objects.get(account=self.payment_system)
         self.assertEqual(self.payments, expected_str)
 
     def test_is_automatic(self):
         """Test if the payment is automatic."""
-        payments = Payments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.payment_system)
         self.assertFalse(payments.is_automatic)
 
     def test_is_pending(self):
         """Test if the payment is pending."""
-        self.payments.request_status = Payments.RequestStatus.PENDING
+        self.payments.request_status = CorporationPayments.RequestStatus.PENDING
         self.payments.save()
 
-        payments = Payments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.payment_system)
         self.assertTrue(payments.is_pending)
 
     def test_is_approved(self):
         """Test if the payment is approved."""
-        self.payments.request_status = Payments.RequestStatus.APPROVED
+        self.payments.request_status = CorporationPayments.RequestStatus.APPROVED
         self.payments.save()
 
-        payments = Payments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.payment_system)
         self.assertFalse(payments.is_pending)
         self.assertTrue(payments.is_approved)
 
     def test_is_rejected(self):
         """Test if the payment is rejected."""
-        self.payments.request_status = Payments.RequestStatus.REJECTED
+        self.payments.request_status = CorporationPayments.RequestStatus.REJECTED
         self.payments.save()
 
-        payments = Payments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.payment_system)
         self.assertFalse(payments.is_pending)
         self.assertTrue(payments.is_rejected)
 
     def test_character_id(self):
         """Test if the character_id is correct."""
-        payments = Payments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.payment_system)
         self.assertEqual(
             payments.character_id, self.character_ownership.character.character_id
         )
 
     def test_division(self):
         """Test if the division is correct."""
-        payments = Payments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.payment_system)
         self.assertEqual(payments.division_name, "Main Division")

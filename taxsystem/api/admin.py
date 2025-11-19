@@ -40,9 +40,12 @@ from taxsystem.api.schema import (
     UpdateStatusSchema,
 )
 from taxsystem.helpers import lazy
-from taxsystem.models.filters import JournalFilter
-from taxsystem.models.logs import AdminLogs
-from taxsystem.models.tax import Members, PaymentSystem
+from taxsystem.models.corporation import (
+    CorporationAdminHistory,
+    CorporationFilter,
+    CorporationPaymentAccount,
+    Members,
+)
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
@@ -159,8 +162,8 @@ class AdminApiEndpoints:
 
             # Create statistics
             response_statistics = StatisticsResponse(
-                owner_id=owner.corporation.corporation_id,
-                owner_name=owner.corporation.corporation_name,
+                owner_id=owner.eve_corporation.corporation_id,
+                owner_name=owner.eve_corporation.corporation_name,
                 payment_system=get_payment_system_statistics(owner),
                 payments=get_payments_statistics(owner),
                 members=get_members_statistics(owner),
@@ -181,10 +184,10 @@ class AdminApiEndpoints:
 
             dashboard_response = DashboardResponse(
                 corporation=CorporationSchema(
-                    corporation_id=owner.corporation.corporation_id,
-                    corporation_name=owner.corporation.corporation_name,
+                    corporation_id=owner.eve_corporation.corporation_id,
+                    corporation_name=owner.eve_corporation.corporation_name,
                     corporation_portrait=corporation_logo,
-                    corporation_ticker=owner.corporation.corporation_ticker,
+                    corporation_ticker=owner.eve_corporation.corporation_ticker,
                 ),
                 update_status=UpdateStatusSchema(
                     status=owner.get_update_status,
@@ -258,11 +261,11 @@ class AdminApiEndpoints:
 
             # Get Payment Accounts for Corporation except those missing main character
             payment_system = (
-                PaymentSystem.objects.filter(
+                CorporationPaymentAccount.objects.filter(
                     owner=owner,
                     user__profile__main_character__isnull=False,
                 )
-                .exclude(status=PaymentSystem.Status.MISSING)
+                .exclude(status=CorporationPaymentAccount.Status.MISSING)
                 .select_related(
                     "user", "user__profile", "user__profile__main_character"
                 )
@@ -322,7 +325,7 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            logs = AdminLogs.objects.filter(owner=owner).order_by("-date")
+            logs = CorporationAdminHistory.objects.filter(owner=owner).order_by("-date")
 
             response_admin_logs_list: list[AdminHistorySchema] = []
             for log in logs:
@@ -351,13 +354,13 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            filters = JournalFilter.objects.filter(
+            filters = CorporationFilter.objects.filter(
                 filter_set__pk=filter_set_id,
             )
 
             response_filter_list: list[FilterModelSchema] = []
             for filter_obj in filters:
-                if filter_obj.filter_type == JournalFilter.FilterType.AMOUNT:
+                if filter_obj.filter_type == CorporationFilter.FilterType.AMOUNT:
                     value = f"{intcomma(filter_obj.value, use_l10n=True)} ISK"
                 else:
                     value = filter_obj.value

@@ -132,42 +132,53 @@ $(document).ready(function() {
             const divisionsData = data.divisions;
             const divisions = divisionsData.divisions; // Das Array mit den Divisionen
 
-            for (let i = 0; i < divisions.length; i++) {
-                const division = divisions[i];
-
-                try {
-                    if (division && division.name && division.balance) {
-                        $(`#division${i + 1}_name`).text(division.name);
-                        $(`#division${i + 1}`).text(
-                            numberFormatter({
-                                value: division.balance,
-                                options: {
-                                    style: 'currency',
-                                    currency: 'ISK'
-                                }
-                            })
-                        );
-                    } else {
+            if (!divisions || divisions.length === 0) {
+                // Wenn divisions leer ist, zeige N/A nur für die Division-Nummern
+                for (let i = 1; i <= 7; i++) {
+                    $(`#division${i}_name`).show(); // Name bleibt wie er ist
+                    $(`#division${i}`).text('N/A').show();
+                }
+            } else {
+                for (let i = 0; i < divisions.length; i++) {
+                    const division = divisions[i];
+                    try {
+                        if (division && division.name && division.balance) {
+                            $(`#division${i + 1}_name`).text(division.name);
+                            $(`#division${i + 1}`).text(
+                                numberFormatter({
+                                    value: division.balance,
+                                    options: {
+                                        style: 'currency',
+                                        currency: 'ISK'
+                                    }
+                                })
+                            );
+                        } else {
+                            $(`#division${i + 1}_name`).hide();
+                            $(`#division${i + 1}`).hide();
+                        }
+                    } catch (e) {
+                        console.error(`Error fetching division data for division ${i + 1}:`, e);
                         $(`#division${i + 1}_name`).hide();
                         $(`#division${i + 1}`).hide();
                     }
-                } catch (e) {
-                    console.error(`Error fetching division data for division ${i + 1}:`, e);
-                    $(`#division${i + 1}_name`).hide();
-                    $(`#division${i + 1}`).hide();
                 }
             }
 
-            // Optional: Gesamtbilanz anzeigen
-            $('#total_balance').text(
-                numberFormatter({
-                    value: divisionsData.total_balance,
-                    options: {
-                        style: 'currency',
-                        currency: 'ISK'
-                    }
-                })
-            );
+            // Gesamtbilanz anzeigen
+            if (!divisions || divisions.length === 0) {
+                $('#total_balance').text('N/A');
+            } else {
+                $('#total_balance').text(
+                    numberFormatter({
+                        value: divisionsData.total_balance,
+                        options: {
+                            style: 'currency',
+                            currency: 'ISK'
+                        }
+                    })
+                );
+            }
 
             manageDashboardDivisionVar.removeClass('d-none');
             manageDashboardDivisionTableVar.removeClass('d-none');

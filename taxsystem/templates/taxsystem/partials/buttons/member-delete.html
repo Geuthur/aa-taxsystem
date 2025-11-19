@@ -7,7 +7,7 @@
     data-title="{% translate 'Delete Member' %} <b>{{ member.character_name }}</b>"
     data-text="{% translate 'Are you sure to Confirm' %}?"
     data-bs-target="#members-delete-member"
-    data-action="{% url 'taxsystem:delete_member' member_pk=member.pk corporation_id=member.owner.corporation_id %}"
+    data-action="{% url 'taxsystem:delete_member' member_pk=member.pk corporation_id=member.owner.eve_corporation.corporation_id %}"
 
     title="{% translate 'Delete Member' %}"
     >

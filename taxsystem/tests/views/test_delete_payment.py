@@ -13,7 +13,7 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.tax import Payments
+from taxsystem.models.corporation import CorporationPayments
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
 )
@@ -77,7 +77,7 @@ class TestDeletePayment(TestCase):
     def test_delete_payment(self):
         """Test deleting a payment."""
         # given
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         form_data = {
             "corporation_id": corporation_id,
             "delete_reason": "This is a test deletion",
@@ -103,7 +103,7 @@ class TestDeletePayment(TestCase):
     def test_delete_payment_esi(self):
         """Test deleting esi a payment."""
         # given
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         form_data = {
             "corporation_id": corporation_id,
             "delete_reason": "This is a test deletion",
@@ -131,7 +131,7 @@ class TestDeletePayment(TestCase):
     def test_no_permission(self):
         """Test try deleting a payment without permission."""
         # given
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         form_data = {
             "corporation_id": corporation_id,
             "delete_reason": "This is a test deletion",
@@ -154,7 +154,7 @@ class TestDeletePayment(TestCase):
     def test_no_manage_permission(self):
         """Test reject payment without managing permission."""
         # given
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         form_data = {
             "corporation_id": corporation_id,
             "delete_reason": "This is a test deletion",

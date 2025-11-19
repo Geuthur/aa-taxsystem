@@ -13,7 +13,7 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.tax import Members
+from taxsystem.models.corporation import Members
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_owneraudit_from_user,
 )
@@ -62,7 +62,7 @@ class TestDeleteMember(TestCase):
 
     def test_delete_member(self):
         """Test delete member."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         member_pk = self.member.pk
 
         form_data = {
@@ -93,7 +93,7 @@ class TestDeleteMember(TestCase):
 
     def test_no_permission(self):
         """Test try undo a payment without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         member_pk = self.member.pk
 
         form_data = {
@@ -121,7 +121,7 @@ class TestDeleteMember(TestCase):
 
     def test_no_manage_permission(self):
         """Test undo payment without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         member_pk = self.member.pk
 
         form_data = {

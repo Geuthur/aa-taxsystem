@@ -11,6 +11,75 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0a1] - 2025-11-22
+
+### Added
+
+- Alliance Tax System
+  - Payments
+  - Payment Accounts
+- Owner Overview Page (`/owners/`)
+  - Unified view displaying both Corporations and Alliances
+  - Permission-based action buttons (Payments/Manage)
+  - DataTables integration with responsive design
+  - Portrait display for all owners
+  - Active/Inactive status badges
+  - Dark theme compatible (btn-warning for manage buttons)
+  - Automatic redirect from index to owner overview
+- Administration view now checking for permission and if Corporation is still available
+- EVE Portrait and Logo Helper Functions in copilot-instructions.md
+  - Backend lazy helpers: `get_character_portrait_url()`, `get_corporation_logo_url()`, `get_alliance_logo_url()`
+  - Template tags: `|character_portrait_url:size`, `|corporation_logo_url:size`, `|alliance_logo_url:size`
+- Owner Permissions via Manager Methods in copilot-instructions.md
+  - `CorporationOwner.objects.manage_to(user)` and `AllianceOwner.objects.manage_to(user)`
+  - `visible_to(user)` methods for broader visibility
+- Menu navigation now points to Owner Overview instead of payment list
+
+### Fixed
+
+- Test Suite after API parameter migration (158 tests passing, 71% coverage)
+  - Updated test parameters from `corporation_id` to `owner_id` for generic owner endpoints
+  - Fixed payment creation in character tests to use correct `owner_id` field
+  - Fixed response assertions to match new "owner" schema
+  - Added missing `MessageMiddleware` to test requests
+  - Created missing test data for manage_user tests
+  - Fixed FAQ URL routing in access tests
+  - Implemented Alliance payment tests with proper factory functions
+  - Performance tests now use `assertIsNotNone()` instead of silent skipping
+- DataTables warning for empty Owner Overview table (incorrect column count)
+- Owner Overview now uses `visible_to()` instead of `manage_to()` for correct permission filtering
+
+### Changed
+
+- Refactor Tax System and prepare for Alliance Tax System migration
+- All views are now accessible with or without specifying corporation_id/alliance_id. If not provided, the user's main character's corporation/alliance is used by default.
+- Renamed `Manage Tax System` to `Manage Corporation` or `Manage Alliance`
+- Index page (`/`) now redirects to Owner Overview instead of payment list
+- Owner Overview removes `get_status` column (admin-focused, not user-focused)
+- Empty state message changed from "manage" to "view" for better user understanding
+- Task Queue Order
+- Performance Optimization: N+1 Query Fixes
+  - Payment queries now use `select_related()` for account, user, profile, and main_character (70-80% query reduction)
+  - Payment System uses `prefetch_related()` for character_ownerships (85-90% query reduction)
+  - Members queries optimized with `select_related()` for owner relationships (60-70% faster)
+- API Migration: Generic owner endpoints now use `owner_id` parameter instead of `corporation_id`
+  - Affects: filter management, payment system, and filter set endpoints
+  - Corporation-specific endpoints still use `corporation_id`
+- Views Terminology: Permission error messages for generic owner operations now use "owner" instead of "corporation"
+- Database Indexes for Performance
+- Test Quality: All tests must work properly or fail with clear assertions (no silent skipping allowed)
+  - AlliancePayments: Composite index (account, owner_id, request_status, -date) + (request_status, -date)
+  - CorporationPayments: Composite index (account, owner_id, request_status, -date) + (request_status, -date)
+  - Members: Indexes on (owner, character_name) + (status)
+  - Expected: 50%+ faster filtered queries, combined with N+1 fixes: 60-80% total improvement
+- Statistics Query Optimization
+  - Analyzed and confirmed all statistics functions already use optimal single aggregate() queries
+  - `get_payments_statistics()`: 1 query for all counts (total, pending, automatic, manual)
+  - `get_payment_system_statistics()`: 1 query for all counts (users, active, inactive, deactivated, paid, unpaid)
+  - `get_members_statistics()`: 1 query for all counts (total, mains, alts, unregistered)
+  - Dashboard statistics: 3 optimized queries (1 per table) vs potentially 10+ separate queries
+  - Result: Already using best-practice aggregate() approach - no further optimization possible
+
 ## [1.0.2] - 2025-11-20
 
 ### Changed

@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
-from taxsystem.models.filters import JournalFilter, JournalFilterSet
+from taxsystem.models.corporation import CorporationFilter, CorporationFilterSet
 
 
 def get_mandatory_form_label_text(text: str) -> str:
@@ -110,7 +110,7 @@ class AddJournalFilterForm(forms.Form):
         required=True,
     )
     filter_type = forms.ChoiceField(
-        choices=JournalFilter.FilterType.choices,
+        choices=CorporationFilter.FilterType.choices,
         label=_("Filter Type"),
         required=True,
     )
@@ -143,5 +143,5 @@ class CreateFilterSetForm(forms.Form):
 
 class EditFilterSetForm(forms.ModelForm):
     class Meta:
-        model = JournalFilterSet
+        model = CorporationFilterSet
         fields = ["name", "description"]

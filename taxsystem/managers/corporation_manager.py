@@ -7,7 +7,7 @@ from django.db.models import Case, Count, Q, Value, When
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.authentication.models import UserProfile
+from allianceauth.authentication.models import User, UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -17,13 +17,14 @@ from eveuniverse.models import EveEntity
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
+from taxsystem.models.general import CorporationUpdateSection
 from taxsystem.providers import esi
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.tax import OwnerAudit
+    from taxsystem.models.corporation import CorporationOwner
 
 
 class CorporationMemberTrackingContext:
@@ -38,8 +39,8 @@ class CorporationMemberTrackingContext:
     start_date: timezone.datetime
 
 
-class OwnerAuditQuerySet(models.QuerySet):
-    def visible_to(self, user):
+class CorporationOwnerQuerySet(models.QuerySet):
+    def visible_to(self, user: User):
         """Get all corps visible to the user."""
         # superusers get all visible
         if user.is_superuser:
@@ -59,7 +60,7 @@ class OwnerAuditQuerySet(models.QuerySet):
             corp_ids = user.character_ownerships.all().values_list(
                 "character__corporation_id", flat=True
             )
-            queries = [models.Q(corporation__corporation_id__in=corp_ids)]
+            queries = [models.Q(eve_corporation__corporation_id__in=corp_ids)]
 
             logger.debug(
                 "%s queries for user %s visible corporations.", len(queries), user
@@ -73,7 +74,7 @@ class OwnerAuditQuerySet(models.QuerySet):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
-    def manage_to(self, user):
+    def manage_to(self, user: User):
         """Get all corps that the user can manage."""
         # superusers get all visible
         if user.is_superuser:
@@ -93,7 +94,7 @@ class OwnerAuditQuerySet(models.QuerySet):
             query = None
 
             if user.has_perm("taxsystem.manage_own_corp"):
-                query = models.Q(corporation__corporation_id=char.corporation_id)
+                query = models.Q(eve_corporation__corporation_id=char.corporation_id)
 
             logger.debug("Returning own corps for User %s.", user)
 
@@ -118,41 +119,41 @@ class OwnerAuditQuerySet(models.QuerySet):
         """Get the total update status."""
         # pylint: disable=import-outside-toplevel
         # AA TaxSystem
-        from taxsystem.models.tax import OwnerAudit
+        from taxsystem.models.corporation import CorporationOwner
 
-        sections = OwnerAudit.UpdateSection.get_sections()
+        sections = CorporationUpdateSection.get_sections()
         num_sections_total = len(sections)
         qs = (
             self.annotate(
                 num_sections_total=Count(
-                    "ts_update_status",
-                    filter=Q(ts_update_status__section__in=sections),
+                    "ts_corporation_update_status",
+                    filter=Q(ts_corporation_update_status__section__in=sections),
                 )
             )
             .annotate(
                 num_sections_ok=Count(
-                    "ts_update_status",
+                    "ts_corporation_update_status",
                     filter=Q(
-                        ts_update_status__section__in=sections,
-                        ts_update_status__is_success=True,
+                        ts_corporation_update_status__section__in=sections,
+                        ts_corporation_update_status__is_success=True,
                     ),
                 )
             )
             .annotate(
                 num_sections_failed=Count(
-                    "ts_update_status",
+                    "ts_corporation_update_status",
                     filter=Q(
-                        ts_update_status__section__in=sections,
-                        ts_update_status__is_success=False,
+                        ts_corporation_update_status__section__in=sections,
+                        ts_corporation_update_status__is_success=False,
                     ),
                 )
             )
             .annotate(
                 num_sections_token_error=Count(
-                    "ts_update_status",
+                    "ts_corporation_update_status",
                     filter=Q(
-                        ts_update_status__section__in=sections,
-                        ts_update_status__has_token_error=True,
+                        ts_corporation_update_status__section__in=sections,
+                        ts_corporation_update_status__has_token_error=True,
                     ),
                 )
             )
@@ -161,25 +162,25 @@ class OwnerAuditQuerySet(models.QuerySet):
                 total_update_status=Case(
                     When(
                         active=False,
-                        then=Value(OwnerAudit.UpdateStatus.DISABLED),
+                        then=Value(CorporationOwner.UpdateStatus.DISABLED),
                     ),
                     When(
                         num_sections_token_error=1,
-                        then=Value(OwnerAudit.UpdateStatus.TOKEN_ERROR),
+                        then=Value(CorporationOwner.UpdateStatus.TOKEN_ERROR),
                     ),
                     When(
                         num_sections_failed__gt=0,
-                        then=Value(OwnerAudit.UpdateStatus.ERROR),
+                        then=Value(CorporationOwner.UpdateStatus.ERROR),
                     ),
                     When(
                         num_sections_ok=num_sections_total,
-                        then=Value(OwnerAudit.UpdateStatus.OK),
+                        then=Value(CorporationOwner.UpdateStatus.OK),
                     ),
                     When(
                         num_sections_total__lt=num_sections_total,
-                        then=Value(OwnerAudit.UpdateStatus.INCOMPLETE),
+                        then=Value(CorporationOwner.UpdateStatus.INCOMPLETE),
                     ),
-                    default=Value(OwnerAudit.UpdateStatus.IN_PROGRESS),
+                    default=Value(CorporationOwner.UpdateStatus.IN_PROGRESS),
                 )
             )
         )
@@ -207,7 +208,10 @@ class OwnerAuditQuerySet(models.QuerySet):
         return 0
 
 
-class OwnerAuditManagerBase(models.Manager):
+class CorporationOwnerManager(models.Manager):
+    def get_queryset(self):
+        return CorporationOwnerQuerySet(self.model, using=self._db)
+
     def visible_to(self, user):
         return self.get_queryset().visible_to(user)
 
@@ -215,26 +219,21 @@ class OwnerAuditManagerBase(models.Manager):
         return self.get_queryset().manage_to(user)
 
 
-OwnerAuditManager = OwnerAuditManagerBase.from_queryset(OwnerAuditQuerySet)
-
-
-class MembersQuerySet(models.QuerySet):
-    pass
-
-
-class MembersManagerBase(models.Manager):
+class MembersManager(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a Members from ESI data."""
         return owner.update_section_if_changed(
-            section=owner.UpdateSection.MEMBERS,
+            section=CorporationUpdateSection.MEMBERS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
-    def _fetch_esi_data(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
+    def _fetch_esi_data(
+        self, owner: "CorporationOwner", force_refresh: bool = False
+    ) -> None:
         """Fetch Members entries from ESI data."""
         req_scopes = [
             "esi-corporations.read_corporation_membership.v1",
@@ -249,7 +248,7 @@ class MembersManagerBase(models.Manager):
 
         # Make the ESI request
         members_ob = esi.client.Corporation.GetCorporationsCorporationIdMembertracking(
-            corporation_id=owner.corporation.corporation_id,
+            corporation_id=owner.eve_corporation.corporation_id,
             token=token,
         )
 
@@ -264,10 +263,12 @@ class MembersManagerBase(models.Manager):
     # pylint: disable=too-many-locals
     def _update_or_create_objs(
         self,
-        owner: "OwnerAudit",
+        owner: "CorporationOwner",
         objs: list[CorporationMemberTrackingContext],
     ) -> None:
         """Update or Create Members entries from objs data."""
+        logger.info("Updating Members for: %s", owner.name)
+
         _current_members_ids = set(
             self.filter(owner=owner).values_list("character_id", flat=True)
         )
@@ -307,7 +308,7 @@ class MembersManagerBase(models.Manager):
             logger.debug(
                 "Marked %s missing members for: %s",
                 len(missing_members_ids),
-                owner.corporation.corporation_name,
+                owner.name,
             )
         if _old_members:
             self.bulk_update(
@@ -317,41 +318,43 @@ class MembersManagerBase(models.Manager):
             logger.debug(
                 "Updated %s members for: %s",
                 len(_old_members),
-                owner.corporation.corporation_name,
+                owner.name,
             )
         if _new_members:
             self.bulk_create(_new_members, ignore_conflicts=True)
             logger.debug(
                 "Added %s new members for: %s",
                 len(_new_members),
-                owner.corporation.corporation_name,
+                owner.name,
             )
 
         # Update payment accounts
         self._update_payment_accounts(owner, _esi_members_ids)
 
         logger.info(
-            "Corp %s - Old Members: %s, New Members: %s, Missing: %s",
+            "%s - Old Members: %s, New Members: %s, Missing: %s",
             owner.name,
             len(_old_members),
             len(_new_members),
             len(missing_members_ids),
         )
 
-    def _update_payment_accounts(self, owner: "OwnerAudit", members_ids: list[int]):
+    def _update_payment_accounts(
+        self, owner: "CorporationOwner", members_ids: list[int]
+    ):
         """Update payment accounts for a corporation."""
         # pylint: disable=import-outside-toplevel
         # AA TaxSystem
-        from taxsystem.models.tax import PaymentSystem
+        from taxsystem.models.corporation import CorporationPaymentAccount
 
         logger.debug(
             "Updating Payment Accounts for: %s",
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
         accounts = UserProfile.objects.filter(
             main_character__isnull=False,
-            main_character__corporation_id=owner.corporation.corporation_id,
+            main_character__corporation_id=owner.eve_corporation.corporation_id,
         ).select_related(
             "user__profile__main_character",
             "main_character__character_ownership",
@@ -362,9 +365,7 @@ class MembersManagerBase(models.Manager):
         members = self.filter(owner=owner)
 
         if not accounts:
-            logger.debug(
-                "No valid accounts for: %s", owner.corporation.corporation_name
-            )
+            logger.debug("No valid accounts for: %s", owner.name)
             return "No Accounts"
 
         items = []
@@ -389,20 +390,25 @@ class MembersManagerBase(models.Manager):
 
             # Create or update a Payment System for the main character
             try:
-                existing_payment_system = PaymentSystem.objects.get(
+                existing_payment_system = CorporationPaymentAccount.objects.get(
                     user=account.user, owner=owner
                 )
 
-                if existing_payment_system.status != PaymentSystem.Status.DEACTIVATED:
-                    existing_payment_system.status = PaymentSystem.Status.ACTIVE
+                if (
+                    existing_payment_system.status
+                    != CorporationPaymentAccount.Status.DEACTIVATED
+                ):
+                    existing_payment_system.status = (
+                        CorporationPaymentAccount.Status.ACTIVE
+                    )
                     existing_payment_system.save()
-            except PaymentSystem.DoesNotExist:
+            except CorporationPaymentAccount.DoesNotExist:
                 items.append(
-                    PaymentSystem(
+                    CorporationPaymentAccount(
                         name=main.character_name,
                         owner=owner,
                         user=account.user,
-                        status=PaymentSystem.Status.ACTIVE,
+                        status=CorporationPaymentAccount.Status.ACTIVE,
                     )
                 )
 
@@ -416,36 +422,39 @@ class MembersManagerBase(models.Manager):
             logger.debug(
                 "Marked %s members without accounts for: %s",
                 len(members_ids),
-                owner.corporation.corporation_name,
+                owner.name,
             )
 
         if items:
-            PaymentSystem.objects.bulk_create(items, ignore_conflicts=True)
+            CorporationPaymentAccount.objects.bulk_create(items, ignore_conflicts=True)
             logger.info(
                 "Added %s new payment users for: %s",
                 len(items),
-                owner.corporation.corporation_name,
+                owner.name,
             )
         else:
             logger.debug(
                 "No new payment user for: %s",
-                owner.corporation.corporation_name,
+                owner.name,
             )
 
         return (
             "Finished payment system for %s",
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
-    def _check_payment_accounts(self, owner: "OwnerAudit"):
+    def _check_payment_accounts(self, owner: "CorporationOwner"):
         """Check payment accounts for a corporation."""
         # pylint: disable=import-outside-toplevel
         # AA TaxSystem
-        from taxsystem.models.tax import OwnerAudit, PaymentSystem
+        from taxsystem.models.corporation import (
+            CorporationOwner,
+            CorporationPaymentAccount,
+        )
 
         logger.debug(
             "Checking Payment Accounts for: %s",
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
         accounts = UserProfile.objects.filter(
@@ -460,7 +469,7 @@ class MembersManagerBase(models.Manager):
         if not accounts:
             logger.debug(
                 "No valid accounts for skipping Check: %s",
-                owner.corporation.corporation_name,
+                owner.name,
             )
             return "No Accounts"
 
@@ -468,16 +477,18 @@ class MembersManagerBase(models.Manager):
             main_corporation_id = account.main_character.corporation_id
 
             try:
-                payment_system = PaymentSystem.objects.get(
+                payment_system = CorporationPaymentAccount.objects.get(
                     user=account.user, owner=owner
                 )
-                payment_system_corp_id = payment_system.owner.corporation.corporation_id
+                payment_system_corp_id = (
+                    payment_system.owner.eve_corporation.corporation_id
+                )
                 # Check if the user is no longer in the same corporation
                 if (
                     not payment_system.is_missing
                     and not payment_system_corp_id == main_corporation_id
                 ):
-                    payment_system.status = PaymentSystem.Status.MISSING
+                    payment_system.status = CorporationPaymentAccount.Status.MISSING
                     payment_system.save()
                     logger.info(
                         "User %s is no longer in Corp marked as Missing",
@@ -489,18 +500,18 @@ class MembersManagerBase(models.Manager):
                     and payment_system_corp_id != main_corporation_id
                 ):
                     try:
-                        new_owner = OwnerAudit.objects.get(
-                            corporation__corporation_id=main_corporation_id
+                        new_owner = CorporationOwner.objects.get(
+                            eve_corporation__corporation_id=main_corporation_id
                         )
                         payment_system.owner = new_owner
                         payment_system.deposit = 0
-                        payment_system.status = PaymentSystem.Status.ACTIVE
+                        payment_system.status = CorporationPaymentAccount.Status.ACTIVE
                         payment_system.last_paid = None
                         payment_system.save()
                         logger.info(
                             "User %s is now in Corporation %s",
                             payment_system.name,
-                            new_owner.corporation.corporation_name,
+                            new_owner.eve_corporation.corporation_name,
                         )
                     except owner.DoesNotExist:
                         continue
@@ -508,7 +519,7 @@ class MembersManagerBase(models.Manager):
                     payment_system.is_missing
                     and payment_system_corp_id == main_corporation_id
                 ):
-                    payment_system.status = PaymentSystem.Status.ACTIVE
+                    payment_system.status = CorporationPaymentAccount.Status.ACTIVE
                     payment_system.notice = None
                     payment_system.deposit = 0
                     payment_system.last_paid = None
@@ -516,19 +527,16 @@ class MembersManagerBase(models.Manager):
                     logger.info(
                         "User %s is back in Corporation %s",
                         payment_system.name,
-                        payment_system.owner.corporation.corporation_name,
+                        payment_system.owner.eve_corporation.corporation_name,
                     )
-            except PaymentSystem.DoesNotExist:
+            except CorporationPaymentAccount.DoesNotExist:
                 logger.debug(
                     "No Payment System for %s - %s",
                     account.user.username,
-                    owner.corporation.corporation_name,
+                    owner.name,
                 )
                 continue
         return (
             "Finished checking Payment Accounts for %s",
-            owner.corporation.corporation_name,
+            owner.name,
         )
-
-
-MembersManager = MembersManagerBase.from_queryset(MembersQuerySet)

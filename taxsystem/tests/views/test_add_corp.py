@@ -13,7 +13,7 @@ from django.urls import reverse
 from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
-from taxsystem.models.tax import OwnerAudit
+from taxsystem.models.corporation import CorporationOwner
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 from taxsystem.views import add_corp
@@ -61,5 +61,7 @@ class TestAddCorpView(TestCase):
         self.assertTrue(mock_tasks.update_corporation.apply_async.called)
         self.assertTrue(mock_messages.info.called)
         self.assertTrue(
-            OwnerAudit.objects.filter(corporation__corporation_id=2001).exists()
+            CorporationOwner.objects.filter(
+                eve_corporation__corporation_id=2001
+            ).exists()
         )

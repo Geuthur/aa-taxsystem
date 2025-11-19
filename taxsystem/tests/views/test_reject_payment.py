@@ -69,7 +69,7 @@ class TestRejectPayment(TestCase):
 
     def test_reject_payment(self):
         """Test approving a payment."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         payment_id = self.payment.pk
 
         form_data = {
@@ -100,7 +100,7 @@ class TestRejectPayment(TestCase):
 
     def test_no_permission(self):
         """Test try reject a payment without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         payment_id = self.payment.pk
 
         form_data = {
@@ -128,7 +128,7 @@ class TestRejectPayment(TestCase):
 
     def test_no_manage_permission(self):
         """Test reject payment without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         payment_id = self.payment.pk
 
         form_data = {

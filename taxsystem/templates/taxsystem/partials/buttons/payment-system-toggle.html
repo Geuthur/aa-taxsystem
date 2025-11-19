@@ -13,7 +13,7 @@
     "
     data-text="{% translate 'Are you sure to Confirm' %}?"
     data-bs-target="#paymentsystem-switchuser"
-    data-action="{% url 'taxsystem:switch_user' payment_system_pk=account.pk corporation_id=account.owner.corporation.corporation_id %}"
+    data-action="{% url 'taxsystem:switch_user' payment_system_pk=account.pk corporation_id=account.owner.eve_corporation.corporation_id %}"
 
     title="{% translate 'Deactivate User' %}"
     >

@@ -11,15 +11,20 @@ from django.utils import timezone
 
 # Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserMainFactory
+from app_utils.testing import (
+    create_user_from_evecharacter,
+)
 
 # AA TaxSystem
 from taxsystem.api.character import CharacterApiEndpoints
-from taxsystem.models.filters import JournalFilter
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.corporation import (
+    CorporationFilter,
+    CorporationPaymentAccount,
+    CorporationPayments,
+)
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_evecharacter,
-    create_user_from_evecharacter_with_access,
+    add_owneraudit_character_to_user,
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
@@ -41,19 +46,22 @@ class TestCoreHelpers(TestCase):
 
         cls.api = NinjaAPI()
         cls.character_endpoint = CharacterApiEndpoints(cls.api)
-
-        cls.audit = create_owneraudit_from_evecharacter(1001)
         cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001
+        cls.user, cls.character_ownership = create_user_from_evecharacter(
+            1001,
+            permissions=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_corps",
+            ],
         )
+        cls.audit = add_owneraudit_character_to_user(user=cls.user, character_id=1001)
         cls.no_evecharacter_user = UserMainFactory(permissions=[])
 
         cls.payment_system = create_payment_system(
             name=cls.character_ownership.character.character_name,
             owner=cls.audit,
             user=cls.user,
-            status=PaymentSystem.Status.ACTIVE,
+            status=CorporationPaymentAccount.Status.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
@@ -66,7 +74,7 @@ class TestCoreHelpers(TestCase):
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",
-            request_status=Payments.RequestStatus.PENDING,
+            request_status=CorporationPayments.RequestStatus.PENDING,
             reviser="",
         )
 
@@ -78,7 +86,7 @@ class TestCoreHelpers(TestCase):
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
             reason="Mining Stuff",
-            request_status=Payments.RequestStatus.PENDING,
+            request_status=CorporationPayments.RequestStatus.PENDING,
             reviser="",
         )
 
@@ -90,7 +98,7 @@ class TestCoreHelpers(TestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
         )
 

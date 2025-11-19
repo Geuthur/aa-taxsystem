@@ -17,11 +17,12 @@ from eveuniverse.models import EveEntity
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
+from taxsystem.models.general import CorporationUpdateSection
 from taxsystem.providers import esi
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.tax import OwnerAudit
+    from taxsystem.models.corporation import CorporationOwner
     from taxsystem.models.wallet import (
         CorporationWalletDivision,
     )
@@ -65,24 +66,22 @@ class CorporationWalletContext:
     balance: float
 
 
-class CorporationWalletQuerySet(models.QuerySet):
-    pass
-
-
-class CorporationWalletManagerBase(models.Manager):
+class CorporationWalletManager(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a wallet journal entry from ESI data."""
         return owner.update_section_if_changed(
-            section=owner.UpdateSection.WALLET,
+            section=CorporationUpdateSection.WALLET,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     # pylint: disable=too-many-locals
-    def _fetch_esi_data(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
+    def _fetch_esi_data(
+        self, owner: "CorporationOwner", force_refresh: bool = False
+    ) -> None:
         """Fetch wallet journal entries from ESI data."""
         # pylint: disable=import-outside-toplevel
         # AA TaxSystem
@@ -103,7 +102,7 @@ class CorporationWalletManagerBase(models.Manager):
             # Make the ESI request
             journal_items_ob = (
                 esi.client.Wallet.GetCorporationsCorporationIdWalletsDivisionJournal(
-                    corporation_id=owner.corporation.corporation_id,
+                    corporation_id=owner.eve_corporation.corporation_id,
                     division=division.division_id,
                     token=token,
                 )
@@ -184,40 +183,31 @@ class CorporationWalletManagerBase(models.Manager):
             raise DatabaseError("DB Fail")
 
 
-CorporationWalletManager = CorporationWalletManagerBase.from_queryset(
-    CorporationWalletQuerySet
-)
-
-
-class CorporationDivisionQuerySet(models.QuerySet):
-    pass
-
-
-class CorporationDivisionManagerBase(models.Manager):
+class CorporationDivisionManager(models.Manager):
     @log_timing(logger)
     def update_or_create_esi(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a division entry from ESI data."""
         return owner.update_section_if_changed(
-            section=owner.UpdateSection.DIVISION,
+            section=CorporationUpdateSection.DIVISION,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
 
     @log_timing(logger)
     def update_or_create_esi_names(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a division entry from ESI data."""
         return owner.update_section_if_changed(
-            section=owner.UpdateSection.DIVISION_NAMES,
+            section=CorporationUpdateSection.DIVISION_NAMES,
             fetch_func=self._fetch_esi_data_names,
             force_refresh=force_refresh,
         )
 
     def _fetch_esi_data_names(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Fetch division entries from ESI data."""
         req_scopes = [
@@ -229,7 +219,7 @@ class CorporationDivisionManagerBase(models.Manager):
         # Make the ESI request
         division_names_obj = (
             esi.client.Corporation.GetCorporationsCorporationIdDivisions(
-                corporation_id=owner.corporation.corporation_id, token=token
+                corporation_id=owner.eve_corporation.corporation_id, token=token
             )
         )
         division_names_items, response = division_names_obj.results(
@@ -239,7 +229,9 @@ class CorporationDivisionManagerBase(models.Manager):
 
         self._update_or_create_objs_division(owner=owner, objs=division_names_items)
 
-    def _fetch_esi_data(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
+    def _fetch_esi_data(
+        self, owner: "CorporationOwner", force_refresh: bool = False
+    ) -> None:
         """Fetch division entries from ESI data."""
         req_scopes = [
             "esi-wallet.read_corporation_wallets.v1",
@@ -251,7 +243,7 @@ class CorporationDivisionManagerBase(models.Manager):
 
         # Make the ESI request
         divisions_items_obj = esi.client.Wallet.GetCorporationsCorporationIdWallets(
-            corporation_id=owner.corporation.corporation_id, token=token
+            corporation_id=owner.eve_corporation.corporation_id, token=token
         )
         division_items, response = divisions_items_obj.results(
             return_response=True, force_refresh=force_refresh
@@ -263,7 +255,7 @@ class CorporationDivisionManagerBase(models.Manager):
     @transaction.atomic()
     def _update_or_create_objs_division(
         self,
-        owner: "OwnerAudit",
+        owner: "CorporationOwner",
         objs: list[CorporationDivisionContext],
     ) -> None:
         """Update or Create division entries from objs data."""
@@ -289,7 +281,7 @@ class CorporationDivisionManagerBase(models.Manager):
     @transaction.atomic()
     def _update_or_create_objs(
         self,
-        owner: "OwnerAudit",
+        owner: "CorporationOwner",
         objs: list[CorporationWalletContext],
     ) -> None:
         """Update or Create division entries from objs data."""
@@ -306,8 +298,3 @@ class CorporationDivisionManagerBase(models.Manager):
             if not created:
                 obj.balance = division.balance
                 obj.save()
-
-
-CorporationDivisionManager = CorporationDivisionManagerBase.from_queryset(
-    CorporationDivisionQuerySet
-)

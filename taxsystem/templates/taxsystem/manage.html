@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load taxsystem %}
+{% load sri %}
 
 {% block page_title %}
     {{ title }}
@@ -57,6 +58,8 @@
     {% include 'taxsystem/bundles/settings-js.html' %}
     <!-- load the administration bundle -->
     {% include 'taxsystem/bundles/administration-bundle.html' %}
+    <!-- load the corporation manage script -->
+    {% sri_static 'taxsystem/js/manage.js' %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}

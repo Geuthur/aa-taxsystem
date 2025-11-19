@@ -10,7 +10,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__
-from taxsystem.models.tax import OwnerAudit, Payments
+from taxsystem.models.corporation import CorporationOwner, CorporationPayments
 from taxsystem.models.wallet import CorporationWalletJournalEntry
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -21,8 +21,10 @@ class Command(BaseCommand):
 
     # pylint: disable=unused-argument
     def handle(self, *args, **options):
-        corporations = OwnerAudit.objects.all()
-        payments_entry_ids = Payments.objects.all().values_list("entry_id", flat=True)
+        corporations = CorporationOwner.objects.all()
+        payments_entry_ids = CorporationPayments.objects.all().values_list(
+            "entry_id", flat=True
+        )
         if not corporations:
             self.stdout.write(
                 "No Corporations found in the database. Skipping migration."
@@ -33,7 +35,7 @@ class Command(BaseCommand):
             try:
                 with transaction.atomic():
                     journals = CorporationWalletJournalEntry.objects.filter(
-                        division__corporation__corporation=corporation.corporation
+                        division__corporation__eve_corporation=corporation.eve_corporation
                     ).select_related("division")
 
                     if not journals:
@@ -46,11 +48,11 @@ class Command(BaseCommand):
                     for journal in journals:
                         if journal.entry_id in payments_entry_ids:
                             try:
-                                payment = Payments.objects.get(
+                                payment = CorporationPayments.objects.get(
                                     entry_id=journal.entry_id
                                 )
                                 payment.corporation_id = (
-                                    corporation.corporation.corporation_id
+                                    corporation.eve_corporation.corporation_id
                                 )
                                 payment.save()
                                 self.stdout.write(
@@ -58,7 +60,7 @@ class Command(BaseCommand):
                                 )
                                 successful += 1
                                 continue
-                            except Payments.DoesNotExist:
+                            except CorporationPayments.DoesNotExist:
                                 self.stdout.write(
                                     f"Payment with entry_id {journal.entry_id} not found, skipping."
                                 )

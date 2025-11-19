@@ -14,26 +14,23 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
+from taxsystem.models.general import CorporationUpdateSection
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.tax import OwnerAudit
+    from taxsystem.models.corporation import CorporationOwner
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class PaymentSystemQuerySet(models.QuerySet):
-    pass
-
-
-class PaymentSystemManagerBase(models.Manager):
+class CorporationAccountManager(models.Manager):
     @log_timing(logger)
     def update_or_create_payment_system(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create Payment System data."""
         return owner.update_section_if_changed(
-            section=owner.UpdateSection.PAYMENT_SYSTEM,
+            section=CorporationUpdateSection.PAYMENT_SYSTEM,
             fetch_func=self._update_or_create_objs,
             force_refresh=force_refresh,
         )
@@ -41,22 +38,25 @@ class PaymentSystemManagerBase(models.Manager):
     @transaction.atomic()
     # pylint: disable=unused-argument
     def _update_or_create_objs(
-        self, owner: "OwnerAudit", force_refresh: bool = False, runs: int = 0
+        self, owner: "CorporationOwner", force_refresh: bool = False, runs: int = 0
     ) -> None:
         """Update or Create payment system entries from objs data."""
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
-        from taxsystem.models.filters import JournalFilterSet
-        from taxsystem.models.logs import PaymentHistory
-        from taxsystem.models.tax import Payments
+        from taxsystem.models.corporation import (
+            CorporationFilterSet,
+            CorporationPaymentHistory,
+            CorporationPayments,
+        )
 
         logger.debug(
             "Updating Payment System for: %s",
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
-        payments = Payments.objects.filter(
-            account__owner=owner, request_status=Payments.RequestStatus.PENDING
+        payments = CorporationPayments.objects.filter(
+            account__owner=owner,
+            request_status=CorporationPayments.RequestStatus.PENDING,
         )
 
         _current_payment_ids = set(payments.values_list("id", flat=True))
@@ -64,14 +64,19 @@ class PaymentSystemManagerBase(models.Manager):
 
         # Check for any automatic payments
         try:
-            filters_obj = JournalFilterSet.objects.filter(owner=owner)
+            filters_obj = CorporationFilterSet.objects.filter(owner=owner)
             for filter_obj in filters_obj:
                 payments = filter_obj.filter(payments)
                 for payment in payments:
-                    if payment.request_status == Payments.RequestStatus.PENDING:
+                    if (
+                        payment.request_status
+                        == CorporationPayments.RequestStatus.PENDING
+                    ):
                         # Ensure all transfers are processed in a single transaction
                         with transaction.atomic():
-                            payment.request_status = Payments.RequestStatus.APPROVED
+                            payment.request_status = (
+                                CorporationPayments.RequestStatus.APPROVED
+                            )
                             payment.reviser = "System"
 
                             # Update payment pool for user
@@ -81,35 +86,36 @@ class PaymentSystemManagerBase(models.Manager):
 
                             payment.save()
 
-                            PaymentHistory(
+                            CorporationPaymentHistory(
                                 user=payment.account.user,
                                 payment=payment,
-                                action=PaymentHistory.Actions.STATUS_CHANGE,
-                                new_status=Payments.RequestStatus.APPROVED,
-                                comment=PaymentHistory.SystemText.AUTOMATIC,
+                                action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
+                                new_status=CorporationPayments.RequestStatus.APPROVED,
+                                comment=CorporationPaymentHistory.SystemText.AUTOMATIC,
                             ).save()
 
                             runs = runs + 1
                             _automatic_payment_ids.append(payment.pk)
-        except JournalFilterSet.DoesNotExist:
+        except CorporationFilterSet.DoesNotExist:
             pass
 
         # Check for any payments that need approval
         needs_approval = _current_payment_ids - set(_automatic_payment_ids)
-        approvals = Payments.objects.filter(
-            id__in=needs_approval, request_status=Payments.RequestStatus.PENDING
+        approvals = CorporationPayments.objects.filter(
+            id__in=needs_approval,
+            request_status=CorporationPayments.RequestStatus.PENDING,
         )
 
         for payment in approvals:
-            payment.request_status = Payments.RequestStatus.NEEDS_APPROVAL
+            payment.request_status = CorporationPayments.RequestStatus.NEEDS_APPROVAL
             payment.save()
 
-            PaymentHistory(
+            CorporationPaymentHistory(
                 user=payment.account.user,
                 payment=payment,
-                action=PaymentHistory.Actions.STATUS_CHANGE,
-                new_status=Payments.RequestStatus.NEEDS_APPROVAL,
-                comment=PaymentHistory.SystemText.REVISER,
+                action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
+                new_status=CorporationPayments.RequestStatus.NEEDS_APPROVAL,
+                comment=CorporationPaymentHistory.SystemText.REVISER,
             ).save()
 
             runs = runs + 1
@@ -117,16 +123,18 @@ class PaymentSystemManagerBase(models.Manager):
         logger.debug(
             "Finished %s: Payment System entrys for %s",
             runs,
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
-        return ("Finished Payment System for %s", owner.corporation.corporation_name)
+        return ("Finished Payment System for %s", owner.name)
 
     @log_timing(logger)
-    def check_pay_day(self, owner: "OwnerAudit", force_refresh: bool = False) -> None:
-        """Update or Create Payment System data."""
+    def check_pay_day(
+        self, owner: "CorporationOwner", force_refresh: bool = False
+    ) -> None:
+        """Check Payments from Account."""
         return owner.update_section_if_changed(
-            section=owner.UpdateSection.PAYDAY,
+            section=CorporationUpdateSection.PAYDAY,
             fetch_func=self._pay_day,
             force_refresh=force_refresh,
         )
@@ -134,12 +142,12 @@ class PaymentSystemManagerBase(models.Manager):
     @transaction.atomic()
     # pylint: disable=unused-argument
     def _pay_day(
-        self, owner: "OwnerAudit", force_refresh: bool = False, runs: int = 0
+        self, owner: "CorporationOwner", force_refresh: bool = False, runs: int = 0
     ) -> None:
-        """Update or Create payment system entries from objs data."""
+        """Update Deposits from Account."""
         logger.debug(
             "Updating payday for: %s",
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
         payment_system = self.filter(owner=owner, status=self.model.Status.ACTIVE)
@@ -159,27 +167,20 @@ class PaymentSystemManagerBase(models.Manager):
         logger.debug(
             "Finished %s: Payday for %s",
             runs,
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
-        return ("Finished Payday for %s", owner.corporation.corporation_name)
+        return ("Finished Payday for %s", owner.name)
 
 
-PaymentSystemManager = PaymentSystemManagerBase.from_queryset(PaymentSystemQuerySet)
-
-
-class PaymentsQuerySet(models.QuerySet):
-    pass
-
-
-class PaymentsManagerBase(models.Manager):
+class PaymentsManager(models.Manager):
     @log_timing(logger)
     def update_or_create_payments(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a Payments entry data."""
         return owner.update_section_if_changed(
-            section=owner.UpdateSection.PAYMENTS,
+            section=CorporationUpdateSection.PAYMENTS,
             fetch_func=self._update_or_create_objs,
             force_refresh=force_refresh,
         )
@@ -187,29 +188,32 @@ class PaymentsManagerBase(models.Manager):
     @transaction.atomic()
     # pylint: disable=too-many-locals, unused-argument
     def _update_or_create_objs(
-        self, owner: "OwnerAudit", force_refresh: bool = False
+        self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create payment system entries from objs data."""
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
-        from taxsystem.models.logs import PaymentHistory
-        from taxsystem.models.tax import Payments, PaymentSystem
+        from taxsystem.models.corporation import (
+            CorporationPaymentAccount,
+            CorporationPaymentHistory,
+            CorporationPayments,
+        )
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         logger.debug(
             "Updating payments for: %s",
-            owner.corporation.corporation_name,
+            owner.name,
         )
 
-        accounts = PaymentSystem.objects.filter(owner=owner)
+        accounts = CorporationPaymentAccount.objects.filter(owner=owner)
 
         if not accounts:
-            return ("No Payment Users for %s", owner.corporation.corporation_name)
+            return ("No Payment Users for %s", owner.name)
 
         users = {}
 
         for user in accounts:
-            user: PaymentSystem
+            user: CorporationPaymentAccount
             alts = user.get_alt_ids()
             users[user] = alts
 
@@ -229,12 +233,12 @@ class PaymentsManagerBase(models.Manager):
                     continue
                 for user, alts in users.items():
                     if entry.first_party.id in alts:
-                        payment_item = Payments(
+                        payment_item = CorporationPayments(
                             entry_id=entry.entry_id,
                             name=user.name,
                             account=user,
                             amount=entry.amount,
-                            request_status=Payments.RequestStatus.PENDING,
+                            request_status=CorporationPayments.RequestStatus.PENDING,
                             date=entry.date,
                             reason=entry.reason,
                         )
@@ -247,30 +251,29 @@ class PaymentsManagerBase(models.Manager):
                     payment = self.get(
                         entry_id=payment.entry_id, account=payment.account
                     )
-                except Payments.DoesNotExist:
+                except CorporationPayments.DoesNotExist:
                     continue
 
-                log_items = PaymentHistory(
+                log_items = CorporationPaymentHistory(
                     user=payment.account.user,
                     payment=payment,
-                    action=PaymentHistory.Actions.STATUS_CHANGE,
-                    new_status=Payments.RequestStatus.PENDING,
-                    comment=PaymentHistory.SystemText.ADDED,
+                    action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
+                    new_status=CorporationPayments.RequestStatus.PENDING,
+                    comment=CorporationPaymentHistory.SystemText.ADDED,
                 )
                 logs_items.append(log_items)
 
-            PaymentHistory.objects.bulk_create(logs_items, ignore_conflicts=True)
+            CorporationPaymentHistory.objects.bulk_create(
+                logs_items, ignore_conflicts=True
+            )
 
         logger.debug(
             "Finished %s Payments for %s",
             len(items),
-            owner.corporation.corporation_name,
+            owner.name,
         )
         return (
             "Finished %s Payments for %s",
             len(items),
-            owner.corporation.corporation_name,
+            owner.name,
         )
-
-
-PaymentsManager = PaymentsManagerBase.from_queryset(PaymentsQuerySet)
