@@ -11,6 +11,22 @@ Section Order:
 ### Removed
 -->
 
+## [1.0.2] - 2025-11-20
+
+### Changed
+
+- Dependencies
+  - `django-eveuniverse` set to `1.6`
+  - `django-ninja` set to `>=1.5,<2`
+  - `allianceauth-app-utils` set to `>=1.3`
+  - `django-esi` set to `>=8,<9`
+
+### Removed
+
+- `django-ninja` dependency pin `<1.5`
+- csrf arg from `django-ninja`
+- allow-direct-references
+
 ## [1.0.1] - 2025-11-13
 
 ### Added
@@ -25,7 +41,6 @@ Section Order:
 ### Changed
 
 - Switch to OPENAPI3 ESI Client
-  - Dependency `django-esi` set to `>=8,<9`
   - Dependency `allianceauth-app-utils` set to `2b1`
   - Use new ETag System from `django-esi`
 - Updated dependencies
