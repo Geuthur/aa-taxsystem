@@ -358,7 +358,7 @@ class AlliancePaymentManager(models.Manager):
 
         # Check journal entries for player donations
         journal = CorporationWalletJournalEntry.objects.filter(
-            division__corporation__eve_corporation=owner.eve_corporation,
+            division__corporation__eve_corporation=owner.corporation.eve_corporation,
             ref_type__in=["player_donation"],
         ).order_by("-date")
 
@@ -410,7 +410,7 @@ class AlliancePaymentManager(models.Manager):
             )
 
         # Check for system payments
-        self._check_system_payments(owner, force_refresh=force_refresh, runs=0)
+        self._check_system_payments(owner)
 
         logger.debug(
             "Finished %s Payments for %s",
@@ -424,9 +424,8 @@ class AlliancePaymentManager(models.Manager):
         )
 
     # pylint: disable=unused-argument
-    def _check_system_payments(
-        self, owner: "AllianceOwner", force_refresh: bool = False, runs: int = 0
-    ) -> None:
+    def _check_system_payments(self, owner: "AllianceOwner", runs: int = 0) -> None:
+        """Check for automatic system payments that has been approved by Filter Set from Alliance."""
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
         from taxsystem.models.alliance import (
@@ -505,8 +504,6 @@ class AlliancePaymentManager(models.Manager):
                 new_status=AlliancePayments.RequestStatus.NEEDS_APPROVAL,
                 comment=AlliancePaymentHistory.SystemText.REVISER,
             ).save()
-
-            runs = runs + 1
 
         logger.debug(
             "Finished %s: Automatic Payments for %s",
