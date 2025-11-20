@@ -42,20 +42,20 @@ class UpdateSection(models.TextChoices):
 class CorporationUpdateSection(UpdateSection):
     """Sections for corporation updates."""
 
-    WALLET = "wallet", _("Wallet Journal")
     DIVISION_NAMES = "division_names", _("Wallet Division Names")
     DIVISION = "division", _("Wallet Division")
+    WALLET = "wallet", _("Wallet Journal")
     MEMBERS = "members", _("Members")
-    PAYMENTS = "payments", _("Payments")
     PAYMENT_SYSTEM = "payment_system", _("Payment System")
+    PAYMENTS = "payments", _("Payments")
     PAYDAY = "payday", _("Payday")
 
 
 class AllianceUpdateSection(UpdateSection):
     """Sections for alliance updates."""
 
-    PAYMENTS = "payments", _("Payments")
     PAYMENT_SYSTEM = "payment_system", _("Payment System")
+    PAYMENTS = "payments", _("Payments")
     PAYDAY = "payday", _("Payday")
 
 
