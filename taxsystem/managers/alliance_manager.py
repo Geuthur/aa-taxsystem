@@ -376,6 +376,7 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
                             request_status=self.model.RequestStatus.PENDING,
                             date=entry.date,
                             reason=entry.reason,
+                            alliance_id=owner.eve_alliance.alliance_id,
                         )
                         items.append(payment_item)
 
