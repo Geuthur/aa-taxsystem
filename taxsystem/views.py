@@ -9,6 +9,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
@@ -31,8 +32,10 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__, forms, tasks
 from taxsystem.api.helpers.core import (
+    get_alliance,
     get_character_permissions,
     get_corporation,
+    get_manage_alliance,
     get_manage_corporation,
 )
 from taxsystem.helpers.views import add_info_to_context
@@ -152,12 +155,28 @@ def admin(request: WSGIRequest):
 
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
-def administration(request: WSGIRequest, corporation_id: int):
+def administration(request: WSGIRequest, corporation_id: int = None):
     """Manage View"""
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
+    owner, perms = get_manage_corporation(request, corporation_id)
+
+    if perms is False:
+        messages.error(
+            request, _("You do not have permission to manage this corporation.")
+        )
+        return redirect("taxsystem:index")
+
+    if owner is None:
+        messages.error(request, _("Corporation not Found"))
+        return redirect("taxsystem:index")
+
     context = {
         "corporation_id": corporation_id,
         "corporations": CorporationOwner.objects.visible_to(request.user),
         "title": _("Administration"),
+        "manage_filter_url": reverse("taxsystem:manage_filter", args=[corporation_id]),
         "forms": {
             "accept_request": forms.PaymentAcceptForm(),
             "reject_request": forms.PaymentRejectForm(),
@@ -175,8 +194,11 @@ def administration(request: WSGIRequest, corporation_id: int):
 
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
-def manage_filter(request: WSGIRequest, corporation_id: int):
+def manage_filter(request: WSGIRequest, corporation_id: int = None):
     """Manage View"""
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
     owner, perms = get_manage_corporation(request, corporation_id)
 
     filter_sets = owner.ts_corporation_filter_set.all()
@@ -405,8 +427,11 @@ def edit_filterset(request: WSGIRequest, corporation_id: int, filter_set_id: int
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def payments(request: WSGIRequest, corporation_id: int):
+def payments(request: WSGIRequest, corporation_id: int = None):
     """Payments View"""
+    if corporation_id is None:
+        corporation_id = request.user.profile.main_character.corporation_id
+
     perms = get_corporation(request, corporation_id)
 
     if perms is None:
@@ -461,12 +486,12 @@ def own_payments(request: WSGIRequest, corporation_id=None):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def faq(request: WSGIRequest, corporation_id: int):
+def faq(request: WSGIRequest):
     """Payments View"""
     corporations = CorporationOwner.objects.visible_to(request.user)
 
     context = {
-        "corporation_id": corporation_id,
+        "corporation_id": request.user.profile.main_character.corporation_id,
         "title": _("FAQ"),
         "corporations": corporations,
     }
@@ -1094,13 +1119,12 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
 
 @login_required
 @permissions_required(["taxsystem.manage_own_alliance", "taxsystem.manage_alliances"])
-def administration_alliance(request: WSGIRequest, alliance_id: int = None):
-    """Alliance Administration View"""
+def manage_alliance(request: WSGIRequest, alliance_id: int = None):
+    """Alliance Management View"""
     if alliance_id is None:
         alliance_id = request.user.profile.main_character.alliance_id
 
     context = {
-        "corporation_id": request.user.profile.main_character.corporation_id,
         "alliance_id": alliance_id,
         "corporations": CorporationOwner.objects.visible_to(request.user),
         "title": _("Alliance Tax System"),
@@ -1117,3 +1141,62 @@ def administration_alliance(request: WSGIRequest, alliance_id: int = None):
     context = add_info_to_context(request, context)
 
     return render(request, "taxsystem/manage-alliance.html", context=context)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def alliance_payments(request: WSGIRequest, alliance_id: int = None):
+    """Payments View"""
+    if alliance_id is None:
+        alliance_id = request.user.profile.main_character.alliance_id
+
+    alliance = get_alliance(request, alliance_id)
+
+    if alliance is None:
+        messages.error(request, _("No Alliance found."))
+
+    corporations = CorporationOwner.objects.visible_to(request.user)
+
+    context = {
+        "alliance_id": alliance_id,
+        "title": _("Payments"),
+        "forms": {
+            "add_request": forms.PaymentAddForm(),
+            "payment_delete_request": forms.PaymentDeleteForm(),
+            "accept_request": forms.PaymentAcceptForm(),
+            "reject_request": forms.PaymentRejectForm(),
+            "undo_request": forms.PaymentUndoForm(),
+        },
+        "corporations": corporations,
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/payments.html", context=context)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def alliance_own_payments(request: WSGIRequest, alliance_id=None):
+    """Own Payments View"""
+    if alliance_id is None:
+        alliance_id = request.user.profile.main_character.alliance_id
+
+    alliance, perms = get_manage_alliance(request, alliance_id)
+
+    if alliance is None:
+        messages.error(request, _("No Alliance found."))
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    corporations = CorporationOwner.objects.visible_to(request.user)
+
+    context = {
+        "alliance_id": alliance_id,
+        "title": _("Own Payments"),
+        "corporations": corporations,
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/own-payments.html", context=context)

@@ -5,7 +5,7 @@ $(document).ready(() => {
 
     const tablePayments = paymentsTableVar.DataTable({
         ajax: {
-            url: taxsystemsettings.corporationPaymentsUrl,
+            url: taxsystemsettings.PaymentsUrl,
             type: 'GET',
             dataSrc: function (data) {
                 return data.corporation;

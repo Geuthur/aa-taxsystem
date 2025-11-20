@@ -3,18 +3,30 @@
 <script type="application/javascript">
     let taxsystemsettings = {
         // Core
-        corporation_id: {{ corporation_id }},
-        character_id: {% if character_id %}{{ character_id }}{% else %}0{% endif %},
         csrf: "{{ csrf_token }}",
-        // URLs
-        corporationmanageDashboardUrl: '{% url "taxsystem:api:get_dashboard" corporation_id=corporation_id %}',
-        corporationPaymentsUrl: '{% url "taxsystem:api:get_payments" corporation_id=corporation_id %}',
-        corporationOwnPaymentsUrl: '{% url "taxsystem:api:get_own_payments" corporation_id=corporation_id %}',
-        corporationMembersUrl: '{% url "taxsystem:api:get_members" corporation_id=corporation_id %}',
-        corporationPaymentSystemUrl: '{% url "taxsystem:api:get_paymentsystem" corporation_id=corporation_id %}',
-        // Update URLs
-        corporationUpdateTaxUrl: '{% url "taxsystem:update_tax_amount" corporation_id=corporation_id %}',
-        corporationUpdatePeriodUrl: '{% url "taxsystem:update_tax_period" corporation_id=corporation_id %}',
+        {% if corporation_id %}
+            // URLs
+            DashboardUrl: '{% url "taxsystem:api:get_dashboard" corporation_id=corporation_id %}',
+            PaymentsUrl: '{% url "taxsystem:api:get_payments" corporation_id=corporation_id %}',
+            OwnPaymentsUrl: '{% url "taxsystem:api:get_own_payments" corporation_id=corporation_id %}',
+            MembersUrl: '{% url "taxsystem:api:get_members" corporation_id=corporation_id %}',
+            PaymentSystemUrl: '{% url "taxsystem:api:get_paymentsystem" corporation_id=corporation_id %}',
+            // Update URLs
+            UpdateTaxUrl: '{% url "taxsystem:update_tax_amount" corporation_id=corporation_id %}',
+            UpdatePeriodUrl: '{% url "taxsystem:update_tax_period" corporation_id=corporation_id %}',
+        {% endif %}
+
+        {% if alliance_id %}
+            // URLs
+            DashboardUrl: '{% url "taxsystem:api:get_dashboard" corporation_id=alliance_id %}',
+            PaymentsUrl: '{% url "taxsystem:api:get_payments" corporation_id=alliance_id %}',
+            OwnPaymentsUrl: '{% url "taxsystem:api:get_own_payments" corporation_id=alliance_id %}',
+            MembersUrl: '{% url "taxsystem:api:get_members" corporation_id=alliance_id %}',
+            PaymentSystemUrl: '{% url "taxsystem:api:get_paymentsystem" corporation_id=alliance_id %}',
+            // Update URLs
+            UpdateTaxUrl: '{% url "taxsystem:update_tax_amount" corporation_id=alliance_id %}',
+            UpdatePeriodUrl: '{% url "taxsystem:update_tax_period" corporation_id=alliance_id %}',
+        {% endif %}
         // Translations
         translations: {
             days: '{% translate "days" %}',

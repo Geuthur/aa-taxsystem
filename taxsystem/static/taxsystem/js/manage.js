@@ -19,7 +19,7 @@ $(document).ready(function() {
     const manageDashboardStatisticsPaymentUsersTableVar = $('#manage-dashboard-psystem');
 
     $.ajax({
-        url: taxsystemsettings.corporationmanageDashboardUrl,
+        url: taxsystemsettings.DashboardUrl,
         type: 'GET',
         success: function (data) {
             var tax_amount = parseFloat(data.tax_amount);
@@ -53,8 +53,8 @@ $(document).ready(function() {
             $('#activity').html(data.activity);
 
             // Generate URLs dynamically
-            const updateTaxAmountUrl = taxsystemsettings.corporationUpdateTaxUrl;
-            const updateTaxPeriodUrl = taxsystemsettings.corporationUpdatePeriodUrl;
+            const updateTaxAmountUrl = taxsystemsettings.UpdateTaxUrl;
+            const updateTaxPeriodUrl = taxsystemsettings.UpdatePeriodUrl;
 
             // Set data-url attributes dynamically
             $('#taxamount').attr('data-url', updateTaxAmountUrl);
@@ -241,7 +241,7 @@ $(document).ready(function() {
 
     const tableMembers = membersTableVar.DataTable({
         ajax: {
-            url: taxsystemsettings.corporationMembersUrl,
+            url: taxsystemsettings.MembersUrl,
             type: 'GET',
             dataSrc: function (data) {
                 return data.corporation;
@@ -324,7 +324,7 @@ $(document).ready(function() {
 
     const tablePaymentSystem = PaymentSystemTableVar.DataTable({
         ajax: {
-            url: taxsystemsettings.corporationPaymentSystemUrl,
+            url: taxsystemsettings.PaymentSystemUrl,
             type: 'GET',
             dataSrc: function (data) {
 
