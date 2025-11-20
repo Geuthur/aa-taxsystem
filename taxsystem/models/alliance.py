@@ -155,6 +155,8 @@ class AlliancePayments(PaymentsBase):
         related_name="ts_alliance_payments",
     )
 
+    alliance_id = models.IntegerField(null=True, blank=True)
+
     def __str__(self) -> str:
         return f"{self.account.name} - {self.amount} ISK"
 
