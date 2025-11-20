@@ -1,8 +1,5 @@
 """Models for Tax System."""
 
-# Standard Library
-from typing import ClassVar
-
 # Django
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -66,7 +63,7 @@ class AllianceOwner(OwnerBase):
     class Meta:
         default_permissions = ()
 
-    objects: ClassVar[AllianceOwnerManager] = AllianceOwnerManager()
+    objects: AllianceOwnerManager = AllianceOwnerManager()
 
     eve_alliance = models.OneToOneField(
         EveAllianceInfo,
@@ -126,7 +123,7 @@ class AllianceOwner(OwnerBase):
 class AlliancePaymentAccount(PaymentAccountBase):
     """Model representing an alliance payment account in the tax system."""
 
-    objects: ClassVar[AlliancePaymentAccountManager] = AlliancePaymentAccountManager()
+    objects: AlliancePaymentAccountManager = AlliancePaymentAccountManager()
 
     class Meta:
         default_permissions = ()
@@ -144,7 +141,7 @@ class AlliancePaymentAccount(PaymentAccountBase):
 class AlliancePayments(PaymentsBase):
     """Model representing payments made by alliance members in the tax system."""
 
-    objects: ClassVar[AlliancePaymentManager] = AlliancePaymentManager()
+    objects: AlliancePaymentManager = AlliancePaymentManager()
 
     class Meta:
         default_permissions = ()

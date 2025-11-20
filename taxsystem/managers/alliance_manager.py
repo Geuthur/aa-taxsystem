@@ -22,7 +22,11 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.alliance import AllianceOwner
+    from taxsystem.models.alliance import (
+        AllianceOwner,
+        AlliancePaymentAccount,
+        AlliancePayments,
+    )
 
 
 # pylint: disable=duplicate-code
@@ -166,7 +170,7 @@ class AllianceOwnerQuerySet(models.QuerySet):
         return qs
 
 
-class AllianceOwnerManager(models.Manager):
+class AllianceOwnerManager(models.Manager["AllianceOwner"]):
     def get_queryset(self):
         return AllianceOwnerQuerySet(self.model, using=self._db)
 
@@ -177,7 +181,7 @@ class AllianceOwnerManager(models.Manager):
         return self.get_queryset().manage_to(user)
 
 
-class AlliancePaymentAccountManager(models.Manager):
+class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
     @log_timing(logger)
     def update_or_create_payment_system(
         self, owner: "AllianceOwner", force_refresh: bool = False
@@ -195,10 +199,6 @@ class AlliancePaymentAccountManager(models.Manager):
         self, owner: "AllianceOwner", force_refresh: bool = False
     ) -> None:
         """Update payment accounts for a alliance."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.alliance import AlliancePaymentAccount
-
         logger.debug(
             "Updating Payment Accounts for: %s",
             owner.name,
@@ -226,31 +226,26 @@ class AlliancePaymentAccountManager(models.Manager):
 
             try:
                 # Update existing payment account
-                existing_payment_account = AlliancePaymentAccount.objects.get(
+                existing_payment_account = self.model.objects.get(
                     user=account.user, owner=owner
                 )
 
-                if (
-                    existing_payment_account.status
-                    != AlliancePaymentAccount.Status.DEACTIVATED
-                ):
-                    existing_payment_account.status = (
-                        AlliancePaymentAccount.Status.ACTIVE
-                    )
+                if existing_payment_account.status != self.model.Status.DEACTIVATED:
+                    existing_payment_account.status = self.model.Status.ACTIVE
                     existing_payment_account.save()
-            except AlliancePaymentAccount.DoesNotExist:
+            except self.model.DoesNotExist:
                 # Create new payment account
                 items.append(
-                    AlliancePaymentAccount(
+                    self.model(
                         name=main.character_name,
                         owner=owner,
                         user=account.user,
-                        status=AlliancePaymentAccount.Status.ACTIVE,
+                        status=self.model.Status.ACTIVE,
                     )
                 )
 
         if items:
-            AlliancePaymentAccount.objects.bulk_create(items, ignore_conflicts=True)
+            self.bulk_create(items, ignore_conflicts=True)
             logger.info(
                 "Added %s new payment accounts for: %s",
                 len(items),
@@ -312,7 +307,7 @@ class AlliancePaymentAccountManager(models.Manager):
         return ("Finished Payday for %s", owner.name)
 
 
-class AlliancePaymentManager(models.Manager):
+class AlliancePaymentManager(models.Manager["AlliancePayments"]):
     @log_timing(logger)
     def update_or_create_payments(
         self, owner: "AllianceOwner", force_refresh: bool = False
@@ -332,10 +327,9 @@ class AlliancePaymentManager(models.Manager):
         """Update or Create payments for Alliance."""
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
+        from taxsystem.models.alliance import AlliancePaymentAccount as PaymentAccount
         from taxsystem.models.alliance import (
-            AlliancePaymentAccount,
             AlliancePaymentHistory,
-            AlliancePayments,
         )
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
@@ -344,7 +338,7 @@ class AlliancePaymentManager(models.Manager):
             owner.name,
         )
 
-        accounts = AlliancePaymentAccount.objects.filter(owner=owner)
+        accounts = PaymentAccount.objects.filter(owner=owner)
 
         if not accounts:
             return ("No Payment Users for %s", owner.name)
@@ -352,7 +346,7 @@ class AlliancePaymentManager(models.Manager):
         users = {}
 
         for user in accounts:
-            user: AlliancePaymentAccount
+            user: PaymentAccount
             alts = user.get_alt_ids()
             users[user] = alts
 
@@ -374,12 +368,12 @@ class AlliancePaymentManager(models.Manager):
                     continue
                 for user, alts in users.items():
                     if entry.first_party.id in alts:
-                        payment_item = AlliancePayments(
+                        payment_item = self.model(
                             entry_id=entry.entry_id,
                             name=user.name,
                             account=user,
                             amount=entry.amount,
-                            request_status=AlliancePayments.RequestStatus.PENDING,
+                            request_status=self.model.RequestStatus.PENDING,
                             date=entry.date,
                             reason=entry.reason,
                         )
@@ -393,14 +387,14 @@ class AlliancePaymentManager(models.Manager):
                     payment = self.get(
                         entry_id=payment.entry_id, account=payment.account
                     )
-                except AlliancePayments.DoesNotExist:
+                except self.model.DoesNotExist:
                     continue
 
                 log_items = AlliancePaymentHistory(
                     user=payment.account.user,
                     payment=payment,
                     action=AlliancePaymentHistory.Actions.STATUS_CHANGE,
-                    new_status=AlliancePayments.RequestStatus.PENDING,
+                    new_status=self.model.RequestStatus.PENDING,
                     comment=AlliancePaymentHistory.SystemText.ADDED,
                 )
                 logs_items.append(log_items)
@@ -431,7 +425,6 @@ class AlliancePaymentManager(models.Manager):
         from taxsystem.models.alliance import (
             AllianceFilterSet,
             AlliancePaymentHistory,
-            AlliancePayments,
         )
 
         logger.debug(
@@ -439,9 +432,9 @@ class AlliancePaymentManager(models.Manager):
             owner.name,
         )
 
-        payments = AlliancePayments.objects.filter(
+        payments = self.model.objects.filter(
             account__owner=owner,
-            request_status=AlliancePayments.RequestStatus.PENDING,
+            request_status=self.model.RequestStatus.PENDING,
         )
 
         _current_payment_ids = set(payments.values_list("id", flat=True))
@@ -457,12 +450,10 @@ class AlliancePaymentManager(models.Manager):
                 payments = filter_set.filter(payments)
                 # Iterate through the filtered payments
                 for payment in payments:
-                    if payment.request_status == AlliancePayments.RequestStatus.PENDING:
+                    if payment.request_status == self.model.RequestStatus.PENDING:
                         # Ensure all transfers are processed in a single transaction
                         with transaction.atomic():
-                            payment.request_status = (
-                                AlliancePayments.RequestStatus.APPROVED
-                            )
+                            payment.request_status = self.model.RequestStatus.APPROVED
                             payment.reviser = "System"
 
                             # Update payment pool for user
@@ -476,7 +467,7 @@ class AlliancePaymentManager(models.Manager):
                                 user=payment.account.user,
                                 payment=payment,
                                 action=AlliancePaymentHistory.Actions.STATUS_CHANGE,
-                                new_status=AlliancePayments.RequestStatus.APPROVED,
+                                new_status=self.model.RequestStatus.APPROVED,
                                 comment=AlliancePaymentHistory.SystemText.AUTOMATIC,
                             ).save()
 
@@ -487,21 +478,21 @@ class AlliancePaymentManager(models.Manager):
 
         # Check for any payments that need approval
         needs_approval = _current_payment_ids - set(_automatic_payment_ids)
-        approvals = AlliancePayments.objects.filter(
+        approvals = self.model.objects.filter(
             id__in=needs_approval,
-            request_status=AlliancePayments.RequestStatus.PENDING,
+            request_status=self.model.RequestStatus.PENDING,
         )
 
         # Update payments to NEEDS_APPROVAL
         for payment in approvals:
-            payment.request_status = AlliancePayments.RequestStatus.NEEDS_APPROVAL
+            payment.request_status = self.model.RequestStatus.NEEDS_APPROVAL
             payment.save()
 
             AlliancePaymentHistory(
                 user=payment.account.user,
                 payment=payment,
                 action=AlliancePaymentHistory.Actions.STATUS_CHANGE,
-                new_status=AlliancePayments.RequestStatus.NEEDS_APPROVAL,
+                new_status=self.model.RequestStatus.NEEDS_APPROVAL,
                 comment=AlliancePaymentHistory.SystemText.REVISER,
             ).save()
 
