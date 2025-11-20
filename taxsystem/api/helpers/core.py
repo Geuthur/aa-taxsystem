@@ -46,7 +46,7 @@ def get_manage_corporation(
 def get_alliance(request, alliance_id) -> AllianceOwner | None:
     """Get Alliance"""
     try:
-        owner = AllianceOwner.objects.get(alliance__alliance_id=alliance_id)
+        owner = AllianceOwner.objects.get(eve_alliance__alliance_id=alliance_id)
     except AllianceOwner.DoesNotExist:
         return None
 
@@ -61,7 +61,7 @@ def get_manage_alliance(request, alliance_id) -> tuple[AllianceOwner | None, boo
     """Get Permission for Alliance"""
     perms = True
     try:
-        owner = AllianceOwner.objects.get(alliance__alliance_id=alliance_id)
+        owner = AllianceOwner.objects.get(eve_alliance__alliance_id=alliance_id)
     except AllianceOwner.DoesNotExist:
         return None, None
 
