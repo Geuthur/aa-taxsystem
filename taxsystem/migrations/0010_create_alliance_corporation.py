@@ -280,8 +280,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "alliance_id",
-                    models.IntegerField(null=True, blank=True),
+                    "owner_id",
+                    models.PositiveIntegerField(
+                        help_text=(
+                            "ID of the owner (corporation or alliance) associated with this payment"
+                        ),
+                        null=True,
+                        blank=True,
+                    ),
                 ),
             ],
             options={
