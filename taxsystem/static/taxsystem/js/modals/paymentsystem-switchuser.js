@@ -6,7 +6,7 @@ $(document).ready(() => {
     // Funktion zum Neuladen der Statistikdaten
     function reloadStatistics() {
         $.ajax({
-            url: taxsystemsettings.corporationmanageDashboardUrl,
+            url: taxsystemsettings.DashboardUrl,
             type: 'GET',
             success: function (data) {
                 // Statistics

@@ -15,9 +15,19 @@
 {% endif %}
 
 {% if perms.taxsystem.manage_own_corp or perms.taxsystem.manage_corps %}
-    <li class="nav-item">
-        <a class="nav-link py-0" href="{% url 'taxsystem:administration' corporation_id %}">
-            <span class="btn btn-success">{% translate 'Manage Tax System' %}</span>
-        </a>
-    </li>
+    {% if corporation_id %}
+        <li class="nav-item">
+            <a class="nav-link py-0" href="{% url 'taxsystem:administration' corporation_id=corporation_id %}">
+                <span class="btn btn-success">{% translate 'Manage Corporation' %}</span>
+            </a>
+        </li>
+    {% endif %}
+
+    {% if alliance_id %}
+        <li class="nav-item">
+            <a class="nav-link py-0" href="{% url 'taxsystem:manage_alliance' alliance_id=alliance_id %}">
+                <span class="btn btn-success">{% translate 'Manage Alliance' %}</span>
+            </a>
+        </li>
+    {% endif %}
 {% endif %}

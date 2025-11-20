@@ -12,6 +12,7 @@ app_name: str = "taxsystem"  # pylint: disable=invalid-name
 urlpatterns = [
     # -- Tax System
     path("", views.index, name="index"),
+    path("view/faq/", views.faq, name="faq"),
     path("admin/", views.admin, name="admin"),
     path(
         "corporation/<int:corporation_id>/view/payments/",
@@ -19,7 +20,17 @@ urlpatterns = [
         name="payments",
     ),
     path(
-        "corporation/<int:corporation_id>/view/own_payments/",
+        "corporation/view/payments/",
+        views.payments,
+        name="payments",
+    ),
+    path(
+        "corporation/<int:corporation_id>/view/own-payments/",
+        views.own_payments,
+        name="own_payments",
+    ),
+    path(
+        "corporation/view/own-payments/",
         views.own_payments,
         name="own_payments",
     ),
@@ -29,17 +40,55 @@ urlpatterns = [
         name="administration",
     ),
     path(
+        "corporation/view/administration/",
+        views.administration,
+        name="administration",
+    ),
+    path(
         "corporation/<int:corporation_id>/view/filters/",
         views.manage_filter,
         name="manage_filter",
     ),
-    path("corporation/<int:corporation_id>/view/faq/", views.faq, name="faq"),
-    # --- Tax Administration
-    # -- Alliance Management
     path(
-        "alliance/<int:alliance_id>/view/administration/",
-        views.administration_alliance,
-        name="administration_alliance",
+        "corporation/view/filters/",
+        views.manage_filter,
+        name="manage_filter",
+    ),
+    path(
+        "corporation/<int:corporation_id>/manage/user/<int:payment_system_pk>/switch_user/",
+        views.switch_user,
+        name="switch_user",
+    ),
+    # -- Alliance Tax System
+    path(
+        "alliance/<int:alliance_id>/view/management/",
+        views.manage_alliance,
+        name="manage_alliance",
+    ),
+    path(
+        "alliance/view/management/",
+        views.manage_alliance,
+        name="manage_alliance",
+    ),
+    path(
+        "alliance/<int:alliance_id>/view/payments/",
+        views.alliance_payments,
+        name="alliance_payments",
+    ),
+    path(
+        "alliance/view/payments/",
+        views.alliance_payments,
+        name="alliance_payments",
+    ),
+    path(
+        "alliance/<int:alliance_id>/view/own-payments/",
+        views.alliance_own_payments,
+        name="alliance_own_payments",
+    ),
+    path(
+        "alliance/view/own-payments/",
+        views.alliance_own_payments,
+        name="alliance_own_payments",
     ),
     path("alliance/add/", views.add_alliance, name="add_alliance"),
     # -- Tax Payments
@@ -106,14 +155,9 @@ urlpatterns = [
         views.delete_filter,
         name="delete_filter",
     ),
-    # -- Tax Payment System
-    path("corporation/view/account/", views.account, name="account"),
-    path("corporation/view/account/<int:character_id>/", views.account, name="account"),
-    path(
-        "corporation/<int:corporation_id>/manage/user/<int:payment_system_pk>/switch_user/",
-        views.switch_user,
-        name="switch_user",
-    ),
+    # -- Tax Payment Account
+    path("view/account/", views.account, name="account"),
+    path("view/account/<int:character_id>/", views.account, name="account"),
     # -- API System
     re_path(r"^api/", api.urls),
 ]
