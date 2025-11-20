@@ -35,12 +35,9 @@
                         <tr>
                             <td>{% trans "Payment Filters:" %}</td>
                             <td class="text-end">
-                                <li class="nav-item">
-                                    <a class="nav-link py-0" href="{{ manage_filter_url }}">
-                                        <span class="btn btn-primary">{% translate 'Manage Filters' %}</span>
-                                    </a>
-                                </li>
-                                <i class="fa-solid fa-circle-question fa-fw" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Automatic Payments Filters' %}"></i>
+                                <a href="{{ manage_filter_url }}" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Automatic Payments Filters' %}">
+                                    <span class="btn btn-primary">{% translate 'Manage Filters' %}</span>
+                                </a>
                             </td>
                         </tr>
                     </tbody>
