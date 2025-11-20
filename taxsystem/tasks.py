@@ -204,7 +204,6 @@ def _update_corp_section(owner_pk: int, section: str, force_refresh: bool):
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_alliance(owner_pk, force_refresh=False):
     """Update an alliance"""
     owner: AllianceOwner = AllianceOwner.objects.prefetch_related(
