@@ -279,6 +279,10 @@ class Migration(migrations.Migration):
                         to="taxsystem.alliancepaymentaccount",
                     ),
                 ),
+                (
+                    "alliance_id",
+                    models.IntegerField(null=True, blank=True),
+                ),
             ],
             options={
                 "default_permissions": (),
