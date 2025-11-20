@@ -470,6 +470,14 @@ class PaymentsBase(models.Model):
         help_text=_("Reviser that approved or rejected the payment"),
     )
 
+    owner_id = models.PositiveIntegerField(
+        help_text=_(
+            "ID of the owner (corporation or alliance) associated with this payment"
+        ),
+        null=True,
+        blank=True,
+    )
+
     @property
     def is_automatic(self) -> bool:
         return self.reviser == "System"
