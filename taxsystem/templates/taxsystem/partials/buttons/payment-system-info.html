@@ -5,7 +5,7 @@
     data-tooltip-toggle="taxsystem-tooltip"
     data-title="{% translate 'View Payments' %}"
     data-bs-target="#modalViewPaymentsContainer"
-    data-ajax_payments="{% url 'taxsystem:api:get_member_payments' character_id=account.user.profile.main_character.character_id corporation_id=account.owner.eve_corporation.corporation_id %}"
+    data-ajax_payments="{% url 'taxsystem:api:get_member_payments' character_id=account.user.profile.main_character.character_id owner_id=account.owner.eve_id %}"
     title="{% translate 'View Payments' %}"
     >
     <span class="fas fa-info"></span>

@@ -89,7 +89,7 @@ class TestDeletePayment(TestCase):
         request.user = self.user
         # when
         response = views.delete_payment(
-            request, corporation_id=corporation_id, payment_pk=self.payment.pk
+            request, owner_id=corporation_id, payment_pk=self.payment.pk
         )
         response_data = json.loads(response.content)
         # then
@@ -117,7 +117,7 @@ class TestDeletePayment(TestCase):
         request.user = self.user
         # when
         response = views.delete_payment(
-            request, corporation_id=corporation_id, payment_pk=self.payment_esi.pk
+            request, owner_id=corporation_id, payment_pk=self.payment_esi.pk
         )
         response_data = json.loads(response.content)
         # then
@@ -143,7 +143,7 @@ class TestDeletePayment(TestCase):
         request.user = self.no_audit_user
         # when
         response = views.delete_payment(
-            request, corporation_id=corporation_id, payment_pk=self.payment.pk
+            request, owner_id=corporation_id, payment_pk=self.payment.pk
         )
         response_data = json.loads(response.content)
         # then
@@ -167,7 +167,7 @@ class TestDeletePayment(TestCase):
         request.user = self.no_permission_user
         # then
         response = views.delete_payment(
-            request, corporation_id=corporation_id, payment_pk=self.payment.pk
+            request, owner_id=corporation_id, payment_pk=self.payment.pk
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

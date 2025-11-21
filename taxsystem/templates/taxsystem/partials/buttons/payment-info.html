@@ -6,7 +6,7 @@
     data-character-id="{{ character.character.character_id }}"
     data-title="{% translate 'Payment Details' %}"
     data-bs-target="#modalViewDetailsContainer"
-    data-ajax_details="{% url 'taxsystem:api:get_payment_details' pk=payment.pk corporation_id=payment.corporation_id character_id=payment.character_id %}"
+    data-ajax_details="{% url 'taxsystem:api:get_payment_details' pk=payment.pk owner_id=payment.owner_id character_id=payment.character_id %}"
 
     title="{% translate 'View Payment Details' %}"
     >

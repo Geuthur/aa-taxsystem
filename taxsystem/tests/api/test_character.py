@@ -111,7 +111,7 @@ class TestCoreHelpers(TestCase):
         url = reverse(
             f"{API_URL}:get_payment_details",
             kwargs={
-                "corporation_id": corporation_id,
+                "owner_id": corporation_id,
                 "pk": payment_id,
                 "character_id": character_id,
             },
@@ -131,7 +131,7 @@ class TestCoreHelpers(TestCase):
         url = reverse(
             f"{API_URL}:get_payment_details",
             kwargs={
-                "corporation_id": corporation_id,
+                "owner_id": corporation_id,
                 "pk": payment_id,
                 "character_id": character_id,
             },

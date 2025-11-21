@@ -157,7 +157,7 @@ class TestViewAccess(TestCase):
         )
         request.user = self.manage_user
         # when
-        response = views.administration(request, 2003)
+        response = views.manage_corporation(request, 2003)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Administration")

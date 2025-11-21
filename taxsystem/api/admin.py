@@ -3,11 +3,9 @@ from ninja import NinjaAPI, Schema
 
 # Django
 from django.contrib.humanize.templatetags.humanize import intcomma
-from django.db.models import Sum
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.html import format_html
-from django.utils.timezone import datetime
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -19,104 +17,52 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.api.helpers import core
+from taxsystem.api.helpers.common import (
+    calculate_activity_html,
+    create_dashboard_common_data,
+    create_member_response_data,
+)
 from taxsystem.api.helpers.manage import (
     generate_filter_delete_button,
     generate_member_delete_button,
     generate_ps_info_button,
     generate_ps_toggle_button,
 )
-from taxsystem.api.helpers.statistics import (
-    StatisticsResponse,
-    get_members_statistics,
-    get_payment_system_statistics,
-    get_payments_statistics,
-)
 from taxsystem.api.schema import (
     AccountSchema,
     AdminHistorySchema,
-    CharacterSchema,
+    BaseDashboardResponse,
     CorporationSchema,
     DataTableSchema,
-    UpdateStatusSchema,
+    FilterModelSchema,
+    FilterSetModelSchema,
+    MembersSchema,
+    PaymentSystemSchema,
 )
 from taxsystem.helpers import lazy
 from taxsystem.models.corporation import (
     CorporationAdminHistory,
-    CorporationFilter,
-    CorporationPaymentAccount,
     Members,
 )
-from taxsystem.models.wallet import (
-    CorporationWalletDivision,
-    CorporationWalletJournalEntry,
-)
+from taxsystem.models.wallet import CorporationWalletDivision
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-
-class MembersSchema(Schema):
-    character: CharacterSchema
-    is_faulty: bool
-    status: str
-    joined: datetime
-    actions: str
-
-
-class PaymentSystemSchema(Schema):
-    account: AccountSchema
-    status: str
-    deposit: int
-    has_paid: DataTableSchema
-    last_paid: datetime | None = None
-    is_active: bool
-    actions: str
 
 
 class MembersResponse(Schema):
     corporation: list[MembersSchema]
 
 
-class DivisionSchema(Schema):
-    name: str
-    balance: float
-
-
-class DashboardDivisionsSchema(Schema):
-    divisions: list[DivisionSchema]
-    total_balance: float
-
-
-class DashboardResponse(Schema):
-    corporation: CorporationSchema
-    update_status: UpdateStatusSchema
-    tax_amount: int
-    tax_period: int
-    divisions: DashboardDivisionsSchema
-    statistics: StatisticsResponse
-    activity: str
+class DashboardResponse(BaseDashboardResponse):
+    owner: CorporationSchema
 
 
 class PaymentSystemResponse(Schema):
-    corporation: list[PaymentSystemSchema]
+    owner: list[PaymentSystemSchema]
 
 
 class AdminLogResponse(Schema):
     corporation: list[AdminHistorySchema]
-
-
-class FilterSetModelSchema(Schema):
-    owner_id: int
-    name: str
-    description: str
-    enabled: bool
-    actions: str | None = None
-
-
-class FilterModelSchema(Schema):
-    filter_set: FilterSetModelSchema
-    filter_type: str
-    value: str
-    actions: str | None = None
 
 
 class AdminApiEndpoints:
@@ -145,62 +91,24 @@ class AdminApiEndpoints:
                 corporation_id, size=64, as_html=True
             )
 
-            # Create divisions
-            response_divisions_list: list[DivisionSchema] = []
-            total_balance = 0
-            for i, division in enumerate(divisions, start=1):
-                division_name = (
-                    division.name if division.name else f"{i}. {_('Division')}"
-                )
-                response_divisions_list.append(
-                    DivisionSchema(
-                        name=division_name,
-                        balance=division.balance,
-                    )
-                )
-                total_balance += division.balance
+            # Create common dashboard data
+            common_data = create_dashboard_common_data(owner, divisions)
 
-            # Create statistics
-            response_statistics = StatisticsResponse(
-                owner_id=owner.eve_corporation.corporation_id,
-                owner_name=owner.eve_corporation.corporation_name,
-                payment_system=get_payment_system_statistics(owner),
-                payments=get_payments_statistics(owner),
-                members=get_members_statistics(owner),
-            )
-
-            past30_days = (
-                CorporationWalletJournalEntry.objects.filter(
-                    division__corporation=owner,
-                    date__gte=timezone.now() - timezone.timedelta(days=30),
-                )
-                .exclude(first_party_id=corporation_id, second_party_id=corporation_id)
-                .aggregate(total=Sum("amount"))
-            )
-
-            total_amount = past30_days.get("total", 0) or 0
-            activity_color = "text-success" if total_amount >= 0 else "text-danger"
-            activity_html = f"<span class='{activity_color}'>{intcomma(total_amount, use_l10n=True)}</span> ISK"
+            # Calculate activity
+            activity_html = calculate_activity_html(owner, corporation_id)
 
             dashboard_response = DashboardResponse(
-                corporation=CorporationSchema(
+                owner=CorporationSchema(
+                    owner_id=owner.eve_corporation.corporation_id,
+                    owner_name=owner.eve_corporation.corporation_name,
+                    owner_type="corporation",
                     corporation_id=owner.eve_corporation.corporation_id,
                     corporation_name=owner.eve_corporation.corporation_name,
                     corporation_portrait=corporation_logo,
                     corporation_ticker=owner.eve_corporation.corporation_ticker,
                 ),
-                update_status=UpdateStatusSchema(
-                    status=owner.get_update_status,
-                    icon=owner.get_status.bootstrap_icon(),
-                ),
-                tax_amount=owner.tax_amount,
-                tax_period=owner.tax_period,
-                divisions=DashboardDivisionsSchema(
-                    divisions=response_divisions_list,
-                    total_balance=total_balance,
-                ),
-                statistics=response_statistics,
                 activity=format_html(activity_html),
+                **common_data,
             )
             return dashboard_response
 
@@ -219,7 +127,7 @@ class AdminApiEndpoints:
                 return 403, {"error": _("Permission Denied")}
 
             # Get Members
-            members = Members.objects.filter(owner=owner)
+            members = Members.objects.filter(owner=owner).order_by("character_name")
 
             response_members_list: list[MembersSchema] = []
             for member in members:
@@ -228,44 +136,33 @@ class AdminApiEndpoints:
                 if perms and member.is_missing:
                     actions = generate_member_delete_button(member=member)
 
-                response_member = MembersSchema(
-                    character=CharacterSchema(
-                        character_id=member.character_id,
-                        character_name=member.character_name,
-                        character_portrait=lazy.get_character_portrait_url(
-                            member.character_id, size=32, as_html=True
-                        ),
-                    ),
-                    is_faulty=member.is_faulty,
-                    status=member.get_status_display(),
-                    joined=member.joined,
-                    actions=actions,
-                )
+                member_data = create_member_response_data(member)
+                response_member = MembersSchema(**member_data, actions=actions)
                 response_members_list.append(response_member)
 
             return MembersResponse(corporation=response_members_list)
 
         @api.get(
-            "corporation/{corporation_id}/view/paymentsystem/",
+            "owner/{owner_id}/view/paymentsystem/",
             response={200: PaymentSystemResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_paymentsystem(request, corporation_id: int):
-            owner, perms = core.get_manage_corporation(request, corporation_id)
+        def get_paymentsystem(request, owner_id: int):
+            owner, perms = core.get_manage_owner(request, owner_id)
 
             if owner is None:
-                return 404, {"error": _("Corporation Not Found")}
+                return 404, {"error": _("Owner Not Found")}
 
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
             # Get Payment Accounts for Corporation except those missing main character
             payment_system = (
-                CorporationPaymentAccount.objects.filter(
+                owner.payments_account_class.objects.filter(
                     owner=owner,
                     user__profile__main_character__isnull=False,
                 )
-                .exclude(status=CorporationPaymentAccount.Status.MISSING)
+                .exclude(status=owner.payments_account_class.Status.MISSING)
                 .select_related(
                     "user", "user__profile", "user__profile__main_character"
                 )
@@ -309,7 +206,7 @@ class AdminApiEndpoints:
                 )
                 payment_accounts_list.append(response_payment_account)
 
-            return PaymentSystemResponse(corporation=payment_accounts_list)
+            return PaymentSystemResponse(owner=payment_accounts_list)
 
         @api.get(
             "corporation/admin/{corporation_id}/view/logs/",
@@ -341,12 +238,12 @@ class AdminApiEndpoints:
             return AdminLogResponse(corporation=response_admin_logs_list)
 
         @api.get(
-            "corporation/{corporation_id}/filter-set/{filter_set_id}/view/filter/",
+            "owner/{owner_id}/filter-set/{filter_set_id}/view/filter/",
             response={200: list[FilterModelSchema], 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_filter_set_filters(request, corporation_id: int, filter_set_id: int):
-            owner, perms = core.get_manage_corporation(request, corporation_id)
+        def get_filter_set_filters(request, owner_id: int, filter_set_id: int):
+            owner, perms = core.get_manage_owner(request, owner_id)
 
             if owner is None:
                 return 404, {"error": _("Corporation Not Found")}
@@ -354,13 +251,13 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            filters = CorporationFilter.objects.filter(
+            filters = owner.filter_class.objects.filter(
                 filter_set__pk=filter_set_id,
             )
 
             response_filter_list: list[FilterModelSchema] = []
             for filter_obj in filters:
-                if filter_obj.filter_type == CorporationFilter.FilterType.AMOUNT:
+                if filter_obj.filter_type == owner.filter_class.FilterType.AMOUNT:
                     value = f"{intcomma(filter_obj.value, use_l10n=True)} ISK"
                 else:
                     value = filter_obj.value

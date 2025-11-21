@@ -14,6 +14,9 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("view/faq/", views.faq, name="faq"),
     path("admin/", views.admin, name="admin"),
+    path("corporation/add/", views.add_corp, name="add_corp"),
+    path("alliance/add/", views.add_alliance, name="add_alliance"),
+    # -- Corporation Tax System
     path(
         "corporation/<int:corporation_id>/view/payments/",
         views.payments,
@@ -36,28 +39,19 @@ urlpatterns = [
     ),
     path(
         "corporation/<int:corporation_id>/view/administration/",
-        views.administration,
+        views.manage_corporation,
         name="administration",
     ),
     path(
         "corporation/view/administration/",
-        views.administration,
+        views.manage_corporation,
         name="administration",
     ),
+    # -- Corporation Manage
     path(
-        "corporation/<int:corporation_id>/view/filters/",
-        views.manage_filter,
-        name="manage_filter",
-    ),
-    path(
-        "corporation/view/filters/",
-        views.manage_filter,
-        name="manage_filter",
-    ),
-    path(
-        "corporation/<int:corporation_id>/manage/user/<int:payment_system_pk>/switch_user/",
-        views.switch_user,
-        name="switch_user",
+        "corporation/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
+        views.delete_member,
+        name="delete_member",
     ),
     # -- Alliance Tax System
     path(
@@ -90,68 +84,75 @@ urlpatterns = [
         views.alliance_own_payments,
         name="alliance_own_payments",
     ),
-    path("alliance/add/", views.add_alliance, name="add_alliance"),
     # -- Tax Payments
-    path("corporation/add/", views.add_corp, name="add_corp"),
     path(
-        "corporation/<int:corporation_id>/payment/<int:payment_system_pk>/add/",
+        "owner/<int:owner_id>/payment/<int:payment_system_pk>/add/",
         views.add_payment,
         name="add_payment",
     ),
     path(
-        "corporation/<int:corporation_id>/payment/<int:payment_pk>/delete/",
+        "owner/<int:owner_id>/payment/<int:payment_pk>/delete/",
         views.delete_payment,
         name="delete_payment",
     ),
     path(
-        "corporation/<int:corporation_id>/payment/<int:payment_pk>/approve/",
+        "owner/<int:owner_id>/payment/<int:payment_pk>/approve/",
         views.approve_payment,
         name="approve_payment",
     ),
     path(
-        "corporation/<int:corporation_id>/payment/<int:payment_pk>/undo/",
+        "owner/<int:owner_id>/payment/<int:payment_pk>/undo/",
         views.undo_payment,
         name="undo_payment",
     ),
     path(
-        "corporation/<int:corporation_id>/payment/<int:payment_pk>/reject/",
+        "owner/<int:owner_id>/payment/<int:payment_pk>/reject/",
         views.reject_payment,
         name="reject_payment",
     ),
     # -- Tax Manage
     path(
-        "corporation/<int:corporation_id>/manage/update_tax/",
+        "owner/<int:owner_id>/manage/update_tax/",
         views.update_tax_amount,
         name="update_tax_amount",
     ),
     path(
-        "corporation/<int:corporation_id>/manage/update_period/",
+        "owner/<int:owner_id>/manage/update_period/",
         views.update_tax_period,
         name="update_tax_period",
     ),
     path(
-        "corporation/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
-        views.delete_member,
-        name="delete_member",
+        "owner/<int:owner_id>/manage/user/<int:payment_system_pk>/switch_user/",
+        views.switch_user,
+        name="switch_user",
     ),
-    # -- Tax Manage Filters
     path(
-        "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/deactivate/",
+        "owner/<int:owner_id>/view/filters/",
+        views.manage_filter,
+        name="manage_filter",
+    ),
+    path(
+        "owner/view/filters/",
+        views.manage_filter,
+        name="manage_filter",
+    ),
+    path(
+        "owner/<int:owner_id>/manage/filter_set/<int:filter_set_id>/deactivate/",
         views.switch_filterset,
         name="switch_filterset",
     ),
     path(
-        "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/edit/",
+        "owner/<int:owner_id>/manage/filter_set/<int:filter_set_id>/edit/",
         views.edit_filterset,
         name="edit_filterset",
     ),
     path(
-        "corporation/<int:corporation_id>/manage/filter_set/<int:filter_set_id>/delete/",
+        "owner/<int:owner_id>/manage/filter_set/<int:filter_set_id>/delete/",
         views.delete_filterset,
         name="delete_filterset",
     ),
     path(
-        "corporation/<int:corporation_id>/manage/filter/<int:filter_pk>/delete/",
+        "owner/<int:owner_id>/manage/filter/<int:filter_pk>/delete/",
         views.delete_filter,
         name="delete_filter",
     ),

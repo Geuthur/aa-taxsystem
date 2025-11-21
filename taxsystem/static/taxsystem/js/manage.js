@@ -24,9 +24,9 @@ $(document).ready(function() {
         success: function (data) {
             var tax_amount = parseFloat(data.tax_amount);
             var days = parseFloat(data.tax_period);
-            $('#dashboard-info').html(data.corporation.corporation_name);
+            $('#dashboard-info').html(data.owner.owner_name);
 
-            $('#dashboard-update').html(data.corporation.corporation_name + ' - Update Status');
+            $('#dashboard-update').html(data.owner.owner_name + ' - Update Status');
             // Use moment.js to display relative times in German
             $('#update_status_icon').html(data.update_status.icon);
             $('#update_wallet').html(data.update_status.status.wallet && data.update_status.status.wallet.last_run_finished_at
@@ -63,7 +63,7 @@ $(document).ready(function() {
             // Initialize x-editable
             $('#taxamount').editable({
                 type: 'text',
-                pk: data.corporation_id,
+                pk: data.owner.owner_id,
                 url: updateTaxAmountUrl,
                 title: taxsystemsettings.translations.enterTaxAmount,
                 display: function(value) {
@@ -88,7 +88,7 @@ $(document).ready(function() {
 
             $('#period').editable({
                 type: 'text',
-                pk: data.corporation_id,
+                pk: data.owner.owner_id,
                 url: updateTaxPeriodUrl,
                 title: taxsystemsettings.translations.enterTaxPeriod,
                 display: function(value) {
@@ -328,7 +328,7 @@ $(document).ready(function() {
             type: 'GET',
             dataSrc: function (data) {
 
-                return data.corporation;
+                return data.owner;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);

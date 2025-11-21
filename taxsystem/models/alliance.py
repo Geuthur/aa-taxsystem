@@ -100,6 +100,11 @@ class AllianceOwner(OwnerBase):
         )
 
     @property
+    def eve_id(self) -> int:  # Is used for urls and templates
+        """Return the Eve Corporation ID."""
+        return self.eve_alliance.alliance_id
+
+    @property
     def get_status(self) -> "OwnerBase.UpdateStatus":
         """Get the status of this character."""
         if self.active is False:
@@ -118,6 +123,36 @@ class AllianceOwner(OwnerBase):
     def update_section_enum(self):
         """Return the alliance update section enum class."""
         return AllianceUpdateSection
+
+    @property
+    def payments_class(self) -> type["AlliancePayments"]:
+        """Return the payments class for this alliance owner."""
+        return AlliancePayments
+
+    @property
+    def payments_account_class(self) -> type["AlliancePaymentAccount"]:
+        """Return the payments account class for this alliance owner."""
+        return AlliancePaymentAccount
+
+    @property
+    def payments_history_class(self) -> type["AlliancePaymentHistory"]:
+        """Return the payments class for this alliance owner."""
+        return AlliancePaymentHistory
+
+    @property
+    def admin_history_class(self) -> type["AllianceAdminHistory"]:
+        """Return the admin history class for this alliance owner."""
+        return AllianceAdminHistory
+
+    @property
+    def filterset_class(self) -> type["AllianceFilterSet"]:
+        """Return the filter set class for this alliance owner."""
+        return AllianceFilterSet
+
+    @property
+    def filter_class(self) -> type["AllianceFilter"]:
+        """Return the filter class for this alliance owner."""
+        return AllianceFilter
 
 
 class AlliancePaymentAccount(PaymentAccountBase):
@@ -151,8 +186,6 @@ class AlliancePayments(PaymentsBase):
         on_delete=models.CASCADE,
         related_name="ts_alliance_payments",
     )
-
-    alliance_id = models.IntegerField(null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.account.name} - {self.amount} ISK"
