@@ -26,6 +26,62 @@ from taxsystem.helpers import lazy
 from taxsystem.models.wallet import CorporationWalletJournalEntry
 
 
+def get_optimized_payments_queryset(payments_model, owner, owner_id_field):
+    """
+    Get optimized payments queryset with select_related to prevent N+1 queries.
+
+    Args:
+        payments_model: The payments model class (CorporationPayments or AlliancePayments)
+        owner: Owner object (CorporationOwner or AllianceOwner)
+        owner_id_field: The owner ID value (corporation_id or alliance_id)
+
+    Returns:
+        QuerySet: Optimized payments queryset
+    """
+    return (
+        payments_model.objects.filter(
+            account__owner=owner,
+            owner_id=owner_id_field,
+        )
+        .select_related(
+            "account",
+            "account__user",
+            "account__user__profile",
+            "account__user__profile__main_character",
+        )
+        .order_by("-date")
+    )
+
+
+def get_optimized_own_payments_queryset(payments_model, owner, account, owner_id_field):
+    """
+    Get optimized own payments queryset with select_related to prevent N+1 queries.
+
+    Args:
+        payments_model: The payments model class (CorporationPayments or AlliancePayments)
+        owner: Owner object (CorporationOwner or AllianceOwner)
+        account: Payment account object
+        owner_id_field: The owner ID value (corporation_id or alliance_id)
+
+    Returns:
+        QuerySet: Optimized own payments queryset
+    """
+    return (
+        payments_model.objects.filter(
+            account__owner=owner,
+            account=account,
+            owner_id=owner_id_field,
+        )
+        .select_related(
+            "account",
+            "account__user",
+            "account__user__profile",
+            "account__user__profile__main_character",
+        )
+        .order_by("-date")
+    )
+
+
 def create_payment_response_data(payment, request, perms):
     """
     Create common payment response data

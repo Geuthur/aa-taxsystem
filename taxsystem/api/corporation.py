@@ -17,6 +17,8 @@ from taxsystem.api.helpers import core
 from taxsystem.api.helpers.common import (
     create_own_payment_response_data,
     create_payment_response_data,
+    get_optimized_own_payments_queryset,
+    get_optimized_payments_queryset,
 )
 from taxsystem.api.schema import CharacterSchema, PaymentSchema
 from taxsystem.models.corporation import CorporationPaymentAccount, CorporationPayments
@@ -52,13 +54,8 @@ class CorporationApiEndpoints:
                 return 403, {"error": "Permission Denied"}
 
             # Get Payments
-            payments = (
-                CorporationPayments.objects.filter(
-                    account__owner=owner,
-                    owner_id=owner.eve_corporation.corporation_id,
-                )
-                .select_related("account")
-                .order_by("-date")
+            payments = get_optimized_payments_queryset(
+                CorporationPayments, owner, owner.eve_corporation.corporation_id
             )
 
             response_payments_list: list[PaymentCorporationSchema] = []
@@ -84,14 +81,11 @@ class CorporationApiEndpoints:
             )
 
             # Get Payments
-            payments = (
-                CorporationPayments.objects.filter(
-                    account__owner=owner,
-                    account=account,
-                    owner_id=owner.eve_corporation.corporation_id,
-                )
-                .select_related("account")
-                .order_by("-date")
+            payments = get_optimized_own_payments_queryset(
+                CorporationPayments,
+                owner,
+                account,
+                owner.eve_corporation.corporation_id,
             )
 
             if len(payments) == 0:

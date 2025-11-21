@@ -127,7 +127,11 @@ class AdminApiEndpoints:
                 return 403, {"error": _("Permission Denied")}
 
             # Get Members
-            members = Members.objects.filter(owner=owner).order_by("character_name")
+            members = (
+                Members.objects.filter(owner=owner)
+                .select_related("owner")
+                .order_by("character_name")
+            )
 
             response_members_list: list[MembersSchema] = []
             for member in members:
@@ -166,6 +170,7 @@ class AdminApiEndpoints:
                 .select_related(
                     "user", "user__profile", "user__profile__main_character"
                 )
+                .prefetch_related("user__character_ownerships__character")
             )
 
             payment_accounts_list: list[PaymentSystemSchema] = []

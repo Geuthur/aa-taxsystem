@@ -21,6 +21,8 @@ from taxsystem.api.helpers.common import (
     create_member_response_data,
     create_own_payment_response_data,
     create_payment_response_data,
+    get_optimized_own_payments_queryset,
+    get_optimized_payments_queryset,
 )
 from taxsystem.api.schema import (
     AllianceSchema,
@@ -83,13 +85,8 @@ class AllianceApiEndpoints:
                 return 403, {"error": "Permission Denied"}
 
             # Get Payments
-            payments = (
-                AlliancePayments.objects.filter(
-                    account__owner=owner,
-                    owner_id=owner.eve_alliance.alliance_id,
-                )
-                .select_related("account")
-                .order_by("-date")
+            payments = get_optimized_payments_queryset(
+                AlliancePayments, owner, owner.eve_alliance.alliance_id
             )
 
             response_payments_list: list[PaymentAllianceSchema] = []
@@ -115,14 +112,8 @@ class AllianceApiEndpoints:
             )
 
             # Get Payments
-            payments = (
-                AlliancePayments.objects.filter(
-                    account__owner=owner,
-                    account=account,
-                    owner_id=owner.eve_alliance.alliance_id,
-                )
-                .select_related("account")
-                .order_by("-date")
+            payments = get_optimized_own_payments_queryset(
+                AlliancePayments, owner, account, owner.eve_alliance.alliance_id
             )
 
             if len(payments) == 0:
@@ -197,9 +188,17 @@ class AllianceApiEndpoints:
                 return 403, {"error": _("Permission Denied")}
 
             # Get Members
-            members = Members.objects.filter(
-                owner__eve_corporation__alliance=owner.eve_alliance
-            ).order_by("character_name")
+            members = (
+                Members.objects.filter(
+                    owner__eve_corporation__alliance=owner.eve_alliance
+                )
+                .select_related(
+                    "owner",
+                    "owner__eve_corporation",
+                    "owner__eve_corporation__alliance",
+                )
+                .order_by("character_name")
+            )
 
             response_members_list: list[MembersSchema] = []
             for member in members:
