@@ -6,14 +6,12 @@ from django.utils.safestring import mark_safe
 
 # AA TaxSystem
 from taxsystem.api.helpers import core
-from taxsystem.models.corporation import (
-    CorporationPayments,
-    Members,
-)
+from taxsystem.models.alliance import AlliancePayments
+from taxsystem.models.corporation import CorporationPayments, Members
 
 
 def manage_payments(
-    request: WSGIRequest, perms: str, payment: CorporationPayments
+    request: WSGIRequest, perms: str, payment: CorporationPayments | AlliancePayments
 ) -> str:
     """Generate the management action buttons for a payment"""
     # Create the action buttons

@@ -8,7 +8,7 @@ $(document).ready(() => {
             url: taxsystemsettings.OwnPaymentsUrl,
             type: 'GET',
             dataSrc: function (data) {
-                return data.corporation;
+                return data.owner;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);

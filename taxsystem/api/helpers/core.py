@@ -9,6 +9,47 @@ from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner, CorporationPayments
 
 
+def get_manage_owner(
+    request, owner_id
+) -> tuple[CorporationOwner | AllianceOwner | None, bool]:
+    """Get Owner (Corporation or Alliance) and Permission"""
+    perms = True
+    try:
+        owner = CorporationOwner.objects.get(eve_corporation__corporation_id=owner_id)
+        visible = CorporationOwner.objects.manage_to(request.user)
+        if owner not in visible:
+            perms = False
+    except CorporationOwner.DoesNotExist:
+        try:
+            owner = AllianceOwner.objects.get(eve_alliance__alliance_id=owner_id)
+            visible = AllianceOwner.objects.manage_to(request.user)
+            if owner not in visible:
+                perms = False
+        except AllianceOwner.DoesNotExist:
+            return None, None
+    return owner, perms
+
+
+def get_owner(
+    request, owner_id
+) -> tuple[CorporationOwner | AllianceOwner | None, bool]:
+    """Get Owner (Corporation or Alliance) and Permission"""
+    try:
+        owner = CorporationOwner.objects.get(eve_corporation__corporation_id=owner_id)
+        visible = CorporationOwner.objects.visible_to(request.user)
+        if owner not in visible:
+            return None, False
+    except CorporationOwner.DoesNotExist:
+        try:
+            owner = AllianceOwner.objects.get(eve_alliance__alliance_id=owner_id)
+            visible = AllianceOwner.objects.visible_to(request.user)
+            if owner not in visible:
+                return None
+        except AllianceOwner.DoesNotExist:
+            return None, False
+    return owner, True
+
+
 def get_corporation(request, corporation_id) -> CorporationOwner | None:
     """Get Corporation"""
     try:

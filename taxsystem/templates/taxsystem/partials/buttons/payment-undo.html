@@ -7,7 +7,7 @@
     data-title="{% translate 'Undo Payment' %}"
     data-text="{% translate 'Undo Payment' %} {{ payment.amount }} ISK {% translate 'from' %} {{ payment.account.user.username }}"
     data-bs-target="#payments-undo"
-    data-action="{% url 'taxsystem:undo_payment' payment_pk=payment.pk corporation_id=payment.corporation_id %}"
+    data-action="{% url 'taxsystem:undo_payment' payment_pk=payment.pk owner_id=payment.owner_id %}"
 
     title="{% translate 'Undo Payment' %}"
     >

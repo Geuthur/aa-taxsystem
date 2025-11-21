@@ -166,6 +166,11 @@ class CorporationOwner(OwnerBase):
         )
 
     @property
+    def eve_id(self) -> int:  # Is used for urls and templates
+        """Return the Eve Corporation ID."""
+        return self.eve_corporation.corporation_id
+
+    @property
     def get_status(self) -> "OwnerBase.UpdateStatus":
         """Get the status of this character."""
         if self.active is False:
@@ -184,6 +189,36 @@ class CorporationOwner(OwnerBase):
     def update_section_enum(self):
         """Return the corporation update section enum class."""
         return CorporationUpdateSection
+
+    @property
+    def payments_class(self) -> type["CorporationPayments"]:
+        """Return the payments class for this corporation owner."""
+        return CorporationPayments
+
+    @property
+    def payments_account_class(self) -> type["CorporationPaymentAccount"]:
+        """Return the payments account class for this corporation owner."""
+        return CorporationPaymentAccount
+
+    @property
+    def payments_history_class(self) -> type["CorporationPaymentHistory"]:
+        """Return the payments class for this corporation owner."""
+        return CorporationPaymentHistory
+
+    @property
+    def filterset_class(self) -> type["CorporationFilterSet"]:
+        """Return the filter set class for this corporation owner."""
+        return CorporationFilterSet
+
+    @property
+    def filter_class(self) -> type["CorporationFilter"]:
+        """Return the filter class for this corporation owner."""
+        return CorporationFilter
+
+    @property
+    def admin_history_class(self) -> type["CorporationAdminHistory"]:
+        """Return the admin history class for this corporation owner."""
+        return CorporationAdminHistory
 
 
 class Members(models.Model):
@@ -273,8 +308,6 @@ class CorporationPayments(PaymentsBase):
         on_delete=models.CASCADE,
         related_name="ts_corporation_payments",
     )
-
-    corporation_id = models.IntegerField(null=True, blank=True)
 
     objects = PaymentsManager()
 

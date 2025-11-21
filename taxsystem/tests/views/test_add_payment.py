@@ -81,7 +81,7 @@ class TestAddPayment(TestCase):
         # when
         response = views.add_payment(
             request,
-            corporation_id=corporation_id,
+            owner_id=corporation_id,
             payment_system_pk=self.payment_system.pk,
         )
         payment = CorporationPayments.objects.get(
@@ -115,7 +115,7 @@ class TestAddPayment(TestCase):
         # when
         response = views.add_payment(
             request,
-            corporation_id=corporation_id,
+            owner_id=corporation_id,
             payment_system_pk=self.payment_system.pk,
         )
         response_data = json.loads(response.content)
@@ -144,7 +144,7 @@ class TestAddPayment(TestCase):
         # then
         response = views.add_payment(
             request,
-            corporation_id=corporation_id,
+            owner_id=corporation_id,
             payment_system_pk=self.payment_system.pk,
         )
 

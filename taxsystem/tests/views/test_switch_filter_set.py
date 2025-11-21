@@ -88,7 +88,7 @@ class TestSwitchSetFilter(TestCase):
         self._message_middleware(request)
 
         response = views.switch_filterset(
-            request, corporation_id=corporation_id, filter_set_id=filterset_id
+            request, owner_id=corporation_id, filter_set_id=filterset_id
         )
 
         expected_status = not self.filter_set.enabled
@@ -113,7 +113,7 @@ class TestSwitchSetFilter(TestCase):
         self._message_middleware(request)
 
         response = views.switch_filterset(
-            request, corporation_id=corporation_id, filter_set_id=filterset_id
+            request, owner_id=corporation_id, filter_set_id=filterset_id
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -133,7 +133,7 @@ class TestSwitchSetFilter(TestCase):
         request.user = self.no_permission_user
 
         response = views.switch_filterset(
-            request, corporation_id=corporation_id, filter_set_id=filterset_id
+            request, owner_id=corporation_id, filter_set_id=filterset_id
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

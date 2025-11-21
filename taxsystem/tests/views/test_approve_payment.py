@@ -85,7 +85,7 @@ class TestApprovePayment(TestCase):
         request.user = self.user
 
         response = views.approve_payment(
-            request, corporation_id=corporation_id, payment_pk=payment_id
+            request, owner_id=corporation_id, payment_pk=payment_id
         )
 
         response_data = json.loads(response.content)
@@ -115,7 +115,7 @@ class TestApprovePayment(TestCase):
         request.user = self.no_audit_user
 
         response = views.approve_payment(
-            request, corporation_id=corporation_id, payment_pk=payment_id
+            request, owner_id=corporation_id, payment_pk=payment_id
         )
 
         response_data = json.loads(response.content)
@@ -142,7 +142,7 @@ class TestApprovePayment(TestCase):
         request.user = self.no_permission_user
 
         response = views.approve_payment(
-            request, corporation_id=corporation_id, payment_pk=payment_id
+            request, owner_id=corporation_id, payment_pk=payment_id
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

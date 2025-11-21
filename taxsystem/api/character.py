@@ -24,8 +24,6 @@ from taxsystem.api.schema import (
 from taxsystem.helpers.lazy import get_character_portrait_url
 from taxsystem.models.corporation import (
     CorporationPaymentAccount,
-    CorporationPaymentHistory,
-    CorporationPayments,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -63,34 +61,32 @@ class CharacterApiEndpoints:
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "corporation/{corporation_id}/character/{character_id}/payment/{pk}/view/details/",
+            "owner/{owner_id}/character/{character_id}/payment/{pk}/view/details/",
             response={200: PaymentsDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         # pylint: disable=too-many-locals
-        def get_payment_details(
-            request, corporation_id: int, character_id: int, pk: int
-        ):
-            owner, perms = core.get_manage_corporation(request, corporation_id)
+        def get_payment_details(request, owner_id: int, character_id: int, pk: int):
+            owner, perms = core.get_manage_owner(request, owner_id)
             perms = perms or core.get_character_permissions(request, character_id)
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Corporation Not Found")}
+                return 404, {"error": _("Owner Not Found")}
 
             # pylint: disable=duplicate-code
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            payment = get_object_or_404(CorporationPayments, pk=pk)
+            payment = get_object_or_404(owner.payments_class, pk=pk)
             account = get_object_or_404(
-                CorporationPaymentAccount,
+                owner.payments_account_class,
                 user=payment.account.user,
                 owner=owner,
             )
 
             response_payment_histories: list[LogHistorySchema] = []
-            payments_history = CorporationPaymentHistory.objects.filter(
+            payments_history = owner.payments_history_class.objects.filter(
                 payment=payment,
             ).order_by("-date")
 
@@ -148,7 +144,7 @@ class CharacterApiEndpoints:
 
             # Create the response
             paymentdetails_response = PaymentsDetailsResponse(
-                entity_pk=corporation_id,
+                entity_pk=owner_id,
                 entity_type="character",
                 payment_details=payment_details,
             )
@@ -160,12 +156,12 @@ class CharacterApiEndpoints:
             )
 
         @api.get(
-            "corporation/{corporation_id}/character/{character_id}/view/payments/",
+            "owner/{owner_id}/character/{character_id}/view/payments/",
             response={200: list, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_member_payments(request, corporation_id: int, character_id: int):
-            owner, perms = core.get_manage_corporation(request, corporation_id)
+        def get_member_payments(request, owner_id: int, character_id: int):
+            owner, perms = core.get_manage_owner(request, owner_id)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -176,10 +172,10 @@ class CharacterApiEndpoints:
                 return 403, {"error": _("Permission Denied")}
 
             # Filter the last 10000 payments by character
-            payments = CorporationPayments.objects.filter(
+            payments = owner.payments_class.objects.filter(
                 account__owner=owner,
                 account__user__profile__main_character__character_id=character_id,
-                corporation_id=owner.eve_corporation.corporation_id,
+                owner_id=owner.eve_id,
             ).order_by("-date")[:10000]
 
             if not payments:

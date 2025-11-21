@@ -68,7 +68,7 @@ class TestUpdateTaxPeriod(TestCase):
 
         request.user = self.user
 
-        response = views.update_tax_period(request, corporation_id=corporation_id)
+        response = views.update_tax_period(request, owner_id=corporation_id)
 
         response_data = json.loads(response.content)
 
@@ -94,7 +94,7 @@ class TestUpdateTaxPeriod(TestCase):
 
         request.user = self.no_audit_user
 
-        response = views.update_tax_period(request, corporation_id=corporation_id)
+        response = views.update_tax_period(request, owner_id=corporation_id)
 
         response_data = json.loads(response.content)
 
@@ -117,7 +117,7 @@ class TestUpdateTaxPeriod(TestCase):
 
         request.user = self.no_permission_user
 
-        response = views.update_tax_period(request, corporation_id=corporation_id)
+        response = views.update_tax_period(request, owner_id=corporation_id)
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
@@ -168,7 +168,7 @@ class TestUpdateTaxAmount(TestCase):
 
         request.user = self.user
 
-        response = views.update_tax_amount(request, corporation_id=corporation_id)
+        response = views.update_tax_amount(request, owner_id=corporation_id)
 
         response_data = json.loads(response.content)
 
@@ -194,7 +194,7 @@ class TestUpdateTaxAmount(TestCase):
 
         request.user = self.no_audit_user
 
-        response = views.update_tax_amount(request, corporation_id=corporation_id)
+        response = views.update_tax_amount(request, owner_id=corporation_id)
 
         response_data = json.loads(response.content)
 
@@ -217,6 +217,6 @@ class TestUpdateTaxAmount(TestCase):
 
         request.user = self.no_permission_user
 
-        response = views.update_tax_amount(request, corporation_id=corporation_id)
+        response = views.update_tax_amount(request, owner_id=corporation_id)
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

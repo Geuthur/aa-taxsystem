@@ -74,7 +74,7 @@ class TestSwitchUser(TestCase):
         payment_system_pk = self.payment_system.pk
 
         form_data = {
-            "corporation_id": corporation_id,
+            "owner_id": corporation_id,
             "confirm": "yes",
             "user": payment_system_pk,
         }
@@ -87,7 +87,7 @@ class TestSwitchUser(TestCase):
         request.user = self.user
 
         response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
+            request, owner_id=corporation_id, payment_system_pk=payment_system_pk
         )
 
         response_data = json.loads(response.content)
@@ -105,7 +105,7 @@ class TestSwitchUser(TestCase):
         payment_system_pk = self.payment_system_inactive.pk
 
         form_data = {
-            "corporation_id": corporation_id,
+            "owner_id": corporation_id,
             "confirm": "yes",
             "user": payment_system_pk,
         }
@@ -118,7 +118,7 @@ class TestSwitchUser(TestCase):
         request.user = self.user
 
         response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
+            request, owner_id=corporation_id, payment_system_pk=payment_system_pk
         )
 
         response_data = json.loads(response.content)
@@ -136,7 +136,7 @@ class TestSwitchUser(TestCase):
         payment_system_pk = self.payment_system.pk
 
         form_data = {
-            "corporation_id": corporation_id,
+            "owner_id": corporation_id,
             "confirm": "yes",
             "user": payment_system_pk,
         }
@@ -149,7 +149,7 @@ class TestSwitchUser(TestCase):
         request.user = self.no_audit_user
 
         response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
+            request, owner_id=corporation_id, payment_system_pk=payment_system_pk
         )
 
         response_data = json.loads(response.content)
@@ -164,7 +164,7 @@ class TestSwitchUser(TestCase):
         payment_system_pk = self.payment_system.pk
 
         form_data = {
-            "corporation_id": corporation_id,
+            "owner_id": corporation_id,
             "confirm": "yes",
             "user": payment_system_pk,
         }
@@ -177,7 +177,7 @@ class TestSwitchUser(TestCase):
         request.user = self.no_permission_user
 
         response = views.switch_user(
-            request, corporation_id=corporation_id, payment_system_pk=payment_system_pk
+            request, owner_id=corporation_id, payment_system_pk=payment_system_pk
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

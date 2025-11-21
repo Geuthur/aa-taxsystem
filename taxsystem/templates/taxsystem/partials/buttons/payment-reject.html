@@ -7,7 +7,7 @@
     data-title="{% translate 'Reject Payment' %}"
     data-text="{% translate 'Reject Payment' %} {{ payment.amount }} ISK {% translate 'from' %} {{ payment.account.user.username }}"
     data-bs-target="#payments-reject"
-    data-action="{% url 'taxsystem:reject_payment' payment_pk=payment.pk corporation_id=payment.corporation_id %}"
+    data-action="{% url 'taxsystem:reject_payment' payment_pk=payment.pk owner_id=payment.owner_id %}"
 
     title="{% translate 'Reject Payment' %}"
     >

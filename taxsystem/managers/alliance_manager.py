@@ -359,6 +359,7 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
         _current_entry_ids = set(
             self.filter(account__owner=owner).values_list("entry_id", flat=True)
         )
+
         with transaction.atomic():
             items = []
             logs_items = []
@@ -376,7 +377,7 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
                             request_status=self.model.RequestStatus.PENDING,
                             date=entry.date,
                             reason=entry.reason,
-                            alliance_id=owner.eve_alliance.alliance_id,
+                            owner_id=owner.eve_alliance.alliance_id,
                         )
                         items.append(payment_item)
 
@@ -425,6 +426,9 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
         # AA TaxSystem
         from taxsystem.models.alliance import (
             AllianceFilterSet,
+        )
+        from taxsystem.models.alliance import AlliancePaymentAccount as PaymentAccount
+        from taxsystem.models.alliance import (
             AlliancePaymentHistory,
         )
 
@@ -433,7 +437,7 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
             owner.name,
         )
 
-        payments = self.model.objects.filter(
+        payments = self.filter(
             account__owner=owner,
             request_status=self.model.RequestStatus.PENDING,
         )
@@ -458,9 +462,9 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
                             payment.reviser = "System"
 
                             # Update payment pool for user
-                            self.filter(owner=owner, user=payment.account.user).update(
-                                deposit=payment.account.deposit + payment.amount
-                            )
+                            PaymentAccount.objects.filter(
+                                owner=owner, user=payment.account.user
+                            ).update(deposit=payment.account.deposit + payment.amount)
 
                             payment.save()
 
