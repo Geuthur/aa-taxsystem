@@ -180,6 +180,10 @@ class AlliancePayments(PaymentsBase):
 
     class Meta:
         default_permissions = ()
+        indexes = [
+            models.Index(fields=["account", "owner_id", "request_status", "-date"]),
+            models.Index(fields=["request_status", "-date"]),
+        ]
 
     account = models.ForeignKey(
         AlliancePaymentAccount,
