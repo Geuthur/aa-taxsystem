@@ -11,11 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name="corporationpayments",
-            old_name="corporation_id",
-            new_name="owner_id",
-        ),
         migrations.AlterField(
             model_name="allianceupdatestatus",
             name="section",
@@ -46,7 +41,11 @@ class Migration(migrations.Migration):
                 max_length=32,
             ),
         ),
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name="corporationpayments",
+            name="corporation_id",
+        ),
+        migrations.AddField(
             model_name="corporationpayments",
             name="owner_id",
             field=models.PositiveIntegerField(
@@ -54,5 +53,44 @@ class Migration(migrations.Migration):
                 help_text="ID of the owner (corporation or alliance) associated with this payment",
                 null=True,
             ),
+        ),
+        migrations.AddIndex(
+            model_name="alliancepayments",
+            index=models.Index(
+                fields=["account", "owner_id", "request_status", "-date"],
+                name="taxsystem_a_account_677604_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="alliancepayments",
+            index=models.Index(
+                fields=["request_status", "-date"],
+                name="taxsystem_a_request_d243c8_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="corporationpayments",
+            index=models.Index(
+                fields=["account", "owner_id", "request_status", "-date"],
+                name="taxsystem_c_account_dafabb_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="corporationpayments",
+            index=models.Index(
+                fields=["request_status", "-date"],
+                name="taxsystem_c_request_5fb377_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="members",
+            index=models.Index(
+                fields=["owner", "character_name"],
+                name="taxsystem_m_owner_i_f6738f_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="members",
+            index=models.Index(fields=["status"], name="taxsystem_m_status_38e108_idx"),
         ),
     ]

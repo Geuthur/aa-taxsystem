@@ -51,7 +51,7 @@ class Command(BaseCommand):
                                 payment = CorporationPayments.objects.get(
                                     entry_id=journal.entry_id
                                 )
-                                payment.corporation_id = (
+                                payment.owner_id = (
                                     corporation.eve_corporation.corporation_id
                                 )
                                 payment.save()
