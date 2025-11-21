@@ -69,7 +69,7 @@ class TestCoreHelpers(TestCase):
         cls.payments = create_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            corporation_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.corporation_id,
             entry_id=1,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
@@ -81,7 +81,7 @@ class TestCoreHelpers(TestCase):
         cls.payments2 = create_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            corporation_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.corporation_id,
             entry_id=2,
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
@@ -147,11 +147,11 @@ class TestCoreHelpers(TestCase):
     def test_get_member_payments(self):
         """Test should be able to access member payments API endpoint"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        owner_id = self.character_ownership.character.corporation_id
         character_id = self.character_ownership.character.character_id
         url = reverse(
             f"{API_URL}:get_member_payments",
-            kwargs={"corporation_id": corporation_id, "character_id": character_id},
+            kwargs={"owner_id": owner_id, "character_id": character_id},
         )
         self.client.force_login(self.user)
         # when
@@ -163,11 +163,11 @@ class TestCoreHelpers(TestCase):
     def test_get_member_payments_without_access(self):
         """Test should not be able to access member payments API endpoint without permission"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        owner_id = self.character_ownership.character.corporation_id
         character_id = self.character_ownership.character.character_id
         url = reverse(
             f"{API_URL}:get_member_payments",
-            kwargs={"corporation_id": corporation_id, "character_id": character_id},
+            kwargs={"owner_id": owner_id, "character_id": character_id},
         )
         self.client.force_login(self.no_evecharacter_user)
         # when
