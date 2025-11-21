@@ -135,6 +135,7 @@ class TestViewAccess(TestCase):
         )[0]
 
         cls.audit = create_owneraudit_from_user(cls.user)
+        cls.manage_audit = create_owneraudit_from_user(cls.manage_user)
 
     def test_view_index(self):
         """Test view taxsystem index."""
@@ -155,6 +156,9 @@ class TestViewAccess(TestCase):
                 args=[2003],
             )
         )
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        MessageMiddleware(Mock()).process_request(request)
         request.user = self.manage_user
         # when
         response = views.manage_corporation(request, 2003)
@@ -203,17 +207,13 @@ class TestViewAccess(TestCase):
     def test_view_faq(self):
         """Test view FAQ."""
         # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:faq",
-                args=[2001],
-            )
-        )
+        request = self.factory.get(reverse("taxsystem:faq"))
         request.user = self.user
         # when
-        response = views.faq(request, 2001)
+        response = views.faq(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "FAQ")
         self.assertContains(response, "FAQ")
 
     @patch(INDEX_PATH + ".messages")
@@ -249,7 +249,7 @@ class TestViewAccess(TestCase):
         )
         request.user = self.superuser
         # when
-        response = views.manage_filter(request, corporation_id=2001)
+        response = views.manage_filter(request, owner_id=2001)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Manage Filters")

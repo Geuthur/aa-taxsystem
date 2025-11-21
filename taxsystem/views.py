@@ -216,9 +216,7 @@ def manage_filter(request: WSGIRequest, owner_id: int):
         },
     }
     if perms is False:
-        messages.error(
-            request, _("You do not have permission to manage this corporation.")
-        )
+        messages.error(request, _("You do not have permission to manage this owner."))
         return redirect("taxsystem:index")
 
     with transaction.atomic():
@@ -279,9 +277,7 @@ def switch_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
     owner, perms = get_manage_owner(request, owner_id)
 
     if perms is False:
-        messages.error(
-            request, _("You do not have permission to manage this corporation.")
-        )
+        messages.error(request, _("You do not have permission to manage this owner."))
         return redirect("taxsystem:index")
 
     filter_set = get_object_or_404(
@@ -394,9 +390,7 @@ def edit_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
     owner, perms = get_manage_owner(request, owner_id)
 
     if perms is False:
-        messages.error(
-            request, _("You do not have permission to manage this corporation.")
-        )
+        messages.error(request, _("You do not have permission to manage this owner."))
         return redirect("taxsystem:index")
 
     edit_set = get_object_or_404(

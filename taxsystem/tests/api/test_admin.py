@@ -120,10 +120,8 @@ class TestCoreHelpers(TestCase):
     def test_get_paymentsystem_access(self):
         """Test should be able to access paymentsystem API endpoint"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_paymentsystem", kwargs={"corporation_id": corporation_id}
-        )
+        owner_id = self.character_ownership.character.corporation_id
+        url = reverse(f"{API_URL}:get_paymentsystem", kwargs={"owner_id": owner_id})
         self.client.force_login(self.user)
         # when
         response = self.client.get(url)
@@ -133,10 +131,8 @@ class TestCoreHelpers(TestCase):
     def test_get_paymentsystem_without_access(self):
         """Test should not be able to access paymentsystem API endpoint without permission"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_paymentsystem", kwargs={"corporation_id": corporation_id}
-        )
+        owner_id = self.character_ownership.character.corporation_id
+        url = reverse(f"{API_URL}:get_paymentsystem", kwargs={"owner_id": owner_id})
         self.client.force_login(self.no_evecharacter_user)
         # when
         response = self.client.get(url)
@@ -178,11 +174,11 @@ class TestCoreHelpers(TestCase):
     def test_get_filter_set_filters_access(self):
         """Test should be able to access filters set filters API endpoint"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        owner_id = self.character_ownership.character.corporation_id
         filter_set_id = self.filter_set.pk
         url = reverse(
             f"{API_URL}:get_filter_set_filters",
-            kwargs={"corporation_id": corporation_id, "filter_set_id": filter_set_id},
+            kwargs={"owner_id": owner_id, "filter_set_id": filter_set_id},
         )
         self.client.force_login(self.user)
         # when
@@ -193,11 +189,11 @@ class TestCoreHelpers(TestCase):
     def test_get_filter_set_filters_without_access(self):
         """Test should not be able to access filters set filters API endpoint without permission"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        owner_id = self.character_ownership.character.corporation_id
         filter_set_id = self.filter_set.pk
         url = reverse(
             f"{API_URL}:get_filter_set_filters",
-            kwargs={"corporation_id": corporation_id, "filter_set_id": filter_set_id},
+            kwargs={"owner_id": owner_id, "filter_set_id": filter_set_id},
         )
         self.client.force_login(self.no_evecharacter_user)
         # when

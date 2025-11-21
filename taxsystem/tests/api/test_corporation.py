@@ -73,7 +73,7 @@ class TestCoreHelpers(TestCase):
         cls.payments = create_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            corporation_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.corporation_id,
             entry_id=1,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
@@ -85,7 +85,7 @@ class TestCoreHelpers(TestCase):
         cls.payments2 = create_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            corporation_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.corporation_id,
             entry_id=2,
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
@@ -119,8 +119,8 @@ class TestCoreHelpers(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         response_data = response.json()
-        self.assertIn("corporation", response_data)
-        self.assertEqual(len(response_data["corporation"]), 2)
+        self.assertIn("owner", response_data)
+        self.assertEqual(len(response_data["owner"]), 2)
 
     def test_get_payments_without_access(self):
         """Test should not be able to access payments API endpoint without permission"""
@@ -150,8 +150,8 @@ class TestCoreHelpers(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         response_data = response.json()
-        self.assertIn("corporation", response_data)
-        self.assertEqual(len(response_data["corporation"]), 2)
+        self.assertIn("owner", response_data)
+        self.assertEqual(len(response_data["owner"]), 2)
 
     def test_get_own_payments_no_payments(self):
         """Test should display not found when no own payments exist"""

@@ -87,7 +87,7 @@ class TestDeleteSetFilter(TestCase):
         self._message_middleware(request)
 
         response = views.delete_filterset(
-            request, corporation_id=corporation_id, filter_set_id=filterset_id
+            request, owner_id=corporation_id, filter_set_id=filterset_id
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -110,12 +110,12 @@ class TestDeleteSetFilter(TestCase):
         self._message_middleware(request)
 
         response = views.delete_filterset(
-            request, corporation_id=corporation_id, filter_set_id=filterset_id
+            request, owner_id=corporation_id, filter_set_id=filterset_id
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_once_with(
-            request, "You do not have permission to manage this corporation."
+            request, "You do not have permission to manage this owner."
         )
 
     def test_no_manage_permission(self):
@@ -130,7 +130,7 @@ class TestDeleteSetFilter(TestCase):
         request.user = self.no_permission_user
 
         response = views.delete_filterset(
-            request, corporation_id=corporation_id, filter_set_id=filterset_id
+            request, owner_id=corporation_id, filter_set_id=filterset_id
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

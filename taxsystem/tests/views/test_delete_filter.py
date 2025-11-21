@@ -83,7 +83,7 @@ class TestDeleteFilter(TestCase):
         request.user = self.user
 
         response = views.delete_filter(
-            request, corporation_id=corporation_id, filter_pk=filter_id
+            request, owner_id=corporation_id, filter_pk=filter_id
         )
 
         response_data = json.loads(response.content)
@@ -114,7 +114,7 @@ class TestDeleteFilter(TestCase):
         request.user = self.no_audit_user
 
         response = views.delete_filter(
-            request, corporation_id=corporation_id, filter_pk=filter_id
+            request, owner_id=corporation_id, filter_pk=filter_id
         )
 
         response_data = json.loads(response.content)
@@ -142,7 +142,7 @@ class TestDeleteFilter(TestCase):
         request.user = self.no_permission_user
 
         response = views.delete_filter(
-            request, corporation_id=corporation_id, filter_pk=filter_id
+            request, owner_id=corporation_id, filter_pk=filter_id
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
