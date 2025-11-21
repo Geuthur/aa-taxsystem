@@ -226,6 +226,10 @@ class Members(models.Model):
 
     class Meta:
         default_permissions = ()
+        indexes = [
+            models.Index(fields=["owner", "character_name"]),
+            models.Index(fields=["status"]),
+        ]
 
     class States(models.TextChoices):
         ACTIVE = "active", _("Active")
@@ -302,6 +306,12 @@ class CorporationPayments(PaymentsBase):
 
     class Meta:
         default_permissions = ()
+        indexes = [
+            models.Index(
+                fields=["account", "owner_id", "request_status", "-date"],
+            ),
+            models.Index(fields=["request_status", "-date"]),
+        ]
 
     account = models.ForeignKey(
         CorporationPaymentAccount,
