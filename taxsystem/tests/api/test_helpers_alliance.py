@@ -14,6 +14,11 @@ from taxsystem.api.helpers.common import (
 from taxsystem.models.alliance import AllianceOwner, AlliancePayments
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_alliance_owner_from_user,
+    create_alliance_update_status,
+)
+from taxsystem.tests.testdata.generate_payments import (
+    create_alliance_payment,
+    create_alliance_payment_system,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
@@ -45,14 +50,54 @@ class TestBuildAlliancePaymentsResponseList(TestCase):
         # Create AllianceOwner from user
         cls.alliance_owner = create_alliance_owner_from_user(cls.user)
 
+        # Create AllianceUpdateStatus for payment system
+        cls.update_status = create_alliance_update_status(
+            owner_audit=cls.alliance_owner, section="payment_system"
+        )
+
+        # Create payment system account (owner is AllianceOwner, not UpdateStatus)
+        cls.payment_account = create_alliance_payment_system(
+            owner=cls.alliance_owner, user=cls.user, name="Test Alliance Account"
+        )
+
     def test_builds_alliance_payment_list(self):
         """Test building alliance payment response list with AlliancePayments"""
-        # TODO: Implement when AlliancePayments factory functions are available
-        # This requires:
-        # 1. create_alliance_payment_system() factory
-        # 2. create_alliance_payment() factory
-        # 3. AlliancePayments model and structure
-        self.skipTest("AlliancePayments factory not yet implemented")
+        # Arrange
+        payment1 = create_alliance_payment(
+            account=self.payment_account,
+            amount=1000000,
+            date=timezone.now(),
+            name="Test Payment 1",
+            entry_id=1001,
+            owner_id=self.alliance_owner.eve_alliance.alliance_id,
+            reason="Test reason 1",
+        )
+        payment2 = create_alliance_payment(
+            account=self.payment_account,
+            amount=2000000,
+            date=timezone.now(),
+            name="Test Payment 2",
+            entry_id=1002,
+            owner_id=self.alliance_owner.eve_alliance.alliance_id,
+            reason="Test reason 2",
+        )
+
+        payments = AlliancePayments.objects.filter(account=self.payment_account)
+        request = self.factory.get("/")
+        request.user = self.user
+        perms = True
+
+        # Act
+        result = build_payments_response_list(
+            payments, request, perms, PaymentAllianceSchema
+        )
+
+        # Assert
+        self.assertEqual(len(result), 2)
+        self.assertIsInstance(result, list)
+        # Results are ordered by date descending, so payment2 comes first
+        self.assertEqual(result[0].amount, payment2.amount)
+        self.assertEqual(result[1].amount, payment1.amount)
 
     def test_builds_empty_list_for_no_alliance_payments(self):
         """Test building empty list when no alliance payments exist"""
@@ -97,10 +142,49 @@ class TestBuildOwnAlliancePaymentsResponseList(TestCase):
         # Create AllianceOwner from user
         cls.alliance_owner = create_alliance_owner_from_user(cls.user)
 
+        # Create AllianceUpdateStatus for payment system
+        cls.update_status = create_alliance_update_status(
+            owner_audit=cls.alliance_owner, section="payment_system"
+        )
+
+        # Create payment system account (owner is AllianceOwner, not UpdateStatus)
+        cls.payment_account = create_alliance_payment_system(
+            owner=cls.alliance_owner, user=cls.user, name="Test Alliance Account"
+        )
+
     def test_builds_own_alliance_payment_list(self):
         """Test building own payment response list for alliance"""
-        # TODO: Implement when AlliancePayments factory functions are available
-        self.skipTest("AlliancePayments factory not yet implemented")
+        # Arrange
+        payment1 = create_alliance_payment(
+            account=self.payment_account,
+            amount=500000,
+            date=timezone.now(),
+            name="Own Payment 1",
+            entry_id=2001,
+            owner_id=self.alliance_owner.eve_alliance.alliance_id,
+            reason="Own reason 1",
+        )
+        payment2 = create_alliance_payment(
+            account=self.payment_account,
+            amount=750000,
+            date=timezone.now(),
+            name="Own Payment 2",
+            entry_id=2002,
+            owner_id=self.alliance_owner.eve_alliance.alliance_id,
+            reason="Own reason 2",
+        )
+
+        payments = AlliancePayments.objects.filter(account=self.payment_account)
+
+        # Act
+        result = build_own_payments_response_list(payments, PaymentAllianceSchema)
+
+        # Assert
+        self.assertEqual(len(result), 2)
+        self.assertIsInstance(result, list)
+        # Results are ordered by date descending, so payment2 comes first
+        self.assertEqual(result[0].amount, payment2.amount)
+        self.assertEqual(result[1].amount, payment1.amount)
 
     def test_builds_empty_own_alliance_payment_list(self):
         """Test building empty own alliance payment list"""
