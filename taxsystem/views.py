@@ -40,6 +40,12 @@ from taxsystem.api.helpers.core import (
     get_manage_owner,
 )
 from taxsystem.helpers.views import add_info_to_context
+from taxsystem.helpers.views_generic import (
+    get_default_owner_id,
+    get_owner_context_key,
+    get_owner_display_name,
+    get_owner_template,
+)
 from taxsystem.models.alliance import (
     AllianceAdminHistory,
     AllianceOwner,
@@ -156,42 +162,10 @@ def admin(request: WSGIRequest):
 @login_required
 @permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 def manage_corporation(request: WSGIRequest, corporation_id: int = None):
-    """Manage View"""
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
-
-    owner, perms = get_manage_corporation(request, corporation_id)
-
-    if perms is False:
-        messages.error(
-            request, _("You do not have permission to manage this corporation.")
-        )
-        return redirect("taxsystem:index")
-
-    if owner is None:
-        messages.error(request, _("Corporation not Found"))
-        return redirect("taxsystem:index")
-
-    context = {
-        "corporation_id": corporation_id,
-        "corporations": CorporationOwner.objects.visible_to(request.user),
-        "title": _("Administration"),
-        "manage_filter_url": reverse(
-            "taxsystem:manage_filter", kwargs={"owner_id": corporation_id}
-        ),
-        "forms": {
-            "accept_request": forms.PaymentAcceptForm(),
-            "reject_request": forms.PaymentRejectForm(),
-            "add_request": forms.PaymentAddForm(),
-            "payment_delete_request": forms.PaymentDeleteForm(),
-            "undo_request": forms.PaymentUndoForm(),
-            "switchuser_request": forms.TaxSwitchUserForm(),
-            "delete_request": forms.MemberDeleteForm(),
-        },
-    }
-    context = add_info_to_context(request, context)
-
-    return render(request, "taxsystem/manage.html", context=context)
+    """Manage View (Backwards-compatible wrapper)"""
+    return generic_manage_owner(
+        request, owner_id=corporation_id, owner_type="corporation"
+    )
 
 
 @login_required
@@ -454,29 +428,10 @@ def payments(request: WSGIRequest, corporation_id: int = None):
 @login_required
 @permission_required("taxsystem.basic_access")
 def own_payments(request: WSGIRequest, corporation_id=None):
-    """Own Payments View"""
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
-
-    corporations, perms = get_manage_corporation(request, corporation_id)
-
-    if corporations is None:
-        messages.error(request, _("No Corporation found."))
-
-    if perms is False:
-        messages.error(request, _("Permission Denied"))
-        return redirect("taxsystem:index")
-
-    corporations = CorporationOwner.objects.visible_to(request.user)
-
-    context = {
-        "corporation_id": corporation_id,
-        "title": _("Own Payments"),
-        "corporations": corporations,
-    }
-    context = add_info_to_context(request, context)
-
-    return render(request, "taxsystem/own-payments.html", context=context)
+    """Own Payments View (Backwards-compatible wrapper)"""
+    return generic_owner_own_payments(
+        request, owner_id=corporation_id, owner_type="corporation"
+    )
 
 
 @login_required
@@ -1126,28 +1081,104 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
 @login_required
 @permissions_required(["taxsystem.manage_own_alliance", "taxsystem.manage_alliances"])
 def manage_alliance(request: WSGIRequest, alliance_id: int = None):
-    """Alliance Management View"""
-    if alliance_id is None:
-        alliance_id = request.user.profile.main_character.alliance_id
+    """Alliance Management View (Backwards-compatible wrapper)"""
+    return generic_manage_owner(request, owner_id=alliance_id, owner_type="alliance")
 
-    owner, perms = get_manage_alliance(request, alliance_id)
 
+@login_required
+@permission_required("taxsystem.basic_access")
+def alliance_payments(request: WSGIRequest, alliance_id: int = None):
+    """Alliance Payments View (Backwards-compatible wrapper)"""
+    return generic_owner_payments(request, owner_id=alliance_id, owner_type="alliance")
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def alliance_own_payments(request: WSGIRequest, alliance_id=None):
+    """Alliance Own Payments View (Backwards-compatible wrapper)"""
+    return generic_owner_own_payments(
+        request, owner_id=alliance_id, owner_type="alliance"
+    )
+
+
+# =============================================================================
+# Generic Owner Views (Corporation and Alliance Unified)
+# =============================================================================
+
+
+@login_required
+@permissions_required(
+    [
+        "taxsystem.manage_own_corp",
+        "taxsystem.manage_corps",
+        "taxsystem.manage_own_alliance",
+        "taxsystem.manage_alliances",
+    ]
+)
+def generic_manage_owner(
+    request: WSGIRequest, owner_id: int = None, owner_type: str = "corporation"
+):
+    """
+    Unified Owner Management View for Corporation and Alliance.
+
+    Args:
+        request: Django request object
+        owner_id: Owner ID (corporation_id or alliance_id)
+        owner_type: "corporation" or "alliance"
+
+    Returns:
+        Rendered manage template
+    """
+    # 1. Default ID resolution
+    if owner_id is None:
+        owner_id = get_default_owner_id(request, owner_type)
+        if owner_id is None:
+            messages.error(
+                request,
+                _("No default {owner_type} found.").format(
+                    owner_type=get_owner_display_name(owner_type)
+                ),
+            )
+            return redirect("taxsystem:index")
+
+    # 2. Get owner and permissions
+    owner, perms = get_manage_owner(request, owner_id)
+
+    # 3. Permission checks
     if perms is False:
         messages.error(
-            request, _("You do not have permission to manage this alliance.")
+            request,
+            _("You do not have permission to manage this {owner_type}.").format(
+                owner_type=get_owner_display_name(owner_type).lower()
+            ),
         )
         return redirect("taxsystem:index")
 
     if owner is None:
-        messages.error(request, _("Alliance not Found"))
+        messages.error(
+            request,
+            _("{owner_type} not Found").format(
+                owner_type=get_owner_display_name(owner_type)
+            ),
+        )
         return redirect("taxsystem:index")
 
+    # 4. Build context
+    context_key = get_owner_context_key(owner_type)
+    template = get_owner_template("manage", owner_type)
+
     context = {
-        "alliance_id": alliance_id,
+        context_key: owner_id,  # "corporation_id" or "alliance_id"
+        "owner_id": owner_id,  # Generic key for templates
+        "owner_type": owner_type,  # For conditional template logic
         "corporations": CorporationOwner.objects.visible_to(request.user),
-        "title": _("Alliance Tax System"),
+        "title": (
+            _("Corporation Tax System")
+            if owner_type == "corporation"
+            else _("Alliance Tax System")
+        ),
         "manage_filter_url": reverse(
-            "taxsystem:manage_filter", kwargs={"owner_id": alliance_id}
+            "taxsystem:manage_filter", kwargs={"owner_id": owner_id}
         ),
         "forms": {
             "accept_request": forms.PaymentAcceptForm(),
@@ -1161,25 +1192,61 @@ def manage_alliance(request: WSGIRequest, alliance_id: int = None):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/manage-alliance.html", context=context)
+    return render(request, template, context=context)
 
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def alliance_payments(request: WSGIRequest, alliance_id: int = None):
-    """Payments View"""
-    if alliance_id is None:
-        alliance_id = request.user.profile.main_character.alliance_id
+def generic_owner_payments(
+    request: WSGIRequest, owner_id: int = None, owner_type: str = "corporation"
+):
+    """
+    Unified Payments View for Corporation and Alliance.
 
-    alliance = get_alliance(request, alliance_id)
+    Args:
+        request: Django request object
+        owner_id: Owner ID (corporation_id or alliance_id)
+        owner_type: "corporation" or "alliance"
 
-    if alliance is None:
-        messages.error(request, _("No Alliance found."))
+    Returns:
+        Rendered payments template
+    """
+    # 1. Default ID resolution
+    if owner_id is None:
+        owner_id = get_default_owner_id(request, owner_type)
+        if owner_id is None:
+            messages.error(
+                request,
+                _("No default {owner_type} found.").format(
+                    owner_type=get_owner_display_name(owner_type)
+                ),
+            )
+            return redirect("taxsystem:index")
+
+    # 2. Get owner
+    if owner_type == "corporation":
+        owner = get_corporation(request, owner_id)
+    else:
+        owner = get_alliance(request, owner_id)
+
+    if owner is None:
+        messages.error(
+            request,
+            _("No {owner_type} found.").format(
+                owner_type=get_owner_display_name(owner_type)
+            ),
+        )
+
+    # 3. Build context
+    context_key = get_owner_context_key(owner_type)
+    template = get_owner_template("payments", owner_type)
 
     corporations = CorporationOwner.objects.visible_to(request.user)
 
     context = {
-        "alliance_id": alliance_id,
+        context_key: owner_id,  # "corporation_id" or "alliance_id"
+        "owner_id": owner_id,  # Generic key
+        "owner_type": owner_type,
         "title": _("Payments"),
         "forms": {
             "add_request": forms.PaymentAddForm(),
@@ -1192,32 +1259,68 @@ def alliance_payments(request: WSGIRequest, alliance_id: int = None):
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/payments.html", context=context)
+    return render(request, template, context=context)
 
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def alliance_own_payments(request: WSGIRequest, alliance_id=None):
-    """Own Payments View"""
-    if alliance_id is None:
-        alliance_id = request.user.profile.main_character.alliance_id
+def generic_owner_own_payments(
+    request: WSGIRequest, owner_id: int = None, owner_type: str = "corporation"
+):
+    """
+    Unified Own Payments View for Corporation and Alliance.
 
-    alliance, perms = get_manage_alliance(request, alliance_id)
+    Args:
+        request: Django request object
+        owner_id: Owner ID (corporation_id or alliance_id)
+        owner_type: "corporation" or "alliance"
 
-    if alliance is None:
-        messages.error(request, _("No Alliance found."))
+    Returns:
+        Rendered own payments template
+    """
+    # 1. Default ID resolution
+    if owner_id is None:
+        owner_id = get_default_owner_id(request, owner_type)
+        if owner_id is None:
+            messages.error(
+                request,
+                _("No default {owner_type} found.").format(
+                    owner_type=get_owner_display_name(owner_type)
+                ),
+            )
+            return redirect("taxsystem:index")
+
+    # 2. Get owner and permissions
+    if owner_type == "corporation":
+        owner, perms = get_manage_corporation(request, owner_id)
+    else:
+        owner, perms = get_manage_alliance(request, owner_id)
+
+    if owner is None:
+        messages.error(
+            request,
+            _("No {owner_type} found.").format(
+                owner_type=get_owner_display_name(owner_type)
+            ),
+        )
 
     if perms is False:
         messages.error(request, _("Permission Denied"))
         return redirect("taxsystem:index")
 
+    # 3. Build context
+    context_key = get_owner_context_key(owner_type)
+    template = get_owner_template("own_payments", owner_type)
+
     corporations = CorporationOwner.objects.visible_to(request.user)
 
     context = {
-        "alliance_id": alliance_id,
-        "title": _("Own Payments"),
+        context_key: owner_id,  # "corporation_id" or "alliance_id"
+        "owner_id": owner_id,  # Generic key
+        "owner_type": owner_type,
+        "title": _("Own Payments") if owner_type == "alliance" else _("My Payments"),
         "corporations": corporations,
     }
     context = add_info_to_context(request, context)
 
-    return render(request, "taxsystem/own-payments.html", context=context)
+    return render(request, template, context=context)

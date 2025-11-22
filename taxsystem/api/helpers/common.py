@@ -4,11 +4,17 @@
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import Sum
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 # AA TaxSystem
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.manage import manage_payments
+from taxsystem.api.helpers.manage import (
+    generate_filter_delete_button,
+    generate_ps_info_button,
+    generate_ps_toggle_button,
+    manage_payments,
+)
 from taxsystem.api.helpers.statistics import (
     StatisticsResponse,
     get_members_statistics,
@@ -16,9 +22,12 @@ from taxsystem.api.helpers.statistics import (
     get_payments_statistics,
 )
 from taxsystem.api.schema import (
+    AccountSchema,
     CharacterSchema,
     DashboardDivisionsSchema,
+    DataTableSchema,
     DivisionSchema,
+    FilterSetModelSchema,
     RequestStatusSchema,
     UpdateStatusSchema,
 )
@@ -356,3 +365,167 @@ def build_members_response_list(members, member_schema_class):
         response_member = member_schema_class(**member_data)
         response_members_list.append(response_member)
     return response_members_list
+
+
+def create_payment_account_response_data(account):
+    """
+    Create payment account response data for payment system.
+
+    Args:
+        account: Payment account object (CorporationPaymentAccount or AlliancePaymentAccount)
+
+    Returns:
+        dict: Dictionary containing payment account response data
+    """
+    character_id = account.user.profile.main_character.character_id
+    character_name = account.user.profile.main_character.character_name
+
+    # Create the action buttons
+    actions = []
+    actions.append(generate_ps_toggle_button(account=account))
+    actions.append(generate_ps_info_button(account=account))
+    actions_html = format_html(
+        f'<div class="d-flex justify-content-end">{format_html("".join(actions))}</div>'
+    )
+
+    return {
+        "payment_id": account.pk,
+        "account": AccountSchema(
+            character_id=character_id,
+            character_name=character_name,
+            character_portrait=lazy.get_character_portrait_url(
+                character_id, size=32, as_html=True
+            ),
+            alt_ids=account.get_alt_ids(),
+        ),
+        "status": account.get_payment_status(),
+        "deposit": account.deposit,
+        "has_paid": DataTableSchema(
+            raw=str(account.has_paid),
+            display=account.has_paid_icon(badge=True),
+            sort=str(int(account.has_paid)),
+            translation=_("Has Paid"),
+            dropdown_text=_("Yes") if account.has_paid else _("No"),
+        ),
+        "last_paid": account.last_paid,
+        "is_active": account.is_active,
+        "actions": actions_html,
+    }
+
+
+def build_payment_accounts_response_list(payment_accounts, payment_system_schema_class):
+    """
+    Build list of payment account response objects from queryset.
+
+    Generic function that works for both Corporation and Alliance payment systems.
+
+    Args:
+        payment_accounts: QuerySet of payment account objects
+        payment_system_schema_class: Schema class to use for response (PaymentSystemSchema)
+
+    Returns:
+        list: List of payment system schema objects
+    """
+    response_payment_accounts_list = []
+    for account in payment_accounts:
+        account_data = create_payment_account_response_data(account)
+        response_payment_account = payment_system_schema_class(**account_data)
+        response_payment_accounts_list.append(response_payment_account)
+    return response_payment_accounts_list
+
+
+def create_filter_response_data(filter_obj):
+    """
+    Create filter response data.
+
+    Args:
+        filter_obj: Filter object (CorporationFilter or AllianceFilter)
+
+    Returns:
+        dict: Dictionary containing filter response data
+    """
+    # Format value based on filter type
+    if filter_obj.filter_type == filter_obj.__class__.FilterType.AMOUNT:
+        value = f"{intcomma(filter_obj.value, use_l10n=True)} ISK"
+    else:
+        value = filter_obj.value
+
+    # Create actions
+    actions = []
+    actions.append(generate_filter_delete_button(filter_obj=filter_obj))
+    actions_html = format_html(
+        f'<div class="d-flex justify-content-end">{format_html("".join(actions))}</div>'
+    )
+
+    return {
+        "filter_set": FilterSetModelSchema(
+            owner_id=filter_obj.filter_set.owner.pk,
+            name=filter_obj.filter_set.name,
+            description=filter_obj.filter_set.description,
+            enabled=filter_obj.filter_set.enabled,
+        ),
+        "filter_type": filter_obj.get_filter_type_display(),
+        "value": value,
+        "actions": actions_html,
+    }
+
+
+def build_filters_response_list(filters, filter_schema_class):
+    """
+    Build list of filter response objects from queryset.
+
+    Generic function that works for both Corporation and Alliance filters.
+
+    Args:
+        filters: QuerySet of filter objects
+        filter_schema_class: Schema class to use for response (FilterModelSchema)
+
+    Returns:
+        list: List of filter schema objects
+    """
+    response_filters_list = []
+    for filter_obj in filters:
+        filter_data = create_filter_response_data(filter_obj)
+        response_filter = filter_schema_class(**filter_data)
+        response_filters_list.append(response_filter)
+    return response_filters_list
+
+
+def create_admin_log_response_data(log):
+    """
+    Create admin log response data.
+
+    Args:
+        log: Admin history object (CorporationAdminHistory or AllianceAdminHistory)
+
+    Returns:
+        dict: Dictionary containing admin log response data
+    """
+    return {
+        "log_id": log.pk,
+        "user_name": log.user.username,
+        "date": timezone.localtime(log.date).strftime("%Y-%m-%d %H:%M"),
+        "action": log.action,
+        "comment": log.comment,
+    }
+
+
+def build_admin_logs_response_list(logs, admin_log_schema_class):
+    """
+    Build list of admin log response objects from queryset.
+
+    Generic function that works for both Corporation and Alliance admin logs.
+
+    Args:
+        logs: QuerySet of admin history objects
+        admin_log_schema_class: Schema class to use for response (AdminHistorySchema)
+
+    Returns:
+        list: List of admin history schema objects
+    """
+    response_logs_list = []
+    for log in logs:
+        log_data = create_admin_log_response_data(log)
+        response_log = admin_log_schema_class(**log_data)
+        response_logs_list.append(response_log)
+    return response_logs_list

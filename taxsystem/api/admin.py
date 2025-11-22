@@ -2,9 +2,7 @@
 from ninja import NinjaAPI, Schema
 
 # Django
-from django.contrib.humanize.templatetags.humanize import intcomma
 from django.shortcuts import render
-from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
@@ -18,24 +16,21 @@ from app_utils.logging import LoggerAddTag
 from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.common import (
+    build_admin_logs_response_list,
+    build_filters_response_list,
+    build_payment_accounts_response_list,
     calculate_activity_html,
     create_dashboard_common_data,
     create_member_response_data,
 )
 from taxsystem.api.helpers.manage import (
-    generate_filter_delete_button,
     generate_member_delete_button,
-    generate_ps_info_button,
-    generate_ps_toggle_button,
 )
 from taxsystem.api.schema import (
-    AccountSchema,
     AdminHistorySchema,
     BaseDashboardResponse,
     CorporationSchema,
-    DataTableSchema,
     FilterModelSchema,
-    FilterSetModelSchema,
     MembersSchema,
     PaymentSystemSchema,
 )
@@ -160,8 +155,8 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            # Get Payment Accounts for Corporation except those missing main character
-            payment_system = (
+            # Get Payment Accounts for Owner except those missing main character
+            payment_accounts = (
                 owner.payments_account_class.objects.filter(
                     owner=owner,
                     user__profile__main_character__isnull=False,
@@ -173,43 +168,10 @@ class AdminApiEndpoints:
                 .prefetch_related("user__character_ownerships__character")
             )
 
-            payment_accounts_list: list[PaymentSystemSchema] = []
-            for account in payment_system:
-                character_id = account.user.profile.main_character.character_id
-                character_name = account.user.profile.main_character.character_name
-
-                # Create the action buttons
-                actions = []
-                actions.append(generate_ps_toggle_button(account=account))
-                actions.append(generate_ps_info_button(account=account))
-                actions = format_html(
-                    f'<div class="d-flex justify-content-end">{format_html("".join(actions))}</div>'
-                )
-
-                response_payment_account = PaymentSystemSchema(
-                    payment_id=account.pk,
-                    account=AccountSchema(
-                        character_id=character_id,
-                        character_name=character_name,
-                        character_portrait=lazy.get_character_portrait_url(
-                            character_id, size=32, as_html=True
-                        ),
-                        alt_ids=account.get_alt_ids(),
-                    ),
-                    status=account.get_payment_status(),
-                    deposit=account.deposit,
-                    has_paid=DataTableSchema(
-                        raw=str(account.has_paid),
-                        display=account.has_paid_icon(badge=True),
-                        sort=str(int(account.has_paid)),
-                        translation=_("Has Paid"),
-                        dropdown_text=_("Yes") if account.has_paid else _("No"),
-                    ),
-                    last_paid=account.last_paid,
-                    is_active=account.is_active,
-                    actions=actions,
-                )
-                payment_accounts_list.append(response_payment_account)
+            # Use generic helper function
+            payment_accounts_list = build_payment_accounts_response_list(
+                payment_accounts, PaymentSystemSchema
+            )
 
             return PaymentSystemResponse(owner=payment_accounts_list)
 
@@ -227,18 +189,16 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied")}
 
-            logs = CorporationAdminHistory.objects.filter(owner=owner).order_by("-date")
+            logs = (
+                CorporationAdminHistory.objects.filter(owner=owner)
+                .select_related("user")
+                .order_by("-date")
+            )
 
-            response_admin_logs_list: list[AdminHistorySchema] = []
-            for log in logs:
-                response_admin_log = AdminHistorySchema(
-                    log_id=log.pk,
-                    user_name=log.user.username,
-                    date=timezone.localtime(log.date).strftime("%Y-%m-%d %H:%M"),
-                    action=log.action,
-                    comment=log.comment,
-                )
-                response_admin_logs_list.append(response_admin_log)
+            # Use generic helper function
+            response_admin_logs_list = build_admin_logs_response_list(
+                logs, AdminHistorySchema
+            )
 
             return AdminLogResponse(corporation=response_admin_logs_list)
 
@@ -258,33 +218,12 @@ class AdminApiEndpoints:
 
             filters = owner.filter_class.objects.filter(
                 filter_set__pk=filter_set_id,
+            ).select_related("filter_set", "filter_set__owner")
+
+            # Use generic helper function
+            response_filter_list = build_filters_response_list(
+                filters, FilterModelSchema
             )
-
-            response_filter_list: list[FilterModelSchema] = []
-            for filter_obj in filters:
-                if filter_obj.filter_type == owner.filter_class.FilterType.AMOUNT:
-                    value = f"{intcomma(filter_obj.value, use_l10n=True)} ISK"
-                else:
-                    value = filter_obj.value
-
-                actions = []
-                actions.append(generate_filter_delete_button(filter_obj=filter_obj))
-                actions = format_html(
-                    f'<div class="d-flex justify-content-end">{format_html("".join(actions))}</div>'
-                )
-
-                response_filter = FilterModelSchema(
-                    filter_set=FilterSetModelSchema(
-                        owner_id=filter_obj.filter_set.owner.pk,
-                        name=filter_obj.filter_set.name,
-                        description=filter_obj.filter_set.description,
-                        enabled=filter_obj.filter_set.enabled,
-                    ),
-                    filter_type=filter_obj.get_filter_type_display(),
-                    value=value,
-                    actions=actions,
-                )
-                response_filter_list.append(response_filter)
 
             return render(
                 request,
