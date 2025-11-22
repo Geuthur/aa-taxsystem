@@ -152,7 +152,7 @@ class TestViewAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "taxsystem:administration",
+                "taxsystem:manage_corporation",
                 args=[2003],
             )
         )

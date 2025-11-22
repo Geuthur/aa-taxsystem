@@ -32,7 +32,7 @@
                         </a>
                         {% if perms.taxsystem.manage_access %}
                             <a class="btn btn-warning btn-sm"
-                                href="{% url 'taxsystem:administration' corporation.eve_corporation.corporation_id %}"
+                                href="{% url 'taxsystem:manage_corporation' corporation.eve_corporation.corporation_id %}"
                                 role="button"
                                 data-tooltip-toggle="taxsystem-tooltip"
                                 title="{% translate 'Manage Tax System' %}">

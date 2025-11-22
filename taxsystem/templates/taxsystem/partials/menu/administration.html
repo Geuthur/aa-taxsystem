@@ -14,10 +14,10 @@
     </li>
 {% endif %}
 
-{% if perms.taxsystem.manage_own_corp or perms.taxsystem.manage_corps %}
+{% if perms.taxsystem.manage_own_corp or perms.taxsystem.manage_corps or perms.taxsystem.manage_own_alliance or perms.taxsystem.manage_alliances %}
     {% if corporation_id %}
         <li class="nav-item">
-            <a class="nav-link py-0" href="{% url 'taxsystem:administration' corporation_id=corporation_id %}">
+            <a class="nav-link py-0" href="{% url 'taxsystem:manage_corporation' corporation_id=corporation_id %}">
                 <span class="btn btn-success">{% translate 'Manage Corporation' %}</span>
             </a>
         </li>

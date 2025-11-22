@@ -19,69 +19,69 @@ urlpatterns = [
     path("alliance/add/", views.add_alliance, name="add_alliance"),
     # -- Corporation Tax System
     path(
-        "corporation/<int:corporation_id>/view/payments/",
+        "owner/<int:corporation_id>/view/payments/",
         views.payments,
         name="payments",
     ),
     path(
-        "corporation/view/payments/",
+        "owner/view/payments/",
         views.payments,
         name="payments",
     ),
     path(
-        "corporation/<int:corporation_id>/view/own-payments/",
+        "owner/<int:corporation_id>/view/own-payments/",
         views.own_payments,
         name="own_payments",
     ),
     path(
-        "corporation/view/own-payments/",
+        "owner/view/own-payments/",
         views.own_payments,
         name="own_payments",
     ),
     path(
-        "corporation/<int:corporation_id>/view/administration/",
+        "owner/<int:corporation_id>/view/manage/corporation/",
         views.manage_corporation,
-        name="administration",
+        name="manage_corporation",
     ),
     path(
-        "corporation/view/administration/",
+        "owner/view/manage/corporation/",
         views.manage_corporation,
-        name="administration",
+        name="manage_corporation",
     ),
     # -- Corporation Manage
     path(
-        "corporation/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
+        "owner/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
         views.delete_member,
         name="delete_member",
     ),
     # -- Alliance Tax System
     path(
-        "alliance/<int:alliance_id>/view/management/",
+        "owner/<int:alliance_id>/view/manage/alliance/",
         views.manage_alliance,
         name="manage_alliance",
     ),
     path(
-        "alliance/view/management/",
+        "owner/view/manage/alliance/",
         views.manage_alliance,
         name="manage_alliance",
     ),
     path(
-        "alliance/<int:alliance_id>/view/payments/",
+        "owner/<int:alliance_id>/view/payments/",
         views.alliance_payments,
         name="alliance_payments",
     ),
     path(
-        "alliance/view/payments/",
+        "owner/view/payments/",
         views.alliance_payments,
         name="alliance_payments",
     ),
     path(
-        "alliance/<int:alliance_id>/view/own-payments/",
+        "owner/<int:alliance_id>/view/own-payments/",
         views.alliance_own_payments,
         name="alliance_own_payments",
     ),
     path(
-        "alliance/view/own-payments/",
+        "owner/view/own-payments/",
         views.alliance_own_payments,
         name="alliance_own_payments",
     ),

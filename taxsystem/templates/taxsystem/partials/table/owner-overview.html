@@ -36,7 +36,7 @@
                                 <span class="d-none d-md-inline">{% translate "Payments" %}</span>
                             </a>
                             {% if perms.taxsystem.manage_own_corp or perms.taxsystem.manage_corps %}
-                                <a href="{% url 'taxsystem:administration' owner.id %}"
+                                <a href="{% url 'taxsystem:manage_corporation' owner.id %}"
                                    class="btn btn-warning"
                                    title="{% translate 'Manage' %}">
                                     <i class="fas fa-cog"></i>

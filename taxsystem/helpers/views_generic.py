@@ -59,7 +59,7 @@ def get_owner_template(view_name: str, owner_type: str) -> str:
     templates = {
         "manage": {
             "corporation": "taxsystem/manage.html",
-            "alliance": "taxsystem/manage-alliance.html",
+            "alliance": "taxsystem/manage.html",  # Same template
         },
         "payments": {
             "corporation": "taxsystem/payments.html",
