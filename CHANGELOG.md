@@ -11,6 +11,12 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0a3] - 2025-11-22
+
+### Added
+
+- `next_due` property to PaymentAccount and update related views and templates
+
 ### Changed
 
 - Generic Views Refactoring
@@ -20,6 +26,13 @@ Section Order:
   - Dynamic owner type detection with isinstance() checks
   - Generic Status checks instead of hardcoded CorporationPaymentAccount
   - Backwards compatible context keys maintained
+- Humanized Date Display
+  - `last_paid` and `next_due` in manage.js now use `moment.fromNow()` for relative time display
+  - Account template now uses Django's `naturaltime` filter for all date fields
+  - More intuitive date representation (e.g., "2 days ago", "in 5 days")
+- View Permission Fix
+  - `generic_owner_own_payments()` now correctly uses `get_corporation()` and `get_alliance()` instead of management methods
+  - End-user view no longer requires management permissions
 
 ## [2.0.0a2] - 2025-11-22
 
@@ -43,10 +56,10 @@ Section Order:
   - Dark theme compatible (btn-warning for manage buttons)
   - Automatic redirect from index to owner overview
 - Administration view now checking for permission and if Corporation is still available
-- EVE Portrait and Logo Helper Functions in copilot-instructions.md
+- EVE Portrait and Logo Helper Functions
   - Backend lazy helpers: `get_character_portrait_url()`, `get_corporation_logo_url()`, `get_alliance_logo_url()`
   - Template tags: `|character_portrait_url:size`, `|corporation_logo_url:size`, `|alliance_logo_url:size`
-- Owner Permissions via Manager Methods in copilot-instructions.md
+- Owner Permissions via Manager Methods
   - `CorporationOwner.objects.manage_to(user)` and `AllianceOwner.objects.manage_to(user)`
   - `visible_to(user)` methods for broader visibility
 - Menu navigation now points to Owner Overview instead of payment list
