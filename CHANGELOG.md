@@ -11,6 +11,16 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- Generic Views Refactoring
+  - `account()` view now supports both Corporation and Alliance owners
+  - `faq()` view now supports both Corporation and Alliance owners
+  - Views use `get_manage_owner()` for unified owner retrieval
+  - Dynamic owner type detection with isinstance() checks
+  - Generic Status checks instead of hardcoded CorporationPaymentAccount
+  - Backwards compatible context keys maintained
+
 ## [2.0.0a2] - 2025-11-22
 
 ### Fixed
