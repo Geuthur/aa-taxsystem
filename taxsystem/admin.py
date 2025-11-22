@@ -25,7 +25,7 @@ class CorporationOwnerAdmin(admin.ModelAdmin):
         "_eve_corporation__corporation_name",
     )
 
-    list_select_related = ("corporation",)
+    list_select_related = ("eve_corporation",)
 
     ordering = ["eve_corporation__corporation_name"]
 
