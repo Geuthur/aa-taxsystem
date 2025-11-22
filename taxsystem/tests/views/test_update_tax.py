@@ -119,7 +119,7 @@ class TestUpdateTaxPeriod(TestCase):
 
         response = views.update_tax_period(request, owner_id=corporation_id)
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
 
 class TestUpdateTaxAmount(TestCase):
@@ -219,4 +219,4 @@ class TestUpdateTaxAmount(TestCase):
 
         response = views.update_tax_amount(request, owner_id=corporation_id)
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

@@ -170,4 +170,4 @@ class TestDeletePayment(TestCase):
             request, owner_id=corporation_id, payment_pk=self.payment.pk
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

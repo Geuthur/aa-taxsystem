@@ -152,7 +152,7 @@ class TestViewAccess(TestCase):
         # given
         request = self.factory.get(
             reverse(
-                "taxsystem:manage_corporation",
+                "taxsystem:manage_owner",
                 args=[2003],
             )
         )
@@ -191,7 +191,7 @@ class TestViewAccess(TestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:own_payments",
-                args=[2002],
+                args=[2001],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -199,7 +199,7 @@ class TestViewAccess(TestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.own_payments(request, 2002)
+        response = views.own_payments(request, 2001)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Own Payments")

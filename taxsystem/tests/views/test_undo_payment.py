@@ -188,4 +188,4 @@ class TestUndoPayment(TestCase):
             request, owner_id=corporation_id, payment_pk=payment_id
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

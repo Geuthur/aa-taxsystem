@@ -145,4 +145,4 @@ class TestDeleteFilter(TestCase):
             request, owner_id=corporation_id, filter_pk=filter_id
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

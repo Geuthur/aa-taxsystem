@@ -73,6 +73,8 @@ class TestSwitchSetFilter(TestCase):
         """Middleware to add a message to the response."""
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
+        middleware = MessageMiddleware(Mock())
+        middleware.process_request(request)
 
     @patch(MODULE_PATH + ".messages")
     def test_switch_filterset(self, mock_messages):
@@ -131,6 +133,8 @@ class TestSwitchSetFilter(TestCase):
         )
 
         request.user = self.no_permission_user
+
+        self._message_middleware(request)
 
         response = views.switch_filterset(
             request, owner_id=corporation_id, filter_set_id=filterset_id

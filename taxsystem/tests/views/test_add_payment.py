@@ -148,4 +148,4 @@ class TestAddPayment(TestCase):
             payment_system_pk=self.payment_system.pk,
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

@@ -141,4 +141,4 @@ class TestDeleteMember(TestCase):
             request, corporation_id=corporation_id, member_pk=member_pk
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
