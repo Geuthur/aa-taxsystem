@@ -11,6 +11,22 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Documentation
+  - Comprehensive User Manual (`docs/USER_MANUAL.md`)
+    - Getting Started Guide
+    - Adding Corporations and Alliances
+    - Payment System explanation (automatic vs manual approval)
+    - Filter System tutorial with examples
+    - Account Management guide
+    - Administration features
+    - FAQ and troubleshooting
+  - README.md updated with:
+    - New permissions documentation (Alliance permissions)
+    - Documentation section with link to User Manual
+    - Updated features list (Multi-Owner Support, Alliance Tax System)
+
 ## [2.0.0a3] - 2025-11-22
 
 ### Added
