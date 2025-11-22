@@ -147,38 +147,16 @@ class CorporationOwner(OwnerBase):
         """Update the members for this corporation."""
         return self.ts_members.update_or_create_esi(self, force_refresh=force_refresh)
 
-    def update_payments(self, force_refresh: bool) -> CorporationUpdateStatus:
-        """Update the Payments for this corporation."""
-        return CorporationPayments.objects.update_or_create_payments(
-            self, force_refresh=force_refresh
-        )
-
-    def update_payment_system(self, force_refresh: bool) -> CorporationUpdateStatus:
-        """Update the Payment System for this corporation."""
-        return self.ts_corporation_payment_accounts.update_or_create_payment_system(
-            self, force_refresh=force_refresh
-        )
-
-    def update_payday(self, force_refresh: bool) -> CorporationUpdateStatus:
-        """Update the Payment System for this corporation."""
-        return self.ts_corporation_payment_accounts.check_pay_day(
-            self, force_refresh=force_refresh
-        )
-
+    # Abstract properties implementation
     @property
-    def eve_id(self) -> int:  # Is used for urls and templates
+    def eve_id(self) -> int:
         """Return the Eve Corporation ID."""
         return self.eve_corporation.corporation_id
 
     @property
-    def get_status(self) -> "OwnerBase.UpdateStatus":
-        """Get the status of this character."""
-        if self.active is False:
-            return self.UpdateStatus.DISABLED
-
-        qs = CorporationOwner.objects.filter(pk=self.pk).annotate_total_update_status()
-        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
-        return self.UpdateStatus(total_update_status)
+    def payment_accounts_manager(self):
+        """Return the corporation payment accounts related manager."""
+        return self.ts_corporation_payment_accounts
 
     @property
     def update_status_manager(self) -> models.QuerySet[CorporationUpdateStatus]:
