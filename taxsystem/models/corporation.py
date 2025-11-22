@@ -60,6 +60,7 @@ class CorporationUpdateStatus(UpdateStatusBase):
 
     class Meta:
         default_permissions = ()
+        unique_together = [("owner", "section")]
 
     def __str__(self) -> str:
         return f"{self.owner} - {self.section}"

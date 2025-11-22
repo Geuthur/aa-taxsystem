@@ -247,6 +247,7 @@ class OwnerBase(models.Model):
             "last_run_finished_at": timezone.now(),
         }
         obj = self.update_status_manager.update_or_create(
+            owner=self,
             section=section,
             defaults=defaults,
         )[0]
@@ -272,6 +273,7 @@ class OwnerBase(models.Model):
                 error_message,
             )
             self.update_status_manager.update_or_create(
+                owner=self,
                 section=section,
                 defaults={
                     "is_success": False,

@@ -247,16 +247,20 @@ class PaymentsManager(models.Manager):
             payments = self.bulk_create(items, ignore_conflicts=True)
 
             for payment in payments:
-                try:
-                    payment = self.get(
-                        entry_id=payment.entry_id, account=payment.account
-                    )
-                except CorporationPayments.DoesNotExist:
+                # After bulk_create with ignore_conflicts, we need to fetch the actual object
+                # Use filter().first() to avoid MultipleObjectsReturned
+                payment_obj = self.filter(
+                    entry_id=payment.entry_id,
+                    account=payment.account,
+                    owner_id=owner.eve_corporation.corporation_id,
+                ).first()
+
+                if not payment_obj:
                     continue
 
                 log_items = CorporationPaymentHistory(
-                    user=payment.account.user,
-                    payment=payment,
+                    user=payment_obj.account.user,
+                    payment=payment_obj,
                     action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
                     new_status=CorporationPayments.RequestStatus.PENDING,
                     comment=CorporationPaymentHistory.SystemText.ADDED,

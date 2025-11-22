@@ -258,16 +258,20 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
 
             # Create history entries
             for payment in payments:
-                try:
-                    payment = self.get(
-                        entry_id=payment.entry_id, account=payment.account
-                    )
-                except self.model.DoesNotExist:
+                # After bulk_create with ignore_conflicts, we need to fetch the actual object
+                # Use filter().first() to avoid MultipleObjectsReturned
+                payment_obj = self.filter(
+                    entry_id=payment.entry_id,
+                    account=payment.account,
+                    owner_id=owner.eve_alliance.alliance_id,
+                ).first()
+
+                if not payment_obj:
                     continue
 
                 log_items = AlliancePaymentHistory(
-                    user=payment.account.user,
-                    payment=payment,
+                    user=payment_obj.account.user,
+                    payment=payment_obj,
                     action=AlliancePaymentHistory.Actions.STATUS_CHANGE,
                     new_status=self.model.RequestStatus.PENDING,
                     comment=AlliancePaymentHistory.SystemText.ADDED,
