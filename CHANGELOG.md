@@ -13,6 +13,19 @@ Section Order:
 
 ### Added
 
+- Django Admin Integration
+  - `AllianceOwnerAdmin` class with:
+    - List display showing alliance info, corporation link, and last update timestamp
+    - Force update action for manual data refresh
+    - Read-only permissions (no add/change capabilities)
+    - Optimized queryset with `select_related` for corporation data
+  - `CorporationOwnerAdmin` enhanced with:
+    - Force update action for manual data refresh
+    - Last update timestamp display with humanized time
+  - Comprehensive admin test suite (`taxsystem/tests/test_admin.py`)
+    - 19 test methods covering both admin classes
+    - Tests for list display, entity pictures, permissions, force update actions
+    - Queryset optimization validation
 - Documentation
   - Comprehensive User Manual (`docs/USER_MANUAL.md`)
     - Getting Started Guide
@@ -26,6 +39,13 @@ Section Order:
     - New permissions documentation (Alliance permissions)
     - Documentation section with link to User Manual
     - Updated features list (Multi-Owner Support, Alliance Tax System)
+
+### Changed
+
+- Model Protection
+  - `AllianceOwner.corporation` ForeignKey changed from `CASCADE` to `PROTECT`
+  - Prevents accidental deletion of CorporationOwner when referenced by Alliance
+  - Must explicitly delete AllianceOwner before deleting linked Corporation
 
 ## [2.0.0a3] - 2025-11-22
 
