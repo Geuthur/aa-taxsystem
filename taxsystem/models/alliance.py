@@ -81,38 +81,16 @@ class AllianceOwner(OwnerBase):
     def __str__(self) -> str:
         return f"{self.eve_alliance.alliance_name}"
 
-    def update_payments(self, force_refresh: bool) -> AllianceUpdateStatus:
-        """Update the Payments for this alliance."""
-        return AlliancePayments.objects.update_or_create_payments(
-            self, force_refresh=force_refresh
-        )
-
-    def update_payment_system(self, force_refresh: bool) -> AllianceUpdateStatus:
-        """Update the Payment System for this alliance."""
-        return self.ts_alliance_payment_accounts.update_or_create_payment_system(
-            self, force_refresh=force_refresh
-        )
-
-    def update_payday(self, force_refresh: bool) -> AllianceUpdateStatus:
-        """Update the Payment System for this alliance."""
-        return self.ts_alliance_payment_accounts.check_pay_day(
-            self, force_refresh=force_refresh
-        )
-
+    # Abstract properties implementation
     @property
-    def eve_id(self) -> int:  # Is used for urls and templates
-        """Return the Eve Corporation ID."""
+    def eve_id(self) -> int:
+        """Return the Eve Alliance ID."""
         return self.eve_alliance.alliance_id
 
     @property
-    def get_status(self) -> "OwnerBase.UpdateStatus":
-        """Get the status of this character."""
-        if self.active is False:
-            return self.UpdateStatus.DISABLED
-
-        qs = AllianceOwner.objects.filter(pk=self.pk).annotate_total_update_status()
-        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
-        return self.UpdateStatus(total_update_status)
+    def payment_accounts_manager(self):
+        """Return the alliance payment accounts related manager."""
+        return self.ts_alliance_payment_accounts
 
     @property
     def update_status_manager(self) -> models.QuerySet[AllianceUpdateStatus]:

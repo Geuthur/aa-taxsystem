@@ -133,6 +133,36 @@ class OwnerBase(models.Model):
             "Subclasses must implement 'update_section_enum' property"
         )
 
+    @property
+    def eve_id(self) -> int:
+        """Return the EVE ID (corporation_id or alliance_id).
+
+        Must be implemented by subclasses to return the appropriate
+        EVE ID from the related EVE object.
+        """
+        raise NotImplementedError("Subclasses must implement 'eve_id' property")
+
+    @property
+    def payment_accounts_manager(self):
+        """Return the payment accounts related manager.
+
+        Must be implemented by subclasses to return the appropriate
+        related manager (e.g., self.ts_corporation_payment_accounts or
+        self.ts_alliance_payment_accounts).
+        """
+        raise NotImplementedError(
+            "Subclasses must implement 'payment_accounts_manager' property"
+        )
+
+    @property
+    def payments_class(self):
+        """Return the payments model class for this owner.
+
+        Must be implemented by subclasses to return the appropriate
+        payments class (e.g., CorporationPayments or AlliancePayments).
+        """
+        raise NotImplementedError("Subclasses must implement 'payments_class' property")
+
     # Shared methods
     def calc_update_needed(self):
         """Calculate if an update is needed."""
@@ -252,6 +282,61 @@ class OwnerBase(models.Model):
             )
             raise exc
         return result
+
+    # Update methods - generic for all owner types
+    def update_payments(self, force_refresh: bool):
+        """Update the payments for this owner.
+
+        Args:
+            force_refresh: Force refresh from ESI even if not modified
+
+        Returns:
+            UpdateStatus object for this section
+        """
+        return self.payments_class.objects.update_or_create_payments(
+            self, force_refresh=force_refresh
+        )
+
+    def update_payment_system(self, force_refresh: bool):
+        """Update the payment system for this owner.
+
+        Args:
+            force_refresh: Force refresh from ESI even if not modified
+
+        Returns:
+            UpdateStatus object for this section
+        """
+        return self.payment_accounts_manager.update_or_create_payment_system(
+            self, force_refresh=force_refresh
+        )
+
+    def update_payday(self, force_refresh: bool):
+        """Update the payday for this owner.
+
+        Args:
+            force_refresh: Force refresh from ESI even if not modified
+
+        Returns:
+            UpdateStatus object for this section
+        """
+        return self.payment_accounts_manager.check_pay_day(
+            self, force_refresh=force_refresh
+        )
+
+    @property
+    def get_status(self) -> "OwnerBase.UpdateStatus":
+        """Get the update status of this owner.
+
+        Returns:
+            UpdateStatus enum value representing the current status
+        """
+        if self.active is False:
+            return self.UpdateStatus.DISABLED
+
+        # Use type(self) for dynamic QuerySet resolution
+        qs = type(self).objects.filter(pk=self.pk).annotate_total_update_status()
+        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
+        return self.UpdateStatus(total_update_status)
 
     @property
     def get_update_status(self) -> dict[str, str]:
