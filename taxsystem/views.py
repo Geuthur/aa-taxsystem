@@ -35,7 +35,6 @@ from taxsystem.api.helpers.core import (
     get_alliance,
     get_character_permissions,
     get_corporation,
-    get_manage_alliance,
     get_manage_corporation,
     get_manage_owner,
     get_owner,
@@ -1363,9 +1362,9 @@ def generic_owner_own_payments(
 
     # 2. Get owner and permissions
     if owner_type == "corporation":
-        owner, perms = get_manage_corporation(request, owner_id)
+        owner = get_corporation(request, owner_id)
     else:
-        owner, perms = get_manage_alliance(request, owner_id)
+        owner = get_alliance(request, owner_id)
 
     if owner is None:
         messages.error(
@@ -1374,9 +1373,6 @@ def generic_owner_own_payments(
                 owner_type=get_owner_display_name(owner_type)
             ),
         )
-
-    if perms is False:
-        messages.error(request, _("Permission Denied"))
         return redirect("taxsystem:index")
 
     # 3. Build context
