@@ -18,7 +18,7 @@ from taxsystem import views
 
 # AA Taxsystem
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
     create_user_from_evecharacter_with_access,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
@@ -39,7 +39,7 @@ class TestViewAdministrationAccess(TestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
             1002
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
         cls.superuser, cls.character_ownership = (
             create_user_from_evecharacter_with_access(1001)
         )
@@ -134,8 +134,8 @@ class TestViewAccess(TestCase):
             ],
         )[0]
 
-        cls.audit = create_owneraudit_from_user(cls.user)
-        cls.manage_audit = create_owneraudit_from_user(cls.manage_user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
+        cls.manage_audit = create_corporation_owner_from_user(cls.manage_user)
 
     def test_view_index(self):
         """Test view taxsystem index."""

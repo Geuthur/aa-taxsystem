@@ -3,7 +3,6 @@ from django.test import RequestFactory, TestCase
 from django.utils import timezone
 
 # AA TaxSystem
-from taxsystem.api.alliance import PaymentAllianceSchema
 from taxsystem.api.corporation import PaymentCorporationSchema
 from taxsystem.api.helpers.common import (
     build_members_response_list,
@@ -13,7 +12,7 @@ from taxsystem.api.helpers.common import (
 from taxsystem.api.schema import MembersSchema
 from taxsystem.models.corporation import CorporationOwner, CorporationPayments, Members
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
     create_user_from_evecharacter_with_access,
 )
 from taxsystem.tests.testdata.generate_payments import (
@@ -48,7 +47,7 @@ class TestBuildPaymentsResponseList(TestCase):
         )
 
         # Create owneraudit (CorporationOwner) from user
-        cls.owner = create_owneraudit_from_user(cls.user)
+        cls.owner = create_corporation_owner_from_user(cls.user)
 
     def test_builds_corporation_payment_list(self):
         """Test building corporation payment response list"""
@@ -134,10 +133,10 @@ class TestBuildOwnPaymentsResponseList(TestCase):
         )
 
         # Create owneraudit (CorporationOwner) from user
-        cls.owner = create_owneraudit_from_user(cls.user)
+        cls.owner = create_corporation_owner_from_user(cls.user)
 
-    def test_builds_own_payment_list(self):
-        """Test building own payment response list"""
+    def test_builds_own_corporation_payment_list(self):
+        """Test building own payment response list for corporation"""
         # Arrange
         account = create_payment_system(self.owner, user=self.user)
         create_payment(
@@ -172,32 +171,6 @@ class TestBuildOwnPaymentsResponseList(TestCase):
         self.assertIsInstance(result[0], PaymentCorporationSchema)
         self.assertIsInstance(result[1], PaymentCorporationSchema)
 
-    def test_builds_own_payment_list_for_alliance(self):
-        """Test building own payment list works with Alliance schema"""
-        # Arrange
-        account = create_payment_system(self.owner, user=self.user)
-        create_payment(
-            account,
-            name=self.user.profile.main_character.character_name,
-            owner_id=self.owner.eve_corporation.corporation_id,
-            entry_id=1,
-            amount=1000000,
-            date=timezone.now(),
-            reason="Test Payment",
-        )
-
-        payments = CorporationPayments.objects.filter(
-            owner_id=self.owner.eve_corporation.corporation_id,
-            account__user=self.user,
-        )
-
-        # Act - Using AllianceSchema to test generic nature
-        result = build_own_payments_response_list(payments, PaymentAllianceSchema)
-
-        # Assert
-        self.assertEqual(len(result), 1)
-        self.assertIsInstance(result[0], PaymentAllianceSchema)
-
 
 class TestBuildMembersResponseList(TestCase):
     """
@@ -222,7 +195,7 @@ class TestBuildMembersResponseList(TestCase):
         )
 
         # Create owneraudit (CorporationOwner) from user
-        cls.owner = create_owneraudit_from_user(cls.user)
+        cls.owner = create_corporation_owner_from_user(cls.user)
 
     def test_builds_members_list(self):
         """Test building members response list with actual member data"""

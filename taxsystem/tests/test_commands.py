@@ -14,7 +14,9 @@ from eveuniverse.models import EveEntity
 from taxsystem.models.corporation import CorporationPaymentAccount, CorporationPayments
 
 # AA Tax System
-from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
+from taxsystem.tests.testdata.generate_owneraudit import (
+    create_corporation_owner_from_user,
+)
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
     create_payment_system,
@@ -39,7 +41,7 @@ class TestMigratePayments(NoSocketsTestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)

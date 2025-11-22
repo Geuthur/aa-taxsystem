@@ -3,11 +3,10 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
-from django.db.models import Case, Count, Q, Value, When
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.authentication.models import User, UserProfile
+from allianceauth.authentication.models import UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -16,6 +15,7 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
+from taxsystem.managers.base import BaseOwnerQuerySet
 from taxsystem.models.general import AllianceUpdateSection
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -30,144 +30,17 @@ if TYPE_CHECKING:
 
 
 # pylint: disable=duplicate-code
-class AllianceOwnerQuerySet(models.QuerySet):
-    def visible_to(self, user: User):
-        """Get all alliances visible to the user."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all alliances for superuser %s.",
-                user,
-            )
-            return self
+class AllianceOwnerQuerySet(BaseOwnerQuerySet):
+    """QuerySet for AllianceOwner with common filtering logic."""
 
-        if user.has_perm("taxsystem.manage_alliances"):
-            logger.debug("Returning all alliances for Tax Audit Manager %s.", user)
-            return self
-
-        try:
-            char = user.profile.main_character
-            assert char
-            ally_ids = user.character_ownerships.all().values_list(
-                "character__alliance_id", flat=True
-            )
-            queries = [models.Q(eve_alliance__alliance_id__in=ally_ids)]
-
-            logger.debug(
-                "%s queries for user %s visible alliances.", len(queries), user
-            )
-
-            query = queries.pop()
-            for q in queries:
-                query |= q
-            return self.filter(query)
-        except AssertionError:
-            logger.debug("User %s has no main character. Nothing visible.", user)
-            return self.none()
-
-    def manage_to(self, user: User):
-        """Get all alliances that the user can manage."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all alliances for superuser %s.",
-                user,
-            )
-            return self
-
-        if user.has_perm("taxsystem.manage_alliances"):
-            logger.debug("Returning all alliances for Tax Audit Manager %s.", user)
-            return self
-
-        try:
-            char = user.profile.main_character
-            assert char
-            query = None
-
-            if user.has_perm("taxsystem.manage_own_alliance"):
-                query = models.Q(eve_alliance__alliance_id=char.alliance_id)
-
-            logger.debug("Returning own alliances for User %s.", user)
-
-            if query is None:
-                return self.none()
-
-            return self.filter(query)
-        except AssertionError:
-            logger.debug("User %s has no main character. Nothing visible.", user)
-            return self.none()
-
-    def annotate_total_update_status(self):
-        """Get the total update status."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.alliance import AllianceOwner
-
-        sections = AllianceUpdateSection.get_sections()
-        num_sections_total = len(sections)
-        qs = (
-            self.annotate(
-                num_sections_total=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(ts_alliance_update_status__section__in=sections),
-                )
-            )
-            .annotate(
-                num_sections_ok=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(
-                        ts_alliance_update_status__section__in=sections,
-                        ts_alliance_update_status__is_success=True,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_failed=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(
-                        ts_alliance_update_status__section__in=sections,
-                        ts_alliance_update_status__is_success=False,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_token_error=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(
-                        ts_alliance_update_status__section__in=sections,
-                        ts_alliance_update_status__has_token_error=True,
-                    ),
-                )
-            )
-            # pylint: disable=no-member
-            .annotate(
-                total_update_status=Case(
-                    When(
-                        active=False,
-                        then=Value(AllianceOwner.UpdateStatus.DISABLED),
-                    ),
-                    When(
-                        num_sections_token_error=1,
-                        then=Value(AllianceOwner.UpdateStatus.TOKEN_ERROR),
-                    ),
-                    When(
-                        num_sections_failed__gt=0,
-                        then=Value(AllianceOwner.UpdateStatus.ERROR),
-                    ),
-                    When(
-                        num_sections_ok=num_sections_total,
-                        then=Value(AllianceOwner.UpdateStatus.OK),
-                    ),
-                    When(
-                        num_sections_total__lt=num_sections_total,
-                        then=Value(AllianceOwner.UpdateStatus.INCOMPLETE),
-                    ),
-                    default=Value(AllianceOwner.UpdateStatus.IN_PROGRESS),
-                )
-            )
-        )
-
-        return qs
+    # Configure base class for alliance-specific behavior
+    owner_type = "alliance"
+    permission_prefix = "taxsystem.manage_alliances"
+    owner_field = "alliance_id"  # Field on EveCharacter
+    owner_model_field = "eve_alliance__alliance_id"  # Field on AllianceOwner model
+    own_permission = "taxsystem.manage_own_alliance"
+    update_status_relation = "ts_alliance_update_status"
+    update_section_class = AllianceUpdateSection
 
 
 class AllianceOwnerManager(models.Manager["AllianceOwner"]):

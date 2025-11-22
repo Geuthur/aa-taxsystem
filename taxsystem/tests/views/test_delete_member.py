@@ -15,7 +15,7 @@ from app_utils.testing import create_user_from_evecharacter
 from taxsystem import views
 from taxsystem.models.corporation import Members
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.generate_payments import create_member
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
@@ -39,7 +39,7 @@ class TestDeleteMember(TestCase):
                 "taxsystem.manage_own_corp",
             ],
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
         cls.no_audit_user, _ = create_user_from_evecharacter(
             character_id=1002,
             permissions=[

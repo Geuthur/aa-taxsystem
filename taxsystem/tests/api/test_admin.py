@@ -19,7 +19,7 @@ from taxsystem.api.admin import AdminApiEndpoints
 from taxsystem.models.corporation import CorporationFilter
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    add_owneraudit_character_to_user,
+    add_corporation_owner_to_user,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
@@ -46,7 +46,7 @@ class TestCoreHelpers(TestCase):
                 "taxsystem.manage_corps",
             ],
         )
-        cls.audit = add_owneraudit_character_to_user(user=cls.user, character_id=1001)
+        cls.audit = add_corporation_owner_to_user(user=cls.user, character_id=1001)
         cls.no_evecharacter_user = UserMainFactory(permissions=[])
 
         cls.filter_set = create_filterset(
