@@ -6,10 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System 2.0.0a1\n"
+"Project-Id-Version: AA Tax System 2.0.0a2\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-11-20 15:35+0100\n"
-"POT-Creation-Date: 2025-11-22 17:17+0100\n"
+"POT-Creation-Date: 2025-11-22 17:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,7 +73,7 @@ msgstr ""
 msgid "Reason for deleting payment"
 msgstr ""
 
-#: taxsystem/forms.py:47 taxsystem/models/base.py:699
+#: taxsystem/forms.py:47 taxsystem/models/base.py:701
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:27
 msgid "Amount"
 msgstr ""
@@ -84,7 +83,7 @@ msgid "Reason for adding payment"
 msgstr ""
 
 #: taxsystem/forms.py:63 taxsystem/forms.py:83 taxsystem/forms.py:93
-#: taxsystem/models/base.py:798 taxsystem/models/base.py:844
+#: taxsystem/models/base.py:800 taxsystem/models/base.py:846
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:96
 msgid "Comment"
 msgstr ""
@@ -137,25 +136,25 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: taxsystem/models/alliance.py:78
+#: taxsystem/models/alliance.py:79
 msgid "The corporation that owns this alliance tax system."
-msgstr ""
-
-#: taxsystem/models/alliance.py:242 taxsystem/models/alliance.py:264
-#: taxsystem/models/corporation.py:376 taxsystem/models/corporation.py:398
-msgid "Payment"
 msgstr ""
 
 #: taxsystem/models/alliance.py:243 taxsystem/models/alliance.py:265
 #: taxsystem/models/corporation.py:377 taxsystem/models/corporation.py:399
+msgid "Payment"
+msgstr ""
+
+#: taxsystem/models/alliance.py:244 taxsystem/models/alliance.py:266
+#: taxsystem/models/corporation.py:378 taxsystem/models/corporation.py:400
 msgid "Payment that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:249 taxsystem/models/corporation.py:383
+#: taxsystem/models/alliance.py:250 taxsystem/models/corporation.py:384
 msgid "New Status"
 msgstr ""
 
-#: taxsystem/models/alliance.py:250 taxsystem/models/corporation.py:384
+#: taxsystem/models/alliance.py:251 taxsystem/models/corporation.py:385
 msgid "New Status of the action"
 msgstr ""
 
@@ -215,110 +214,110 @@ msgstr ""
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/base.py:366 taxsystem/models/corporation.py:213
+#: taxsystem/models/base.py:368 taxsystem/models/corporation.py:214
 #: taxsystem/templates/taxsystem/partials/manage/filter.html:9
 msgid "Active"
 msgstr ""
 
-#: taxsystem/models/base.py:367
+#: taxsystem/models/base.py:369
 #: taxsystem/templates/taxsystem/partials/table/owner-overview.html:21
 msgid "Inactive"
 msgstr ""
 
-#: taxsystem/models/base.py:368
+#: taxsystem/models/base.py:370
 msgid "Deactivated"
 msgstr ""
 
-#: taxsystem/models/base.py:369 taxsystem/models/corporation.py:214
+#: taxsystem/models/base.py:371 taxsystem/models/corporation.py:215
 msgid "Missing"
 msgstr ""
 
-#: taxsystem/models/base.py:402
+#: taxsystem/models/base.py:404
 msgid "Paid"
 msgstr ""
 
-#: taxsystem/models/base.py:403
+#: taxsystem/models/base.py:405
 msgid "Unpaid"
 msgstr ""
 
-#: taxsystem/models/base.py:432
+#: taxsystem/models/base.py:434
 msgid "Deposit Pool in ISK. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/base.py:519
+#: taxsystem/models/base.py:521
 msgid "Approved"
 msgstr ""
 
-#: taxsystem/models/base.py:520
+#: taxsystem/models/base.py:522
 msgid "Pending"
 msgstr ""
 
-#: taxsystem/models/base.py:521
+#: taxsystem/models/base.py:523
 msgid "Rejected"
 msgstr ""
 
-#: taxsystem/models/base.py:522
+#: taxsystem/models/base.py:524
 msgid "Requires Auditor"
 msgstr ""
 
-#: taxsystem/models/base.py:548
+#: taxsystem/models/base.py:550
 msgid "Request Status"
 msgstr ""
 
-#: taxsystem/models/base.py:555
+#: taxsystem/models/base.py:557
 msgid "Reviser that approved or rejected the payment"
 msgstr ""
 
-#: taxsystem/models/base.py:560
+#: taxsystem/models/base.py:562
 msgid "ID of the owner (corporation or alliance) associated with this payment"
 msgstr ""
 
-#: taxsystem/models/base.py:622
+#: taxsystem/models/base.py:624
 msgid "No date"
 msgstr ""
 
-#: taxsystem/models/base.py:698
+#: taxsystem/models/base.py:700
 #: taxsystem/templates/taxsystem/modals/view_character_payments.html:25
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:35
 #: taxsystem/templates/taxsystem/partials/table/own-payments.html:10
 msgid "Reason"
 msgstr ""
 
-#: taxsystem/models/base.py:756
+#: taxsystem/models/base.py:758
 msgid "Payment added to system"
 msgstr ""
 
-#: taxsystem/models/base.py:757
+#: taxsystem/models/base.py:759
 msgid "Automated approved Payment"
 msgstr ""
 
-#: taxsystem/models/base.py:759
+#: taxsystem/models/base.py:761
 msgid "Payment must be approved by an reviser"
 msgstr ""
 
-#: taxsystem/models/base.py:764
+#: taxsystem/models/base.py:766
 msgid "Status Changed"
 msgstr ""
 
-#: taxsystem/models/base.py:765
+#: taxsystem/models/base.py:767
 msgid "Payment Added"
 msgstr ""
 
-#: taxsystem/models/base.py:766
+#: taxsystem/models/base.py:768
 msgid "Reviser Comment"
 msgstr ""
 
-#: taxsystem/models/base.py:776 taxsystem/models/base.py:823
+#: taxsystem/models/base.py:778 taxsystem/models/base.py:825
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:93
 #: taxsystem/templates/taxsystem/partials/manage/manage-user.html:4
 msgid "User"
 msgstr ""
 
-#: taxsystem/models/base.py:777 taxsystem/models/base.py:824
+#: taxsystem/models/base.py:779 taxsystem/models/base.py:826
 msgid "User that performed the action"
 msgstr ""
 
-#: taxsystem/models/base.py:782 taxsystem/models/base.py:829
+#: taxsystem/models/base.py:784 taxsystem/models/base.py:831
 #: taxsystem/templates/taxsystem/modals/view_character_payments.html:22
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:94
 #: taxsystem/templates/taxsystem/partials/table/own-payments.html:8
@@ -326,45 +325,45 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: taxsystem/models/base.py:783 taxsystem/models/base.py:830
+#: taxsystem/models/base.py:785 taxsystem/models/base.py:832
 msgid "Date of the action"
 msgstr ""
 
-#: taxsystem/models/base.py:790 taxsystem/models/base.py:837
+#: taxsystem/models/base.py:792 taxsystem/models/base.py:839
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:95
 msgid "Action"
 msgstr ""
 
-#: taxsystem/models/base.py:791 taxsystem/models/base.py:838
+#: taxsystem/models/base.py:793 taxsystem/models/base.py:840
 msgid "Action performed"
 msgstr ""
 
-#: taxsystem/models/base.py:799
+#: taxsystem/models/base.py:801
 msgid "Comment of the action"
 msgstr ""
 
-#: taxsystem/models/base.py:811
+#: taxsystem/models/base.py:813
 msgid "Added"
 msgstr ""
 
-#: taxsystem/models/base.py:812
+#: taxsystem/models/base.py:814
 msgid "Changed"
 msgstr ""
 
-#: taxsystem/models/base.py:813
+#: taxsystem/models/base.py:815
 msgid "Deleted"
 msgstr ""
 
-#: taxsystem/models/corporation.py:215
+#: taxsystem/models/corporation.py:216
 #: taxsystem/templates/taxsystem/partials/manage/dashboard.html:184
 msgid "Unregistered"
 msgstr ""
 
-#: taxsystem/models/corporation.py:216
+#: taxsystem/models/corporation.py:217
 msgid "Is Alt"
 msgstr ""
 
-#: taxsystem/models/corporation.py:227
+#: taxsystem/models/corporation.py:228
 #: taxsystem/templates/taxsystem/modals/view_character_payments.html:23
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:97
 #: taxsystem/templates/taxsystem/partials/manage/manage-user.html:13

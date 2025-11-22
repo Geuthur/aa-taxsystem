@@ -11,6 +11,12 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0a2] - 2025-11-22
+
+### Fixed
+
+- MultipleObjectsReturned: get() returned more than one AlliancePayments -- it returned 2!
+
 ## [2.0.0a1] - 2025-11-22
 
 ### Added
