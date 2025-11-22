@@ -38,6 +38,7 @@ from taxsystem.api.helpers.core import (
     get_manage_alliance,
     get_manage_corporation,
     get_manage_owner,
+    get_owner,
 )
 from taxsystem.helpers import lazy
 from taxsystem.helpers.views import add_info_to_context
@@ -46,6 +47,7 @@ from taxsystem.helpers.views_generic import (
     get_owner_context_key,
     get_owner_display_name,
     get_owner_template,
+    get_owner_type_from_instance,
 )
 from taxsystem.models.alliance import (
     AllianceAdminHistory,
@@ -54,94 +56,10 @@ from taxsystem.models.alliance import (
 from taxsystem.models.corporation import (
     CorporationAdminHistory,
     CorporationOwner,
-    CorporationPaymentAccount,
     Members,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def index(request: WSGIRequest):  # pylint: disable=unused-argument
-    """Index View - Redirects to Owner Overview"""
-    return redirect("taxsystem:owner_overview")
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def owner_overview(request: WSGIRequest):
-    """
-    Owner Overview - Unified view for all Corporations and Alliances.
-
-    Shows all owners (corporations and alliances) that the user has access to
-    in a single DataTable with portraits, names, types, and action buttons.
-
-    Args:
-        request: The HTTP request object containing user information
-
-    Returns:
-        HttpResponse: Rendered owner overview template with combined owner list
-    """
-    owners = []
-
-    # Get visible corporations using manager method
-    corps = CorporationOwner.objects.visible_to(request.user).select_related(
-        "eve_corporation"
-    )
-
-    for corp in corps:
-        owners.append(
-            {
-                "type": "corporation",
-                "type_display": _("Corporation"),
-                "id": corp.eve_corporation.corporation_id,
-                "name": corp.eve_corporation.corporation_name,
-                "portrait": lazy.get_corporation_logo_url(
-                    corp.eve_corporation.corporation_id,
-                    size=64,
-                    corporation_name=corp.eve_corporation.corporation_name,
-                    as_html=True,
-                ),
-                "active": corp.active,
-            }
-        )
-
-    # Get visible alliances using manager method
-    alliances = AllianceOwner.objects.visible_to(request.user).select_related(
-        "eve_alliance"
-    )
-    for alliance in alliances:
-        owners.append(
-            {
-                "type": "alliance",
-                "type_display": _("Alliance"),
-                "id": alliance.eve_alliance.alliance_id,
-                "name": alliance.eve_alliance.alliance_name,
-                "portrait": lazy.get_alliance_logo_url(
-                    alliance.eve_alliance.alliance_id,
-                    size=64,
-                    alliance_name=alliance.eve_alliance.alliance_name,
-                    as_html=True,
-                ),
-                "active": alliance.active,
-            }
-        )
-
-    # Sort by name
-    owners.sort(key=lambda x: x["name"].lower())
-
-    context = {
-        "owners": owners,
-        "title": _("Owner Overview"),
-        "total_count": len(owners),
-        "corporation_count": len([o for o in owners if o["type"] == "corporation"]),
-        "alliance_count": len([o for o in owners if o["type"] == "alliance"]),
-    }
-
-    return render(
-        request, "taxsystem/owner-overview.html", add_info_to_context(request, context)
-    )
 
 
 @login_required
@@ -235,12 +153,283 @@ def admin(request: WSGIRequest):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
-def manage_corporation(request: WSGIRequest, corporation_id: int = None):
-    """Manage View (Backwards-compatible wrapper)"""
-    return generic_manage_owner(
-        request, owner_id=corporation_id, owner_type="corporation"
+@permission_required("taxsystem.basic_access")
+def index(request: WSGIRequest):  # pylint: disable=unused-argument
+    """Index View - Redirects to Owner Overview"""
+    return redirect("taxsystem:owner_overview")
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def owner_overview(request: WSGIRequest):
+    """
+    Owner Overview - Unified view for all Corporations and Alliances.
+
+    Shows all owners (corporations and alliances) that the user has access to
+    in a single DataTable with portraits, names, types, and action buttons.
+
+    Args:
+        request: The HTTP request object containing user information
+
+    Returns:
+        HttpResponse: Rendered owner overview template with combined owner list
+    """
+    owners = []
+
+    # Get visible corporations using manager method
+    corps = CorporationOwner.objects.visible_to(request.user).select_related(
+        "eve_corporation"
     )
+
+    for corp in corps:
+        owners.append(
+            {
+                "type": "corporation",
+                "type_display": _("Corporation"),
+                "id": corp.eve_corporation.corporation_id,
+                "name": corp.eve_corporation.corporation_name,
+                "portrait": lazy.get_corporation_logo_url(
+                    corp.eve_corporation.corporation_id,
+                    size=64,
+                    corporation_name=corp.eve_corporation.corporation_name,
+                    as_html=True,
+                ),
+                "active": corp.active,
+            }
+        )
+
+    # Get visible alliances using manager method
+    alliances = AllianceOwner.objects.visible_to(request.user).select_related(
+        "eve_alliance"
+    )
+    for alliance in alliances:
+        owners.append(
+            {
+                "type": "alliance",
+                "type_display": _("Alliance"),
+                "id": alliance.eve_alliance.alliance_id,
+                "name": alliance.eve_alliance.alliance_name,
+                "portrait": lazy.get_alliance_logo_url(
+                    alliance.eve_alliance.alliance_id,
+                    size=64,
+                    alliance_name=alliance.eve_alliance.alliance_name,
+                    as_html=True,
+                ),
+                "active": alliance.active,
+            }
+        )
+
+    # Sort by name
+    owners.sort(key=lambda x: x["name"].lower())
+
+    context = {
+        "owners": owners,
+        "title": _("Owner Overview"),
+        "total_count": len(owners),
+        "corporation_count": len([o for o in owners if o["type"] == "corporation"]),
+        "alliance_count": len([o for o in owners if o["type"] == "alliance"]),
+    }
+
+    return render(
+        request, "taxsystem/owner-overview.html", add_info_to_context(request, context)
+    )
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def payments(request: WSGIRequest, owner_id: int = None):
+    """Payments View"""
+    if not owner_id:
+        owner_id = request.user.profile.main_character.corporation_id
+
+    owner, perms = get_owner(request, owner_id)
+
+    if owner is None:
+        messages.error(request, _("Owner not Found"))
+        return redirect("taxsystem:index")
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    # Determine owner type for context
+    owner_type = get_owner_type_from_instance(owner)
+
+    return generic_owner_payments(request, owner_id=owner_id, owner_type=owner_type)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def own_payments(request: WSGIRequest, owner_id=None):
+    """Own Payments View (Backwards-compatible wrapper)"""
+    if not owner_id:
+        owner_id = request.user.profile.main_character.corporation_id
+
+    owner, perms = get_owner(request, owner_id)
+
+    if owner is None:
+        messages.error(request, _("Owner not Found"))
+        return redirect("taxsystem:index")
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    # Determine owner type for context
+    owner_type = get_owner_type_from_instance(owner)
+    return generic_owner_own_payments(request, owner_id=owner_id, owner_type=owner_type)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def faq(request: WSGIRequest, owner_id=None):
+    """FAQ View (Generic for Corporation and Alliance)"""
+    if not owner_id:
+        owner_id = request.user.profile.main_character.corporation_id
+
+    # Get owner generically
+    owner, perms = get_manage_owner(request, owner_id)
+    perms = perms or get_character_permissions(
+        request, request.user.profile.main_character.character_id
+    )
+
+    if owner is None:
+        messages.error(request, _("Owner not Found"))
+        return redirect("taxsystem:index")
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    # Determine owner type for context
+    owner_type = get_owner_type_from_instance(owner)
+    context_key = get_owner_context_key(owner_type)
+
+    corporations = CorporationOwner.objects.visible_to(request.user)
+
+    context = {
+        "owner_id": owner_id,
+        context_key: owner_id,  # "corporation_id" or "alliance_id"
+        "owner_type": owner_type,
+        "title": _("FAQ"),
+        "corporations": corporations,
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/faq.html", context=context)
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def account(request: WSGIRequest, owner_id=None):
+    """Account View (Generic for Corporation and Alliance)"""
+    if not owner_id:
+        owner_id = request.user.profile.main_character.corporation_id
+
+    character_id = request.user.profile.main_character.character_id
+
+    user_profile = UserProfile.objects.filter(
+        main_character__character_id=character_id
+    ).first()
+
+    if not user_profile:
+        messages.error(request, _("No User found."))
+        return redirect("taxsystem:index")
+
+    try:
+        owner, perms = get_manage_owner(request, owner_id)
+        perms = perms or get_character_permissions(request, character_id)
+    except AttributeError:
+        messages.error(request, _("User has no main character set."))
+        return redirect("taxsystem:index")
+
+    if owner is None:
+        messages.error(request, _("Owner not Found"))
+        return redirect("taxsystem:index")
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    payment_user = owner.payments_account_class.objects.filter(
+        user__profile=user_profile,
+        owner=owner,
+    ).first()
+
+    if not payment_user:
+        messages.error(request, _("No Payment System User found."))
+        return redirect("taxsystem:index")
+
+    # Get member info
+    try:
+        member = Members.objects.get(character_id=character_id)
+    except Members.DoesNotExist:
+        member = None
+
+    # Determine owner type for context
+    owner_type = get_owner_type_from_instance(owner)
+    context_key = get_owner_context_key(owner_type)
+
+    context = {
+        "title": _("Account"),
+        "character_id": character_id,
+        "owner_id": owner_id,
+        context_key: owner_id,
+        "owner_type": owner_type,
+        "account": {
+            "name": payment_user.name,
+            "owner": owner,
+            "corporation": owner,  # Backwards compatibility
+            "status": payment_user.Status(payment_user.status).html(text=True),
+            "deposit": (
+                payment_user.deposit_html
+                if payment_user.status != payment_user.Status.MISSING
+                else "N/A"
+            ),
+            "has_paid": (
+                payment_user.has_paid_icon(badge=True, text=True)
+                if payment_user.status != payment_user.Status.MISSING
+                else "N/A"
+            ),
+            "last_paid": (
+                payment_user.last_paid
+                if payment_user.status != payment_user.Status.MISSING
+                else "N/A"
+            ),
+            "joined": member.joined if member else "N/A",
+            "last_login": member.logon if member else "N/A",
+        },
+    }
+    context = add_info_to_context(request, context)
+
+    return render(request, "taxsystem/account.html", context=context)
+
+
+@login_required
+@permissions_required(
+    [
+        "taxsystem.manage_own_corp",
+        "taxsystem.manage_corps",
+        "taxsystem.manage_own_alliance",
+        "taxsystem.manage_alliances",
+    ]
+)
+def manage_owner(request: WSGIRequest, owner_id: int = None):
+    """Manage View (Backwards-compatible wrapper)"""
+    owner, perms = get_manage_owner(request, owner_id)
+
+    if owner is None:
+        messages.error(request, _("Owner not Found"))
+        return redirect("taxsystem:index")
+
+    if perms is False:
+        messages.error(request, _("Permission Denied"))
+        return redirect("taxsystem:index")
+
+    # Determine owner type for context
+    owner_type = get_owner_type_from_instance(owner)
+
+    return generic_manage_owner(request, owner_id=owner_id, owner_type=owner_type)
 
 
 @login_required
@@ -467,140 +656,6 @@ def edit_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
     context = add_info_to_context(request, context)
 
     return render(request, "taxsystem/manage-filter.html", context=context)
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def payments(request: WSGIRequest, corporation_id: int = None):
-    """Payments View"""
-    if corporation_id is None:
-        corporation_id = request.user.profile.main_character.corporation_id
-
-    perms = get_corporation(request, corporation_id)
-
-    if perms is None:
-        messages.error(request, _("No Corporation found."))
-
-    corporations = CorporationOwner.objects.visible_to(request.user)
-
-    context = {
-        "corporation_id": corporation_id,
-        "title": _("Payments"),
-        "forms": {
-            "add_request": forms.PaymentAddForm(),
-            "payment_delete_request": forms.PaymentDeleteForm(),
-            "accept_request": forms.PaymentAcceptForm(),
-            "reject_request": forms.PaymentRejectForm(),
-            "undo_request": forms.PaymentUndoForm(),
-        },
-        "corporations": corporations,
-    }
-    context = add_info_to_context(request, context)
-
-    return render(request, "taxsystem/payments.html", context=context)
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def own_payments(request: WSGIRequest, corporation_id=None):
-    """Own Payments View (Backwards-compatible wrapper)"""
-    return generic_owner_own_payments(
-        request, owner_id=corporation_id, owner_type="corporation"
-    )
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def faq(request: WSGIRequest):
-    """Payments View"""
-    corporations = CorporationOwner.objects.visible_to(request.user)
-
-    context = {
-        "corporation_id": request.user.profile.main_character.corporation_id,
-        "title": _("FAQ"),
-        "corporations": corporations,
-    }
-    context = add_info_to_context(request, context)
-
-    return render(request, "taxsystem/faq.html", context=context)
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def account(request: WSGIRequest, character_id=None):
-    """Account View"""
-    if character_id is None:
-        character_id = request.user.profile.main_character.character_id
-    logger.error(f"Character ID not provided, using main character ID: {character_id}")
-
-    user_profile = UserProfile.objects.filter(
-        main_character__character_id=character_id
-    ).first()
-
-    if not user_profile:
-        messages.error(request, _("No User found."))
-        return redirect("taxsystem:index")
-
-    try:
-        corporation_id = user_profile.main_character.corporation_id
-        owner, perms = get_manage_corporation(request, corporation_id)
-        perms = perms or get_character_permissions(request, character_id)
-    except AttributeError:
-        messages.error(request, _("User has no main character set."))
-        return redirect("taxsystem:index")
-
-    payment_user = CorporationPaymentAccount.objects.filter(
-        user__profile=user_profile,
-        owner=owner,
-    ).first()
-
-    if not payment_user:
-        messages.error(request, _("No Payment System User found."))
-        return redirect("taxsystem:index")
-
-    if owner is None:
-        messages.error(request, _("Corporation not Found"))
-        return redirect("taxsystem:index")
-
-    if perms is False:
-        messages.error(request, _("Permission Denied"))
-        return redirect("taxsystem:index")
-
-    try:
-        member = owner.ts_members.get(character_id=character_id)
-    except owner.ts_members.model.DoesNotExist:
-        member = None
-
-    context = {
-        "title": _("Account"),
-        "character_id": character_id,
-        "corporation_id": corporation_id,
-        "account": {
-            "name": payment_user.name,
-            "corporation": owner,
-            "status": payment_user.Status(payment_user.status).html(text=True),
-            "deposit": (
-                payment_user.deposit_html
-                if payment_user.status != CorporationPaymentAccount.Status.MISSING
-                else "N/A"
-            ),
-            "has_paid": (
-                payment_user.has_paid_icon(badge=True, text=True)
-                if payment_user.status != CorporationPaymentAccount.Status.MISSING
-                else "N/A"
-            ),
-            "last_paid": (
-                payment_user.last_paid
-                if payment_user.status != CorporationPaymentAccount.Status.MISSING
-                else "N/A"
-            ),
-            "joined": member.joined if member else "N/A",
-            "last_login": member.logon if member else "N/A",
-        },
-    }
-    context = add_info_to_context(request, context)
-
-    return render(request, "taxsystem/account.html", context=context)
 
 
 @login_required
@@ -1151,29 +1206,6 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
                 data={"success": True, "message": msg}, status=200, safe=False
             )
     return JsonResponse(data={"success": False, "message": msg}, status=400, safe=False)
-
-
-@login_required
-@permissions_required(["taxsystem.manage_own_alliance", "taxsystem.manage_alliances"])
-def manage_alliance(request: WSGIRequest, alliance_id: int = None):
-    """Alliance Management View (Backwards-compatible wrapper)"""
-    return generic_manage_owner(request, owner_id=alliance_id, owner_type="alliance")
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def alliance_payments(request: WSGIRequest, alliance_id: int = None):
-    """Alliance Payments View (Backwards-compatible wrapper)"""
-    return generic_owner_payments(request, owner_id=alliance_id, owner_type="alliance")
-
-
-@login_required
-@permission_required("taxsystem.basic_access")
-def alliance_own_payments(request: WSGIRequest, alliance_id=None):
-    """Alliance Own Payments View (Backwards-compatible wrapper)"""
-    return generic_owner_own_payments(
-        request, owner_id=alliance_id, owner_type="alliance"
-    )
 
 
 # =============================================================================

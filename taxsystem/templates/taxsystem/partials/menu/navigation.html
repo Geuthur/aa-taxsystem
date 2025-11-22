@@ -3,9 +3,9 @@
 
 {% if corporation_id or alliance_id %}
     {% if corporation_id %}
-        <a class="nav-link {% navactive request 'taxsystem:payments' %}" href="{% url 'taxsystem:payments' corporation_id=corporation_id %}">{% translate 'Payments' %}</a>
+        <a class="nav-link {% navactive request 'taxsystem:payments' %}" href="{% url 'taxsystem:payments' owner_id=corporation_id %}">{% translate 'Payments' %}</a>
     {% else %}
-        <a class="nav-link {% navactive request 'taxsystem:alliance_payments' %}" href="{% url 'taxsystem:alliance_payments' alliance_id=alliance_id %}">{% translate 'Payments' %}</a>
+        <a class="nav-link {% navactive request 'taxsystem:payments' %}" href="{% url 'taxsystem:payments' owner_id=alliance_id %}">{% translate 'Payments' %}</a>
     {% endif %}
 {% else %}
     <a class="nav-link {% navactive request 'taxsystem:payments' %}" href="#">{% translate 'Payments' %}</a>
@@ -13,18 +13,30 @@
 
 {% if corporation_id or alliance_id %}
     {% if corporation_id %}
-        <a class="nav-link {% navactive request 'taxsystem:own_payments' %}" href="{% url 'taxsystem:own_payments' corporation_id=corporation_id %}">{% translate 'Own Payments' %}</a>
+        <a class="nav-link {% navactive request 'taxsystem:own_payments' %}" href="{% url 'taxsystem:own_payments' owner_id=corporation_id %}">{% translate 'Own Payments' %}</a>
     {% else %}
-        <a class="nav-link {% navactive request 'taxsystem:alliance_own_payments' %}" href="{% url 'taxsystem:alliance_own_payments' alliance_id=alliance_id %}">{% translate 'Own Payments' %}</a>
+        <a class="nav-link {% navactive request 'taxsystem:own_payments' %}" href="{% url 'taxsystem:own_payments' owner_id=alliance_id %}">{% translate 'Own Payments' %}</a>
     {% endif %}
 {% else %}
     <a class="nav-link {% navactive request 'taxsystem:own_payments' %}" href="#">{% translate 'Own Payments' %}</a>
 {% endif %}
 
-<li class="nav-item">
-    <a class="nav-link {% navactive request 'taxsystem:faq' %}" href="{% url 'taxsystem:faq' %}">{% translate 'FAQ' %}</a>
-</li>
+{% if corporation_id or alliance_id %}
+    {% if corporation_id %}
+        <a class="nav-link {% navactive request 'taxsystem:faq' %}" href="{% url 'taxsystem:faq' owner_id=corporation_id %}">{% translate 'FAQ' %}</a>
+    {% else %}
+        <a class="nav-link {% navactive request 'taxsystem:faq' %}" href="{% url 'taxsystem:faq' owner_id=alliance_id %}">{% translate 'FAQ' %}</a>
+    {% endif %}
+{% else %}
+    <a class="nav-link {% navactive request 'taxsystem:faq' %}" href="#">{% translate 'FAQ' %}</a>
+{% endif %}
 
-<li class="nav-item">
-    <a class="nav-link {% navactive request 'taxsystem:account' %}" href="{% url 'taxsystem:account' %}">{% translate 'Account' %}</a>
-</li>
+{% if corporation_id or alliance_id %}
+    {% if corporation_id %}
+        <a class="nav-link {% navactive request 'taxsystem:account' %}" href="{% url 'taxsystem:account' owner_id=corporation_id %}">{% translate 'Account' %}</a>
+    {% else %}
+        <a class="nav-link {% navactive request 'taxsystem:account' %}" href="{% url 'taxsystem:account' owner_id=alliance_id %}">{% translate 'Account' %}</a>
+    {% endif %}
+{% else %}
+    <a class="nav-link {% navactive request 'taxsystem:account' %}" href="#">{% translate 'Account' %}</a>
+{% endif %}

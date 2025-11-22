@@ -14,39 +14,22 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("owners/", views.owner_overview, name="owner_overview"),
     path("view/faq/", views.faq, name="faq"),
+    path("owner/<int:owner_id>/view/faq/", views.faq, name="faq"),
+    path("view/account/", views.account, name="account"),
+    path("owner/<int:owner_id>/view/account/", views.account, name="account"),
     path("admin/", views.admin, name="admin"),
     path("corporation/add/", views.add_corp, name="add_corp"),
     path("alliance/add/", views.add_alliance, name="add_alliance"),
     # -- Corporation Tax System
     path(
-        "owner/<int:corporation_id>/view/payments/",
-        views.payments,
-        name="payments",
+        "owner/<int:owner_id>/view/manage/",
+        views.manage_owner,
+        name="manage_owner",
     ),
     path(
-        "owner/view/payments/",
-        views.payments,
-        name="payments",
-    ),
-    path(
-        "owner/<int:corporation_id>/view/own-payments/",
-        views.own_payments,
-        name="own_payments",
-    ),
-    path(
-        "owner/view/own-payments/",
-        views.own_payments,
-        name="own_payments",
-    ),
-    path(
-        "owner/<int:corporation_id>/view/manage/corporation/",
-        views.manage_corporation,
-        name="manage_corporation",
-    ),
-    path(
-        "owner/view/manage/corporation/",
-        views.manage_corporation,
-        name="manage_corporation",
+        "owner/view/manage/",
+        views.manage_owner,
+        name="manage_owner",
     ),
     # -- Corporation Manage
     path(
@@ -54,36 +37,26 @@ urlpatterns = [
         views.delete_member,
         name="delete_member",
     ),
-    # -- Alliance Tax System
+    # -- Tax System Views
     path(
-        "owner/<int:alliance_id>/view/manage/alliance/",
-        views.manage_alliance,
-        name="manage_alliance",
-    ),
-    path(
-        "owner/view/manage/alliance/",
-        views.manage_alliance,
-        name="manage_alliance",
-    ),
-    path(
-        "owner/<int:alliance_id>/view/payments/",
-        views.alliance_payments,
-        name="alliance_payments",
+        "owner/<int:owner_id>/view/payments/",
+        views.payments,
+        name="payments",
     ),
     path(
         "owner/view/payments/",
-        views.alliance_payments,
-        name="alliance_payments",
+        views.payments,
+        name="payments",
     ),
     path(
-        "owner/<int:alliance_id>/view/own-payments/",
-        views.alliance_own_payments,
-        name="alliance_own_payments",
+        "owner/<int:owner_id>/view/own-payments/",
+        views.own_payments,
+        name="own_payments",
     ),
     path(
         "owner/view/own-payments/",
-        views.alliance_own_payments,
-        name="alliance_own_payments",
+        views.own_payments,
+        name="own_payments",
     ),
     # -- Tax Payments
     path(
@@ -157,9 +130,6 @@ urlpatterns = [
         views.delete_filter,
         name="delete_filter",
     ),
-    # -- Tax Payment Account
-    path("view/account/", views.account, name="account"),
-    path("view/account/<int:character_id>/", views.account, name="account"),
     # -- API System
     re_path(r"^api/", api.urls),
 ]
