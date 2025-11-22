@@ -80,8 +80,8 @@ class PerformanceTests(TestCase):
 
     def test_payments_statistics_query_count(self):
         """Test that payment statistics uses single query."""
-        if not self.owner:
-            self.skipTest("No test owner available")
+        # Ensure we have an owner
+        self.assertIsNotNone(self.owner, "Test owner must exist for performance tests")
 
         result, query_count, exec_time = self._measure_performance(
             get_payments_statistics, self.owner
@@ -97,8 +97,8 @@ class PerformanceTests(TestCase):
 
     def test_payment_system_statistics_query_count(self):
         """Test that payment system statistics uses single query."""
-        if not self.owner:
-            self.skipTest("No test owner available")
+        # Ensure we have an owner
+        self.assertIsNotNone(self.owner, "Test owner must exist for performance tests")
 
         result, query_count, exec_time = self._measure_performance(
             get_payment_system_statistics, self.owner
@@ -114,8 +114,8 @@ class PerformanceTests(TestCase):
 
     def test_members_statistics_query_count(self):
         """Test that members statistics uses single query."""
-        if not self.owner:
-            self.skipTest("No test owner available")
+        # Ensure we have an owner
+        self.assertIsNotNone(self.owner, "Test owner must exist for performance tests")
 
         result, query_count, exec_time = self._measure_performance(
             get_members_statistics, self.owner
@@ -131,8 +131,8 @@ class PerformanceTests(TestCase):
 
     def test_full_statistics_response_query_count(self):
         """Test that full statistics response uses 3 queries (1 per table)."""
-        if not self.owner:
-            self.skipTest("No test owner available")
+        # Ensure we have an owner
+        self.assertIsNotNone(self.owner, "Test owner must exist for performance tests")
 
         result, query_count, exec_time = self._measure_performance(
             create_statistics_response, self.owner
@@ -148,8 +148,8 @@ class PerformanceTests(TestCase):
 
     def test_optimized_payments_queryset(self):
         """Test that optimized payments queryset uses select_related efficiently."""
-        if not self.owner:
-            self.skipTest("No test owner available")
+        # Ensure we have an owner
+        self.assertIsNotNone(self.owner, "Test owner must exist for performance tests")
 
         # Get optimized queryset with actual owner_id value
         reset_queries()
@@ -194,8 +194,8 @@ class PerformanceTests(TestCase):
 
     def test_members_queryset_optimization(self):
         """Test that members queryset uses select_related for owner."""
-        if not self.owner:
-            self.skipTest("No test owner available")
+        # Ensure we have an owner
+        self.assertIsNotNone(self.owner, "Test owner must exist for performance tests")
 
         reset_queries()
         start_time = time.time()
@@ -223,8 +223,8 @@ class PerformanceTests(TestCase):
 
     def test_performance_summary(self):
         """Print performance summary for all optimizations."""
-        if not self.owner:
-            self.skipTest("No test owner available")
+        # Ensure we have an owner
+        self.assertIsNotNone(self.owner, "Test owner must exist for performance tests")
 
         print("\n" + "=" * 70)
         print("PERFORMANCE TEST SUMMARY - Phase 1.2 Optimizations")

@@ -12,6 +12,7 @@ app_name: str = "taxsystem"  # pylint: disable=invalid-name
 urlpatterns = [
     # -- Tax System
     path("", views.index, name="index"),
+    path("owners/", views.owner_overview, name="owner_overview"),
     path("view/faq/", views.faq, name="faq"),
     path("admin/", views.admin, name="admin"),
     path("corporation/add/", views.add_corp, name="add_corp"),

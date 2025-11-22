@@ -39,6 +39,7 @@ from taxsystem.api.helpers.core import (
     get_manage_corporation,
     get_manage_owner,
 )
+from taxsystem.helpers import lazy
 from taxsystem.helpers.views import add_info_to_context
 from taxsystem.helpers.views_generic import (
     get_default_owner_id,
@@ -62,10 +63,84 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def index(request: WSGIRequest):
-    """Index View"""
-    return redirect(
-        "taxsystem:payments", request.user.profile.main_character.corporation_id
+def index(request: WSGIRequest):  # pylint: disable=unused-argument
+    """Index View - Redirects to Owner Overview"""
+    return redirect("taxsystem:owner_overview")
+
+
+@login_required
+@permission_required("taxsystem.basic_access")
+def owner_overview(request: WSGIRequest):
+    """
+    Owner Overview - Unified view for all Corporations and Alliances.
+
+    Shows all owners (corporations and alliances) that the user has access to
+    in a single DataTable with portraits, names, types, and action buttons.
+
+    Args:
+        request: The HTTP request object containing user information
+
+    Returns:
+        HttpResponse: Rendered owner overview template with combined owner list
+    """
+    owners = []
+
+    # Get visible corporations using manager method
+    corps = CorporationOwner.objects.visible_to(request.user).select_related(
+        "eve_corporation"
+    )
+
+    for corp in corps:
+        owners.append(
+            {
+                "type": "corporation",
+                "type_display": _("Corporation"),
+                "id": corp.eve_corporation.corporation_id,
+                "name": corp.eve_corporation.corporation_name,
+                "portrait": lazy.get_corporation_logo_url(
+                    corp.eve_corporation.corporation_id,
+                    size=64,
+                    corporation_name=corp.eve_corporation.corporation_name,
+                    as_html=True,
+                ),
+                "active": corp.active,
+            }
+        )
+
+    # Get visible alliances using manager method
+    alliances = AllianceOwner.objects.visible_to(request.user).select_related(
+        "eve_alliance"
+    )
+    for alliance in alliances:
+        owners.append(
+            {
+                "type": "alliance",
+                "type_display": _("Alliance"),
+                "id": alliance.eve_alliance.alliance_id,
+                "name": alliance.eve_alliance.alliance_name,
+                "portrait": lazy.get_alliance_logo_url(
+                    alliance.eve_alliance.alliance_id,
+                    size=64,
+                    alliance_name=alliance.eve_alliance.alliance_name,
+                    as_html=True,
+                ),
+                "active": alliance.active,
+            }
+        )
+
+    # Sort by name
+    owners.sort(key=lambda x: x["name"].lower())
+
+    context = {
+        "owners": owners,
+        "title": _("Owner Overview"),
+        "total_count": len(owners),
+        "corporation_count": len([o for o in owners if o["type"] == "corporation"]),
+        "alliance_count": len([o for o in owners if o["type"] == "alliance"]),
+    }
+
+    return render(
+        request, "taxsystem/owner-overview.html", add_info_to_context(request, context)
     )
 
 
