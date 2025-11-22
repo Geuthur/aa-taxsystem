@@ -1130,6 +1130,18 @@ def manage_alliance(request: WSGIRequest, alliance_id: int = None):
     if alliance_id is None:
         alliance_id = request.user.profile.main_character.alliance_id
 
+    owner, perms = get_manage_alliance(request, alliance_id)
+
+    if perms is False:
+        messages.error(
+            request, _("You do not have permission to manage this alliance.")
+        )
+        return redirect("taxsystem:index")
+
+    if owner is None:
+        messages.error(request, _("Alliance not Found"))
+        return redirect("taxsystem:index")
+
     context = {
         "alliance_id": alliance_id,
         "corporations": CorporationOwner.objects.visible_to(request.user),
