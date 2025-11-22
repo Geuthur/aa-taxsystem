@@ -12,7 +12,7 @@ from app_utils.testing import create_user_from_evecharacter
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment_system,
@@ -34,8 +34,8 @@ class TestPaymentSystemModel(TestCase):
         cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
             1002, permissions=["taxsystem.basic_access"]
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
-        cls.audit2 = create_owneraudit_from_user(cls.user2)
+        cls.audit = create_corporation_owner_from_user(cls.user)
+        cls.audit2 = create_corporation_owner_from_user(cls.user2)
 
         cls.payment_system = create_payment_system(
             name=cls.user.username,

@@ -24,7 +24,7 @@ from taxsystem.models.corporation import (
 )
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    add_owneraudit_character_to_user,
+    add_corporation_owner_to_user,
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
@@ -54,7 +54,7 @@ class TestCoreHelpers(TestCase):
                 "taxsystem.manage_corps",
             ],
         )
-        cls.audit = add_owneraudit_character_to_user(user=cls.user, character_id=1001)
+        cls.audit = add_corporation_owner_to_user(user=cls.user, character_id=1001)
         cls.no_evecharacter_user = UserMainFactory(permissions=[])
 
         cls.payment_system = create_payment_system(

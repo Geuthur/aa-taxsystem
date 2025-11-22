@@ -15,7 +15,7 @@ from app_utils.testing import create_user_from_evecharacter
 from taxsystem import views
 from taxsystem.models.corporation import CorporationPayments
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
@@ -42,7 +42,7 @@ class TestAddPayment(TestCase):
                 "taxsystem.manage_own_corp",
             ],
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
         cls.no_audit_user, _ = create_user_from_evecharacter(
             character_id=1002,
             permissions=[

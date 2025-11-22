@@ -16,7 +16,9 @@ from taxsystem.models.corporation import (
     CorporationPayments,
 )
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
-from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
+from taxsystem.tests.testdata.generate_owneraudit import (
+    create_corporation_owner_from_user,
+)
 from taxsystem.tests.testdata.generate_payments import (
     create_member,
     create_payment,
@@ -42,7 +44,7 @@ class TestPaymentsManager(NoSocketsTestCase):
             1001,
         )
 
-        cls.audit = create_owneraudit_from_user(
+        cls.audit = create_corporation_owner_from_user(
             user=cls.user,
             tax_amount=1000,
             tax_period=30,

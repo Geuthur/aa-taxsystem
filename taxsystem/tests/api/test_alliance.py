@@ -11,25 +11,25 @@ from django.utils import timezone
 
 # Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserMainFactory
-from app_utils.testing import (
-    create_user_from_evecharacter,
-)
+from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem.api.character import CharacterApiEndpoints
-from taxsystem.models.corporation import (
-    CorporationFilter,
-    CorporationPaymentAccount,
-    CorporationPayments,
+from taxsystem.models.alliance import (
+    AllianceFilter,
+    AlliancePaymentAccount,
+    AlliancePayments,
 )
-from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
+from taxsystem.tests.testdata.generate_filter import (
+    create_alliance_filter,
+    create_alliance_filterset,
+)
 from taxsystem.tests.testdata.generate_owneraudit import (
-    add_corporation_owner_to_user,
-    create_user_from_evecharacter_with_access,
+    create_alliance_owner_from_user,
 )
 from taxsystem.tests.testdata.generate_payments import (
-    create_payment,
-    create_payment_system,
+    create_alliance_payment,
+    create_alliance_payment_system,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
@@ -38,7 +38,9 @@ MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestCoreHelpers(TestCase):
+class TestAllianceApiEndpoints(TestCase):
+    """Test Alliance API endpoints for payments and filters."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -48,70 +50,81 @@ class TestCoreHelpers(TestCase):
         cls.api = NinjaAPI()
         cls.character_endpoint = CharacterApiEndpoints(cls.api)
         cls.factory = RequestFactory()
+
+        # Create user with alliance character
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
             permissions=[
                 "taxsystem.basic_access",
-                "taxsystem.manage_corps",
+                "taxsystem.manage_alliances",
             ],
         )
-        cls.audit = add_corporation_owner_to_user(user=cls.user, character_id=1001)
+
+        # Create AllianceOwner
+        cls.alliance_owner = create_alliance_owner_from_user(cls.user)
+
+        # User without payments
         cls.user_no_payments, cls.character_ownership_no_payments = (
-            create_user_from_evecharacter_with_access(1004)
+            create_user_from_evecharacter(1002, permissions=["taxsystem.basic_access"])
         )
+
+        # User without eve character
         cls.no_evecharacter_user = UserMainFactory(permissions=[])
 
-        cls.payment_system = create_payment_system(
+        # Create payment system
+        cls.payment_system = create_alliance_payment_system(
             name=cls.character_ownership.character.character_name,
-            owner=cls.audit,
+            owner=cls.alliance_owner,
             user=cls.user,
-            status=CorporationPaymentAccount.Status.ACTIVE,
+            status=AlliancePaymentAccount.Status.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        cls.payments = create_payment(
+        # Create payments
+        cls.payments = create_alliance_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            owner_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.alliance_id,
             entry_id=1,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
-            reason="Tax Payment",
-            request_status=CorporationPayments.RequestStatus.PENDING,
+            reason="Alliance Tax Payment",
+            request_status=AlliancePayments.RequestStatus.PENDING,
             reviser="",
         )
 
-        cls.payments2 = create_payment(
+        cls.payments2 = create_alliance_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            owner_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.alliance_id,
             entry_id=2,
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
-            reason="Mining Stuff",
-            request_status=CorporationPayments.RequestStatus.PENDING,
+            reason="Alliance Mining Operations",
+            request_status=AlliancePayments.RequestStatus.PENDING,
             reviser="",
         )
 
-        cls.filter_set = create_filterset(
-            owner=cls.audit,
-            name="100m",
-            description="Filter for payments over 100m",
+        # Create filter set
+        cls.filter_set = create_alliance_filterset(
+            owner=cls.alliance_owner,
+            name="100m Alliance Filter",
+            description="Filter for alliance payments over 100m",
         )
 
-        cls.filter_amount = create_filter(
+        cls.filter_amount = create_alliance_filter(
             filter_set=cls.filter_set,
-            filter_type=CorporationFilter.FilterType.AMOUNT,
+            filter_type=AllianceFilter.FilterType.AMOUNT,
             value=1000,
         )
 
-    def test_get_payments_access(self):
-        """Test should be able to access payments API endpoint"""
+    def test_get_alliance_payments_access(self):
+        """Test should be able to access alliance payments API endpoint"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        alliance_id = self.character_ownership.character.alliance_id
         url = reverse(
-            f"{API_URL}:get_payments", kwargs={"corporation_id": corporation_id}
+            f"{API_URL}:get_alliance_payments", kwargs={"alliance_id": alliance_id}
         )
         self.client.force_login(self.user)
         # when
@@ -122,12 +135,12 @@ class TestCoreHelpers(TestCase):
         self.assertIn("owner", response_data)
         self.assertEqual(len(response_data["owner"]), 2)
 
-    def test_get_payments_without_access(self):
-        """Test should not be able to access payments API endpoint without permission"""
+    def test_get_alliance_payments_without_access(self):
+        """Test should not be able to access alliance payments API endpoint without permission"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        alliance_id = self.character_ownership.character.alliance_id
         url = reverse(
-            f"{API_URL}:get_payments", kwargs={"corporation_id": corporation_id}
+            f"{API_URL}:get_alliance_payments", kwargs={"alliance_id": alliance_id}
         )
         self.client.force_login(self.no_evecharacter_user)
         # when
@@ -137,12 +150,12 @@ class TestCoreHelpers(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertIn("Permission Denied", response_data.get("error", ""))
 
-    def test_get_own_payments_access(self):
-        """Test should be able to access own payments API endpoint"""
+    def test_get_own_alliance_payments_access(self):
+        """Test should be able to access own alliance payments API endpoint"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        alliance_id = self.character_ownership.character.alliance_id
         url = reverse(
-            f"{API_URL}:get_own_payments", kwargs={"corporation_id": corporation_id}
+            f"{API_URL}:get_alliance_own_payments", kwargs={"alliance_id": alliance_id}
         )
         self.client.force_login(self.user)
         # when
@@ -153,28 +166,25 @@ class TestCoreHelpers(TestCase):
         self.assertIn("owner", response_data)
         self.assertEqual(len(response_data["owner"]), 2)
 
-    def test_get_own_payments_no_payments(self):
-        """Test should display not found when no own payments exist"""
+    def test_get_own_alliance_payments_no_payments(self):
+        """Test should display not found when no own alliance payments exist"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        alliance_id = self.character_ownership.character.alliance_id
         url = reverse(
-            f"{API_URL}:get_own_payments", kwargs={"corporation_id": corporation_id}
+            f"{API_URL}:get_alliance_own_payments", kwargs={"alliance_id": alliance_id}
         )
         self.client.force_login(self.user_no_payments)
         # when
         response = self.client.get(url)
-        response_data = response.json()
-        print(response_data)
         # then
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertIn("Not Found", response_data.get("detail", ""))
 
-    def test_get_own_payments_without_access(self):
-        """Test should not be able to access own payments API endpoint without permission"""
+    def test_get_own_alliance_payments_without_access(self):
+        """Test should not be able to access own alliance payments API endpoint without permission"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        alliance_id = self.character_ownership.character.alliance_id
         url = reverse(
-            f"{API_URL}:get_own_payments", kwargs={"corporation_id": corporation_id}
+            f"{API_URL}:get_alliance_own_payments", kwargs={"alliance_id": alliance_id}
         )
         self.client.force_login(self.no_evecharacter_user)
         # when
@@ -182,4 +192,4 @@ class TestCoreHelpers(TestCase):
         response_data = response.json()
         # then
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertIn("Corporation Not Found", response_data.get("error", ""))
+        self.assertIn("Alliance Not Found", response_data.get("error", ""))

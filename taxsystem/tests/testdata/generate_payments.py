@@ -1,5 +1,10 @@
 # AA Tax System
 # AA TaxSystem
+from taxsystem.models.alliance import (
+    AlliancePaymentAccount,
+    AlliancePayments,
+    AllianceUpdateStatus,
+)
 from taxsystem.models.corporation import (
     CorporationPaymentAccount,
     CorporationPayments,
@@ -39,5 +44,31 @@ def create_payment_system(
     }
     params.update(kwargs)
     payment_system = CorporationPaymentAccount(**params)
+    payment_system.save()
+    return payment_system
+
+
+def create_alliance_payment(
+    account: AlliancePaymentAccount, **kwargs
+) -> AlliancePayments:
+    """Create a Payment for an Alliance"""
+    params = {
+        "account": account,
+    }
+    params.update(kwargs)
+    payment = AlliancePayments(**params)
+    payment.save()
+    return payment
+
+
+def create_alliance_payment_system(
+    owner: AllianceUpdateStatus, **kwargs
+) -> AlliancePaymentAccount:
+    """Create a Payment System for an Alliance"""
+    params = {
+        "owner": owner,
+    }
+    params.update(kwargs)
+    payment_system = AlliancePaymentAccount(**params)
     payment_system.save()
     return payment_system

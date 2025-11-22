@@ -3,11 +3,10 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
-from django.db.models import Case, Count, Q, Value, When
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.authentication.models import User, UserProfile
+from allianceauth.authentication.models import UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -17,6 +16,7 @@ from eveuniverse.models import EveEntity
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.decorators import log_timing
+from taxsystem.managers.base import BaseOwnerQuerySet
 from taxsystem.models.general import CorporationUpdateSection
 from taxsystem.providers import esi
 
@@ -39,72 +39,19 @@ class CorporationMemberTrackingContext:
     start_date: timezone.datetime
 
 
-class CorporationOwnerQuerySet(models.QuerySet):
-    def visible_to(self, user: User):
-        """Get all corps visible to the user."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all corps for superuser %s.",
-                user,
-            )
-            return self
+class CorporationOwnerQuerySet(BaseOwnerQuerySet):
+    """QuerySet for CorporationOwner with common filtering logic."""
 
-        if user.has_perm("taxsystem.manage_corps"):
-            logger.debug("Returning all corps for Tax Audit Manager %s.", user)
-            return self
-
-        try:
-            char = user.profile.main_character
-            assert char
-            corp_ids = user.character_ownerships.all().values_list(
-                "character__corporation_id", flat=True
-            )
-            queries = [models.Q(eve_corporation__corporation_id__in=corp_ids)]
-
-            logger.debug(
-                "%s queries for user %s visible corporations.", len(queries), user
-            )
-
-            query = queries.pop()
-            for q in queries:
-                query |= q
-            return self.filter(query)
-        except AssertionError:
-            logger.debug("User %s has no main character. Nothing visible.", user)
-            return self.none()
-
-    def manage_to(self, user: User):
-        """Get all corps that the user can manage."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all corps for superuser %s.",
-                user,
-            )
-            return self
-
-        if user.has_perm("taxsystem.manage_corps"):
-            logger.debug("Returning all corps for Tax Audit Manager %s.", user)
-            return self
-
-        try:
-            char = user.profile.main_character
-            assert char
-            query = None
-
-            if user.has_perm("taxsystem.manage_own_corp"):
-                query = models.Q(eve_corporation__corporation_id=char.corporation_id)
-
-            logger.debug("Returning own corps for User %s.", user)
-
-            if query is None:
-                return self.none()
-
-            return self.filter(query)
-        except AssertionError:
-            logger.debug("User %s has no main character. Nothing visible.", user)
-            return self.none()
+    # Configure base class for corporation-specific behavior
+    owner_type = "corp"
+    permission_prefix = "taxsystem.manage_corps"
+    owner_field = "corporation_id"  # Field on EveCharacter
+    owner_model_field = (
+        "eve_corporation__corporation_id"  # Field on CorporationOwner model
+    )
+    own_permission = "taxsystem.manage_own_corp"
+    update_status_relation = "ts_corporation_update_status"
+    update_section_class = CorporationUpdateSection
 
     def annotate_total_update_status_user(self, user):
         """Get the total update status for the given user."""
@@ -114,78 +61,6 @@ class CorporationOwnerQuerySet(models.QuerySet):
         query = models.Q(character__character_ownership__user=user)
 
         return self.filter(query).annotate_total_update_status()
-
-    def annotate_total_update_status(self):
-        """Get the total update status."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.corporation import CorporationOwner
-
-        sections = CorporationUpdateSection.get_sections()
-        num_sections_total = len(sections)
-        qs = (
-            self.annotate(
-                num_sections_total=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(ts_corporation_update_status__section__in=sections),
-                )
-            )
-            .annotate(
-                num_sections_ok=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(
-                        ts_corporation_update_status__section__in=sections,
-                        ts_corporation_update_status__is_success=True,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_failed=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(
-                        ts_corporation_update_status__section__in=sections,
-                        ts_corporation_update_status__is_success=False,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_token_error=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(
-                        ts_corporation_update_status__section__in=sections,
-                        ts_corporation_update_status__has_token_error=True,
-                    ),
-                )
-            )
-            # pylint: disable=no-member
-            .annotate(
-                total_update_status=Case(
-                    When(
-                        active=False,
-                        then=Value(CorporationOwner.UpdateStatus.DISABLED),
-                    ),
-                    When(
-                        num_sections_token_error=1,
-                        then=Value(CorporationOwner.UpdateStatus.TOKEN_ERROR),
-                    ),
-                    When(
-                        num_sections_failed__gt=0,
-                        then=Value(CorporationOwner.UpdateStatus.ERROR),
-                    ),
-                    When(
-                        num_sections_ok=num_sections_total,
-                        then=Value(CorporationOwner.UpdateStatus.OK),
-                    ),
-                    When(
-                        num_sections_total__lt=num_sections_total,
-                        then=Value(CorporationOwner.UpdateStatus.INCOMPLETE),
-                    ),
-                    default=Value(CorporationOwner.UpdateStatus.IN_PROGRESS),
-                )
-            )
-        )
-
-        return qs
 
     def disable_characters_with_no_owner(self) -> int:
         """Disable characters which have no owner. Return count of disabled characters."""

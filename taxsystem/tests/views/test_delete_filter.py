@@ -16,7 +16,7 @@ from taxsystem import views
 from taxsystem.models.corporation import CorporationFilter
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
@@ -39,7 +39,7 @@ class TestDeleteFilter(TestCase):
                 "taxsystem.manage_own_corp",
             ],
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
         cls.no_audit_user, _ = create_user_from_evecharacter(
             character_id=1002,
             permissions=[
