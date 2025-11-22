@@ -74,7 +74,7 @@ class AllianceOwner(OwnerBase):
 
     corporation = models.ForeignKey(
         CorporationOwner,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="+",
         help_text=_("The corporation that owns this alliance tax system."),
     )
