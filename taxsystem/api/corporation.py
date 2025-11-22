@@ -15,8 +15,8 @@ from app_utils.logging import LoggerAddTag
 from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.common import (
-    create_own_payment_response_data,
-    create_payment_response_data,
+    build_own_payments_response_list,
+    build_payments_response_list,
     get_optimized_own_payments_queryset,
     get_optimized_payments_queryset,
 )
@@ -58,11 +58,9 @@ class CorporationApiEndpoints:
                 CorporationPayments, owner, owner.eve_corporation.corporation_id
             )
 
-            response_payments_list: list[PaymentCorporationSchema] = []
-            for payment in payments:
-                payment_data = create_payment_response_data(payment, request, perms)
-                response_payment = PaymentCorporationSchema(**payment_data)
-                response_payments_list.append(response_payment)
+            response_payments_list = build_payments_response_list(
+                payments, request, perms, PaymentCorporationSchema
+            )
             return PaymentsResponse(owner=response_payments_list)
 
         @api.get(
@@ -91,9 +89,7 @@ class CorporationApiEndpoints:
             if len(payments) == 0:
                 return 403, {"error": _("No Payments Found")}
 
-            response_payments_list: list[PaymentCorporationSchema] = []
-            for payment in payments:
-                payment_data = create_own_payment_response_data(payment)
-                response_payment = PaymentCorporationSchema(**payment_data)
-                response_payments_list.append(response_payment)
+            response_payments_list = build_own_payments_response_list(
+                payments, PaymentCorporationSchema
+            )
             return PaymentsResponse(owner=response_payments_list)

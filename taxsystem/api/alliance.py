@@ -16,11 +16,11 @@ from app_utils.logging import LoggerAddTag
 from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.common import (
+    build_members_response_list,
+    build_own_payments_response_list,
+    build_payments_response_list,
     calculate_activity_html,
     create_dashboard_common_data,
-    create_member_response_data,
-    create_own_payment_response_data,
-    create_payment_response_data,
     get_optimized_own_payments_queryset,
     get_optimized_payments_queryset,
 )
@@ -89,11 +89,9 @@ class AllianceApiEndpoints:
                 AlliancePayments, owner, owner.eve_alliance.alliance_id
             )
 
-            response_payments_list: list[PaymentAllianceSchema] = []
-            for payment in payments:
-                payment_data = create_payment_response_data(payment, request, perms)
-                response_payment = PaymentAllianceSchema(**payment_data)
-                response_payments_list.append(response_payment)
+            response_payments_list = build_payments_response_list(
+                payments, request, perms, PaymentAllianceSchema
+            )
             return PaymentsResponse(owner=response_payments_list)
 
         @api.get(
@@ -119,11 +117,9 @@ class AllianceApiEndpoints:
             if len(payments) == 0:
                 return 403, {"error": _("No Payments Found")}
 
-            response_payments_list: list[PaymentAllianceSchema] = []
-            for payment in payments:
-                payment_data = create_own_payment_response_data(payment)
-                response_payment = PaymentAllianceSchema(**payment_data)
-                response_payments_list.append(response_payment)
+            response_payments_list = build_own_payments_response_list(
+                payments, PaymentAllianceSchema
+            )
             return PaymentsResponse(owner=response_payments_list)
 
         @api.get(
@@ -200,10 +196,6 @@ class AllianceApiEndpoints:
                 .order_by("character_name")
             )
 
-            response_members_list: list[MembersSchema] = []
-            for member in members:
-                member_data = create_member_response_data(member)
-                response_member = MembersSchema(**member_data)
-                response_members_list.append(response_member)
+            response_members_list = build_members_response_list(members, MembersSchema)
 
             return MembersResponse(corporation=response_members_list)
