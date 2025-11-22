@@ -433,7 +433,6 @@ def manage_owner(request: WSGIRequest, owner_id: int = None):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 def manage_filter(request: WSGIRequest, owner_id: int):
     """Manage View"""
     owner, perms = get_manage_owner(request, owner_id)
@@ -509,7 +508,6 @@ def manage_filter(request: WSGIRequest, owner_id: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 def switch_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
     """Deactivate Filter Set View"""
     owner, perms = get_manage_owner(request, owner_id)
@@ -546,7 +544,6 @@ def switch_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 def delete_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
     """Delete Filter Set View"""
     owner, perms = get_manage_owner(request, owner_id)
@@ -587,7 +584,6 @@ def delete_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def delete_filter(request: WSGIRequest, owner_id: int, filter_pk: int):
     msg = _("Invalid Method")
@@ -622,7 +618,6 @@ def delete_filter(request: WSGIRequest, owner_id: int, filter_pk: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 def edit_filterset(request: WSGIRequest, owner_id: int, filter_set_id: int):
     """Edit Filter Set View"""
     owner, perms = get_manage_owner(request, owner_id)
@@ -746,7 +741,6 @@ def add_alliance(request, token):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def approve_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
     msg = _("Invalid Method")
@@ -799,7 +793,6 @@ def approve_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def undo_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
     msg = _("Invalid Method")
@@ -853,7 +846,6 @@ def undo_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def reject_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
     msg = _("Invalid Method")
@@ -906,7 +898,6 @@ def reject_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def delete_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
     msg = _("Invalid Method")
@@ -976,7 +967,6 @@ def delete_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def add_payment(request: WSGIRequest, owner_id: int, payment_system_pk: int):
     msg = _("Invalid Method")
@@ -1046,7 +1036,6 @@ def add_payment(request: WSGIRequest, owner_id: int, payment_system_pk: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def switch_user(request: WSGIRequest, owner_id: int, payment_system_pk: int):
     msg = _("Invalid Method")
@@ -1091,14 +1080,6 @@ def switch_user(request: WSGIRequest, owner_id: int, payment_system_pk: int):
 
 
 @login_required
-@permissions_required(
-    [
-        "taxsystem.manage_own_corp",
-        "taxsystem.manage_corps",
-        "taxsystem.manage_own_alliance",
-        "taxsystem.manage_alliances",
-    ]
-)
 @csrf_exempt
 def update_tax_amount(request: WSGIRequest, owner_id: int):
     if request.method == "POST":
@@ -1137,14 +1118,6 @@ def update_tax_amount(request: WSGIRequest, owner_id: int):
 
 
 @login_required
-@permissions_required(
-    [
-        "taxsystem.manage_own_corp",
-        "taxsystem.manage_corps",
-        "taxsystem.manage_own_alliance",
-        "taxsystem.manage_alliances",
-    ]
-)
 @csrf_exempt
 def update_tax_period(request: WSGIRequest, owner_id: int):
     if request.method == "POST":
@@ -1178,7 +1151,6 @@ def update_tax_period(request: WSGIRequest, owner_id: int):
 
 
 @login_required
-@permissions_required(["taxsystem.manage_own_corp", "taxsystem.manage_corps"])
 @require_POST
 def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
     msg = _("Invalid Method")
@@ -1214,14 +1186,6 @@ def delete_member(request: WSGIRequest, corporation_id: int, member_pk: int):
 
 
 @login_required
-@permissions_required(
-    [
-        "taxsystem.manage_own_corp",
-        "taxsystem.manage_corps",
-        "taxsystem.manage_own_alliance",
-        "taxsystem.manage_alliances",
-    ]
-)
 def generic_manage_owner(
     request: WSGIRequest, owner_id: int = None, owner_type: str = "corporation"
 ):
