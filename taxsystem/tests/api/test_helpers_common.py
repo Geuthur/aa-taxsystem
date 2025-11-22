@@ -1,0 +1,260 @@
+# Django
+from django.test import RequestFactory, TestCase
+from django.utils import timezone
+
+# AA TaxSystem
+from taxsystem.api.alliance import PaymentAllianceSchema
+from taxsystem.api.corporation import PaymentCorporationSchema
+from taxsystem.api.helpers.common import (
+    build_members_response_list,
+    build_own_payments_response_list,
+    build_payments_response_list,
+)
+from taxsystem.api.schema import MembersSchema
+from taxsystem.models.corporation import CorporationOwner, CorporationPayments, Members
+from taxsystem.tests.testdata.generate_owneraudit import (
+    create_owneraudit_from_user,
+    create_user_from_evecharacter_with_access,
+)
+from taxsystem.tests.testdata.generate_payments import (
+    create_payment,
+    create_payment_system,
+)
+from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
+from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
+
+
+class TestBuildPaymentsResponseList(TestCase):
+    """
+    Test build_payments_response_list helper function.
+
+    Prerequisites:
+    - load_allianceauth() and load_eveuniverse() must be called first
+    - Test user must be created via generate_owneraudit functions
+    - At least one owneraudit (CorporationOwner) must exist
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Load base test data (required for all tests)
+        load_allianceauth()
+        load_eveuniverse()
+
+        cls.factory = RequestFactory()
+        # Create user with main character using testdata factory
+        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
+            1001
+        )
+
+        # Create owneraudit (CorporationOwner) from user
+        cls.owner = create_owneraudit_from_user(cls.user)
+
+    def test_builds_corporation_payment_list(self):
+        """Test building corporation payment response list"""
+        # Arrange
+        account = create_payment_system(self.owner, user=self.user)
+        payment1 = create_payment(
+            account,
+            name=self.user.profile.main_character.character_name,
+            owner_id=self.owner.eve_corporation.corporation_id,
+            entry_id=1,
+            amount=1000000,
+            date=timezone.now(),
+            reason="Test Payment 1",
+        )
+        payment2 = create_payment(
+            account,
+            name=self.user.profile.main_character.character_name,
+            owner_id=self.owner.eve_corporation.corporation_id,
+            entry_id=2,
+            amount=2000000,
+            date=timezone.now(),
+            reason="Test Payment 2",
+        )
+
+        payments = CorporationPayments.objects.filter(
+            owner_id=self.owner.eve_corporation.corporation_id
+        )
+
+        request = self.factory.get("/")
+        request.user = self.user
+        perms = True
+
+        # Act
+        result = build_payments_response_list(
+            payments, request, perms, PaymentCorporationSchema
+        )
+
+        # Assert
+        self.assertEqual(len(result), 2)
+        self.assertIsInstance(result[0], PaymentCorporationSchema)
+        self.assertIsInstance(result[1], PaymentCorporationSchema)
+        self.assertIn(payment1.id, [r.payment_id for r in result])
+        self.assertIn(payment2.id, [r.payment_id for r in result])
+
+    def test_builds_empty_list_for_no_payments(self):
+        """Test building empty list when no payments exist"""
+        # Arrange
+        payments = CorporationPayments.objects.none()
+        request = self.factory.get("/")
+        request.user = self.user
+        perms = True
+
+        # Act
+        result = build_payments_response_list(
+            payments, request, perms, PaymentCorporationSchema
+        )
+
+        # Assert
+        self.assertEqual(len(result), 0)
+        self.assertIsInstance(result, list)
+
+
+class TestBuildOwnPaymentsResponseList(TestCase):
+    """
+    Test build_own_payments_response_list helper function.
+
+    Prerequisites:
+    - load_allianceauth() and load_eveuniverse() must be called first
+    - Test user must be created via generate_owneraudit functions
+    - At least one owneraudit (CorporationOwner) must exist
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Load base test data (required for all tests)
+        load_allianceauth()
+        load_eveuniverse()
+
+        # Create user with main character using testdata factory
+        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
+            1001
+        )
+
+        # Create owneraudit (CorporationOwner) from user
+        cls.owner = create_owneraudit_from_user(cls.user)
+
+    def test_builds_own_payment_list(self):
+        """Test building own payment response list"""
+        # Arrange
+        account = create_payment_system(self.owner, user=self.user)
+        create_payment(
+            account,
+            name=self.user.profile.main_character.character_name,
+            owner_id=self.owner.eve_corporation.corporation_id,
+            entry_id=1,
+            amount=500000,
+            date=timezone.now(),
+            reason="Test Payment 1",
+        )
+        create_payment(
+            account,
+            name=self.user.profile.main_character.character_name,
+            owner_id=self.owner.eve_corporation.corporation_id,
+            entry_id=2,
+            amount=750000,
+            date=timezone.now(),
+            reason="Test Payment 2",
+        )
+
+        payments = CorporationPayments.objects.filter(
+            owner_id=self.owner.eve_corporation.corporation_id,
+            account__user=self.user,
+        )
+
+        # Act
+        result = build_own_payments_response_list(payments, PaymentCorporationSchema)
+
+        # Assert
+        self.assertEqual(len(result), 2)
+        self.assertIsInstance(result[0], PaymentCorporationSchema)
+        self.assertIsInstance(result[1], PaymentCorporationSchema)
+
+    def test_builds_own_payment_list_for_alliance(self):
+        """Test building own payment list works with Alliance schema"""
+        # Arrange
+        account = create_payment_system(self.owner, user=self.user)
+        create_payment(
+            account,
+            name=self.user.profile.main_character.character_name,
+            owner_id=self.owner.eve_corporation.corporation_id,
+            entry_id=1,
+            amount=1000000,
+            date=timezone.now(),
+            reason="Test Payment",
+        )
+
+        payments = CorporationPayments.objects.filter(
+            owner_id=self.owner.eve_corporation.corporation_id,
+            account__user=self.user,
+        )
+
+        # Act - Using AllianceSchema to test generic nature
+        result = build_own_payments_response_list(payments, PaymentAllianceSchema)
+
+        # Assert
+        self.assertEqual(len(result), 1)
+        self.assertIsInstance(result[0], PaymentAllianceSchema)
+
+
+class TestBuildMembersResponseList(TestCase):
+    """
+    Test build_members_response_list helper function.
+
+    Prerequisites:
+    - load_allianceauth() and load_eveuniverse() must be called first
+    - Test user must be created via generate_owneraudit functions
+    - At least one owneraudit (CorporationOwner) must exist
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Load base test data (required for all tests)
+        load_allianceauth()
+        load_eveuniverse()
+
+        # Create user with main character using testdata factory
+        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
+            1001
+        )
+
+        # Create owneraudit (CorporationOwner) from user
+        cls.owner = create_owneraudit_from_user(cls.user)
+
+    def test_builds_members_list(self):
+        """Test building members response list with actual member data"""
+        # Arrange - Create test member
+        Members.objects.create(
+            owner=self.owner,
+            character_id=self.user.profile.main_character.character_id,
+            character_name=self.user.profile.main_character.character_name,
+            joined=timezone.now(),
+        )
+
+        members = Members.objects.filter(
+            owner__eve_corporation__corporation_id=self.owner.eve_corporation.corporation_id
+        ).select_related("owner", "owner__eve_corporation")
+
+        # Act
+        result = build_members_response_list(members, MembersSchema)
+
+        # Assert
+        self.assertGreater(len(result), 0)
+        for member_response in result:
+            self.assertIsInstance(member_response, MembersSchema)
+            self.assertIsNotNone(member_response.character)
+
+    def test_builds_empty_members_list(self):
+        """Test building empty members list"""
+        # Arrange
+        members = Members.objects.none()
+
+        # Act
+        result = build_members_response_list(members, MembersSchema)
+
+        # Assert
+        self.assertEqual(len(result), 0)
+        self.assertIsInstance(result, list)

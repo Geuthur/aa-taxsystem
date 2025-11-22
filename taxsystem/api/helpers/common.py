@@ -291,3 +291,68 @@ def create_member_response_data(member):
         "status": member.get_status_display(),
         "joined": member.joined,
     }
+
+
+def build_payments_response_list(payments, request, perms, payment_schema_class):
+    """
+    Build list of payment response objects from queryset.
+
+    Generic function that works for both Corporation and Alliance payments.
+
+    Args:
+        payments: QuerySet of payment objects (CorporationPayments or AlliancePayments)
+        request: Django request object
+        perms: Permission flag
+        payment_schema_class: Schema class to use for response (PaymentCorporationSchema or PaymentAllianceSchema)
+
+    Returns:
+        list: List of payment schema objects
+    """
+    response_payments_list = []
+    for payment in payments:
+        payment_data = create_payment_response_data(payment, request, perms)
+        response_payment = payment_schema_class(**payment_data)
+        response_payments_list.append(response_payment)
+    return response_payments_list
+
+
+def build_own_payments_response_list(payments, payment_schema_class):
+    """
+    Build list of own payment response objects from queryset.
+
+    Generic function that works for both Corporation and Alliance own payments.
+
+    Args:
+        payments: QuerySet of payment objects (CorporationPayments or AlliancePayments)
+        payment_schema_class: Schema class to use for response (PaymentCorporationSchema or PaymentAllianceSchema)
+
+    Returns:
+        list: List of payment schema objects
+    """
+    response_payments_list = []
+    for payment in payments:
+        payment_data = create_own_payment_response_data(payment)
+        response_payment = payment_schema_class(**payment_data)
+        response_payments_list.append(response_payment)
+    return response_payments_list
+
+
+def build_members_response_list(members, member_schema_class):
+    """
+    Build list of member response objects from queryset.
+
+    Generic function that works for both Corporation and Alliance members.
+
+    Args:
+        members: QuerySet of Members objects
+        member_schema_class: Schema class to use for response (MembersSchema)
+
+    Returns:
+        list: List of member schema objects
+    """
+    response_members_list = []
+    for member in members:
+        member_data = create_member_response_data(member)
+        response_member = member_schema_class(**member_data)
+        response_members_list.append(response_member)
+    return response_members_list
