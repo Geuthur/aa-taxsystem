@@ -408,6 +408,7 @@ def create_payment_account_response_data(account):
             dropdown_text=_("Yes") if account.has_paid else _("No"),
         ),
         "last_paid": account.last_paid,
+        "next_due": account.next_due,
         "is_active": account.is_active,
         "actions": actions_html,
     }

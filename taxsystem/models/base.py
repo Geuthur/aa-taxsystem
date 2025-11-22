@@ -483,6 +483,14 @@ class PaymentAccountBase(models.Model):
         return False
 
     @property
+    def next_due(self):
+        if self.status in [self.Status.INACTIVE, self.Status.DEACTIVATED]:
+            return None
+        if self.last_paid:
+            return self.last_paid + timezone.timedelta(days=self.owner.tax_period)
+        return None
+
+    @property
     def deposit_html(self) -> str:
         if self.deposit < 0:
             # Make text red for negative deposits

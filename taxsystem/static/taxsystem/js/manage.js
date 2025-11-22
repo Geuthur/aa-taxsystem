@@ -389,7 +389,17 @@ $(document).ready(function() {
                     if (!data || !date.isValid()) {
                         return 'N/A';
                     }
-                    return date.format('YYYY-MM-DD HH:mm:ss');
+                    return date.fromNow();
+                }
+            },
+            {
+                data: 'next_due',
+                render: function (data, _, row) {
+                    const date = moment(data);
+                    if (!data || !date.isValid()) {
+                        return 'N/A';
+                    }
+                    return date.fromNow();
                 }
             },
             {
@@ -408,12 +418,12 @@ $(document).ready(function() {
         columnDefs: [
             {
                 orderable: false,
-                targets: [0, 4, 6]
+                targets: [0, 4, 7]
             },
             // Filter Has Paid column
             {
                 visible: false,
-                targets: [7]
+                targets: [8]
             },
         ],
         filterDropDown: {
@@ -424,7 +434,7 @@ $(document).ready(function() {
                 },
                 // has_paid
                 {
-                    idx: 7,
+                    idx: 8,
                     maxWidth: '200px',
                     title: taxsystemsettings.translations.hasPaid,
                 },

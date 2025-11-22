@@ -89,6 +89,7 @@ class PaymentSystemSchema(Schema):
     deposit: int
     has_paid: DataTableSchema
     last_paid: datetime | None = None
+    next_due: datetime | None = None
     is_active: bool
     actions: str
 

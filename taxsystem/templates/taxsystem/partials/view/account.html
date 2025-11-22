@@ -16,8 +16,8 @@
                 </dl>
 
                 <dl class="dl-horizontal">
-                    <dt>{% trans "Corporation" %}:</dt>
-                    <dd class="nowrap" id="corporation_name">{{ account.corporation.name }}</dd>
+                    <dt>{% trans "Owner" %}:</dt>
+                    <dd class="nowrap" id="owner_name">{{ account.owner.name }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
@@ -39,16 +39,21 @@
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Last Debit" %}:</dt>
-                    <dd class="nowrap" id="last_paid">{{ account.last_paid|default:"N/A" }}</dd>
+                    <dd class="nowrap" id="last_paid">{{ account.last_paid|naturaltime|default:"N/A" }}</dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Next Due" %}:</dt>
+                    <dd class="nowrap" id="next_due">{{ account.next_due|naturaltime|default:"N/A" }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Joined" %}:</dt>
-                    <dd class="nowrap" id="joined">{{ account.joined }}</dd>
+                    <dd class="nowrap" id="joined">{{ account.joined|naturaltime }}</dd>
                 </dl>
                 <dl class="dl-horizontal">
                     <dt>{% trans "Last Login" %}:</dt>
-                    <dd class="nowrap" id="last_login">{{ account.last_login }}</dd>
+                    <dd class="nowrap" id="last_login">{{ account.last_login|naturaltime }}</dd>
                 </dl>
             </div>
         </div>

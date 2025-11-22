@@ -395,6 +395,11 @@ def account(request: WSGIRequest, owner_id=None):
                 if payment_user.status != payment_user.Status.MISSING
                 else "N/A"
             ),
+            "next_due": (
+                payment_user.next_due
+                if payment_user.status != payment_user.Status.MISSING
+                else "N/A"
+            ),
             "joined": member.joined if member else "N/A",
             "last_login": member.logon if member else "N/A",
         },
