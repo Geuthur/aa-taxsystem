@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.manage import (
     generate_filter_delete_button,
+    generate_ps_add_payments_button,
     generate_ps_info_button,
     generate_ps_toggle_button,
     manage_payments,
@@ -382,6 +383,7 @@ def create_payment_account_response_data(account):
 
     # Create the action buttons
     actions = []
+    actions.append(generate_ps_add_payments_button(account=account))
     actions.append(generate_ps_toggle_button(account=account))
     actions.append(generate_ps_info_button(account=account))
     actions_html = format_html(

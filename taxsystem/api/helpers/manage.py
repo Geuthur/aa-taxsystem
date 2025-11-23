@@ -128,3 +128,15 @@ def generate_filter_delete_button(filter_obj) -> mark_safe:
             },
         )
     )
+
+
+def generate_ps_add_payments_button(account) -> mark_safe:
+    """Generate a payment system add payments button for the tax system"""
+    return format_html(
+        render_to_string(
+            "taxsystem/partials/buttons/payment-add.html",
+            {
+                "account": account,
+            },
+        )
+    )
