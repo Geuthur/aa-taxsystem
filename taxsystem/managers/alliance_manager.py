@@ -96,13 +96,9 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
 
         for account in accounts:
             main = account.main_character
-
             try:
                 # Update existing payment account
-                existing_payment_account = self.model.objects.get(
-                    user=account.user, owner=owner
-                )
-
+                existing_payment_account = self.get(user=account.user, owner=owner)
                 if existing_payment_account.status != self.model.Status.DEACTIVATED:
                     existing_payment_account.status = self.model.Status.ACTIVE
                     existing_payment_account.save()
@@ -130,8 +126,76 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
                 owner.name,
             )
 
+        self.check_payment_accounts(owner, accounts)
+
         return (
             "Finished payment account for %s",
+            owner.name,
+        )
+
+    @log_timing(logger)
+    def check_payment_accounts(
+        self, owner: "AllianceOwner", accounts: models.QuerySet[UserProfile]
+    ) -> None:
+        """Check payment accounts status for a alliance."""
+        # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
+        from taxsystem.models.alliance import AllianceOwner
+
+        logger.debug(
+            "Checking Payment Accounts for: %s",
+            owner.name,
+        )
+
+        for account in accounts:
+            # Check existing payment account
+            try:
+                payment_account = self.get(user=account.user, owner=owner)
+            except self.model.DoesNotExist:
+                continue
+
+            # Get Main Alliance ID
+            main_alliance_id = account.main_character.alliance_id
+            # Get Payment Account Alliance ID
+            pa_alliance_id = payment_account.owner.eve_alliance.alliance_id
+
+            # If account no longer in alliance, mark as missing
+            if (
+                not payment_account.is_missing
+                and not pa_alliance_id == main_alliance_id
+            ):
+                payment_account.status = self.model.Status.MISSING
+                payment_account.save()
+                logger.info(
+                    "Marked Payment Account %s as MISSING",
+                    payment_account.name,
+                )
+            # If account has changed alliance, update payment account
+            elif payment_account.is_missing and pa_alliance_id != main_alliance_id:
+                try:
+                    new_owner = AllianceOwner.objects.get(
+                        eve_alliance__alliance_id=main_alliance_id
+                    )
+                    payment_account.owner = new_owner
+                    payment_account.save()
+                    logger.info(
+                        "Moved Payment Account %s to Alliance %s",
+                        payment_account.name,
+                        new_owner.eve_alliance.alliance_name,
+                    )
+                except AllianceOwner.DoesNotExist:
+                    continue
+            # If account is back in alliance, reactivate payment account
+            elif payment_account.is_missing and pa_alliance_id == main_alliance_id:
+                payment_account.status = self.model.Status.ACTIVE
+                payment_account.save()
+                logger.info(
+                    "Reactivated Payment Account %s for Alliance %s",
+                    payment_account.name,
+                    owner.eve_alliance.alliance_name,
+                )
+        return (
+            "Finished checking payment Accounts for %s",
             owner.name,
         )
 
