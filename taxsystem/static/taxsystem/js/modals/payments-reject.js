@@ -2,6 +2,7 @@ $(document).ready(() => {
     /* global tablePayments */
     /* global taxsystemsettings */
     /* global reloadStatistics */
+    /* global paymentsTable */
 
     const modalRequestDecline = $('#payments-reject');
     const modalRequestDeclineError = modalRequestDecline.find('#modal-error-field');
@@ -61,8 +62,7 @@ $(document).ready(() => {
                             reloadStatistics();
                         } else {
                             // Reload with no Modal
-                            const paymentsTable = $('#payments').DataTable();
-                            paymentsTable.ajax.reload();
+                            paymentsTable.DataTable().ajax.reload();
                         }
                     }
                 }).fail((xhr, _, __) => {

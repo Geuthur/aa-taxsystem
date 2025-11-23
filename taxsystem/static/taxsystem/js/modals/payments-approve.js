@@ -1,7 +1,8 @@
 $(document).ready(() => {
-    /* global tablePayments */
+    /* global paymentsTable */
     /* global taxsystemsettings */
     /* global reloadStatistics */
+    /* global paymentsystemTable */
 
     const modalRequestApprove = $('#payments-approve');
     const previousApproveModal = $('#modalViewPaymentsContainer');
@@ -43,13 +44,13 @@ $(document).ready(() => {
                     if (previousModalUrl) {
                         // Reload the parent modal with the same URL
                         $('#modalViewPaymentsContainer').modal('show');
-
+                        // Reload the payment system table
+                        paymentsystemTable.DataTable().ajax.reload();
                         // Reload the statistics
                         reloadStatistics();
                     } else {
                         // Reload with no Modal
-                        const paymentsTable = $('#payments').DataTable();
-                        paymentsTable.ajax.reload();
+                        paymentsTable.DataTable().ajax.reload();
                     }
                 }
             }).fail((xhr, _, __) => {

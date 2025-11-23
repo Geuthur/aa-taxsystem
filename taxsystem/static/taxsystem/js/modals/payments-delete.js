@@ -2,6 +2,8 @@ $(document).ready(() => {
     /* global tablePayments */
     /* global taxsystemsettings */
     /* global reloadStatistics */
+    /* global paymentsystemTable */
+    /* global paymentsTable */
 
     const modalRequestDecline = $('#payments-delete');
     const modalRequestDeclineError = modalRequestDecline.find('#modal-error-field');
@@ -58,15 +60,13 @@ $(document).ready(() => {
                             $('#modalViewPaymentsContainer').modal('show');
 
                             // Reload the payment system table
-                            const paymentsystemTable = $('#payment-system').DataTable();
-                            paymentsystemTable.ajax.reload();
+                            paymentsystemTable.DataTable().ajax.reload();
 
                             // Reload the statistics
                             reloadStatistics();
                         } else {
                             // Reload with no Modal
-                            const paymentsTable = $('#payments').DataTable();
-                            paymentsTable.ajax.reload();
+                            paymentsTable.DataTable().ajax.reload();
                         }
                     }
                 }).fail((xhr, _, __) => {

@@ -11,21 +11,34 @@
 {% sri_static 'taxsystem/js/modals/paymentsystem-switchuser.js' %}
 
 <script>
-    // Funktion zum Neuladen der Statistikdaten
+    const paymentsystemTable = $('#payment-system');
+    const paymentsTable = $('#payments');
+
+    // Funktion zum Neuladen der Statistikdaten (erwartete neue, verschachtelte Form)
     function reloadStatistics() {
         $.ajax({
             url: taxsystemsettings.DashboardUrl,
             type: 'GET',
             success: function (data) {
-                // Statistics
-                const statistics = data.statistics;
-                const statisticsKey = Object.keys(statistics)[0];
-                const stat = statistics[statisticsKey];
+                const statistics = data.statistics || {};
 
-                $('#statistics_payments').text(stat.payments);
-                $('#statistics_payments_pending').text(stat.payments_pending);
-                $('#statistics_payments_auto').text(stat.payments_auto);
-                $('#statistics_payments_manually').text(stat.payments_manually);
+                // Neue (aktuelle) Form: statistics.payment_system, statistics.payments, statistics.members
+                const paymentSystem = statistics.payment_system || {};
+                $('#statistics_payment_users').text(paymentSystem.ps_count || 0);
+                $('#statistics_payment_users_active').text(paymentSystem.ps_count_active || 0);
+                $('#statistics_payment_users_inactive').text(paymentSystem.ps_count_inactive || 0);
+                $('#statistics_payment_users_deactivated').text(paymentSystem.ps_count_deactivated || 0);
+                $('#psystem_payment_users_paid').text(paymentSystem.ps_count_paid || 0);
+                $('#psystem_payment_users_unpaid').text(paymentSystem.ps_count_unpaid || 0);
+
+                const paymentsObj = statistics.payments || {};
+                $('#statistics_payments').text(paymentsObj.payments_count || 0);
+                $('#statistics_payments_pending').text(paymentsObj.payments_pending || 0);
+                $('#statistics_payments_auto').text(paymentsObj.payments_automatic || 0);
+                $('#statistics_payments_manually').text(paymentsObj.payments_manual || 0);
+
+                const membersObj = statistics.members || {};
+                $('#statistics_members_count').text(membersObj.members_count || 0);
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching statistics data:', error);
