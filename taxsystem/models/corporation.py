@@ -1,8 +1,5 @@
 """Models for Tax System."""
 
-# Standard Library
-from typing import ClassVar
-
 # Django
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -72,7 +69,7 @@ class CorporationOwner(OwnerBase):
     class Meta:
         default_permissions = ()
 
-    objects: ClassVar[CorporationOwnerManager] = CorporationOwnerManager()
+    objects: CorporationOwnerManager = CorporationOwnerManager()
 
     eve_corporation = models.OneToOneField(
         EveCorporationInfo, on_delete=models.CASCADE, related_name="+"
@@ -274,7 +271,7 @@ class CorporationPaymentAccount(PaymentAccountBase):
         related_name="ts_corporation_payment_accounts",
     )
 
-    objects = CorporationAccountManager()
+    objects: CorporationAccountManager = CorporationAccountManager()
 
     def __str__(self) -> str:
         return f"{self.name}"
