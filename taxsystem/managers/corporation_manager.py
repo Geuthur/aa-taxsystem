@@ -15,6 +15,7 @@ from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.constants import AUTH_SELECT_RELATED_MAIN_CHARACTER
 from taxsystem.decorators import log_timing
 from taxsystem.managers.base import BaseOwnerQuerySet
 from taxsystem.models.general import CorporationUpdateSection
@@ -83,7 +84,7 @@ class CorporationOwnerQuerySet(BaseOwnerQuerySet):
         return 0
 
 
-class CorporationOwnerManager(models.Manager):
+class CorporationOwnerManager(models.Manager["CorporationOwner"]):
     def get_queryset(self):
         return CorporationOwnerQuerySet(self.model, using=self._db)
 
@@ -117,9 +118,6 @@ class MembersManager(models.Manager):
         req_roles = ["CEO", "Director"]
 
         token = owner.get_token(scopes=req_scopes, req_roles=req_roles)
-
-        # Check Payment Accounts
-        self._check_payment_accounts(owner)
 
         # Make the ESI request
         members_ob = esi.client.Corporation.GetCorporationsCorporationIdMembertracking(
@@ -203,8 +201,8 @@ class MembersManager(models.Manager):
                 owner.name,
             )
 
-        # Update payment accounts
-        self._update_payment_accounts(owner, _esi_members_ids)
+        # Update Members
+        self._update_members(owner, _esi_members_ids)
 
         logger.info(
             "%s - Old Members: %s, New Members: %s, Missing: %s",
@@ -213,39 +211,27 @@ class MembersManager(models.Manager):
             len(_new_members),
             len(missing_members_ids),
         )
-
-    def _update_payment_accounts(
-        self, owner: "CorporationOwner", members_ids: list[int]
-    ):
-        """Update payment accounts for a corporation."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.corporation import CorporationPaymentAccount
-
-        logger.debug(
-            "Updating Payment Accounts for: %s",
+        return (
+            "Finished members update for %s",
             owner.name,
         )
 
-        accounts = UserProfile.objects.filter(
+    def _update_members(self, owner: "CorporationOwner", members_ids: list[int]):
+        """Update Members for a corporation."""
+
+        auth_accounts = UserProfile.objects.filter(
             main_character__isnull=False,
             main_character__corporation_id=owner.eve_corporation.corporation_id,
-        ).select_related(
-            "user__profile__main_character",
-            "main_character__character_ownership",
-            "main_character__character_ownership__user__profile",
-            "main_character__character_ownership__user__profile__main_character",
-        )
+        ).select_related(*AUTH_SELECT_RELATED_MAIN_CHARACTER)
 
         members = self.filter(owner=owner)
 
-        if not accounts:
+        if not auth_accounts:
             logger.debug("No valid accounts for: %s", owner.name)
             return "No Accounts"
 
-        items = []
-
-        for account in accounts:
+        for account in auth_accounts:
+            # Get all alts for the user
             alts = set(
                 account.user.character_ownerships.all().values_list(
                     "character__character_id", flat=True
@@ -263,30 +249,6 @@ class MembersManager(models.Manager):
                         status=self.model.States.IS_ALT
                     )
 
-            # Create or update a Payment System for the main character
-            try:
-                existing_payment_system = CorporationPaymentAccount.objects.get(
-                    user=account.user, owner=owner
-                )
-
-                if (
-                    existing_payment_system.status
-                    != CorporationPaymentAccount.Status.DEACTIVATED
-                ):
-                    existing_payment_system.status = (
-                        CorporationPaymentAccount.Status.ACTIVE
-                    )
-                    existing_payment_system.save()
-            except CorporationPaymentAccount.DoesNotExist:
-                items.append(
-                    CorporationPaymentAccount(
-                        name=main.character_name,
-                        owner=owner,
-                        user=account.user,
-                        status=CorporationPaymentAccount.Status.ACTIVE,
-                    )
-                )
-
         if members_ids:
             # Mark members without accounts
             for member_id in members_ids:
@@ -299,119 +261,4 @@ class MembersManager(models.Manager):
                 len(members_ids),
                 owner.name,
             )
-
-        if items:
-            CorporationPaymentAccount.objects.bulk_create(items, ignore_conflicts=True)
-            logger.info(
-                "Added %s new payment users for: %s",
-                len(items),
-                owner.name,
-            )
-        else:
-            logger.debug(
-                "No new payment user for: %s",
-                owner.name,
-            )
-
-        return (
-            "Finished payment system for %s",
-            owner.name,
-        )
-
-    def _check_payment_accounts(self, owner: "CorporationOwner"):
-        """Check payment accounts for a corporation."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.corporation import (
-            CorporationOwner,
-            CorporationPaymentAccount,
-        )
-
-        logger.debug(
-            "Checking Payment Accounts for: %s",
-            owner.name,
-        )
-
-        accounts = UserProfile.objects.filter(
-            main_character__isnull=False,
-        ).select_related(
-            "user__profile__main_character",
-            "main_character__character_ownership",
-            "main_character__character_ownership__user__profile",
-            "main_character__character_ownership__user__profile__main_character",
-        )
-
-        if not accounts:
-            logger.debug(
-                "No valid accounts for skipping Check: %s",
-                owner.name,
-            )
-            return "No Accounts"
-
-        for account in accounts:
-            main_corporation_id = account.main_character.corporation_id
-
-            try:
-                payment_system = CorporationPaymentAccount.objects.get(
-                    user=account.user, owner=owner
-                )
-                payment_system_corp_id = (
-                    payment_system.owner.eve_corporation.corporation_id
-                )
-                # Check if the user is no longer in the same corporation
-                if (
-                    not payment_system.is_missing
-                    and not payment_system_corp_id == main_corporation_id
-                ):
-                    payment_system.status = CorporationPaymentAccount.Status.MISSING
-                    payment_system.save()
-                    logger.info(
-                        "User %s is no longer in Corp marked as Missing",
-                        payment_system.name,
-                    )
-                # Check if the user changed to a existing corporation Payment System
-                elif (
-                    payment_system.is_missing
-                    and payment_system_corp_id != main_corporation_id
-                ):
-                    try:
-                        new_owner = CorporationOwner.objects.get(
-                            eve_corporation__corporation_id=main_corporation_id
-                        )
-                        payment_system.owner = new_owner
-                        payment_system.deposit = 0
-                        payment_system.status = CorporationPaymentAccount.Status.ACTIVE
-                        payment_system.last_paid = None
-                        payment_system.save()
-                        logger.info(
-                            "User %s is now in Corporation %s",
-                            payment_system.name,
-                            new_owner.eve_corporation.corporation_name,
-                        )
-                    except owner.DoesNotExist:
-                        continue
-                elif (
-                    payment_system.is_missing
-                    and payment_system_corp_id == main_corporation_id
-                ):
-                    payment_system.status = CorporationPaymentAccount.Status.ACTIVE
-                    payment_system.notice = None
-                    payment_system.deposit = 0
-                    payment_system.last_paid = None
-                    payment_system.save()
-                    logger.info(
-                        "User %s is back in Corporation %s",
-                        payment_system.name,
-                        payment_system.owner.eve_corporation.corporation_name,
-                    )
-            except CorporationPaymentAccount.DoesNotExist:
-                logger.debug(
-                    "No Payment System for %s - %s",
-                    account.user.username,
-                    owner.name,
-                )
-                continue
-        return (
-            "Finished checking Payment Accounts for %s",
-            owner.name,
-        )
+        return "Updated Members statuses for %s", owner.name

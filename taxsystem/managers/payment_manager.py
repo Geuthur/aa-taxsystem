@@ -6,6 +6,7 @@ from django.db import models, transaction
 from django.utils import timezone
 
 # Alliance Auth
+from allianceauth.authentication.models import UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -13,17 +14,18 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.constants import AUTH_SELECT_RELATED_MAIN_CHARACTER
 from taxsystem.decorators import log_timing
 from taxsystem.models.general import CorporationUpdateSection
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.corporation import CorporationOwner
+    from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class CorporationAccountManager(models.Manager):
+class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
     @log_timing(logger)
     def update_or_create_payment_system(
         self, owner: "CorporationOwner", force_refresh: bool = False
@@ -62,10 +64,14 @@ class CorporationAccountManager(models.Manager):
         _current_payment_ids = set(payments.values_list("id", flat=True))
         _automatic_payment_ids = []
 
+        # Check payment accounts
+        self._check_payment_accounts(owner)
+
         # Check for any automatic payments
         try:
             filters_obj = CorporationFilterSet.objects.filter(owner=owner)
             for filter_obj in filters_obj:
+                # Apply filter to pending payments
                 payments = filter_obj.filter(payments)
                 for payment in payments:
                     if (
@@ -127,6 +133,131 @@ class CorporationAccountManager(models.Manager):
         )
 
         return ("Finished Payment System for %s", owner.name)
+
+    def _check_payment_accounts(self, owner: "CorporationOwner"):
+        """Check payment accounts for a corporation."""
+        # pylint: disable=import-outside-toplevel, cyclic-import
+        # AA TaxSystem
+        from taxsystem.models.corporation import CorporationOwner
+
+        logger.debug(
+            "Checking Payment Accounts for: %s",
+            owner.name,
+        )
+
+        auth_acconts = UserProfile.objects.filter(
+            main_character__isnull=False,
+        ).select_related(*AUTH_SELECT_RELATED_MAIN_CHARACTER)
+
+        if not auth_acconts:
+            logger.debug(
+                "No valid accounts for skipping Check: %s",
+                owner.name,
+            )
+            return "No Accounts"
+
+        items = []
+
+        for account in auth_acconts:
+            main = account.main_character
+            try:
+                # Check existing payment account for user
+                payment_account = self.model.objects.get(user=account.user)
+                pa_corporation_id = payment_account.owner.eve_corporation.corporation_id
+                # Update existing payment account if owner changed
+                if payment_account.owner != owner:
+                    payment_account.owner = owner
+                    payment_account.deposit = 0
+                    payment_account.save()
+                    logger.info(
+                        "Moved Payment Account %s to Corporation %s",
+                        payment_account.name,
+                        owner.eve_corporation.corporation_name,
+                    )
+                # Reactivate payment account if not deactivated
+                if payment_account.status != self.model.Status.DEACTIVATED:
+                    payment_account.status = self.model.Status.ACTIVE
+                    payment_account.save()
+
+                # Check if the user is no longer in the same corporation
+                if (
+                    not payment_account.is_missing
+                    and not pa_corporation_id == main.corporation_id
+                ):
+                    payment_account.status = self.model.Status.MISSING
+                    payment_account.save()
+                    logger.info(
+                        "Marked Payment Account %s as MISSING",
+                        payment_account.name,
+                    )
+                # Check if the user changed to a existing corporation Payment System
+                elif (
+                    payment_account.is_missing
+                    and pa_corporation_id != main.corporation_id
+                ):
+                    try:
+                        new_owner = CorporationOwner.objects.get(
+                            eve_corporation__corporation_id=main.corporation_id
+                        )
+                        payment_account.owner = new_owner
+                        payment_account.deposit = 0
+                        payment_account.status = self.model.Status.ACTIVE
+                        payment_account.last_paid = None
+                        payment_account.save()
+                        logger.info(
+                            "Moved Payment Account %s to Corporation %s",
+                            payment_account.name,
+                            new_owner.eve_corporation.corporation_name,
+                        )
+                    except owner.DoesNotExist:
+                        continue
+                elif (
+                    payment_account.is_missing
+                    and pa_corporation_id == main.corporation_id
+                ):
+                    payment_account.status = self.model.Status.ACTIVE
+                    payment_account.notice = None
+                    payment_account.deposit = 0
+                    payment_account.last_paid = None
+                    payment_account.save()
+                    logger.info(
+                        "Reactivated Payment Account %s is back in Corporation %s",
+                        payment_account.name,
+                        payment_account.owner.eve_corporation.corporation_name,
+                    )
+
+            except self.model.DoesNotExist:
+                logger.debug(
+                    "Creating new payment account for user: %s",
+                    account.user.username,
+                )
+                # Create new payment account
+                items.append(
+                    self.model(
+                        name=main.character_name,
+                        owner=owner,
+                        user=account.user,
+                        status=self.model.Status.ACTIVE,
+                    )
+                )
+
+        if items:
+            self.bulk_create(items, ignore_conflicts=True)
+            logger.info(
+                "Added %s new payment accounts for: %s",
+                len(items),
+                owner.name,
+            )
+        else:
+            logger.debug(
+                "No new payment accounts for: %s",
+                owner.name,
+            )
+
+        return (
+            "Finished checking Payment Accounts for %s",
+            owner.name,
+        )
 
     @log_timing(logger)
     def check_pay_day(
@@ -194,7 +325,9 @@ class PaymentsManager(models.Manager):
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
         from taxsystem.models.corporation import (
-            CorporationPaymentAccount,
+            CorporationPaymentAccount as PaymentAccount,
+        )
+        from taxsystem.models.corporation import (
             CorporationPaymentHistory,
             CorporationPayments,
         )
@@ -205,17 +338,17 @@ class PaymentsManager(models.Manager):
             owner.name,
         )
 
-        accounts = CorporationPaymentAccount.objects.filter(owner=owner)
+        payment_accounts = PaymentAccount.objects.filter(owner=owner)
 
-        if not accounts:
+        if not payment_accounts:
             return ("No Payment Users for %s", owner.name)
 
         users = {}
 
-        for user in accounts:
-            user: CorporationPaymentAccount
-            alts = user.get_alt_ids()
-            users[user] = alts
+        for account in payment_accounts:
+            account: PaymentAccount
+            alts = account.get_alt_ids()
+            users[account] = alts
 
         journal = CorporationWalletJournalEntry.objects.filter(
             division__corporation=owner, ref_type__in=["player_donation"]
@@ -231,12 +364,12 @@ class PaymentsManager(models.Manager):
                 # Skip if already processed
                 if entry.entry_id in _current_entry_ids:
                     continue
-                for user, alts in users.items():
+                for account, alts in users.items():
                     if entry.first_party.id in alts:
                         payment_item = CorporationPayments(
                             entry_id=entry.entry_id,
-                            name=user.name,
-                            account=user,
+                            name=account.name,
+                            account=account,
                             amount=entry.amount,
                             request_status=CorporationPayments.RequestStatus.PENDING,
                             date=entry.date,
