@@ -114,6 +114,10 @@ ______________________________________________________________________
   - [ ] Kompletten Payment-Workflow testen (create → approve → account update)
   - [ ] Multi-Owner Szenarien testen
   - [ ] ESI Integration testen (gemockt)
+- [ ] Performance Tests
+  - [ ] Small Owner (1-100 Accounts)
+  - [ ] Medium Owner (100-500 Accounts)
+  - [ ] Large Owner (1000-2000 Accounts)
 
 **⏱️ Geschätzte Fertigstellung**: Sprint 3-4 (4 Wochen)
 

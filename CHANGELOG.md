@@ -13,6 +13,7 @@ Section Order:
 
 ### Added
 
+- `check_payment_accounts` method to manage payment account statuses
 - Django Admin Integration
   - `AllianceOwnerAdmin` class with:
     - List display showing alliance info, corporation link, and last update timestamp
@@ -46,6 +47,7 @@ Section Order:
   - `AllianceOwner.corporation` ForeignKey changed from `CASCADE` to `PROTECT`
   - Prevents accidental deletion of CorporationOwner when referenced by Alliance
   - Must explicitly delete AllianceOwner before deleting linked Corporation
+- Enhance card body styling for Own Payments and Payments pages
 
 ## [2.0.0a3] - 2025-11-22
 
