@@ -94,15 +94,35 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
 
         items = []
 
+        logger.debug(
+            "Found %s accounts for alliance: %s",
+            accounts.count(),
+            owner.name,
+        )
+
         for account in accounts:
             main = account.main_character
             try:
-                # Update existing payment account
-                existing_payment_account = self.get(user=account.user, owner=owner)
+                # Check existing payment account for user
+                existing_payment_account = self.model.objects.get(user=account.user)
+                if existing_payment_account.owner != owner:
+                    # Move payment account to new alliance if changed
+                    existing_payment_account.owner = owner
+                    existing_payment_account.save()
+                    logger.info(
+                        "Moved Payment Account %s to Alliance %s",
+                        existing_payment_account.name,
+                        owner.eve_alliance.alliance_name,
+                    )
                 if existing_payment_account.status != self.model.Status.DEACTIVATED:
+                    # Reactivate payment account if not deactivated
                     existing_payment_account.status = self.model.Status.ACTIVE
                     existing_payment_account.save()
             except self.model.DoesNotExist:
+                logger.debug(
+                    "Creating new payment account for user: %s",
+                    account.user.username,
+                )
                 # Create new payment account
                 items.append(
                     self.model(
@@ -126,7 +146,7 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
                 owner.name,
             )
 
-        self.check_payment_accounts(owner, accounts)
+        self._check_payment_accounts(owner, accounts)
 
         return (
             "Finished payment account for %s",
@@ -134,7 +154,7 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
         )
 
     @log_timing(logger)
-    def check_payment_accounts(
+    def _check_payment_accounts(
         self, owner: "AllianceOwner", accounts: models.QuerySet[UserProfile]
     ) -> None:
         """Check payment accounts status for a alliance."""
@@ -150,7 +170,7 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
         for account in accounts:
             # Check existing payment account
             try:
-                payment_account = self.get(user=account.user, owner=owner)
+                payment_account = self.model.objects.get(user=account.user)
             except self.model.DoesNotExist:
                 continue
 
