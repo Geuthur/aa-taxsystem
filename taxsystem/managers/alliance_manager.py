@@ -108,6 +108,7 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
                 if existing_payment_account.owner != owner:
                     # Move payment account to new alliance if changed
                     existing_payment_account.owner = owner
+                    existing_payment_account.deposit = 0
                     existing_payment_account.save()
                     logger.info(
                         "Moved Payment Account %s to Alliance %s",
@@ -197,6 +198,9 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
                         eve_alliance__alliance_id=main_alliance_id
                     )
                     payment_account.owner = new_owner
+                    payment_account.deposit = 0
+                    payment_account.status = self.model.Status.ACTIVE
+                    payment_account.last_paid = None
                     payment_account.save()
                     logger.info(
                         "Moved Payment Account %s to Alliance %s",
@@ -208,6 +212,9 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
             # If account is back in alliance, reactivate payment account
             elif payment_account.is_missing and pa_alliance_id == main_alliance_id:
                 payment_account.status = self.model.Status.ACTIVE
+                payment_account.notice = None
+                payment_account.deposit = 0
+                payment_account.last_paid = None
                 payment_account.save()
                 logger.info(
                     "Reactivated Payment Account %s for Alliance %s",
