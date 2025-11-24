@@ -5,27 +5,24 @@
 {% load sri %}
 
 {% block page_title %}
-    {{ title }} ⋗ {% translate "Tax System" %}
+    {{ title }} ⋗ {% translate "Overview" %}
 {% endblock %}
 
 {% block page_topic %}
     <h1 class="page-header text-center">
         {{ title }}
     </h1>
-    <p class="text-center text-muted">
-        {% blocktranslate count count=total_count %}
-            {{ count }} Owner
-        {% plural %}
-            {{ count }} Owners
-        {% endblocktranslate %}
-        ({{ corporation_count }} {% translate "Corporations" %}, {{ alliance_count }} {% translate "Alliances" %})
-    </p>
 {% endblock page_topic %}
 
 {% block taxsystem_block %}
-<div class="card card-body bg-secondary">
-    {% include 'taxsystem/partials/table/owner-overview.html' %}
-</div>
+    <div class="card">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Overview" %}</h3>
+        </div>
+        <div class="card-body bg-secondary">
+            {% include 'taxsystem/partials/table/owner-overview.html' %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_javascript %}
@@ -42,9 +39,6 @@
                 pageLength: 25,
                 columnDefs: [
                     { orderable: false, targets: [0, 3] },  // Portrait and Actions not sortable
-                    { width: '80px', targets: 0 },  // Portrait column width
-                    { width: '120px', targets: 2 },  // Type column width
-                    { width: '180px', targets: 3 }   // Actions column width
                 ],
                 language: {
                     emptyTable: "{% translate 'No owners found. You need permissions to view at least one corporation or alliance.' %}"
