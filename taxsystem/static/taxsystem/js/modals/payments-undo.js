@@ -1,12 +1,12 @@
 $(document).ready(() => {
-    /* global tablePayments */
     /* global taxsystemsettings */
     /* global reloadStatistics */
     /* global paymentsTable */
+    /* global paymentsystemTable */
 
     const modalRequestUndo = $('#payments-undo');
     const modalRequestUndoError = modalRequestUndo.find('#modal-error-field');
-    const previousUndoModal = $('#modalViewPaymentsContainer');
+    const modalViewPayments = $('#modalViewPaymentsContainer');
 
     // Undo Request Modal
     modalRequestUndo.on('show.bs.modal', (event) => {
@@ -53,11 +53,12 @@ $(document).ready(() => {
                     if (data.success === true) {
                         modalRequestUndo.modal('hide');
                         // Reload the AJAX request from the previous modal
-                        const previousModalUrl = previousUndoModal.find('#modal-hidden-url').val();
+                        const previousModalUrl = modalViewPayments.find('#modal-hidden-url').val();
                         if (previousModalUrl) {
                             // Reload the parent modal with the same URL
                             $('#modalViewPaymentsContainer').modal('show');
-
+                            // Reload the payment system table
+                            paymentsystemTable.DataTable().ajax.reload();
                             // Reload the statistics
                             reloadStatistics();
                         } else {

@@ -1,12 +1,11 @@
 $(document).ready(() => {
-    /* global tablePayments */
     /* global taxsystemsettings */
     /* global reloadStatistics */
     /* global paymentsystemTable */
     /* global paymentsTable */
 
-    const modalRequestDecline = $('#payments-add');
-    const modalRequestDeclineError = modalRequestDecline.find('#modal-error-field');
+    const modalRequestAdd = $('#payments-add');
+    const modalRequestDeclineError = modalRequestAdd.find('#modal-error-field');
 
     /**
      * Reset a modal to its initial state.
@@ -35,22 +34,22 @@ $(document).ready(() => {
     }
 
     // Decline Request Modal
-    modalRequestDecline.on('show.bs.modal', (event) => {
+    modalRequestAdd.on('show.bs.modal', (event) => {
         const button = $(event.relatedTarget);
         const url = button.data('action');
 
         // Extract the title from the button
         const modalTitle = button.data('title');
-        const modalTitleDiv = modalRequestDecline.find('#modal-title');
+        const modalTitleDiv = modalRequestAdd.find('#modal-title');
         modalTitleDiv.html(modalTitle);
 
         // Extract the text from the button
         const modalText = button.data('text');
-        const modalDiv = modalRequestDecline.find('#modal-request-text');
+        const modalDiv = modalRequestAdd.find('#modal-request-text');
         modalDiv.html(modalText);
 
         $('#modal-button-confirm-add-request').on('click', () => {
-            const form = modalRequestDecline.find('form');
+            const form = modalRequestAdd.find('form');
             const addInfoField = form.find('textarea[name="add_reason"]');
             const addAmountField = form.find('input[name="amount"]');
             const addInfo = addInfoField.val();
@@ -91,7 +90,7 @@ $(document).ready(() => {
 
                 posting.done((data) => {
                     if (data.success === true) {
-                        modalRequestDecline.modal('hide');
+                        modalRequestAdd.modal('hide');
                         // Reload All Relevant Tables
                         paymentsTable.DataTable().ajax.reload();
                         paymentsystemTable.DataTable().ajax.reload();
@@ -106,6 +105,6 @@ $(document).ready(() => {
         });
     }).on('hide.bs.modal', () => {
         // Use shared reset helper to clear form state and handlers
-        resetModal(modalRequestDecline);
+        resetModal(modalRequestAdd);
     });
 });

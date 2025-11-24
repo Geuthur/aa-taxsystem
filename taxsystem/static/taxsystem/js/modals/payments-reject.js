@@ -1,12 +1,11 @@
 $(document).ready(() => {
-    /* global tablePayments */
     /* global taxsystemsettings */
     /* global reloadStatistics */
     /* global paymentsTable */
 
     const modalRequestDecline = $('#payments-reject');
     const modalRequestDeclineError = modalRequestDecline.find('#modal-error-field');
-    const previousDeclineModal = $('#modalViewPaymentsContainer');
+    const modalViewPayments = $('#modalViewPaymentsContainer');
 
     // Decline Request Modal
     modalRequestDecline.on('show.bs.modal', (event) => {
@@ -53,7 +52,7 @@ $(document).ready(() => {
                     if (data.success === true) {
                         modalRequestDecline.modal('hide');
                         // Reload the AJAX request from the previous modal
-                        const previousModalUrl = previousDeclineModal.find('#modal-hidden-url').val();
+                        const previousModalUrl = modalViewPayments.find('#modal-hidden-url').val();
                         if (previousModalUrl) {
                             // Reload the parent modal with the same URL
                             $('#modalViewPaymentsContainer').modal('show');
