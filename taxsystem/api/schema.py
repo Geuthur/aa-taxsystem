@@ -144,4 +144,4 @@ class BaseDashboardResponse(Schema):
     tax_period: int
     divisions: DashboardDivisionsSchema
     statistics: StatisticsResponse
-    activity: str
+    activity: float

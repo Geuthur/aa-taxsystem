@@ -24,6 +24,14 @@ $(document).ready(function() {
         success: function (data) {
             var tax_amount = parseFloat(data.tax_amount);
             var days = parseFloat(data.tax_period);
+            var activityFormatted = numberFormatter({
+                value: data.activity,
+                options: {
+                    style: 'currency',
+                    currency: 'ISK'
+                }
+            });
+            var activityClass = data.activity >= 0 ? 'text-success' : 'text-danger';
             $('#dashboard-info').html(data.owner.owner_name);
 
             $('#dashboard-update').html(data.owner.owner_name + ' - Update Status');
@@ -50,7 +58,7 @@ $(document).ready(function() {
 
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
-            $('#activity').html(data.activity);
+            $('#activity').html(`<span class="${activityClass}">${activityFormatted}</span>`);
 
             // Generate URLs dynamically
             const updateTaxAmountUrl = taxsystemsettings.UpdateTaxUrl;
@@ -67,12 +75,15 @@ $(document).ready(function() {
                 url: updateTaxAmountUrl,
                 title: taxsystemsettings.translations.enterTaxAmount,
                 display: function(value) {
-                    // Parse the value to a number if it is not already
-                    if (typeof value !== 'number') {
-                        value = parseFloat(value);
-                    }
+                    var valueFormatted = numberFormatter({
+                        value: value,
+                        options: {
+                            style: 'currency',
+                            currency: 'ISK'
+                        }
+                    });
                     // Display the value in the table with thousand separators
-                    $(this).text(value.toLocaleString('de-DE') + ' ISK');
+                    $(this).text(valueFormatted);
                 },
                 success: function() {
                     tablePaymentSystem.ajax.reload();
@@ -92,10 +103,6 @@ $(document).ready(function() {
                 url: updateTaxPeriodUrl,
                 title: taxsystemsettings.translations.enterTaxPeriod,
                 display: function(value) {
-                    // Parse the value to a number if it is not already
-                    if (typeof value !== 'number') {
-                        value = parseFloat(value);
-                    }
                     // Display the value in the table with thousand separators
                     $(this).text(value.toLocaleString('de-DE') + ' ' + taxsystemsettings.translations.days);
                 },

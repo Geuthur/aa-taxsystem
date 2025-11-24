@@ -30,7 +30,7 @@
             <tbody class="modal-payments-table-body">
                 {% for payment in payment_details %}
                     <tr>
-                        <td>{{ payment.amount|intcomma }}</td>
+                        <td>{{ payment.amount }}</td>
                         <td>{{ payment.date }}</td>
                         <td>{{ payment.request_status.status }}</td>
                         <td>{{ payment.reviser }}</td>
@@ -49,6 +49,22 @@
             const tablePayments = paymentsViewCharacterTableVar.DataTable({
                 "order": [[ 1, "desc" ]],
                 "columnDefs": [
+                    {
+                        targets: 0,
+                        render: {
+                            display: function (data, _, __) {
+                                return numberFormatter({
+                                    value: data,
+                                    options: {
+                                        style: 'currency',
+                                        currency: 'ISK'
+                                    }
+                                });
+                            },
+                            filter: function (data, _, __) { return data; },
+                            _: function (data, _, __) { return data; }
+                        }
+                    },
                     { "orderable": false, "targets": 5 }
                 ]
             });

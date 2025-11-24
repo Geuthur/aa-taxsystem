@@ -3,7 +3,6 @@ from ninja import NinjaAPI, Schema
 
 # Django
 from django.shortcuts import get_object_or_404
-from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -19,7 +18,7 @@ from taxsystem.api.helpers.common import (
     build_members_response_list,
     build_own_payments_response_list,
     build_payments_response_list,
-    calculate_activity_html,
+    calculate_activity,
     create_dashboard_common_data,
     get_optimized_own_payments_queryset,
     get_optimized_payments_queryset,
@@ -148,7 +147,7 @@ class AllianceApiEndpoints:
             common_data = create_dashboard_common_data(owner, divisions)
 
             # Calculate activity
-            activity_html = calculate_activity_html(
+            activity = calculate_activity(
                 owner.corporation, owner.corporation.eve_corporation.corporation_id
             )
 
@@ -164,7 +163,7 @@ class AllianceApiEndpoints:
                     main_corporation_id=owner.corporation.eve_corporation.corporation_id,
                     main_corporation_name=owner.corporation.eve_corporation.corporation_name,
                 ),
-                activity=format_html(activity_html),
+                activity=activity,
                 **common_data,
             )
             return dashboard_response

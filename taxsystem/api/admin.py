@@ -3,7 +3,6 @@ from ninja import NinjaAPI, Schema
 
 # Django
 from django.shortcuts import render
-from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 # Alliance Auth
@@ -19,7 +18,7 @@ from taxsystem.api.helpers.common import (
     build_admin_logs_response_list,
     build_filters_response_list,
     build_payment_accounts_response_list,
-    calculate_activity_html,
+    calculate_activity,
     create_dashboard_common_data,
     create_member_response_data,
 )
@@ -90,7 +89,7 @@ class AdminApiEndpoints:
             common_data = create_dashboard_common_data(owner, divisions)
 
             # Calculate activity
-            activity_html = calculate_activity_html(owner, corporation_id)
+            activity = calculate_activity(owner, corporation_id)
 
             dashboard_response = DashboardResponse(
                 owner=CorporationSchema(
@@ -102,7 +101,7 @@ class AdminApiEndpoints:
                     corporation_portrait=corporation_logo,
                     corporation_ticker=owner.eve_corporation.corporation_ticker,
                 ),
-                activity=format_html(activity_html),
+                activity=activity,
                 **common_data,
             )
             return dashboard_response

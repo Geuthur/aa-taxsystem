@@ -220,16 +220,16 @@ def create_statistics_response(owner):
     )
 
 
-def calculate_activity_html(owner, corporation_id):
+def calculate_activity(owner, corporation_id) -> float:
     """
-    Calculate activity HTML for the past 30 days
+    Calculate activity for the past 30 days
 
     Args:
         owner: Owner object (CorporationOwner or AllianceOwner)
         corporation_id: Corporation ID for filtering
 
     Returns:
-        str: HTML formatted activity string
+        float: Activity amount
     """
     past30_days = (
         CorporationWalletJournalEntry.objects.filter(
@@ -243,8 +243,7 @@ def calculate_activity_html(owner, corporation_id):
     )
 
     total_amount = past30_days.get("total", 0) or 0
-    activity_color = "text-success" if total_amount >= 0 else "text-danger"
-    return f"<span class='{activity_color}'>{intcomma(total_amount, use_l10n=True)}</span> ISK"
+    return total_amount
 
 
 def create_dashboard_common_data(owner, divisions):
