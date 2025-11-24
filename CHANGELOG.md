@@ -11,8 +11,21 @@ Section Order:
 ### Removed
 -->
 
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate old Payments
+
+```bash
+python manage.py taxsystem_migrate_payments
+```
+
+## [2.0.0-beta.1] - 2025-11-24
+
 ### Added
 
+- Implement payment system add payments button and associated template
+- Enhance payment modals with reset functionality and reload logic
+- Reset deposit and update status for payment accounts on owner change
+- shared constant `AUTH_SELECT_RELATED_MAIN_CHARACTER` in `taxsystem/constants.py` to centralize repeated `select_related` fields
 - `check_payment_accounts` method to manage payment account statuses
 - Django Admin Integration
   - `AllianceOwnerAdmin` class with:
@@ -43,6 +56,9 @@ Section Order:
 
 ### Changed
 
+- Update type annotations for manager objects in Corporation models
+- Refactor activity calculation to return numeric values and update related templates for consistent display
+- Refactor payment account management and update member tracking logic
 - Model Protection
   - `AllianceOwner.corporation` ForeignKey changed from `CASCADE` to `PROTECT`
   - Prevents accidental deletion of CorporationOwner when referenced by Alliance
@@ -494,5 +510,8 @@ python manage.py taxsystem_migrate_payments
 - Initial public release
 
 [1.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.0-beta.1 "1.0.0-beta.1"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...HEAD "In Development"
+[1.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.1 "1.0.1"
+[1.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.1...v1.0.2 "1.0.2"
+[2.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.1 "2.0.0-beta.1"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"

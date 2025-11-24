@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System 2.0.0a3\n"
+"Project-Id-Version: AA Tax System 2.0.0-beta.1\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-11-22 22:16+0100\n"
+"POT-Creation-Date: 2025-11-24 11:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,16 +18,42 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: taxsystem/api/admin.py:78 taxsystem/api/admin.py:119
-#: taxsystem/api/admin.py:187 taxsystem/api/admin.py:214
+#: taxsystem/admin.py:78 taxsystem/admin.py:161
+msgid "last update run"
+msgstr ""
+
+#: taxsystem/admin.py:90
+msgid "Force update selected corporations"
+msgstr ""
+
+#: taxsystem/admin.py:101
+#, python-brace-format
+msgid ""
+"Started force update for {count} corporation(s). Updates will run in the "
+"background."
+msgstr ""
+
+#: taxsystem/admin.py:173
+msgid "Force update selected alliances"
+msgstr ""
+
+#: taxsystem/admin.py:184
+#, python-brace-format
+msgid ""
+"Started force update for {count} alliance(s). Updates will run in the "
+"background."
+msgstr ""
+
+#: taxsystem/api/admin.py:77 taxsystem/api/admin.py:118
+#: taxsystem/api/admin.py:186 taxsystem/api/admin.py:213
 #: taxsystem/api/character.py:168
 msgid "Corporation Not Found"
 msgstr ""
 
-#: taxsystem/api/admin.py:81 taxsystem/api/admin.py:122
-#: taxsystem/api/admin.py:156 taxsystem/api/admin.py:190
-#: taxsystem/api/admin.py:217 taxsystem/api/alliance.py:137
-#: taxsystem/api/alliance.py:184 taxsystem/api/character.py:79
+#: taxsystem/api/admin.py:80 taxsystem/api/admin.py:121
+#: taxsystem/api/admin.py:155 taxsystem/api/admin.py:189
+#: taxsystem/api/admin.py:216 taxsystem/api/alliance.py:136
+#: taxsystem/api/alliance.py:183 taxsystem/api/character.py:79
 #: taxsystem/api/character.py:172 taxsystem/views.py:251 taxsystem/views.py:274
 #: taxsystem/views.py:300 taxsystem/views.py:350 taxsystem/views.py:430
 #: taxsystem/views.py:597 taxsystem/views.py:754 taxsystem/views.py:806
@@ -37,16 +63,16 @@ msgstr ""
 msgid "Permission Denied"
 msgstr ""
 
-#: taxsystem/api/admin.py:153 taxsystem/api/character.py:75
+#: taxsystem/api/admin.py:152 taxsystem/api/character.py:75
 msgid "Owner Not Found"
 msgstr ""
 
-#: taxsystem/api/alliance.py:118 taxsystem/api/character.py:182
+#: taxsystem/api/alliance.py:117 taxsystem/api/character.py:182
 #: taxsystem/api/corporation.py:90
 msgid "No Payments Found"
 msgstr ""
 
-#: taxsystem/api/alliance.py:135 taxsystem/api/alliance.py:181
+#: taxsystem/api/alliance.py:134 taxsystem/api/alliance.py:180
 msgid "Alliance Not Found"
 msgstr ""
 
@@ -54,15 +80,15 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-#: taxsystem/api/helpers/common.py:407
+#: taxsystem/api/helpers/common.py:408
 msgid "Has Paid"
 msgstr ""
 
-#: taxsystem/api/helpers/common.py:408
+#: taxsystem/api/helpers/common.py:409
 msgid "Yes"
 msgstr ""
 
-#: taxsystem/api/helpers/common.py:408
+#: taxsystem/api/helpers/common.py:409
 msgid "No"
 msgstr ""
 
@@ -142,20 +168,20 @@ msgid "The corporation that owns this alliance tax system."
 msgstr ""
 
 #: taxsystem/models/alliance.py:243 taxsystem/models/alliance.py:265
-#: taxsystem/models/corporation.py:377 taxsystem/models/corporation.py:399
+#: taxsystem/models/corporation.py:374 taxsystem/models/corporation.py:396
 msgid "Payment"
 msgstr ""
 
 #: taxsystem/models/alliance.py:244 taxsystem/models/alliance.py:266
-#: taxsystem/models/corporation.py:378 taxsystem/models/corporation.py:400
+#: taxsystem/models/corporation.py:375 taxsystem/models/corporation.py:397
 msgid "Payment that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:250 taxsystem/models/corporation.py:384
+#: taxsystem/models/alliance.py:250 taxsystem/models/corporation.py:381
 msgid "New Status"
 msgstr ""
 
-#: taxsystem/models/alliance.py:251 taxsystem/models/corporation.py:385
+#: taxsystem/models/alliance.py:251 taxsystem/models/corporation.py:382
 msgid "New Status of the action"
 msgstr ""
 
@@ -215,7 +241,7 @@ msgstr ""
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/base.py:368 taxsystem/models/corporation.py:214
+#: taxsystem/models/base.py:368 taxsystem/models/corporation.py:211
 #: taxsystem/templates/taxsystem/partials/manage/filter.html:9
 msgid "Active"
 msgstr ""
@@ -229,7 +255,7 @@ msgstr ""
 msgid "Deactivated"
 msgstr ""
 
-#: taxsystem/models/base.py:371 taxsystem/models/corporation.py:215
+#: taxsystem/models/base.py:371 taxsystem/models/corporation.py:212
 msgid "Missing"
 msgstr ""
 
@@ -355,16 +381,16 @@ msgstr ""
 msgid "Deleted"
 msgstr ""
 
-#: taxsystem/models/corporation.py:216
+#: taxsystem/models/corporation.py:213
 #: taxsystem/templates/taxsystem/partials/manage/dashboard.html:184
 msgid "Unregistered"
 msgstr ""
 
-#: taxsystem/models/corporation.py:217
+#: taxsystem/models/corporation.py:214
 msgid "Is Alt"
 msgstr ""
 
-#: taxsystem/models/corporation.py:228
+#: taxsystem/models/corporation.py:225
 #: taxsystem/templates/taxsystem/modals/view_character_payments.html:23
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:97
 #: taxsystem/templates/taxsystem/partials/manage/manage-user.html:13
@@ -629,7 +655,7 @@ msgstr ""
 msgid "Division"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/view_character_payments.html:69
+#: taxsystem/templates/taxsystem/modals/view_character_payments.html:85
 #: taxsystem/templates/taxsystem/modals/view_payment_details.html:138
 msgid "No character found."
 msgstr ""
@@ -737,6 +763,16 @@ msgstr ""
 #: taxsystem/templates/taxsystem/partials/buttons/member-delete.html:7
 #: taxsystem/templates/taxsystem/partials/buttons/member-delete.html:12
 msgid "Delete Member"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/buttons/payment-add.html:7
+#: taxsystem/templates/taxsystem/partials/buttons/payment-add.html:8
+#: taxsystem/templates/taxsystem/partials/buttons/payment-add.html:12
+msgid "Add Payment"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/buttons/payment-add.html:8
+msgid "for"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/buttons/payment-approve.html:7
