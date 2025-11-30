@@ -453,9 +453,9 @@ $(document).ready(function() {
         rowCallback: function(row, data) {
             if (!data.is_active) {
                 $(row).addClass('tax-warning tax-hover');
-            } else if (data.is_active && data.has_paid.raw) {
+            } else if (data.is_active && data.has_paid && data.has_paid.raw) {
                 $(row).addClass('tax-green tax-hover');
-            } else if (data.is_active && !data.has_paid.raw) {
+            } else if (data.is_active && data.has_paid && !data.has_paid.raw) {
                 $(row).addClass('tax-red tax-hover');
             }
         },

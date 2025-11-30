@@ -402,7 +402,7 @@ def create_payment_account_response_data(account):
         "status": account.get_payment_status(),
         "deposit": account.deposit,
         "has_paid": DataTableSchema(
-            raw=str(account.has_paid),
+            raw=account.has_paid,
             display=account.has_paid_icon(badge=True),
             sort=str(int(account.has_paid)),
             translation=_("Has Paid"),

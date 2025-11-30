@@ -9,7 +9,7 @@ from taxsystem.api.helpers.statistics import StatisticsResponse
 
 
 class DataTableSchema(Schema):
-    raw: str
+    raw: str | int | float | bool
     display: str
     sort: str | None = None
     translation: str | None = None
