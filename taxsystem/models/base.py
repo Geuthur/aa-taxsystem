@@ -477,7 +477,7 @@ class PaymentAccountBase(models.Model):
         if self.deposit >= self.owner.tax_amount:
             return True
         if self.last_paid and self.deposit >= 0:
-            return timezone.now() - self.last_paid < timezone.timedelta(
+            return (timezone.now() - self.last_paid) < timezone.timedelta(
                 days=self.owner.tax_period
             )
         return False
