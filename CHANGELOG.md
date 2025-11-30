@@ -18,7 +18,22 @@ Section Order:
 python manage.py taxsystem_migrate_payments
 ```
 
+### Fixed
+
+- Row colors not work
+
+### Changed
+
+- Fix parentheses placement in payment account tax period check for clarity
+
 ## [2.0.0-beta.1] - 2025-11-24
+
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate old Payments
+
+```bash
+python manage.py taxsystem_migrate_payments
+```
 
 ### Added
 
