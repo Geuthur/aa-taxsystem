@@ -21,10 +21,14 @@ python manage.py taxsystem_migrate_payments
 ### Fixed
 
 - Row colors not work
+- Improve payment count logic to accurately reflect active payments
+- Update main character status to active when relevant
+- Corporation Payments have no Owner ID
 
 ### Changed
 
 - Fix parentheses placement in payment account tax period check for clarity
+- Refactor payment account management to improve account checking and reactivation logic
 
 ## [2.0.0-beta.1] - 2025-11-24
 
