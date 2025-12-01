@@ -243,7 +243,12 @@ class MembersManager(models.Manager):
             relevant_alts = alts.intersection(members_ids)
             for alt in relevant_alts:
                 members_ids.remove(alt)
-                if alt != main.character_id:
+                if alt == main.character_id:
+                    # Update main character to active if it was previously in another state
+                    members.filter(character_id=main.character_id).exclude(
+                        status=self.model.States.ACTIVE
+                    ).update(status=self.model.States.ACTIVE)
+                else:
                     # Update the status of the member to alt
                     members.filter(character_id=alt).update(
                         status=self.model.States.IS_ALT
