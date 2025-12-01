@@ -116,11 +116,15 @@ def get_payment_system_statistics(owner) -> PaymentSystemStatisticsSchema:
         deactivated=Count("id", filter=Q(status=PaymentAccountBase.Status.DEACTIVATED)),
         paid=Count(
             "id",
-            filter=Q(deposit__gte=F("owner__tax_amount"))
-            & Q(status=PaymentAccountBase.Status.ACTIVE)
-            | Q(deposit=0)
-            & Q(status=PaymentAccountBase.Status.ACTIVE)
-            & Q(last_paid__gte=timezone.now() - period),
+            filter=(
+                Q(deposit__gte=F("owner__tax_amount"))
+                | (
+                    Q(last_paid__isnull=False)
+                    & Q(deposit__gte=0)
+                    & Q(last_paid__gte=timezone.now() - period)
+                )
+            )
+            & Q(status=PaymentAccountBase.Status.ACTIVE),
         ),
     )
     # Calculate unpaid count
