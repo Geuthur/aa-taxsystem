@@ -374,6 +374,7 @@ class PaymentsManager(models.Manager):
                             request_status=CorporationPayments.RequestStatus.PENDING,
                             date=entry.date,
                             reason=entry.reason,
+                            owner_id=owner.eve_corporation.corporation_id,
                         )
                         items.append(payment_item)
 
