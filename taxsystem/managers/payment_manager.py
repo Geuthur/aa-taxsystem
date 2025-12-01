@@ -136,103 +136,61 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
 
     def _check_payment_accounts(self, owner: "CorporationOwner"):
         """Check payment accounts for a corporation."""
-        # pylint: disable=import-outside-toplevel, cyclic-import
-        # AA TaxSystem
-        from taxsystem.models.corporation import CorporationOwner
+        logger.debug("Checking Payment Accounts for: %s", owner.name)
 
-        logger.debug(
-            "Checking Payment Accounts for: %s",
-            owner.name,
-        )
-
-        auth_acconts = UserProfile.objects.filter(
+        auth_accounts = UserProfile.objects.filter(
             main_character__isnull=False,
         ).select_related(*AUTH_SELECT_RELATED_MAIN_CHARACTER)
 
-        if not auth_acconts:
-            logger.debug(
-                "No valid accounts for skipping Check: %s",
-                owner.name,
-            )
+        # Clean up orphaned payment accounts
+        self._cleanup_orphaned_accounts(owner, auth_accounts)
+
+        if not auth_accounts:
+            logger.debug("No valid accounts for skipping Check: %s", owner.name)
             return "No Accounts"
 
-        items = []
+        # Process existing and new accounts
+        new_accounts = self._process_accounts(owner, auth_accounts)
 
-        for account in auth_acconts:
+        # Bulk create new accounts
+        if new_accounts:
+            self.bulk_create(new_accounts, ignore_conflicts=True)
+            logger.info(
+                "Added %s new payment accounts for: %s", len(new_accounts), owner.name
+            )
+        else:
+            logger.debug("No new payment accounts for: %s", owner.name)
+
+        return ("Finished checking Payment Accounts for %s", owner.name)
+
+    def _cleanup_orphaned_accounts(self, owner: "CorporationOwner", auth_accounts):
+        """Delete payment accounts for users without main characters."""
+        ps_user_ids = self.filter(owner=owner).values_list("user_id", flat=True)
+        auth_user_ids = set(auth_accounts.values_list("user_id", flat=True))
+
+        for ps_user_id in ps_user_ids:
+            if ps_user_id not in auth_user_ids:
+                self.filter(owner=owner, user_id=ps_user_id).delete()
+                logger.info(
+                    "Deleted Payment Account for user id: %s from Corporation: %s",
+                    ps_user_id,
+                    owner.name,
+                )
+
+    def _process_accounts(self, owner: "CorporationOwner", auth_accounts):
+        """Process existing payment accounts and return list of new accounts to create."""
+        new_accounts = []
+
+        for account in auth_accounts:
             main = account.main_character
             try:
-                # Check existing payment account for user
                 payment_account = self.model.objects.get(user=account.user)
-                pa_corporation_id = payment_account.owner.eve_corporation.corporation_id
-                # Update existing payment account if owner changed
-                if payment_account.owner != owner:
-                    payment_account.owner = owner
-                    payment_account.deposit = 0
-                    payment_account.save()
-                    logger.info(
-                        "Moved Payment Account %s to Corporation %s",
-                        payment_account.name,
-                        owner.eve_corporation.corporation_name,
-                    )
-                # Reactivate payment account if not deactivated
-                if payment_account.status != self.model.Status.DEACTIVATED:
-                    payment_account.status = self.model.Status.ACTIVE
-                    payment_account.save()
-
-                # Check if the user is no longer in the same corporation
-                if (
-                    not payment_account.is_missing
-                    and not pa_corporation_id == main.corporation_id
-                ):
-                    payment_account.status = self.model.Status.MISSING
-                    payment_account.save()
-                    logger.info(
-                        "Marked Payment Account %s as MISSING",
-                        payment_account.name,
-                    )
-                # Check if the user changed to a existing corporation Payment System
-                elif (
-                    payment_account.is_missing
-                    and pa_corporation_id != main.corporation_id
-                ):
-                    try:
-                        new_owner = CorporationOwner.objects.get(
-                            eve_corporation__corporation_id=main.corporation_id
-                        )
-                        payment_account.owner = new_owner
-                        payment_account.deposit = 0
-                        payment_account.status = self.model.Status.ACTIVE
-                        payment_account.last_paid = None
-                        payment_account.save()
-                        logger.info(
-                            "Moved Payment Account %s to Corporation %s",
-                            payment_account.name,
-                            new_owner.eve_corporation.corporation_name,
-                        )
-                    except owner.DoesNotExist:
-                        continue
-                elif (
-                    payment_account.is_missing
-                    and pa_corporation_id == main.corporation_id
-                ):
-                    payment_account.status = self.model.Status.ACTIVE
-                    payment_account.notice = None
-                    payment_account.deposit = 0
-                    payment_account.last_paid = None
-                    payment_account.save()
-                    logger.info(
-                        "Reactivated Payment Account %s is back in Corporation %s",
-                        payment_account.name,
-                        payment_account.owner.eve_corporation.corporation_name,
-                    )
-
+                self._update_existing_account(owner, payment_account, main)
             except self.model.DoesNotExist:
                 logger.debug(
-                    "Creating new payment account for user: %s",
-                    account.user.username,
+                    "Creating new payment account for user: %s", account.user.username
                 )
-                # Create new payment account
-                items.append(
+                new_accounts.append(
                     self.model(
                         name=main.character_name,
                         owner=owner,
@@ -241,22 +199,78 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
                     )
                 )
 
-        if items:
-            self.bulk_create(items, ignore_conflicts=True)
+        return new_accounts
+
+    def _update_existing_account(
+        self, owner: "CorporationOwner", payment_account, main
+    ):
+        """Update an existing payment account based on current state."""
+        pa_corporation_id = payment_account.owner.eve_corporation.corporation_id
+        main_corp_id = main.corporation_id
+
+        # Handle owner change
+        if payment_account.owner != owner:
+            payment_account.owner = owner
+            payment_account.deposit = 0
+            payment_account.save()
             logger.info(
-                "Added %s new payment accounts for: %s",
-                len(items),
-                owner.name,
-            )
-        else:
-            logger.debug(
-                "No new payment accounts for: %s",
-                owner.name,
+                "Moved Payment Account %s to Corporation %s",
+                payment_account.name,
+                owner.eve_corporation.corporation_name,
             )
 
-        return (
-            "Finished checking Payment Accounts for %s",
-            owner.name,
+        # Reactivate if not deactivated
+        if payment_account.status != self.model.Status.DEACTIVATED:
+            payment_account.status = self.model.Status.ACTIVE
+            payment_account.save()
+
+        # Handle corporation changes
+        if pa_corporation_id != main_corp_id:
+            self._handle_corporation_change(payment_account, main_corp_id)
+        elif payment_account.is_missing:
+            self._reactivate_missing_account(payment_account)
+
+    def _handle_corporation_change(self, payment_account, main_corp_id):
+        """Handle payment account when user changes corporation."""
+        # pylint: disable=import-outside-toplevel, cyclic-import
+        # AA TaxSystem
+        from taxsystem.models.corporation import CorporationOwner as CorpOwner
+
+        if not payment_account.is_missing:
+            # Mark as missing if left corporation
+            payment_account.status = self.model.Status.MISSING
+            payment_account.save()
+            logger.info("Marked Payment Account %s as MISSING", payment_account.name)
+        else:
+            # Try to move to new corporation
+            try:
+                new_owner = CorpOwner.objects.get(
+                    eve_corporation__corporation_id=main_corp_id
+                )
+                payment_account.owner = new_owner
+                payment_account.deposit = 0
+                payment_account.status = self.model.Status.ACTIVE
+                payment_account.last_paid = None
+                payment_account.save()
+                logger.info(
+                    "Moved Payment Account %s to Corporation %s",
+                    payment_account.name,
+                    new_owner.eve_corporation.corporation_name,
+                )
+            except CorpOwner.DoesNotExist:
+                pass
+
+    def _reactivate_missing_account(self, payment_account):
+        """Reactivate a missing payment account when user returns."""
+        payment_account.status = self.model.Status.ACTIVE
+        payment_account.notice = None
+        payment_account.deposit = 0
+        payment_account.last_paid = None
+        payment_account.save()
+        logger.info(
+            "Reactivated Payment Account %s is back in Corporation %s",
+            payment_account.name,
+            payment_account.owner.eve_corporation.corporation_name,
         )
 
     @log_timing(logger)
