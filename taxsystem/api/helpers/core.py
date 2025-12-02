@@ -34,20 +34,21 @@ def get_owner(
     request, owner_id
 ) -> tuple[CorporationOwner | AllianceOwner | None, bool]:
     """Get Owner (Corporation or Alliance) and Permission"""
+    perms = True
     try:
         owner = CorporationOwner.objects.get(eve_corporation__corporation_id=owner_id)
         visible = CorporationOwner.objects.visible_to(request.user)
         if owner not in visible:
-            return None, False
+            perms = False
     except CorporationOwner.DoesNotExist:
         try:
             owner = AllianceOwner.objects.get(eve_alliance__alliance_id=owner_id)
             visible = AllianceOwner.objects.visible_to(request.user)
             if owner not in visible:
-                return None
+                perms = False
         except AllianceOwner.DoesNotExist:
             return None, False
-    return owner, True
+    return owner, perms
 
 
 def get_corporation(request, corporation_id) -> CorporationOwner | None:
