@@ -320,12 +320,13 @@ def faq(request: WSGIRequest, owner_id=None):
 
 @login_required
 @permission_required("taxsystem.basic_access")
-def account(request: WSGIRequest, owner_id=None):
+def account(request: WSGIRequest, owner_id=None, character_id=None):
     """Account View (Generic for Corporation and Alliance)"""
     if not owner_id:
         owner_id = request.user.profile.main_character.corporation_id
 
-    character_id = request.user.profile.main_character.character_id
+    if not character_id:
+        character_id = request.user.profile.main_character.character_id
 
     user_profile = UserProfile.objects.filter(
         main_character__character_id=character_id

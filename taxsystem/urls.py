@@ -17,6 +17,11 @@ urlpatterns = [
     path("owner/<int:owner_id>/view/faq/", views.faq, name="faq"),
     path("view/account/", views.account, name="account"),
     path("owner/<int:owner_id>/view/account/", views.account, name="account"),
+    path(
+        "owner/<int:owner_id>/view/account/<int:character_id>/",
+        views.account,
+        name="account",
+    ),
     path("admin/", views.admin, name="admin"),
     path("corporation/add/", views.add_corp, name="add_corp"),
     path("alliance/add/", views.add_alliance, name="add_alliance"),
