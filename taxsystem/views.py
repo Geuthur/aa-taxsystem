@@ -1232,7 +1232,7 @@ def generic_manage_owner(
     if owner is None:
         messages.error(
             request,
-            _("{owner_type} not Found").format(
+            _("{owner_type} not Found.").format(
                 owner_type=get_owner_display_name(owner_type)
             ),
         )
