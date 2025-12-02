@@ -121,6 +121,46 @@ class TestUpdateTaxPeriod(TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
+    def test_negative_value(self):
+        """Test update tax period with negative value."""
+        corporation_id = self.audit.eve_corporation.corporation_id
+
+        form_data = {
+            "corporation_id": corporation_id,
+            "value": -30,
+        }
+
+        request = self.factory.post(
+            reverse("taxsystem:update_tax_period", args=[corporation_id]),
+            data=form_data,
+        )
+
+        request.user = self.user
+
+        response = views.update_tax_period(request, owner_id=corporation_id)
+
+        response_data = json.loads(response.content)
+
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(response_data["message"], "Please enter a valid number")
+
+    def test_invalid_method(self):
+        """Test update tax period with GET method."""
+        corporation_id = self.audit.eve_corporation.corporation_id
+
+        request = self.factory.get(
+            reverse("taxsystem:update_tax_period", args=[corporation_id])
+        )
+
+        request.user = self.user
+
+        response = views.update_tax_period(request, owner_id=corporation_id)
+
+        response_data = json.loads(response.content)
+
+        self.assertEqual(response.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
+        self.assertEqual(response_data["message"], "Invalid request method")
+
 
 class TestUpdateTaxAmount(TestCase):
     @classmethod
@@ -220,3 +260,43 @@ class TestUpdateTaxAmount(TestCase):
         response = views.update_tax_amount(request, owner_id=corporation_id)
 
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_negative_value(self):
+        """Test update tax amount with negative value."""
+        corporation_id = self.audit.eve_corporation.corporation_id
+
+        form_data = {
+            "corporation_id": corporation_id,
+            "value": -100,
+        }
+
+        request = self.factory.post(
+            reverse("taxsystem:update_tax_amount", args=[corporation_id]),
+            data=form_data,
+        )
+
+        request.user = self.user
+
+        response = views.update_tax_amount(request, owner_id=corporation_id)
+
+        response_data = json.loads(response.content)
+
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(response_data["message"], "Please enter a valid number")
+
+    def test_invalid_method(self):
+        """Test update tax amount with GET method."""
+        corporation_id = self.audit.eve_corporation.corporation_id
+
+        request = self.factory.get(
+            reverse("taxsystem:update_tax_amount", args=[corporation_id])
+        )
+
+        request.user = self.user
+
+        response = views.update_tax_amount(request, owner_id=corporation_id)
+
+        response_data = json.loads(response.content)
+
+        self.assertEqual(response.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
+        self.assertEqual(response_data["message"], "Invalid request method")
