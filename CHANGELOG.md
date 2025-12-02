@@ -18,6 +18,8 @@ Section Order:
 python manage.py taxsystem_migrate_payments
 ```
 
+## [2.0.0-beta.2] - 2025-12-02
+
 ### Fixed
 
 - Row colors not work
@@ -27,6 +29,7 @@ python manage.py taxsystem_migrate_payments
 
 ### Changed
 
+- Add character_id parameter to account view for enhanced functionality
 - Fix parentheses placement in payment account tax period check for clarity
 - Refactor payment account management to improve account checking and reactivation logic
 
