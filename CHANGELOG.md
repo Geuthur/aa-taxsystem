@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0-beta.3] - 2025-12-03
+
 > [!WARNING]
 > We changed the Payments Information, please use the following django command to migrate old Payments
 > You need to execute the following commands in order to avoid issues
