@@ -14,7 +14,18 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__
-from taxsystem.models.tax import Members, OwnerAudit, Payments, PaymentSystem
+from taxsystem.models.alliance import (
+    AllianceOwner,
+    AlliancePaymentAccount,
+    AlliancePayments,
+)
+from taxsystem.models.base import PaymentAccountBase
+from taxsystem.models.corporation import (
+    CorporationOwner,
+    CorporationPaymentAccount,
+    CorporationPayments,
+    Members,
+)
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -50,16 +61,16 @@ class StatisticsResponse(Schema):
     members: MembersStatisticsSchema
 
 
-def get_payments_statistics(
-    owner: OwnerAudit, alliance: bool = False
-) -> PaymentsStatisticsSchema:
-    """Get payments statistics for an OwnerAudit."""
+def get_payments_statistics(owner) -> PaymentsStatisticsSchema:
+    """Get payments statistics for an Owner."""
     # Determine the correct filter based on alliance system setting
-    payments = (
-        Payments.objects.filter(account__owner__alliance=owner.alliance)
-        if alliance
-        else Payments.objects.filter(account__owner=owner)
-    )
+    if isinstance(owner, CorporationOwner):
+        # Determine the correct filter based on alliance system setting
+        payments = CorporationPayments.objects.filter(account__owner=owner)
+    elif isinstance(owner, AllianceOwner):
+        payments = AlliancePayments.objects.filter(account__owner=owner)
+    else:
+        raise ValueError("Owner must be CorporationOwner or AllianceOwner")
 
     payments_counts = payments.aggregate(
         total=Count("id"),
@@ -69,8 +80,8 @@ def get_payments_statistics(
             "id",
             filter=Q(
                 request_status__in=[
-                    Payments.RequestStatus.PENDING,
-                    Payments.RequestStatus.NEEDS_APPROVAL,
+                    CorporationPayments.RequestStatus.PENDING,
+                    CorporationPayments.RequestStatus.NEEDS_APPROVAL,
                 ]
             ),
         ),
@@ -84,33 +95,36 @@ def get_payments_statistics(
     )
 
 
-def get_payment_system_statistics(
-    owner: OwnerAudit, alliance: bool = False
-) -> PaymentSystemStatisticsSchema:
-    """Get payment system statistics for an OwnerAudit."""
+def get_payment_system_statistics(owner) -> PaymentSystemStatisticsSchema:
+    """Get payment system statistics for an Owner."""
+    if isinstance(owner, CorporationOwner):
+        # Determine the correct filter based on alliance system setting
+        payment_system = CorporationPaymentAccount.objects.filter(owner=owner)
+    elif isinstance(owner, AllianceOwner):
+        payment_system = AlliancePaymentAccount.objects.filter(owner=owner)
+    else:
+        raise ValueError("Owner must be CorporationOwner or AllianceOwner")
+
     period = timezone.timedelta(days=owner.tax_period)
 
-    # Determine the correct filter based on alliance system setting
-    payment_system = (
-        PaymentSystem.objects.filter(owner__alliance=owner.alliance)
-        if alliance
-        else PaymentSystem.objects.filter(owner=owner)
-    )
-
     payment_system_counts = payment_system.exclude(
-        status=PaymentSystem.Status.MISSING
+        status=PaymentAccountBase.Status.MISSING
     ).aggregate(
         users=Count("id"),
-        active=Count("id", filter=Q(status=PaymentSystem.Status.ACTIVE)),
-        inactive=Count("id", filter=Q(status=PaymentSystem.Status.INACTIVE)),
-        deactivated=Count("id", filter=Q(status=PaymentSystem.Status.DEACTIVATED)),
+        active=Count("id", filter=Q(status=PaymentAccountBase.Status.ACTIVE)),
+        inactive=Count("id", filter=Q(status=PaymentAccountBase.Status.INACTIVE)),
+        deactivated=Count("id", filter=Q(status=PaymentAccountBase.Status.DEACTIVATED)),
         paid=Count(
             "id",
-            filter=Q(deposit__gte=F("owner__tax_amount"))
-            & Q(status=PaymentSystem.Status.ACTIVE)
-            | Q(deposit=0)
-            & Q(status=PaymentSystem.Status.ACTIVE)
-            & Q(last_paid__gte=timezone.now() - period),
+            filter=(
+                Q(deposit__gte=F("owner__tax_amount"))
+                | (
+                    Q(last_paid__isnull=False)
+                    & Q(deposit__gte=0)
+                    & Q(last_paid__gte=timezone.now() - period)
+                )
+            )
+            & Q(status=PaymentAccountBase.Status.ACTIVE),
         ),
     )
     # Calculate unpaid count
@@ -126,15 +140,16 @@ def get_payment_system_statistics(
     )
 
 
-def get_members_statistics(
-    owner: OwnerAudit, alliance: bool = False
-) -> MembersStatisticsSchema:
+def get_members_statistics(owner) -> MembersStatisticsSchema:
     # Determine the correct filter based on alliance system setting
-    members = (
-        Members.objects.filter(owner__alliance=owner.alliance)
-        if alliance
-        else Members.objects.filter(owner=owner)
-    )
+    if isinstance(owner, CorporationOwner):
+        members = Members.objects.filter(owner=owner).order_by("character_name")
+    elif isinstance(owner, AllianceOwner):
+        members = Members.objects.filter(
+            owner__eve_corporation__alliance=owner.eve_alliance
+        ).order_by("character_name")
+    else:
+        raise ValueError("Owner must be CorporationOwner or AllianceOwner")
 
     members_count = members.aggregate(
         total=Count("character_id"),

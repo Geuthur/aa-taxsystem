@@ -15,32 +15,13 @@
 
 {% block taxsystem_block %}
     <div class="mb-4">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded">
-            <div class="container-fluid justify-content-start">
-                <div class="collapse navbar-collapse" id="navbarexpand">
-                    <!-- Navbar Tabs -->
-                    <ul class="nav nav-pills w-100" id="pills-tab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link active" id="pills-payments-tab" data-bs-toggle="pill" href="#pills-payments" role="tab" aria-controls="pills-payments" aria-selected="true">
-                                <h4 class="me-3">{% translate "Own Payments" %}</h4>
-                            </a>
-                        </li>
-                        <li class="nav-item ms-auto" role="presentation">
-                            <a class="nav-link" id="pills-corporations-tab" data-bs-toggle="pill" href="#pills-corporations" role="tab" aria-controls="pills-corporations" aria-selected="false">
-                                <h4 class="me-3">{% translate "Corporations" %}</h4>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+        <div class="card">
+            <div class="card-header bg-primary rounded-top d-flex align-items-center">
+                <h3 class="me-3">{% translate "Own Payments" %}</h3>
             </div>
-        </nav>
-    </div>
-    <div class="card card-body bg-secondary tab-content" id="pills-tabContent">
-        <div class="tab-pane fade show active" id="pills-payments" role="tabpanel" aria-labelledby="pills-payments-tab">
-            {% include 'taxsystem/partials/table/own-payments.html' %}
-        </div>
-        <div class="tab-pane fade" id="pills-corporations" role="tabpanel" aria-labelledby="pills-corporations-tab">
-            {% include 'taxsystem/partials/view/corporations.html' with name="OwnPayments" %}
+            <div class="card-body bg-secondary">
+                {% include 'taxsystem/partials/table/own-payments.html' %}
+            </div>
         </div>
     </div>
 <!-- Tab Session -->

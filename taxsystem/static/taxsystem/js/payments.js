@@ -5,10 +5,10 @@ $(document).ready(() => {
 
     const tablePayments = paymentsTableVar.DataTable({
         ajax: {
-            url: taxsystemsettings.corporationPaymentsUrl,
+            url: taxsystemsettings.PaymentsUrl,
             type: 'GET',
             dataSrc: function (data) {
-                return data.corporation;
+                return data.owner;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);

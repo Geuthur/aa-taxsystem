@@ -10,14 +10,16 @@ from django.urls import reverse
 
 # Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserMainFactory
+from app_utils.testing import (
+    create_user_from_evecharacter,
+)
 
 # AA TaxSystem
 from taxsystem.api.admin import AdminApiEndpoints
-from taxsystem.models.filters import JournalFilter
+from taxsystem.models.corporation import CorporationFilter
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_evecharacter,
-    create_user_from_evecharacter_with_access,
+    add_corporation_owner_to_user,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
@@ -36,11 +38,15 @@ class TestCoreHelpers(TestCase):
         cls.api = NinjaAPI()
         cls.admin_endpoint = AdminApiEndpoints(cls.api)
 
-        cls.audit = create_owneraudit_from_evecharacter(1001)
         cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001
+        cls.user, cls.character_ownership = create_user_from_evecharacter(
+            1001,
+            permissions=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_corps",
+            ],
         )
+        cls.audit = add_corporation_owner_to_user(user=cls.user, character_id=1001)
         cls.no_evecharacter_user = UserMainFactory(permissions=[])
 
         cls.filter_set = create_filterset(
@@ -51,7 +57,7 @@ class TestCoreHelpers(TestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=100_000_000,
         )
 
@@ -114,10 +120,8 @@ class TestCoreHelpers(TestCase):
     def test_get_paymentsystem_access(self):
         """Test should be able to access paymentsystem API endpoint"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_paymentsystem", kwargs={"corporation_id": corporation_id}
-        )
+        owner_id = self.character_ownership.character.corporation_id
+        url = reverse(f"{API_URL}:get_paymentsystem", kwargs={"owner_id": owner_id})
         self.client.force_login(self.user)
         # when
         response = self.client.get(url)
@@ -127,10 +131,8 @@ class TestCoreHelpers(TestCase):
     def test_get_paymentsystem_without_access(self):
         """Test should not be able to access paymentsystem API endpoint without permission"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_paymentsystem", kwargs={"corporation_id": corporation_id}
-        )
+        owner_id = self.character_ownership.character.corporation_id
+        url = reverse(f"{API_URL}:get_paymentsystem", kwargs={"owner_id": owner_id})
         self.client.force_login(self.no_evecharacter_user)
         # when
         response = self.client.get(url)
@@ -172,11 +174,11 @@ class TestCoreHelpers(TestCase):
     def test_get_filter_set_filters_access(self):
         """Test should be able to access filters set filters API endpoint"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        owner_id = self.character_ownership.character.corporation_id
         filter_set_id = self.filter_set.pk
         url = reverse(
             f"{API_URL}:get_filter_set_filters",
-            kwargs={"corporation_id": corporation_id, "filter_set_id": filter_set_id},
+            kwargs={"owner_id": owner_id, "filter_set_id": filter_set_id},
         )
         self.client.force_login(self.user)
         # when
@@ -187,11 +189,11 @@ class TestCoreHelpers(TestCase):
     def test_get_filter_set_filters_without_access(self):
         """Test should not be able to access filters set filters API endpoint without permission"""
         # given
-        corporation_id = self.character_ownership.character.corporation_id
+        owner_id = self.character_ownership.character.corporation_id
         filter_set_id = self.filter_set.pk
         url = reverse(
             f"{API_URL}:get_filter_set_filters",
-            kwargs={"corporation_id": corporation_id, "filter_set_id": filter_set_id},
+            kwargs={"owner_id": owner_id, "filter_set_id": filter_set_id},
         )
         self.client.force_login(self.no_evecharacter_user)
         # when

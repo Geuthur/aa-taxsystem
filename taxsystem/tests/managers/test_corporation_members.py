@@ -3,23 +3,23 @@ from unittest.mock import patch
 
 # Django
 from django.test import override_settings
-from django.utils import timezone
 
 # Alliance Auth (External Libs)
 from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
-from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.models.tax import Members
+from taxsystem.models.corporation import Members
 from taxsystem.tests.testdata.esi_stub import esi_client_stub_openapi
-from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
+from taxsystem.tests.testdata.generate_owneraudit import (
+    create_corporation_owner_from_user,
+)
 from taxsystem.tests.testdata.generate_payments import (
     create_member,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 
-MODULE_PATH = "taxsystem.managers.tax_manager"
+MODULE_PATH = "taxsystem.managers.corporation_manager"
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
@@ -38,7 +38,7 @@ class TestMembersManager(NoSocketsTestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
 
         cls.member = create_member(
             owner=cls.audit,
@@ -76,8 +76,8 @@ class TestMembersManager(NoSocketsTestCase):
         self.assertEqual(obj.character_name, "Member 3")
 
         mock_logger.info.assert_called_with(
-            "Corp %s - Old Members: %s, New Members: %s, Missing: %s",
-            self.audit.corporation.corporation_name,
+            "%s - Old Members: %s, New Members: %s, Missing: %s",
+            self.audit.eve_corporation.corporation_name,
             1,
             2,
             1,

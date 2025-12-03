@@ -11,6 +11,184 @@ Section Order:
 ### Removed
 -->
 
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate old Payments
+
+```bash
+python manage.py taxsystem_migrate_payments
+```
+
+### Added
+
+- TAXSYSTEM_BULK_BATCH_SIZE: Configurable batch size for `bulk_create`, `bulk_update` — prevents `max_allowed_packet` errors by splitting large inserts
+
+## [2.0.0-beta.2] - 2025-12-02
+
+### Fixed
+
+- Row colors not work
+- Improve payment count logic to accurately reflect active payments
+- Update main character status to active when relevant
+- Corporation Payments have no Owner ID
+
+### Changed
+
+- Add character_id parameter to account view for enhanced functionality
+- Fix parentheses placement in payment account tax period check for clarity
+- Refactor payment account management to improve account checking and reactivation logic
+
+## [2.0.0-beta.1] - 2025-11-24
+
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate old Payments
+
+```bash
+python manage.py taxsystem_migrate_payments
+```
+
+### Added
+
+- Implement payment system add payments button and associated template
+- Enhance payment modals with reset functionality and reload logic
+- Reset deposit and update status for payment accounts on owner change
+- shared constant `AUTH_SELECT_RELATED_MAIN_CHARACTER` in `taxsystem/constants.py` to centralize repeated `select_related` fields
+- `check_payment_accounts` method to manage payment account statuses
+- Django Admin Integration
+  - `AllianceOwnerAdmin` class with:
+    - List display showing alliance info, corporation link, and last update timestamp
+    - Force update action for manual data refresh
+    - Read-only permissions (no add/change capabilities)
+    - Optimized queryset with `select_related` for corporation data
+  - `CorporationOwnerAdmin` enhanced with:
+    - Force update action for manual data refresh
+    - Last update timestamp display with humanized time
+  - Comprehensive admin test suite (`taxsystem/tests/test_admin.py`)
+    - 19 test methods covering both admin classes
+    - Tests for list display, entity pictures, permissions, force update actions
+    - Queryset optimization validation
+- Documentation
+  - Comprehensive User Manual (`docs/USER_MANUAL.md`)
+    - Getting Started Guide
+    - Adding Corporations and Alliances
+    - Payment System explanation (automatic vs manual approval)
+    - Filter System tutorial with examples
+    - Account Management guide
+    - Administration features
+    - FAQ and troubleshooting
+  - README.md updated with:
+    - New permissions documentation (Alliance permissions)
+    - Documentation section with link to User Manual
+    - Updated features list (Multi-Owner Support, Alliance Tax System)
+
+### Changed
+
+- Update type annotations for manager objects in Corporation models
+- Refactor activity calculation to return numeric values and update related templates for consistent display
+- Refactor payment account management and update member tracking logic
+- Model Protection
+  - `AllianceOwner.corporation` ForeignKey changed from `CASCADE` to `PROTECT`
+  - Prevents accidental deletion of CorporationOwner when referenced by Alliance
+  - Must explicitly delete AllianceOwner before deleting linked Corporation
+- Enhance card body styling for Own Payments and Payments pages
+
+## [2.0.0a3] - 2025-11-22
+
+### Added
+
+- `next_due` property to PaymentAccount and update related views and templates
+
+### Changed
+
+- Generic Views Refactoring
+  - `account()` view now supports both Corporation and Alliance owners
+  - `faq()` view now supports both Corporation and Alliance owners
+  - Views use `get_manage_owner()` for unified owner retrieval
+  - Dynamic owner type detection with isinstance() checks
+  - Generic Status checks instead of hardcoded CorporationPaymentAccount
+  - Backwards compatible context keys maintained
+- Humanized Date Display
+  - `last_paid` and `next_due` in manage.js now use `moment.fromNow()` for relative time display
+  - Account template now uses Django's `naturaltime` filter for all date fields
+  - More intuitive date representation (e.g., "2 days ago", "in 5 days")
+- View Permission Fix
+  - `generic_owner_own_payments()` now correctly uses `get_corporation()` and `get_alliance()` instead of management methods
+  - End-user view no longer requires management permissions
+
+## [2.0.0a2] - 2025-11-22
+
+### Fixed
+
+- MultipleObjectsReturned: get() returned more than one AlliancePayments -- it returned 2!
+
+## [2.0.0a1] - 2025-11-22
+
+### Added
+
+- Alliance Tax System
+  - Payments
+  - Payment Accounts
+- Owner Overview Page (`/owners/`)
+  - Unified view displaying both Corporations and Alliances
+  - Permission-based action buttons (Payments/Manage)
+  - DataTables integration with responsive design
+  - Portrait display for all owners
+  - Active/Inactive status badges
+  - Dark theme compatible (btn-warning for manage buttons)
+  - Automatic redirect from index to owner overview
+- Administration view now checking for permission and if Corporation is still available
+- EVE Portrait and Logo Helper Functions
+  - Backend lazy helpers: `get_character_portrait_url()`, `get_corporation_logo_url()`, `get_alliance_logo_url()`
+  - Template tags: `|character_portrait_url:size`, `|corporation_logo_url:size`, `|alliance_logo_url:size`
+- Owner Permissions via Manager Methods
+  - `CorporationOwner.objects.manage_to(user)` and `AllianceOwner.objects.manage_to(user)`
+  - `visible_to(user)` methods for broader visibility
+- Menu navigation now points to Owner Overview instead of payment list
+
+### Fixed
+
+- Test Suite after API parameter migration (158 tests passing, 71% coverage)
+  - Updated test parameters from `corporation_id` to `owner_id` for generic owner endpoints
+  - Fixed payment creation in character tests to use correct `owner_id` field
+  - Fixed response assertions to match new "owner" schema
+  - Added missing `MessageMiddleware` to test requests
+  - Created missing test data for manage_user tests
+  - Fixed FAQ URL routing in access tests
+  - Implemented Alliance payment tests with proper factory functions
+  - Performance tests now use `assertIsNotNone()` instead of silent skipping
+- DataTables warning for empty Owner Overview table (incorrect column count)
+- Owner Overview now uses `visible_to()` instead of `manage_to()` for correct permission filtering
+
+### Changed
+
+- Refactor Tax System and prepare for Alliance Tax System migration
+- All views are now accessible with or without specifying corporation_id/alliance_id. If not provided, the user's main character's corporation/alliance is used by default.
+- Renamed `Manage Tax System` to `Manage Corporation` or `Manage Alliance`
+- Index page (`/`) now redirects to Owner Overview instead of payment list
+- Owner Overview removes `get_status` column (admin-focused, not user-focused)
+- Empty state message changed from "manage" to "view" for better user understanding
+- Task Queue Order
+- Performance Optimization: N+1 Query Fixes
+  - Payment queries now use `select_related()` for account, user, profile, and main_character (70-80% query reduction)
+  - Payment System uses `prefetch_related()` for character_ownerships (85-90% query reduction)
+  - Members queries optimized with `select_related()` for owner relationships (60-70% faster)
+- API Migration: Generic owner endpoints now use `owner_id` parameter instead of `corporation_id`
+  - Affects: filter management, payment system, and filter set endpoints
+  - Corporation-specific endpoints still use `corporation_id`
+- Views Terminology: Permission error messages for generic owner operations now use "owner" instead of "corporation"
+- Database Indexes for Performance
+- Test Quality: All tests must work properly or fail with clear assertions (no silent skipping allowed)
+  - AlliancePayments: Composite index (account, owner_id, request_status, -date) + (request_status, -date)
+  - CorporationPayments: Composite index (account, owner_id, request_status, -date) + (request_status, -date)
+  - Members: Indexes on (owner, character_name) + (status)
+  - Expected: 50%+ faster filtered queries, combined with N+1 fixes: 60-80% total improvement
+- Statistics Query Optimization
+  - Analyzed and confirmed all statistics functions already use optimal single aggregate() queries
+  - `get_payments_statistics()`: 1 query for all counts (total, pending, automatic, manual)
+  - `get_payment_system_statistics()`: 1 query for all counts (users, active, inactive, deactivated, paid, unpaid)
+  - `get_members_statistics()`: 1 query for all counts (total, mains, alts, unregistered)
+  - Dashboard statistics: 3 optimized queries (1 per table) vs potentially 10+ separate queries
+  - Result: Already using best-practice aggregate() approach - no further optimization possible
+
 ## [1.0.2] - 2025-11-20
 
 ### Changed
@@ -358,5 +536,8 @@ python manage.py taxsystem_migrate_payments
 - Initial public release
 
 [1.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.0-beta.1 "1.0.0-beta.1"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...HEAD "In Development"
+[1.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.1 "1.0.1"
+[1.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.1...v1.0.2 "1.0.2"
+[2.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.1 "2.0.0-beta.1"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"

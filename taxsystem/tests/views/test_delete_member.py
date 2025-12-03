@@ -13,9 +13,9 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.tax import Members
+from taxsystem.models.corporation import Members
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.generate_payments import create_member
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
@@ -39,7 +39,7 @@ class TestDeleteMember(TestCase):
                 "taxsystem.manage_own_corp",
             ],
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
         cls.no_audit_user, _ = create_user_from_evecharacter(
             character_id=1002,
             permissions=[
@@ -62,7 +62,7 @@ class TestDeleteMember(TestCase):
 
     def test_delete_member(self):
         """Test delete member."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         member_pk = self.member.pk
 
         form_data = {
@@ -93,7 +93,7 @@ class TestDeleteMember(TestCase):
 
     def test_no_permission(self):
         """Test try undo a payment without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         member_pk = self.member.pk
 
         form_data = {
@@ -121,7 +121,7 @@ class TestDeleteMember(TestCase):
 
     def test_no_manage_permission(self):
         """Test undo payment without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         member_pk = self.member.pk
 
         form_data = {
@@ -141,4 +141,4 @@ class TestDeleteMember(TestCase):
             request, corporation_id=corporation_id, member_pk=member_pk
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

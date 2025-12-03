@@ -1,0 +1,62 @@
+{% load i18n %}
+<div class="table-responsive">
+    <table id="ownerTable" class="table table-dark table-striped w-100 tax-table-hover tax-table-striped">
+        <thead>
+            <tr>
+                <th>{% translate "Portrait" %}</th>
+                <th>{% translate "Name" %}</th>
+                <th>{% translate "Type" %}</th>
+                <th>{% translate "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for owner in owners %}
+            <tr class="{% if not owner.active %}table-secondary text-muted{% endif %}">
+                <td>
+                    {{ owner.portrait|safe }}
+                </td>
+                <td>
+                    <strong>{{ owner.name }}</strong>
+                    {% if not owner.active %}
+                        <span class="badge bg-secondary ms-2">{% translate "Inactive" %}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge bg-{% if owner.type  == 'corporation' %}primary{% else %}info{% endif %}">
+                        {{ owner.type_display }}
+                    </span>
+                </td>
+                <td class="text-end">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{% url 'taxsystem:payments' owner.id %}"
+                            class="btn btn-primary"
+                            title="{% translate 'Payments' %}">
+                            <i class="fas fa-coins"></i>
+                            <span class="d-none d-md-inline">{% translate "Payments" %}</span>
+                        </a>
+                        {% if owner.type == "corporation" %}
+                            {% if perms.taxsystem.manage_own_corp or perms.taxsystem.manage_corps %}
+                                <a href="{% url 'taxsystem:manage_owner' owner.id %}"
+                                   class="btn btn-warning"
+                                   title="{% translate 'Manage' %}">
+                                    <i class="fas fa-cog"></i>
+                                    <span class="d-none d-md-inline">{% translate "Manage" %}</span>
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            {% if perms.taxsystem.manage_own_alliance or perms.taxsystem.manage_alliances %}
+                                <a href="{% url 'taxsystem:manage_owner' owner.id %}"
+                                   class="btn btn-warning"
+                                   title="{% translate 'Manage' %}">
+                                    <i class="fas fa-cog"></i>
+                                    <span class="d-none d-md-inline">{% translate "Manage" %}</span>
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

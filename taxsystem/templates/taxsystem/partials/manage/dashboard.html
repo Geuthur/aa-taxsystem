@@ -33,14 +33,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>{% trans "Filters:" %}</td>
+                            <td>{% trans "Payment Filters:" %}</td>
                             <td class="text-end">
-                                <a class="text-decoration-none" href="{% url 'taxsystem:manage_filter' corporation_id=corporation_id %}">
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fa-solid fa-pencil-alt"></i>
-                                    </button>
+                                <a href="{{ manage_filter_url }}" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Automatic Payments Filters' %}">
+                                    <span class="btn btn-primary">{% translate 'Manage Filters' %}</span>
                                 </a>
-                                <i class="fa-solid fa-circle-question fa-fw" data-tooltip-toggle="taxsystem-tooltip" title="{% trans 'Automatic Payments Filters' %}"></i>
                             </td>
                         </tr>
                     </tbody>

@@ -86,7 +86,7 @@ class WalletJournalEntry(models.Model):
 class CorporationWalletDivision(models.Model):
     name = models.CharField(max_length=100, null=True, default=None)
     corporation = models.ForeignKey(
-        "OwnerAudit",
+        "CorporationOwner",
         on_delete=models.CASCADE,
         related_name="ts_corporation_division",
     )
@@ -110,13 +110,3 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
 
     def __str__(self):
         return f"Corporation Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"
-
-    @classmethod
-    def get_visible(cls, user):
-        """Get visible objects for the user"""
-        # pylint: disable=import-outside-toplevel, cyclic-import
-        # AA TaxSystem
-        from taxsystem.models.tax import OwnerAudit
-
-        corps_vis = OwnerAudit.objects.visible_to(user)
-        return cls.objects.filter(division__corporation__in=corps_vis)

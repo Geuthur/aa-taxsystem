@@ -1,31 +1,9 @@
 $(document).ready(() => {
     /* global tablePayments */
     /* global taxsystemsettings */
+    /* global reloadStatistics */
+    /* global paymentsystemTable */
     const modalRequestSwitchuser = $('#paymentsystem-switchuser');
-
-    // Funktion zum Neuladen der Statistikdaten
-    function reloadStatistics() {
-        $.ajax({
-            url: taxsystemsettings.corporationmanageDashboardUrl,
-            type: 'GET',
-            success: function (data) {
-                // Statistics
-                const statistics = data.statistics;
-                const statisticsKey = Object.keys(statistics)[0];
-                const stat = statistics[statisticsKey];
-
-                $('#statistics_payment_users').text(stat.payment_users);
-                $('#statistics_payment_users_active').text(stat.payment_users_active);
-                $('#statistics_payment_users_inactive').text(stat.payment_users_inactive);
-                $('#statistics_payment_users_deactivated').text(stat.payment_users_deactivated);
-                $('#psystem_payment_users_paid').text(stat.payment_users_paid);
-                $('#psystem_payment_users_unpaid').text(stat.payment_users_unpaid);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching statistics data:', error);
-            }
-        });
-    }
 
     // Switchuser Request Modal
     modalRequestSwitchuser.on('show.bs.modal', (event) => {
@@ -56,10 +34,8 @@ $(document).ready(() => {
             posting.done((data) => {
                 if (data.success === true) {
                     modalRequestSwitchuser.modal('hide');
-
-                    const paymentsystemTable = $('#payment-system').DataTable();
-                    paymentsystemTable.ajax.reload();
-
+                    // Reload the payment system table
+                    paymentsystemTable.DataTable().ajax.reload();
                     // Neuladen der Statistikdaten
                     reloadStatistics();
                 }

@@ -8,14 +8,16 @@ from app_utils.testing import (
 
 # AA TaxSystem
 # AA Tax System
-from taxsystem.models.tax import OwnerAudit
+from taxsystem.models.corporation import CorporationUpdateStatus
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
 
 
-def create_division(corporation: OwnerAudit, **kwargs) -> CorporationWalletDivision:
+def create_division(
+    corporation: CorporationUpdateStatus, **kwargs
+) -> CorporationWalletDivision:
     """Create a CorporationWalletDivision"""
     params = {
         "corporation": corporation,

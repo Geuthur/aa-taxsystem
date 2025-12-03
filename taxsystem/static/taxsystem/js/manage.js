@@ -19,14 +19,22 @@ $(document).ready(function() {
     const manageDashboardStatisticsPaymentUsersTableVar = $('#manage-dashboard-psystem');
 
     $.ajax({
-        url: taxsystemsettings.corporationmanageDashboardUrl,
+        url: taxsystemsettings.DashboardUrl,
         type: 'GET',
         success: function (data) {
             var tax_amount = parseFloat(data.tax_amount);
             var days = parseFloat(data.tax_period);
-            $('#dashboard-info').html(data.corporation.corporation_name);
+            var activityFormatted = numberFormatter({
+                value: data.activity,
+                options: {
+                    style: 'currency',
+                    currency: 'ISK'
+                }
+            });
+            var activityClass = data.activity >= 0 ? 'text-success' : 'text-danger';
+            $('#dashboard-info').html(data.owner.owner_name);
 
-            $('#dashboard-update').html(data.corporation.corporation_name + ' - Update Status');
+            $('#dashboard-update').html(data.owner.owner_name + ' - Update Status');
             // Use moment.js to display relative times in German
             $('#update_status_icon').html(data.update_status.icon);
             $('#update_wallet').html(data.update_status.status.wallet && data.update_status.status.wallet.last_run_finished_at
@@ -50,11 +58,11 @@ $(document).ready(function() {
 
             $('#taxamount').text(tax_amount);
             $('#period').text(days);
-            $('#activity').html(data.activity);
+            $('#activity').html(`<span class="${activityClass}">${activityFormatted}</span>`);
 
             // Generate URLs dynamically
-            const updateTaxAmountUrl = taxsystemsettings.corporationUpdateTaxUrl;
-            const updateTaxPeriodUrl = taxsystemsettings.corporationUpdatePeriodUrl;
+            const updateTaxAmountUrl = taxsystemsettings.UpdateTaxUrl;
+            const updateTaxPeriodUrl = taxsystemsettings.UpdatePeriodUrl;
 
             // Set data-url attributes dynamically
             $('#taxamount').attr('data-url', updateTaxAmountUrl);
@@ -63,16 +71,19 @@ $(document).ready(function() {
             // Initialize x-editable
             $('#taxamount').editable({
                 type: 'text',
-                pk: data.corporation_id,
+                pk: data.owner.owner_id,
                 url: updateTaxAmountUrl,
                 title: taxsystemsettings.translations.enterTaxAmount,
                 display: function(value) {
-                    // Parse the value to a number if it is not already
-                    if (typeof value !== 'number') {
-                        value = parseFloat(value);
-                    }
+                    var valueFormatted = numberFormatter({
+                        value: value,
+                        options: {
+                            style: 'currency',
+                            currency: 'ISK'
+                        }
+                    });
                     // Display the value in the table with thousand separators
-                    $(this).text(value.toLocaleString('de-DE') + ' ISK');
+                    $(this).text(valueFormatted);
                 },
                 success: function() {
                     tablePaymentSystem.ajax.reload();
@@ -88,14 +99,10 @@ $(document).ready(function() {
 
             $('#period').editable({
                 type: 'text',
-                pk: data.corporation_id,
+                pk: data.owner.owner_id,
                 url: updateTaxPeriodUrl,
                 title: taxsystemsettings.translations.enterTaxPeriod,
                 display: function(value) {
-                    // Parse the value to a number if it is not already
-                    if (typeof value !== 'number') {
-                        value = parseFloat(value);
-                    }
                     // Display the value in the table with thousand separators
                     $(this).text(value.toLocaleString('de-DE') + ' ' + taxsystemsettings.translations.days);
                 },
@@ -132,42 +139,53 @@ $(document).ready(function() {
             const divisionsData = data.divisions;
             const divisions = divisionsData.divisions; // Das Array mit den Divisionen
 
-            for (let i = 0; i < divisions.length; i++) {
-                const division = divisions[i];
-
-                try {
-                    if (division && division.name && division.balance) {
-                        $(`#division${i + 1}_name`).text(division.name);
-                        $(`#division${i + 1}`).text(
-                            numberFormatter({
-                                value: division.balance,
-                                options: {
-                                    style: 'currency',
-                                    currency: 'ISK'
-                                }
-                            })
-                        );
-                    } else {
+            if (!divisions || divisions.length === 0) {
+                // Wenn divisions leer ist, zeige N/A nur für die Division-Nummern
+                for (let i = 1; i <= 7; i++) {
+                    $(`#division${i}_name`).show(); // Name bleibt wie er ist
+                    $(`#division${i}`).text('N/A').show();
+                }
+            } else {
+                for (let i = 0; i < divisions.length; i++) {
+                    const division = divisions[i];
+                    try {
+                        if (division && division.name && division.balance) {
+                            $(`#division${i + 1}_name`).text(division.name);
+                            $(`#division${i + 1}`).text(
+                                numberFormatter({
+                                    value: division.balance,
+                                    options: {
+                                        style: 'currency',
+                                        currency: 'ISK'
+                                    }
+                                })
+                            );
+                        } else {
+                            $(`#division${i + 1}_name`).hide();
+                            $(`#division${i + 1}`).hide();
+                        }
+                    } catch (e) {
+                        console.error(`Error fetching division data for division ${i + 1}:`, e);
                         $(`#division${i + 1}_name`).hide();
                         $(`#division${i + 1}`).hide();
                     }
-                } catch (e) {
-                    console.error(`Error fetching division data for division ${i + 1}:`, e);
-                    $(`#division${i + 1}_name`).hide();
-                    $(`#division${i + 1}`).hide();
                 }
             }
 
-            // Optional: Gesamtbilanz anzeigen
-            $('#total_balance').text(
-                numberFormatter({
-                    value: divisionsData.total_balance,
-                    options: {
-                        style: 'currency',
-                        currency: 'ISK'
-                    }
-                })
-            );
+            // Gesamtbilanz anzeigen
+            if (!divisions || divisions.length === 0) {
+                $('#total_balance').text('N/A');
+            } else {
+                $('#total_balance').text(
+                    numberFormatter({
+                        value: divisionsData.total_balance,
+                        options: {
+                            style: 'currency',
+                            currency: 'ISK'
+                        }
+                    })
+                );
+            }
 
             manageDashboardDivisionVar.removeClass('d-none');
             manageDashboardDivisionTableVar.removeClass('d-none');
@@ -230,7 +248,7 @@ $(document).ready(function() {
 
     const tableMembers = membersTableVar.DataTable({
         ajax: {
-            url: taxsystemsettings.corporationMembersUrl,
+            url: taxsystemsettings.MembersUrl,
             type: 'GET',
             dataSrc: function (data) {
                 return data.corporation;
@@ -313,11 +331,11 @@ $(document).ready(function() {
 
     const tablePaymentSystem = PaymentSystemTableVar.DataTable({
         ajax: {
-            url: taxsystemsettings.corporationPaymentSystemUrl,
+            url: taxsystemsettings.PaymentSystemUrl,
             type: 'GET',
             dataSrc: function (data) {
 
-                return data.corporation;
+                return data.owner;
             },
             error: function (xhr, error, thrown) {
                 console.error('Error loading data:', error);
@@ -378,7 +396,17 @@ $(document).ready(function() {
                     if (!data || !date.isValid()) {
                         return 'N/A';
                     }
-                    return date.format('YYYY-MM-DD HH:mm:ss');
+                    return date.fromNow();
+                }
+            },
+            {
+                data: 'next_due',
+                render: function (data, _, row) {
+                    const date = moment(data);
+                    if (!data || !date.isValid()) {
+                        return 'N/A';
+                    }
+                    return date.fromNow();
                 }
             },
             {
@@ -397,12 +425,12 @@ $(document).ready(function() {
         columnDefs: [
             {
                 orderable: false,
-                targets: [0, 4, 6]
+                targets: [0, 4, 7]
             },
             // Filter Has Paid column
             {
                 visible: false,
-                targets: [7]
+                targets: [8]
             },
         ],
         filterDropDown: {
@@ -413,7 +441,7 @@ $(document).ready(function() {
                 },
                 // has_paid
                 {
-                    idx: 7,
+                    idx: 8,
                     maxWidth: '200px',
                     title: taxsystemsettings.translations.hasPaid,
                 },
@@ -425,9 +453,9 @@ $(document).ready(function() {
         rowCallback: function(row, data) {
             if (!data.is_active) {
                 $(row).addClass('tax-warning tax-hover');
-            } else if (data.is_active && data.has_paid.raw) {
+            } else if (data.is_active && data.has_paid && data.has_paid.raw) {
                 $(row).addClass('tax-green tax-hover');
-            } else if (data.is_active && !data.has_paid.raw) {
+            } else if (data.is_active && data.has_paid && !data.has_paid.raw) {
                 $(row).addClass('tax-red tax-hover');
             }
         },

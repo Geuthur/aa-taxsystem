@@ -12,46 +12,49 @@ from app_utils.testing import add_character_to_user
 
 # AA TaxSystem
 # AA Taxsystem
-from taxsystem.models.tax import OwnerAudit, OwnerUpdateStatus
+from taxsystem.models.alliance import AllianceOwner, AllianceUpdateStatus
+from taxsystem.models.corporation import CorporationOwner, CorporationUpdateStatus
 
 
-def create_character(eve_character: EveCharacter, **kwargs) -> OwnerAudit:
-    """Create a Taxsystem Character from EveCharacter"""
-    params = {
+def create_corporation_owner(eve_character: EveCharacter, **kwargs) -> CorporationOwner:
+    """Create a CorporationOwner from EveCharacter."""
+    defaults = {
         "name": eve_character.corporation.corporation_name,
-        "corporation": eve_character.corporation,
     }
-    params.update(kwargs)
-    corporation = OwnerAudit(**params)
-    corporation.save()
+    defaults.update(kwargs)
+    corporation, _ = CorporationOwner.objects.get_or_create(
+        eve_corporation=eve_character.corporation,
+        defaults=defaults,
+    )
     return corporation
 
 
-def create_update_status(owner_audit: OwnerAudit, **kwargs) -> OwnerUpdateStatus:
-    """Create a Update Status for a Character Audit"""
+def create_corporation_update_status(
+    owner_audit: CorporationOwner, **kwargs
+) -> CorporationUpdateStatus:
+    """Create an Update Status for a CorporationOwner."""
     params = {
         "owner": owner_audit,
     }
     params.update(kwargs)
-    update_status = OwnerUpdateStatus(**params)
+    update_status = CorporationUpdateStatus(**params)
     update_status.save()
     return update_status
 
 
-def create_owneraudit_from_user(user: User, **kwargs) -> OwnerAudit:
-    """Create a Character Audit from a user"""
+def create_corporation_owner_from_user(user: User, **kwargs) -> CorporationOwner:
+    """Create a CorporationOwner from a user."""
     eve_character = user.profile.main_character
     if not eve_character:
         raise ValueError("User needs to have a main character.")
 
-    kwargs.update({"eve_character": eve_character})
-    return create_character(**kwargs)
+    return create_corporation_owner(eve_character, **kwargs)
 
 
 def create_user_from_evecharacter_with_access(
     character_id: int, disconnect_signals: bool = True
 ) -> tuple[User, CharacterOwnership]:
-    """Create user with access from an existing eve character and use it as main."""
+    """Create user with basic access from an existing EveCharacter and use it as main."""
     auth_character = EveCharacter.objects.get(character_id=character_id)
     username = StateBackend.iterate_username(auth_character.character_name)
     user = AuthUtils.create_user(username, disconnect_signals=disconnect_signals)
@@ -62,19 +65,21 @@ def create_user_from_evecharacter_with_access(
         user,
         auth_character,
         is_main=True,
-        scopes=OwnerAudit.get_esi_scopes(),
+        scopes=CorporationOwner.get_esi_scopes(),
         disconnect_signals=disconnect_signals,
     )
     return user, character_ownership
 
 
-def create_owneraudit_from_evecharacter(character_id: int, **kwargs) -> OwnerAudit:
-    """Create a Audit Character from a existing EveCharacter"""
+def create_corporation_owner_from_evecharacter(
+    character_id: int, **kwargs
+) -> CorporationOwner:
+    """Create a CorporationOwner from an existing EveCharacter."""
 
     _, character_ownership = create_user_from_evecharacter_with_access(
         character_id, disconnect_signals=True
     )
-    return create_character(character_ownership.character, **kwargs)
+    return create_corporation_owner(character_ownership.character, **kwargs)
 
 
 def add_auth_character_to_user(
@@ -85,18 +90,97 @@ def add_auth_character_to_user(
         user,
         auth_character,
         is_main=False,
-        scopes=OwnerAudit.get_esi_scopes(),
+        scopes=CorporationOwner.get_esi_scopes(),
         disconnect_signals=disconnect_signals,
     )
 
 
-def add_owneraudit_character_to_user(
+def add_corporation_owner_to_user(
     user: User, character_id: int, disconnect_signals: bool = True, **kwargs
-) -> OwnerAudit:
-    """Add a Character Audit Character to a user"""
+) -> CorporationOwner:
+    """Add a CorporationOwner character to a user."""
     character_ownership = add_auth_character_to_user(
         user,
         character_id,
         disconnect_signals=disconnect_signals,
     )
-    return create_character(character_ownership.character, **kwargs)
+    return create_corporation_owner(character_ownership.character, **kwargs)
+
+
+def create_alliance_owner(eve_character: EveCharacter, **kwargs) -> AllianceOwner:
+    """Create an AllianceOwner from EveCharacter."""
+    if not eve_character.alliance_id:
+        raise ValueError("EveCharacter must belong to an alliance.")
+
+    # Get or create the corporation owner first
+    corporation_owner, _ = CorporationOwner.objects.get_or_create(
+        eve_corporation=eve_character.corporation,
+        defaults={"name": eve_character.corporation.corporation_name},
+    )
+
+    # Get or create the alliance owner (to avoid duplicate key errors)
+    alliance, created = AllianceOwner.objects.get_or_create(
+        eve_alliance=eve_character.alliance,
+        defaults={
+            "name": eve_character.alliance_name,
+            "corporation": corporation_owner,
+            **kwargs,
+        },
+    )
+    return alliance
+
+
+def create_alliance_update_status(
+    owner_audit: AllianceOwner, **kwargs
+) -> AllianceUpdateStatus:
+    """Create an Update Status for an Alliance Audit."""
+    params = {
+        "owner": owner_audit,
+    }
+    params.update(kwargs)
+    update_status = AllianceUpdateStatus(**params)
+    update_status.save()
+    return update_status
+
+
+def create_alliance_owner_from_user(user: User, **kwargs) -> AllianceOwner:
+    """Create an AllianceOwner from a user."""
+    eve_character = user.profile.main_character
+    if not eve_character:
+        raise ValueError("User needs to have a main character.")
+    if not eve_character.alliance_id:
+        raise ValueError("User's main character must belong to an alliance.")
+
+    return create_alliance_owner(eve_character, **kwargs)
+
+
+def create_user_from_evecharacter_with_alliance_access(
+    character_id: int, disconnect_signals: bool = True
+) -> tuple[User, CharacterOwnership]:
+    """Create user with basic access from an existing EveCharacter (must belong to an alliance)."""
+    auth_character = EveCharacter.objects.get(character_id=character_id)
+    if not auth_character.alliance_id:
+        raise ValueError("Character must belong to an alliance.")
+
+    username = StateBackend.iterate_username(auth_character.character_name)
+    user = AuthUtils.create_user(username, disconnect_signals=disconnect_signals)
+    user = AuthUtils.add_permission_to_user_by_name(
+        "taxsystem.basic_access", user, disconnect_signals=disconnect_signals
+    )
+    character_ownership = add_character_to_user(
+        user,
+        auth_character,
+        is_main=True,
+        disconnect_signals=disconnect_signals,
+    )
+    return user, character_ownership
+
+
+def create_alliance_owner_from_evecharacter(
+    character_id: int, **kwargs
+) -> AllianceOwner:
+    """Create an AllianceOwner from an existing EveCharacter."""
+    _, character_ownership = create_user_from_evecharacter_with_alliance_access(
+        character_id, disconnect_signals=True
+    )
+    return create_alliance_owner(character_ownership.character, **kwargs)

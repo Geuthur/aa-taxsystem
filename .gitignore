@@ -16,3 +16,9 @@ node_modules/
 testing/
 
 .make/myauth-path
+
+# Co Pilot Agent
+.github/copilot-instructions.md
+docs/IMPROVEMENT_PLAN.md
+docs/checkpoints/
+docs/PERFORMANCE_ANALYSIS.md

@@ -11,7 +11,9 @@ from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.tests.testdata.esi_stub import esi_client_stub_openapi
-from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
+from taxsystem.tests.testdata.generate_owneraudit import (
+    create_corporation_owner_from_user,
+)
 from taxsystem.tests.testdata.generate_walletjournal import (
     create_division,
     create_wallet_journal_entry,
@@ -38,7 +40,7 @@ class TestWalletManager(NoSocketsTestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)

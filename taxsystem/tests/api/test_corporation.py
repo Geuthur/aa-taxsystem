@@ -11,14 +11,20 @@ from django.utils import timezone
 
 # Alliance Auth (External Libs)
 from app_utils.testdata_factories import UserMainFactory
+from app_utils.testing import (
+    create_user_from_evecharacter,
+)
 
 # AA TaxSystem
 from taxsystem.api.character import CharacterApiEndpoints
-from taxsystem.models.filters import JournalFilter
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.corporation import (
+    CorporationFilter,
+    CorporationPaymentAccount,
+    CorporationPayments,
+)
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_evecharacter,
+    add_corporation_owner_to_user,
     create_user_from_evecharacter_with_access,
 )
 from taxsystem.tests.testdata.generate_payments import (
@@ -41,12 +47,15 @@ class TestCoreHelpers(TestCase):
 
         cls.api = NinjaAPI()
         cls.character_endpoint = CharacterApiEndpoints(cls.api)
-
-        cls.audit = create_owneraudit_from_evecharacter(1001)
         cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001
+        cls.user, cls.character_ownership = create_user_from_evecharacter(
+            1001,
+            permissions=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_corps",
+            ],
         )
+        cls.audit = add_corporation_owner_to_user(user=cls.user, character_id=1001)
         cls.user_no_payments, cls.character_ownership_no_payments = (
             create_user_from_evecharacter_with_access(1004)
         )
@@ -56,7 +65,7 @@ class TestCoreHelpers(TestCase):
             name=cls.character_ownership.character.character_name,
             owner=cls.audit,
             user=cls.user,
-            status=PaymentSystem.Status.ACTIVE,
+            status=CorporationPaymentAccount.Status.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
@@ -64,24 +73,24 @@ class TestCoreHelpers(TestCase):
         cls.payments = create_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            corporation_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.corporation_id,
             entry_id=1,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",
-            request_status=Payments.RequestStatus.PENDING,
+            request_status=CorporationPayments.RequestStatus.PENDING,
             reviser="",
         )
 
         cls.payments2 = create_payment(
             name=cls.character_ownership.character.character_name,
             account=cls.payment_system,
-            corporation_id=cls.character_ownership.character.corporation_id,
+            owner_id=cls.character_ownership.character.corporation_id,
             entry_id=2,
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
             reason="Mining Stuff",
-            request_status=Payments.RequestStatus.PENDING,
+            request_status=CorporationPayments.RequestStatus.PENDING,
             reviser="",
         )
 
@@ -93,7 +102,7 @@ class TestCoreHelpers(TestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
         )
 
@@ -110,8 +119,8 @@ class TestCoreHelpers(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         response_data = response.json()
-        self.assertIn("corporation", response_data)
-        self.assertEqual(len(response_data["corporation"]), 2)
+        self.assertIn("owner", response_data)
+        self.assertEqual(len(response_data["owner"]), 2)
 
     def test_get_payments_without_access(self):
         """Test should not be able to access payments API endpoint without permission"""
@@ -141,8 +150,8 @@ class TestCoreHelpers(TestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         response_data = response.json()
-        self.assertIn("corporation", response_data)
-        self.assertEqual(len(response_data["corporation"]), 2)
+        self.assertIn("owner", response_data)
+        self.assertEqual(len(response_data["owner"]), 2)
 
     def test_get_own_payments_no_payments(self):
         """Test should display not found when no own payments exist"""

@@ -9,6 +9,7 @@
 [![Tests](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-taxsystem/actions/workflows/autotester.yml)
 [![codecov](https://codecov.io/gh/Geuthur/aa-taxsystem/graph/badge.svg?token=IGpkrAuv42)](https://codecov.io/gh/Geuthur/aa-taxsystem)
 [![Translation status](https://weblate.geuthur.de/widget/allianceauth/aa-memberaudit-doctrine-checker/svg-badge.svg)](https://weblate.geuthur.de/engage/allianceauth/)
+[![Discord](https://img.shields.io/discord/337275567487320064?label=discord)](https://discord.gg/WrHzA4rnxA)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
 
@@ -27,31 +28,39 @@ ______________________________________________________________________
     - [Step 4 - Migration to AA](#step4)
     - [Step 5 - Setting up Permissions](#step5)
     - [Step 6 - (Optional) Setting up Compatibilies](#step6)
+  - [Documentation](#documentation)
   - [Translations](#translations)
   - [Contributing](#contributing)
 
 ## Features<a name="features"></a>
 
-- Corporation Tax System
+- **Multi-Owner Support**: Manage both Corporations and Alliances
+- **Corporation & Alliance Tax System**
   - Member Tracking
-    - Check Member is registred in Auth
+    - Check Member is registered in Auth
     - Check Member is Alt Char
-    - See Members as Missing when they leave the Corporation
+    - See Members as Missing when they leave the Corporation/Alliance
   - Payment System
     - Allocate User from Member Tracking
     - Automatic Payment Tracking
-    - Automatic Payment Approvment
+    - Automatic Payment Approval via Filters
     - Filtering Amount, Reason, Date
       - Support Hooks for Add more Filters
   - Payments
     - Track Payments that meets filters
+    - Manual approval workflow for unfiltered payments
   - Log System
-  - Logs Actions from Administration Section
+    - Logs Actions from Administration Section
+    - Payment history tracking
+- **Owner Overview**: Unified view for all Corporations and Alliances
+- **Dashboard Analytics**: Real-time statistics and financial overviews
+- **Flexible Filtering**: Customizable rules for automatic payment processing
 
 ## Upcoming<a name="upcoming"></a>
 
-- Notify via Discord each Month
-- Alliance level tax system
+- Notify via Discord
+- Enhanced notification system
+- Data export functionality
 
 ## Screenshots<a name="screenshots"></a>
 
@@ -135,12 +144,14 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Tax System
 
-| ID                | Description                      |                                                            |
-| :---------------- | :------------------------------- | :--------------------------------------------------------- |
-| `basic_access`    | Can access the Tax System module | All Members with the Permission can access the Tax System. |
-| `create_access`   | Can add Corporation              | Users with this permission can add corporation.            |
-| `manage_own_corp` | Can manage own Corporation       | Users with this permission can manage own corporation.     |
-| `manage_corps`    | Can manage all Corporations      | Users with this permission can manage all corporations.    |
+| ID                    | Description                      |                                                                |
+| :-------------------- | :------------------------------- | :------------------------------------------------------------- |
+| `basic_access`        | Can access the Tax System module | All Members with the Permission can access the Tax System.     |
+| `create_access`       | Can add Corporation/Alliance     | Users with this permission can add corporations and alliances. |
+| `manage_own_corp`     | Can manage own Corporation       | Users with this permission can manage own corporation.         |
+| `manage_corps`        | Can manage all Corporations      | Users with this permission can manage all corporations.        |
+| `manage_own_alliance` | Can manage own Alliance          | Users with this permission can manage own alliance.            |
+| `manage_alliances`    | Can manage all Alliances         | Users with this permission can manage all alliances.           |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 
@@ -148,11 +159,24 @@ The Following Settings can be setting up in the `local.py`
 
 - TAXSYSTEM_APP_NAME: `"YOURNAME"` - Set the name of the APP
 
-Advanced Settings: Stale Status for Each Section
+- TAXSYSTEM_BULK_BATCH_SIZE: `500` - Maximum database batch size per operation. Reduce (e.g., 250) if encountering 'max_allowed_packet' errors, increase for better performance if MySQL is configured with higher limits
+  Advanced Settings: Stale Status for Each Section
 
-- TAXSYSTEM_STALE_TYPES = \`{ "wallet": 60, "division": 60, "members": 60, "payments": 60, "payment_system":
+- TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "division": 60, "members": 60, "payments": 60, "payment_system":60, "payment_payday": 1440 }` - Defines the stale status duration (in minutes) for each section.
 
-60, "payment_payday": 1440 }\` - Defines the stale status duration (in minutes) for each section.
+## Documentation<a name="documentation"></a>
+
+For detailed information on how to use the Tax System, please refer to our comprehensive [User Manual](https://github.com/Geuthur/aa-taxsystem/blob/master/docs/USER_MANUAL.md).
+
+The manual covers:
+
+- Getting started with the Tax System
+- Adding Corporations and Alliances
+- Payment System functionality
+- Filter configuration
+- Account management
+- Administration features
+- FAQ and troubleshooting
 
 ## Translations<a name="translations"></a>
 

@@ -43,3 +43,6 @@ TAXSYSTEM_STALE_TYPES = {
     "payment_system": 60,
     "payment_payday": 1440,
 }
+
+# Controls how many database records are inserted in a single batch operation.
+TAXSYSTEM_BULK_BATCH_SIZE = clean_setting("TAXSYSTEM_BULK_BATCH_SIZE", 500)

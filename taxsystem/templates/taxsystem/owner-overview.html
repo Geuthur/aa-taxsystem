@@ -1,0 +1,49 @@
+{% extends 'taxsystem/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load evelinks %}
+{% load sri %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Overview" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block taxsystem_block %}
+    <div class="card">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Overview" %}</h3>
+        </div>
+        <div class="card-body bg-secondary">
+            {% include 'taxsystem/partials/table/owner-overview.html' %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+    <!-- load the settings bundle -->
+    {% include "taxsystem/bundles/settings-css.html" %}
+    {% include 'taxsystem/bundles/settings-js.html' %}
+    <!-- load datatables for owner overview -->
+    {% include 'bundles/datatables-css-bs5.html' %}
+    {% include 'bundles/datatables-js-bs5.html' %}
+    <script>
+        $(document).ready(function() {
+            $('#ownerTable').DataTable({
+                order: [[1, 'asc']],  // Sort by Name
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: [0, 3] },  // Portrait and Actions not sortable
+                ],
+                language: {
+                    emptyTable: "{% translate 'No owners found. You need permissions to view at least one corporation or alliance.' %}"
+                }
+            });
+        });
+    </script>
+{% endblock %}

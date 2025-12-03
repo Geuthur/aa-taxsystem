@@ -11,10 +11,12 @@ from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.models.tax import Payments, PaymentSystem
+from taxsystem.models.corporation import CorporationPaymentAccount, CorporationPayments
 
 # AA Tax System
-from taxsystem.tests.testdata.generate_owneraudit import create_owneraudit_from_user
+from taxsystem.tests.testdata.generate_owneraudit import (
+    create_corporation_owner_from_user,
+)
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
     create_payment_system,
@@ -39,7 +41,7 @@ class TestMigratePayments(NoSocketsTestCase):
         cls.user, cls.character_ownership = create_user_from_evecharacter(
             1001,
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)
@@ -66,7 +68,7 @@ class TestMigratePayments(NoSocketsTestCase):
             name=cls.character_ownership.character.character_name,
             owner=cls.audit,
             user=cls.user,
-            status=PaymentSystem.Status.ACTIVE,
+            status=CorporationPaymentAccount.Status.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
@@ -78,7 +80,7 @@ class TestMigratePayments(NoSocketsTestCase):
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",
-            request_status=Payments.RequestStatus.PENDING,
+            request_status=CorporationPayments.RequestStatus.PENDING,
             reviser="",
         )
 
@@ -90,6 +92,6 @@ class TestMigratePayments(NoSocketsTestCase):
 
         # then
         self.assertIn(
-            "Migration report for Hell RiderZ - Status: incomplete: 1 entries migrated.",
+            "Migration report for Hell RiderZ: 1 entries migrated.",
             output,
         )

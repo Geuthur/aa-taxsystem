@@ -13,10 +13,10 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.models.filters import JournalFilter
+from taxsystem.models.corporation import CorporationFilter
 from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
@@ -39,7 +39,7 @@ class TestDeleteFilter(TestCase):
                 "taxsystem.manage_own_corp",
             ],
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
         cls.no_audit_user, _ = create_user_from_evecharacter(
             character_id=1002,
             permissions=[
@@ -62,13 +62,13 @@ class TestDeleteFilter(TestCase):
 
         cls.filter_amount = create_filter(
             filter_set=cls.filter_set,
-            filter_type=JournalFilter.FilterType.AMOUNT,
+            filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
         )
 
     def test_delete_filter(self):
         """Test delete filter."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filter_id = self.filter_amount.id
 
         form_data = {
@@ -83,7 +83,7 @@ class TestDeleteFilter(TestCase):
         request.user = self.user
 
         response = views.delete_filter(
-            request, corporation_id=corporation_id, filter_pk=filter_id
+            request, owner_id=corporation_id, filter_pk=filter_id
         )
 
         response_data = json.loads(response.content)
@@ -97,7 +97,7 @@ class TestDeleteFilter(TestCase):
 
     def test_no_permission(self):
         """Test try undo a payment without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filter_id = self.filter_amount.id
 
         form_data = {
@@ -114,7 +114,7 @@ class TestDeleteFilter(TestCase):
         request.user = self.no_audit_user
 
         response = views.delete_filter(
-            request, corporation_id=corporation_id, filter_pk=filter_id
+            request, owner_id=corporation_id, filter_pk=filter_id
         )
 
         response_data = json.loads(response.content)
@@ -125,7 +125,7 @@ class TestDeleteFilter(TestCase):
 
     def test_no_manage_permission(self):
         """Test undo payment without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         filter_id = self.filter_amount.id
 
         form_data = {
@@ -142,7 +142,7 @@ class TestDeleteFilter(TestCase):
         request.user = self.no_permission_user
 
         response = views.delete_filter(
-            request, corporation_id=corporation_id, filter_pk=filter_id
+            request, owner_id=corporation_id, filter_pk=filter_id
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

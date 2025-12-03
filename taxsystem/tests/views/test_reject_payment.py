@@ -14,7 +14,7 @@ from app_utils.testing import create_user_from_evecharacter
 # AA TaxSystem
 from taxsystem import views
 from taxsystem.tests.testdata.generate_owneraudit import (
-    create_owneraudit_from_user,
+    create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
@@ -41,7 +41,7 @@ class TestRejectPayment(TestCase):
                 "taxsystem.manage_own_corp",
             ],
         )
-        cls.audit = create_owneraudit_from_user(cls.user)
+        cls.audit = create_corporation_owner_from_user(cls.user)
         cls.no_audit_user, _ = create_user_from_evecharacter(
             character_id=1002,
             permissions=[
@@ -69,7 +69,7 @@ class TestRejectPayment(TestCase):
 
     def test_reject_payment(self):
         """Test approving a payment."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         payment_id = self.payment.pk
 
         form_data = {
@@ -86,7 +86,7 @@ class TestRejectPayment(TestCase):
         request.user = self.user
 
         response = views.reject_payment(
-            request, corporation_id=corporation_id, payment_pk=payment_id
+            request, owner_id=corporation_id, payment_pk=payment_id
         )
 
         response_data = json.loads(response.content)
@@ -100,7 +100,7 @@ class TestRejectPayment(TestCase):
 
     def test_no_permission(self):
         """Test try reject a payment without permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         payment_id = self.payment.pk
 
         form_data = {
@@ -117,7 +117,7 @@ class TestRejectPayment(TestCase):
         request.user = self.no_audit_user
 
         response = views.reject_payment(
-            request, corporation_id=corporation_id, payment_pk=payment_id
+            request, owner_id=corporation_id, payment_pk=payment_id
         )
 
         response_data = json.loads(response.content)
@@ -128,7 +128,7 @@ class TestRejectPayment(TestCase):
 
     def test_no_manage_permission(self):
         """Test reject payment without managing permission."""
-        corporation_id = self.audit.corporation.corporation_id
+        corporation_id = self.audit.eve_corporation.corporation_id
         payment_id = self.payment.pk
 
         form_data = {
@@ -145,7 +145,7 @@ class TestRejectPayment(TestCase):
         request.user = self.no_permission_user
 
         response = views.reject_payment(
-            request, corporation_id=corporation_id, payment_pk=payment_id
+            request, owner_id=corporation_id, payment_pk=payment_id
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

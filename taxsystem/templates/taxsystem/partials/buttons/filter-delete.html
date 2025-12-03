@@ -7,7 +7,7 @@
     data-title="{% translate 'Delete Filter' %} <b>{{ filter.filter_type }} - {{ filter.value|intcomma }}</b>"
     data-text="{% translate 'Are you sure to Confirm' %}?"
     data-bs-target="#filter-set-delete-filter"
-    data-action="{% url 'taxsystem:delete_filter' filter_pk=filter.pk corporation_id=filter.filter_set.owner.corporation.corporation_id %}"
+    data-action="{% url 'taxsystem:delete_filter' filter_pk=filter.pk owner_id=filter.filter_set.owner.eve_id %}"
 
     title="{% translate 'Delete Filter' %}"
     >

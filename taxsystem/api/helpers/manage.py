@@ -6,11 +6,13 @@ from django.utils.safestring import mark_safe
 
 # AA TaxSystem
 from taxsystem.api.helpers import core
-from taxsystem.models.filters import JournalFilter
-from taxsystem.models.tax import Members, Payments, PaymentSystem
+from taxsystem.models.alliance import AlliancePayments
+from taxsystem.models.corporation import CorporationPayments, Members
 
 
-def manage_payments(request: WSGIRequest, perms: str, payment: Payments) -> str:
+def manage_payments(
+    request: WSGIRequest, perms: str, payment: CorporationPayments | AlliancePayments
+) -> str:
     """Generate the management action buttons for a payment"""
     # Create the action buttons
     actions = []
@@ -32,7 +34,7 @@ def manage_payments(request: WSGIRequest, perms: str, payment: Payments) -> str:
     )
 
 
-def generate_payment_approve_button(payment: Payments) -> mark_safe:
+def generate_payment_approve_button(payment) -> mark_safe:
     """Generate a payment approve button for the tax system"""
     return format_html(
         render_to_string(
@@ -44,7 +46,7 @@ def generate_payment_approve_button(payment: Payments) -> mark_safe:
     )
 
 
-def generate_payment_reject_button(payment: Payments) -> mark_safe:
+def generate_payment_reject_button(payment) -> mark_safe:
     """Generate a payment reject button for the tax system"""
     return format_html(
         render_to_string(
@@ -56,7 +58,7 @@ def generate_payment_reject_button(payment: Payments) -> mark_safe:
     )
 
 
-def generate_payment_undo_button(payment: Payments) -> mark_safe:
+def generate_payment_undo_button(payment) -> mark_safe:
     """Generate a payment undo button for the tax system"""
     return format_html(
         render_to_string(
@@ -68,7 +70,7 @@ def generate_payment_undo_button(payment: Payments) -> mark_safe:
     )
 
 
-def generate_payment_delete_button(payment: Payments) -> mark_safe:
+def generate_payment_delete_button(payment) -> mark_safe:
     """Generate a payment delete button for the tax system"""
     return format_html(
         render_to_string(
@@ -92,7 +94,7 @@ def generate_member_delete_button(member: Members) -> mark_safe:
     )
 
 
-def generate_ps_toggle_button(account: PaymentSystem) -> mark_safe:
+def generate_ps_toggle_button(account) -> mark_safe:
     """Generate a payment system toggle user button for the tax system"""
     return format_html(
         render_to_string(
@@ -104,7 +106,7 @@ def generate_ps_toggle_button(account: PaymentSystem) -> mark_safe:
     )
 
 
-def generate_ps_info_button(account: PaymentSystem) -> mark_safe:
+def generate_ps_info_button(account) -> mark_safe:
     """Generate a payment system info button for the tax system"""
     return format_html(
         render_to_string(
@@ -116,13 +118,25 @@ def generate_ps_info_button(account: PaymentSystem) -> mark_safe:
     )
 
 
-def generate_filter_delete_button(filter_obj: JournalFilter) -> mark_safe:
+def generate_filter_delete_button(filter_obj) -> mark_safe:
     """Generate a filter delete button for the tax system"""
     return format_html(
         render_to_string(
             "taxsystem/partials/buttons/filter-delete.html",
             {
                 "filter": filter_obj,
+            },
+        )
+    )
+
+
+def generate_ps_add_payments_button(account) -> mark_safe:
+    """Generate a payment system add payments button for the tax system"""
+    return format_html(
+        render_to_string(
+            "taxsystem/partials/buttons/payment-add.html",
+            {
+                "account": account,
             },
         )
     )

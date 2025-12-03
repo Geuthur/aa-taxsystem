@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<button type="button" class="btn btn-success btn-sm btn-square me-2"
+    data-bs-toggle="modal"
+    data-tooltip-toggle="taxsystem-tooltip"
+    data-character-id="{{ character.character.character_id }}"
+    data-title="{% translate 'Add Payment' %}"
+    data-text="{% translate 'Add Payment' %} {% translate 'for' %} {{ account.user.username }}"
+    data-bs-target="#payments-add"
+    data-action="{% url 'taxsystem:add_payment' payment_system_pk=account.pk owner_id=account.owner.eve_id %}"
+
+    title="{% translate 'Add Payment' %}"
+    >
+    <span class="fas fa-dollar-sign"></span>
+</button>
