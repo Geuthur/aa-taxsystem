@@ -14,6 +14,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.constants import AUTH_SELECT_RELATED_MAIN_CHARACTER
 from taxsystem.decorators import log_timing
 from taxsystem.models.general import CorporationUpdateSection
@@ -154,7 +155,11 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
 
         # Bulk create new accounts
         if new_accounts:
-            self.bulk_create(new_accounts, ignore_conflicts=True)
+            self.bulk_create(
+                new_accounts,
+                batch_size=TAXSYSTEM_BULK_BATCH_SIZE,
+                ignore_conflicts=True,
+            )
             logger.info(
                 "Added %s new payment accounts for: %s", len(new_accounts), owner.name
             )
@@ -392,11 +397,12 @@ class PaymentsManager(models.Manager):
                         )
                         items.append(payment_item)
 
-            payments = self.bulk_create(items, ignore_conflicts=True)
+            payments = self.bulk_create(
+                items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
+            )
 
             for payment in payments:
-                # After bulk_create with ignore_conflicts, we need to fetch the actual object
-                # Use filter().first() to avoid MultipleObjectsReturned
+                # Only log created payments
                 payment_obj = self.filter(
                     entry_id=payment.entry_id,
                     account=payment.account,
@@ -416,7 +422,7 @@ class PaymentsManager(models.Manager):
                 logs_items.append(log_items)
 
             CorporationPaymentHistory.objects.bulk_create(
-                logs_items, ignore_conflicts=True
+                logs_items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
             )
 
         logger.debug(

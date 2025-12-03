@@ -159,11 +159,10 @@ The Following Settings can be setting up in the `local.py`
 
 - TAXSYSTEM_APP_NAME: `"YOURNAME"` - Set the name of the APP
 
-Advanced Settings: Stale Status for Each Section
+- TAXSYSTEM_BULK_BATCH_SIZE: `500` - Maximum database batch size per operation. Reduce (e.g., 250) if encountering 'max_allowed_packet' errors, increase for better performance if MySQL is configured with higher limits
+  Advanced Settings: Stale Status for Each Section
 
-- TAXSYSTEM_STALE_TYPES = \`{ "wallet": 60, "division": 60, "members": 60, "payments": 60, "payment_system":
-
-60, "payment_payday": 1440 }\` - Defines the stale status duration (in minutes) for each section.
+- TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "division": 60, "members": 60, "payments": 60, "payment_system":60, "payment_payday": 1440 }` - Defines the stale status duration (in minutes) for each section.
 
 ## Documentation<a name="documentation"></a>
 

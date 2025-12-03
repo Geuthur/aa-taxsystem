@@ -14,6 +14,7 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.managers.base import BaseOwnerQuerySet
 from taxsystem.models.general import AllianceUpdateSection
@@ -135,7 +136,9 @@ class AlliancePaymentAccountManager(models.Manager["AlliancePaymentAccount"]):
                 )
 
         if items:
-            self.bulk_create(items, ignore_conflicts=True)
+            self.bulk_create(
+                items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
+            )
             logger.info(
                 "Added %s new payment accounts for: %s",
                 len(items),
@@ -345,12 +348,13 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
                         )
                         items.append(payment_item)
 
-            payments = self.bulk_create(items, ignore_conflicts=True)
+            payments = self.bulk_create(
+                items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
+            )
 
             # Create history entries
             for payment in payments:
-                # After bulk_create with ignore_conflicts, we need to fetch the actual object
-                # Use filter().first() to avoid MultipleObjectsReturned
+                # Only log created payments
                 payment_obj = self.filter(
                     entry_id=payment.entry_id,
                     account=payment.account,
@@ -370,7 +374,7 @@ class AlliancePaymentManager(models.Manager["AlliancePayments"]):
                 logs_items.append(log_items)
 
             AlliancePaymentHistory.objects.bulk_create(
-                logs_items, ignore_conflicts=True
+                logs_items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
             )
 
         # Check for system payments

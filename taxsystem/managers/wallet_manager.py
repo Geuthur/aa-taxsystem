@@ -15,6 +15,7 @@ from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
 from taxsystem.models.general import CorporationUpdateSection
@@ -178,7 +179,7 @@ class CorporationWalletManager(models.Manager):
         )
 
         if all_exist:
-            self.bulk_create(items)
+            self.bulk_create(items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE)
         else:
             raise DatabaseError("DB Fail")
 

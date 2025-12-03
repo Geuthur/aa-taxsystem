@@ -18,6 +18,10 @@ Section Order:
 python manage.py taxsystem_migrate_payments
 ```
 
+### Added
+
+- TAXSYSTEM_BULK_BATCH_SIZE: Configurable batch size for `bulk_create`, `bulk_update` — prevents `max_allowed_packet` errors by splitting large inserts
+
 ## [2.0.0-beta.2] - 2025-12-02
 
 ### Fixed

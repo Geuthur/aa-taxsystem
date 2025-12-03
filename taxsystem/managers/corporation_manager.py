@@ -15,6 +15,7 @@ from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.constants import AUTH_SELECT_RELATED_MAIN_CHARACTER
 from taxsystem.decorators import log_timing
 from taxsystem.managers.base import BaseOwnerQuerySet
@@ -187,6 +188,7 @@ class MembersManager(models.Manager):
             self.bulk_update(
                 _old_members,
                 ["character_name", "status", "logon", "logged_off"],
+                batch_size=TAXSYSTEM_BULK_BATCH_SIZE,
             )
             logger.debug(
                 "Updated %s members for: %s",
@@ -194,7 +196,11 @@ class MembersManager(models.Manager):
                 owner.name,
             )
         if _new_members:
-            self.bulk_create(_new_members, ignore_conflicts=True)
+            self.bulk_create(
+                _new_members,
+                batch_size=TAXSYSTEM_BULK_BATCH_SIZE,
+                ignore_conflicts=True,
+            )
             logger.debug(
                 "Added %s new members for: %s",
                 len(_new_members),
