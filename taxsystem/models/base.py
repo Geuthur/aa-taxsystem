@@ -543,7 +543,7 @@ class PaymentsBase(models.Model):
 
     name = models.CharField(max_length=100)
 
-    entry_id = models.BigIntegerField()
+    entry_id = models.BigIntegerField(unique=True, null=True, blank=True)
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 

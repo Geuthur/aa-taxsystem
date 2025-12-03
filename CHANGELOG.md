@@ -13,10 +13,17 @@ Section Order:
 
 > [!WARNING]
 > We changed the Payments Information, please use the following django command to migrate old Payments
+> You need to execute the following commands in order to avoid issues
 
 ```bash
+python manage.py taxsystem_cleanup_payments
 python manage.py taxsystem_migrate_payments
+python manage.py migrate
 ```
+
+### Changed
+
+- entry_id is now nullable and unique to prevent multiple entries from ESI Fetch
 
 ### Added
 

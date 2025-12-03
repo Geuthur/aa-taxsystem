@@ -63,7 +63,7 @@ class TestDeletePayment(TestCase):
         )
         cls.payment = create_payment(
             name=cls.payment_system.name,
-            entry_id=0,
+            entry_id=None,
             account=cls.payment_system,
             amount=1000,
         )

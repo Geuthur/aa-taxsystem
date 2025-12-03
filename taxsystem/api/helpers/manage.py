@@ -22,8 +22,8 @@ def manage_payments(
             actions.append(generate_payment_reject_button(payment=payment))
         elif payment.is_approved or payment.is_rejected:
             actions.append(generate_payment_undo_button(payment=payment))
-        if payment.entry_id == 0:
-            # Only allow deleting payments that are not ESI recorded
+        if payment.entry_id is None:
+            # Only allow deleting payments that are not ESI recorded (manual payments use NULL)
             actions.append(generate_payment_delete_button(payment=payment))
     # Get Payment Info Button
     if payment.account.user == request.user or perms:

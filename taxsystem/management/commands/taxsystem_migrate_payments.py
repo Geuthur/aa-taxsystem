@@ -65,6 +65,14 @@ class Command(BaseCommand):
                                     f"Payment with entry_id {journal.entry_id} not found, skipping."
                                 )
                                 continue
+                            except CorporationPayments.MultipleObjectsReturned:
+                                # Inform user to run cleanup command to resolve duplicates
+                                self.stdout.write(
+                                    f"Multiple payments found for entry_id {journal.entry_id}. "
+                                    "Please run: `python manage.py taxsystem_cleanup_payments` "
+                                    "to remove duplicate payments and keep the oldest entry."
+                                )
+                                continue
                     self.stdout.write(
                         f"Migration report for {corporation}: {successful} entries migrated."
                     )

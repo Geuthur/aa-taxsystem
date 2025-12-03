@@ -923,7 +923,9 @@ def delete_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
                     account__owner=owner, pk=payment_pk
                 )
 
-                if payment.entry_id != 0:  # Prevent deletion of ESI imported payments
+                if (
+                    payment.entry_id is not None
+                ):  # Prevent deletion of ESI imported payments
                     msg = _(
                         "Payment ID: {pid} - Amount: {amount} - Name: {name} deletion failed - ESI imported payments cannot be deleted"
                     ).format(
@@ -995,7 +997,7 @@ def add_payment(request: WSGIRequest, owner_id: int, payment_system_pk: int):
 
                 payment = owner.payments_class(
                     name=payment_account.user.username,
-                    entry_id=0,  # Manual Entry
+                    entry_id=None,  # Manual Entry (use NULL to allow multiple manual payments)
                     amount=amount,
                     account=payment_account,
                     date=timezone.now(),
