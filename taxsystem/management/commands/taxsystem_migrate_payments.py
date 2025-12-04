@@ -49,7 +49,8 @@ class Command(BaseCommand):
                         if journal.entry_id in payments_entry_ids:
                             try:
                                 payment = CorporationPayments.objects.get(
-                                    entry_id=journal.entry_id
+                                    entry_id=journal.entry_id,
+                                    owner_id__isnull=True,
                                 )
                                 payment.owner_id = (
                                     corporation.eve_corporation.corporation_id
