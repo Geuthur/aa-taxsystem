@@ -16,7 +16,6 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__, app_settings
-from taxsystem.decorators import when_esi_is_available
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.general import AllianceUpdateSection, CorporationUpdateSection
@@ -41,7 +40,6 @@ _update_taxsystem_params = {
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
     """Update all taxsystem data"""
     corporations: list[CorporationOwner] = CorporationOwner.objects.select_related(
@@ -66,7 +64,6 @@ def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_corporation(owner_pk, force_refresh=False):
     """Update a corporation"""
     owner: CorporationOwner = CorporationOwner.objects.prefetch_related(
