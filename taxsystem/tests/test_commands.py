@@ -7,13 +7,13 @@ from django.core.management import call_command
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
-from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount, CorporationPayments
 
 # AA Tax System
+from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_corporation_owner_from_user,
 )
@@ -25,22 +25,14 @@ from taxsystem.tests.testdata.generate_walletjournal import (
     create_division,
     create_wallet_journal_entry,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
-from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 
 COMMAND_PATH = "taxsystem.management.commands.taxsystem_migrate_payments"
 
 
-class TestMigratePayments(NoSocketsTestCase):
+class TestMigratePayments(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001,
-        )
         cls.audit = create_corporation_owner_from_user(cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
@@ -65,7 +57,7 @@ class TestMigratePayments(NoSocketsTestCase):
         )
 
         cls.payment_system = create_payment_system(
-            name=cls.character_ownership.character.character_name,
+            name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
             status=CorporationPaymentAccount.Status.ACTIVE,
@@ -74,7 +66,7 @@ class TestMigratePayments(NoSocketsTestCase):
         )
 
         cls.payments = create_payment(
-            name=cls.character_ownership.character.character_name,
+            name=cls.user_character.character.character_name,
             account=cls.payment_system,
             entry_id=1,
             amount=1000,

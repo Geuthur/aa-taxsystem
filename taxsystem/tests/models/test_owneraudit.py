@@ -9,28 +9,20 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationOwner
+from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_corporation_owner_from_user,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "taxsystem.models.owneraudit"
 
 
-class TestOwnerAuditModel(TestCase):
+class TestOwnerAuditModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001, permissions=["taxsystem.basic_access"]
-        )
-        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
-            1003, permissions=["taxsystem.basic_access"]  # Different corp (2003)
-        )
         cls.audit = create_corporation_owner_from_user(cls.user)
-        cls.audit2 = create_corporation_owner_from_user(cls.user2)
+        cls.audit2 = create_corporation_owner_from_user(cls.superuser)
 
     def test_str(self):
         expected_str = CorporationOwner.objects.get(id=self.audit.pk)

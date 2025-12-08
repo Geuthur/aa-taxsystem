@@ -12,25 +12,18 @@ from django.test import RequestFactory, TestCase
 from taxsystem.admin import AllianceOwnerAdmin, CorporationOwnerAdmin
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
+from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_alliance_owner,
     create_corporation_owner_from_user,
     create_user_from_evecharacter_with_access,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
-from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 
 
-class TestCorporationOwnerAdmin(TestCase):
+class TestCorporationOwnerAdmin(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001
-        )
         cls.user.is_staff = True
         cls.user.is_superuser = True
         cls.user.save()
@@ -126,21 +119,15 @@ class TestCorporationOwnerAdmin(TestCase):
         )
 
 
-class TestAllianceOwnerAdmin(TestCase):
+class TestAllianceOwnerAdmin(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-        cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter_with_access(
-            1001
-        )
         cls.user.is_staff = True
         cls.user.is_superuser = True
         cls.user.save()
 
-        cls.alliance_owner = create_alliance_owner(cls.character_ownership.character)
+        cls.alliance_owner = create_alliance_owner(cls.user_character.character)
         cls.site = AdminSite()
         cls.admin = AllianceOwnerAdmin(AllianceOwner, cls.site)
 

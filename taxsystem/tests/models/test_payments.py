@@ -8,6 +8,7 @@ from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPayments
+from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_corporation_owner_from_user,
 )
@@ -19,27 +20,16 @@ from taxsystem.tests.testdata.generate_walletjournal import (
     create_division,
     create_wallet_journal_entry,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
-from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "taxsystem.models.tax"
 
 
-class TestPaymentsModel(TestCase):
+class TestPaymentsModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001, permissions=["taxsystem.basic_access"]
-        )
-        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
-            1002, permissions=["taxsystem.basic_access"]
-        )
         cls.audit = create_corporation_owner_from_user(cls.user)
-        cls.audit2 = create_corporation_owner_from_user(cls.user2)
+        cls.audit2 = create_corporation_owner_from_user(cls.superuser)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)
@@ -63,7 +53,7 @@ class TestPaymentsModel(TestCase):
         )
 
         cls.payment_system = create_payment_system(
-            name=cls.character_ownership.character.character_name,
+            name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
         )
@@ -117,7 +107,7 @@ class TestPaymentsModel(TestCase):
         """Test if the character_id is correct."""
         payments = CorporationPayments.objects.get(account=self.payment_system)
         self.assertEqual(
-            payments.character_id, self.character_ownership.character.character_id
+            payments.character_id, self.user_character.character.character_id
         )
 
     def test_division(self):

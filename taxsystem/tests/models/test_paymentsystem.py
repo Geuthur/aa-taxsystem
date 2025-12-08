@@ -11,31 +11,23 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount
+from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_corporation_owner_from_user,
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment_system,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
 
 MODULE_PATH = "taxsystem.models.tax"
 
 
-class TestPaymentSystemModel(TestCase):
+class TestPaymentSystemModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001, permissions=["taxsystem.basic_access"]
-        )
-        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
-            1002, permissions=["taxsystem.basic_access"]
-        )
         cls.audit = create_corporation_owner_from_user(cls.user)
-        cls.audit2 = create_corporation_owner_from_user(cls.user2)
+        cls.audit2 = create_corporation_owner_from_user(cls.superuser)
 
         cls.payment_system = create_payment_system(
             name=cls.user.username,

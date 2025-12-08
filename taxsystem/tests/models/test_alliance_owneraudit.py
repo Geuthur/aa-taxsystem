@@ -9,35 +9,23 @@ from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem.models.alliance import AllianceOwner
+from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_alliance_owner_from_user,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
-from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "taxsystem.models.owneraudit"
 
 
-class TestAllianceOwnerAuditModel(TestCase):
+class TestAllianceOwnerAuditModel(TaxSystemTestCase):
     """Test AllianceOwner QuerySet methods (visible_to, manage_to)."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-
-        # Create users with characters in alliance 3001 (Voices of War)
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001, permissions=["taxsystem.basic_access"]
-        )
-        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
-            1004, permissions=["taxsystem.basic_access"]
-        )
-
         # Create alliance audits for both users
         cls.audit = create_alliance_owner_from_user(cls.user)
-        cls.audit2 = create_alliance_owner_from_user(cls.user2)
+        cls.audit2 = create_alliance_owner_from_user(cls.user_2)
 
     def test_str(self):
         """Test string representation of AllianceOwner."""
