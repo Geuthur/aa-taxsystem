@@ -71,7 +71,14 @@ $(document).ready(function() {
             /**
              * Dashboard :: Information
              */
-                const TaxAmount = parseFloat(data.tax_amount);
+                const TaxAmount = numberFormatter({
+                    value: parseFloat(data.tax_amount),
+                    language: aaTaxSystemSettings.locale,
+                    options: {
+                        style: 'currency',
+                        currency: 'ISK'
+                    }
+                });
                 const TaxPeriod = parseFloat(data.tax_period);
                 const ActivityFormatted = numberFormatter({
                     value: data.activity,
@@ -87,8 +94,8 @@ $(document).ready(function() {
              */
                 $('#dashboard-info').html(data.owner.owner_name);
                 $('#activity').html(`<span class="${ActivityClass}">${ActivityFormatted}</span>`);
-                $('#taxamount').text(TaxAmount);
-                $('#period').text(TaxPeriod);
+                $('#taxamount').attr('data-value', parseFloat(data.tax_amount)).text(`${TaxAmount}`);
+                $('#period').attr('data-value', TaxPeriod).text(`${TaxPeriod} ${aaTaxSystemSettings.translations.days}`);
 
                 /**
              * Dashboard :: Editable Fields
@@ -96,20 +103,41 @@ $(document).ready(function() {
                 $('#taxamount').editable({
                     container: 'body',
                     type: 'number',
-                    pk: data.owner.owner_id,
-                    url: aaTaxSystemSettings.url.UpdateTax,
-                    title: 'Enter value',
-                    /**
-                 * Disable display of the editable field value after editing
-                 */
+                    title: aaTaxSystemSettings.translations.editable.title.taxamount,
                     display: () => {
                         return false;
                     },
+                    success: function(response, newValue) {
+                        fetchPost({
+                            url: aaTaxSystemSettings.url.UpdateTax,
+                            csrfToken: aaTaxSystemSettings.csrfToken,
+                            payload: {
+                                tax_amount: newValue
+                            }
+                        })
+                            .then((data) => {
+                                if (data) {
+                                    const newValueFormatted = numberFormatter({
+                                        value: parseInt(newValue),
+                                        locales: aaTaxSystemSettings.locale,
+                                        options: {
+                                            style: 'currency',
+                                            currency: 'ISK'
+                                        }
+                                    });
+                                    console.log(newValueFormatted);
+                                    $('#taxamount').text(newValueFormatted);
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error updating Tax Amount:', error);
+                            });
+                    },
                     validate: function(value) {
                         if (value === '') {
-                            return 'This field is required';
+                            return aaTaxSystemSettings.translations.editable.validate.required;
                         } else if (isNaN(value) || parseFloat(value) < 0) {
-                            return 'Please enter a valid non-negative number';
+                            return aaTaxSystemSettings.translations.editable.validate.min_value;
                         }
                     }
                 });
@@ -119,9 +147,27 @@ $(document).ready(function() {
                     type: 'number',
                     pk: data.owner.owner_id,
                     url: aaTaxSystemSettings.url.UpdatePeriod,
-                    title: 'Enter value',
+                    title: aaTaxSystemSettings.translations.editable.title.period,
                     display: () => {
                         return false;
+                    },
+                    success: function(response, newValue) {
+                        fetchPost({
+                            url: aaTaxSystemSettings.url.UpdatePeriod,
+                            csrfToken: aaTaxSystemSettings.csrfToken,
+                            payload: {
+                                tax_period: newValue
+                            }
+                        })
+                            .then((data) => {
+                                if (data) {
+                                    console.log(newValue);
+                                    $('#period').text(parseInt(newValue));
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error updating Tax Amount:', error);
+                            });
                     },
                     validate: function(value) {
                         if (value === '') {

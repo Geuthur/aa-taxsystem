@@ -600,3 +600,127 @@ class AdminApiEndpoints:
 
             # Return success response
             return 200, {"success": True, "message": msg}
+
+        @api.post(
+            "owner/{owner_id}/manage/update-tax/",
+            response={200: dict, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def update_tax_amount(request: WSGIRequest, owner_id: int):
+            """
+            Handle an Request to Update Tax Amount
+
+            This Endpoint updates the tax amount for an associated owner.
+            It validates the request, checks permissions, and updates the tax amount accordingly.
+
+            Args:
+                request (WSGIRequest): The HTTP request object.
+                owner_id (int): The ID of the owner whose filter set is to be retrieved.
+            Returns:
+                dict: A dictionary containing the success status and message.
+            """
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # Check if owner exists
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # Check permissions
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            value = float(json.loads(request.body).get("tax_amount", 0))
+
+            if value < 0:
+                msg = _("Please enter a valid number")
+                return 400, {"success": False, "message": msg}
+
+            logger.debug(
+                f"Updating tax amount for owner ID {owner_id} to {value}. Permissions: {perms}"
+            )
+
+            owner.tax_amount = value
+            owner.save()
+
+            # Create log message
+            msg = format_lazy(
+                _("Tax Period from {owner} changed to {value}"),
+                owner=owner,
+                value=value,
+            )
+
+            # Log Action in Admin History
+            AdminHistory(
+                user=request.user,
+                owner=(
+                    owner if isinstance(owner, CorporationOwner) else owner.corporation
+                ),
+                action=AdminActions.CHANGE,
+                comment=msg,
+            ).save()
+
+            # Return success response
+            return 200, {"success": True, "message": msg}
+
+        @api.post(
+            "owner/{owner_id}/manage/update-period/",
+            response={200: dict, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def update_tax_period(request: WSGIRequest, owner_id: int):
+            """
+            Handle an Request to Update Tax Period
+
+            This Endpoint updates the tax period for an associated owner.
+            It validates the request, checks permissions, and updates the tax period accordingly.
+
+            Args:
+                request (WSGIRequest): The HTTP request object.
+                owner_id (int): The ID of the owner whose filter set is to be retrieved.
+            Returns:
+                dict: A dictionary containing the success status and message.
+            """
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # Check if owner exists
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # Check permissions
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            value = int(json.loads(request.body).get("tax_period", 0))
+
+            if value < 0:
+                msg = _("Please enter a valid number")
+                return 400, {"success": False, "message": msg}
+
+            logger.debug(
+                f"Updating tax period for owner ID {owner_id} to {value}. Permissions: {perms}"
+            )
+
+            owner.tax_period = value
+            owner.save()
+
+            # Create log message
+            msg = format_lazy(
+                _("Tax Period from {owner} changed to {value}"),
+                owner=owner,
+                value=value,
+            )
+
+            # Log Action in Admin History
+            AdminHistory(
+                user=request.user,
+                owner=(
+                    owner if isinstance(owner, CorporationOwner) else owner.corporation
+                ),
+                action=AdminActions.CHANGE,
+                comment=msg,
+            ).save()
+
+            # Return success response
+            return 200, {"success": True, "message": msg}

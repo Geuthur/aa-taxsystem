@@ -37,9 +37,23 @@
                 Members: '{% url "taxsystem:api:get_members" owner_id=owner.eve_id %}',
                 PaymentAccounts: '{% url "taxsystem:api:get_payment_accounts" owner_id=owner.eve_id %}',
                 // Editable
-                UpdateTax: '{% url "taxsystem:update_tax_amount" owner_id=owner.eve_id %}',
-                UpdatePeriod: '{% url "taxsystem:update_tax_period" owner_id=owner.eve_id %}',
+                UpdateTax: '{% url "taxsystem:api:update_tax_amount" owner_id=owner.eve_id %}',
+                UpdatePeriod: '{% url "taxsystem:api:update_tax_period" owner_id=owner.eve_id %}',
             },
+            translations: {
+                editable: {
+                    days: '{% translate "days" %}',
+                    title: {
+                        taxamount: '{% translate "Enter tax amount" %}',
+                        period: '{% translate "Enter tax period in days" %}',
+                    },
+                    validate: {
+                        required: '{% translate "This field is required." %}',
+                        number: '{% translate "Please enter a valid number." %}',
+                        min_value: '{% translate "Value must be at least 0." %}',
+                    }
+                }
+            }
         };
     </script>
     <!-- load modals -->

@@ -3,15 +3,12 @@
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
 
 # Alliance Auth
 from allianceauth.authentication.models import UserProfile
@@ -566,74 +563,3 @@ def add_alliance(request: WSGIRequest, token):
     )
     messages.info(request, msg)
     return redirect("taxsystem:index")
-
-
-@login_required
-@csrf_exempt
-def update_tax_amount(request: WSGIRequest, owner_id: int):
-    if request.method == "POST":
-        value = float(request.POST.get("value"))
-        msg = _("Please enter a valid number")
-        try:
-            if value < 0:
-                return JsonResponse({"message": msg}, status=400)
-        except ValueError:
-            return JsonResponse({"message": msg}, status=400)
-
-        owner, perms = get_manage_owner(request, owner_id)
-
-        logger.debug(
-            f"Updating tax amount for owner ID {owner_id} to {value}. Permissions: {perms}"
-        )
-
-        if not perms:
-            return JsonResponse({"message": _("Permission Denied.")}, status=403)
-
-        try:
-            owner.tax_amount = value
-            owner.save()
-            msg = _(f"Tax Amount from {owner.name} updated to {value}")
-            AdminHistory(
-                user=request.user,
-                owner=owner,
-                action=AdminActions.CHANGE,
-                comment=msg,
-            ).save()
-            logger.debug(f"Tax amount updated successfully for owner ID {owner_id}")
-        except ValidationError:
-            return JsonResponse({"message": msg}, status=400)
-        return JsonResponse({"message": msg}, status=200)
-    return JsonResponse({"message": _("Invalid request method")}, status=405)
-
-
-@login_required
-@csrf_exempt
-def update_tax_period(request: WSGIRequest, owner_id: int):
-    if request.method == "POST":
-        value = int(request.POST.get("value"))
-        msg = _("Please enter a valid number")
-        try:
-            if value < 0:
-                return JsonResponse({"message": msg}, status=400)
-        except ValueError:
-            return JsonResponse({"message": msg}, status=400)
-
-        owner, perms = get_manage_owner(request, owner_id)
-
-        if not perms:
-            return JsonResponse({"message": _("Permission Denied.")}, status=403)
-
-        try:
-            owner.tax_period = value
-            owner.save()
-            msg = _(f"Tax Period from {owner.name} updated to {value}")
-            AdminHistory(
-                user=request.user,
-                owner=owner,
-                action=AdminActions.CHANGE,
-                comment=msg,
-            ).save()
-        except ValidationError:
-            return JsonResponse({"message": msg}, status=400)
-        return JsonResponse({"message": msg}, status=200)
-    return JsonResponse({"message": _("Invalid request method")}, status=405)

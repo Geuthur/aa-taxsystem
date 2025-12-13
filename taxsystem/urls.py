@@ -46,17 +46,6 @@ urlpatterns = [
         views.my_payments,
         name="my_payments",
     ),
-    # -- Tax Manage
-    path(
-        "owner/<int:owner_id>/manage/update_tax/",
-        views.update_tax_amount,
-        name="update_tax_amount",
-    ),
-    path(
-        "owner/<int:owner_id>/manage/update_period/",
-        views.update_tax_period,
-        name="update_tax_period",
-    ),
     path(
         "owner/<int:owner_id>/view/filters/",
         views.manage_filter,
