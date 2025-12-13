@@ -9,7 +9,7 @@ from taxsystem.models.corporation import CorporationOwner
 
 def get_manage_owner(
     request: WSGIRequest, owner_id: int
-) -> tuple[CorporationOwner | None, bool]:
+) -> tuple[CorporationOwner | AllianceOwner | None, bool]:
     """
     Check if the user has manage permissions for the owner.
     Args:
@@ -37,7 +37,7 @@ def get_manage_owner(
 
 def get_owner(
     request: WSGIRequest, owner_id: int
-) -> tuple[CorporationOwner | None, bool]:
+) -> tuple[CorporationOwner | AllianceOwner | None, bool]:
     """
     Check if the user has visibility permissions for the owner.
     Args:
