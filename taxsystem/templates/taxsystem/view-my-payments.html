@@ -1,0 +1,52 @@
+{% extends 'taxsystem/base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Tax System" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block taxsystem_block %}
+    <div class="mb-4">
+        <div class="card">
+            <div class="card-header bg-primary rounded-top d-flex align-items-center">
+                <h3 class="me-3">{% translate "Own Payments" %}</h3>
+            </div>
+            <div class="card-body">
+                {% include 'taxsystem/partials/view-my-payments/my-payments.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    {% include 'taxsystem/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'taxsystem/bundles/aa-taxsystem-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for aaTaxSystem
+         */
+        const aaTaxSystemSettingsOverride = {
+            url: {
+            // URLs
+                MyPayments: '{% url "taxsystem:api:get_my_payments" owner_id=owner.eve_id %}',
+            },
+        };
+    </script>
+    {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
+    {% include 'taxsystem/bundles/datatables-2-js.html' with extColumnControl=True %}
+    <!-- load the payments bundle -->
+    {% include 'taxsystem/bundles/view-my-payments-js.html' %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+{% endblock extra_script %}

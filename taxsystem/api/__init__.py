@@ -9,7 +9,7 @@ from ninja.security import django_auth
 from django.conf import settings
 
 # AA TaxSystem
-from taxsystem.api import admin, alliance, character, corporation
+from taxsystem.api import admin, character, corporation, payments
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +23,10 @@ api = NinjaAPI(
 
 
 def setup(ninja_api):
-    alliance.AllianceApiEndpoints(ninja_api)
     corporation.CorporationApiEndpoints(ninja_api)
     character.CharacterApiEndpoints(ninja_api)
     admin.AdminApiEndpoints(ninja_api)
+    payments.PaymentsApiEndpoints(ninja_api)
 
 
 # Initialize API endpoints

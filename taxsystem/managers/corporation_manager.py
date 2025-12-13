@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.db import models, transaction
+from django.db.models import Case, Count, Q, Value, When
 from django.utils import timezone
 
 # Alliance Auth
@@ -16,17 +17,15 @@ from eveuniverse.models import EveEntity
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
-from taxsystem.constants import AUTH_SELECT_RELATED_MAIN_CHARACTER
 from taxsystem.decorators import log_timing
-from taxsystem.managers.base import BaseOwnerQuerySet
-from taxsystem.models.general import CorporationUpdateSection
+from taxsystem.models.helpers.textchoices import CorporationUpdateSection, UpdateStatus
 from taxsystem.providers import esi
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.corporation import CorporationOwner
+    from taxsystem.models.corporation import CorporationOwner, Members
 
 
 class CorporationMemberTrackingContext:
@@ -41,19 +40,74 @@ class CorporationMemberTrackingContext:
     start_date: timezone.datetime
 
 
-class CorporationOwnerQuerySet(BaseOwnerQuerySet):
+class CorporationOwnerQuerySet(models.QuerySet["CorporationOwner"]):
     """QuerySet for CorporationOwner with common filtering logic."""
 
-    # Configure base class for corporation-specific behavior
-    owner_type = "corp"
-    permission_prefix = "taxsystem.manage_corps"
-    owner_field = "corporation_id"  # Field on EveCharacter
-    owner_model_field = (
-        "eve_corporation__corporation_id"  # Field on CorporationOwner model
-    )
-    own_permission = "taxsystem.manage_own_corp"
-    update_status_relation = "ts_corporation_update_status"
-    update_section_class = CorporationUpdateSection
+    def visible_to(self, user):
+        """Get all corps visible to the user."""
+        # superusers get all visible
+        if user.is_superuser:
+            logger.debug(
+                "Returning all corps for superuser %s.",
+                user,
+            )
+            return self
+
+        if user.has_perm("taxsystem.manage_corps"):
+            logger.debug("Returning all corps for Tax Audit Manager %s.", user)
+            return self
+
+        try:
+            char = user.profile.main_character
+            assert char
+            corp_ids = user.character_ownerships.all().values_list(
+                "character__corporation_id", flat=True
+            )
+            queries = [models.Q(eve_corporation__corporation_id__in=corp_ids)]
+
+            logger.debug(
+                "%s queries for user %s visible corporations.", len(queries), user
+            )
+
+            query = queries.pop()
+            for q in queries:
+                query |= q
+            return self.filter(query)
+        except AssertionError:
+            logger.debug("User %s has no main character. Nothing visible.", user)
+            return self.none()
+
+    def manage_to(self, user):
+        """Get all corps that the user can manage."""
+        # superusers get all visible
+        if user.is_superuser:
+            logger.debug(
+                "Returning all corps for superuser %s.",
+                user,
+            )
+            return self
+
+        if user.has_perm("taxsystem.manage_corps"):
+            logger.debug("Returning all corps for Tax Audit Manager %s.", user)
+            return self
+
+        try:
+            char = user.profile.main_character
+            assert char
+            query = None
+
+            if user.has_perm("taxsystem.manage_own_corp"):
+                query = models.Q(eve_corporation__corporation_id=char.corporation_id)
+
+            logger.debug("Returning own corps for User %s.", user)
+
+            if query is None:
+                return self.none()
+
+            return self.filter(query)
+        except AssertionError:
+            logger.debug("User %s has no main character. Nothing visible.", user)
+            return self.none()
 
     def annotate_total_update_status_user(self, user):
         """Get the total update status for the given user."""
@@ -64,25 +118,73 @@ class CorporationOwnerQuerySet(BaseOwnerQuerySet):
 
         return self.filter(query).annotate_total_update_status()
 
-    def disable_characters_with_no_owner(self) -> int:
-        """Disable characters which have no owner. Return count of disabled characters."""
-        orphaned_characters = self.filter(
-            character__character_ownership__isnull=True, active=True
+    def annotate_total_update_status(self):
+        """Get the total update status."""
+        sections = CorporationUpdateSection.get_sections()
+        num_sections_total = len(sections)
+        qs = (
+            self.annotate(
+                num_sections_total=Count(
+                    "ts_corporation_update_status",
+                    filter=Q(ts_corporation_update_status__section__in=sections),
+                )
+            )
+            .annotate(
+                num_sections_ok=Count(
+                    "ts_corporation_update_status",
+                    filter=Q(
+                        ts_corporation_update_status__section__in=sections,
+                        ts_corporation_update_status__is_success=True,
+                    ),
+                )
+            )
+            .annotate(
+                num_sections_failed=Count(
+                    "ts_corporation_update_status",
+                    filter=Q(
+                        ts_corporation_update_status__section__in=sections,
+                        ts_corporation_update_status__is_success=False,
+                    ),
+                )
+            )
+            .annotate(
+                num_sections_token_error=Count(
+                    "ts_corporation_update_status",
+                    filter=Q(
+                        ts_corporation_update_status__section__in=sections,
+                        ts_corporation_update_status__has_token_error=True,
+                    ),
+                )
+            )
+            # pylint: disable=no-member
+            .annotate(
+                total_update_status=Case(
+                    When(
+                        active=False,
+                        then=Value(UpdateStatus.DISABLED),
+                    ),
+                    When(
+                        num_sections_token_error=1,
+                        then=Value(UpdateStatus.TOKEN_ERROR),
+                    ),
+                    When(
+                        num_sections_failed__gt=0,
+                        then=Value(UpdateStatus.ERROR),
+                    ),
+                    When(
+                        num_sections_ok=num_sections_total,
+                        then=Value(UpdateStatus.OK),
+                    ),
+                    When(
+                        num_sections_total__lt=num_sections_total,
+                        then=Value(UpdateStatus.INCOMPLETE),
+                    ),
+                    default=Value(UpdateStatus.IN_PROGRESS),
+                )
+            )
         )
-        if orphaned_characters.exists():
-            orphans = list(
-                orphaned_characters.values_list(
-                    "character__character_name", flat=True
-                ).order_by("character__character_name")
-            )
-            orphaned_characters.update(active=False)
-            logger.info(
-                "Disabled %d characters which do not belong to a user: %s",
-                len(orphans),
-                ", ".join(orphans),
-            )
-            return len(orphans)
-        return 0
+
+        return qs
 
 
 class CorporationOwnerManager(models.Manager["CorporationOwner"]):
@@ -95,14 +197,17 @@ class CorporationOwnerManager(models.Manager["CorporationOwner"]):
     def manage_to(self, user):
         return self.get_queryset().manage_to(user)
 
+    def annotate_total_update_status(self):
+        return self.get_queryset().annotate_total_update_status()
 
-class MembersManager(models.Manager):
+
+class MembersManager(models.Manager["Members"]):
     @log_timing(logger)
     def update_or_create_esi(
         self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a Members from ESI data."""
-        return owner.update_section_if_changed(
+        return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.MEMBERS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
@@ -228,7 +333,7 @@ class MembersManager(models.Manager):
         auth_accounts = UserProfile.objects.filter(
             main_character__isnull=False,
             main_character__corporation_id=owner.eve_corporation.corporation_id,
-        ).select_related(*AUTH_SELECT_RELATED_MAIN_CHARACTER)
+        ).prefetch_related("user__profile__main_character")
 
         members = self.filter(owner=owner)
 

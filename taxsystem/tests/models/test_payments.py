@@ -8,6 +8,9 @@ from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPayments
+from taxsystem.models.helpers.textchoices import (
+    PaymentRequestStatus,
+)
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_corporation_owner_from_user,
@@ -79,7 +82,7 @@ class TestPaymentsModel(TaxSystemTestCase):
 
     def test_is_pending(self):
         """Test if the payment is pending."""
-        self.payments.request_status = CorporationPayments.RequestStatus.PENDING
+        self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
         payments = CorporationPayments.objects.get(account=self.payment_system)
@@ -87,7 +90,7 @@ class TestPaymentsModel(TaxSystemTestCase):
 
     def test_is_approved(self):
         """Test if the payment is approved."""
-        self.payments.request_status = CorporationPayments.RequestStatus.APPROVED
+        self.payments.request_status = PaymentRequestStatus.APPROVED
         self.payments.save()
 
         payments = CorporationPayments.objects.get(account=self.payment_system)
@@ -96,7 +99,7 @@ class TestPaymentsModel(TaxSystemTestCase):
 
     def test_is_rejected(self):
         """Test if the payment is rejected."""
-        self.payments.request_status = CorporationPayments.RequestStatus.REJECTED
+        self.payments.request_status = PaymentRequestStatus.REJECTED
         self.payments.save()
 
         payments = CorporationPayments.objects.get(account=self.payment_system)

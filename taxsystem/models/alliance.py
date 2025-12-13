@@ -1,6 +1,10 @@
 """Models for Tax System."""
 
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -21,23 +25,27 @@ from taxsystem.managers.alliance_manager import (
     AlliancePaymentManager,
 )
 from taxsystem.models.base import (
-    AdminHistoryBase,
-    FilterBase,
-    FilterSetBase,
-    OwnerBase,
-    PaymentAccountBase,
-    PaymentHistoryBase,
-    PaymentsBase,
-    UpdateStatusBase,
+    FilterBaseModel,
+    FilterSetBaseModel,
+    PaymentAccountBaseModel,
+    PaymentsBaseModel,
+    UpdateStatusBaseModel,
 )
 from taxsystem.models.corporation import CorporationOwner
-from taxsystem.models.general import AllianceUpdateSection
+from taxsystem.models.helpers.textchoices import (
+    AllianceUpdateSection,
+    UpdateStatus,
+)
 from taxsystem.models.wallet import CorporationWalletJournalEntry
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
+if TYPE_CHECKING:
+    # AA TaxSystem
+    from taxsystem.models.logs import AlliancePaymentHistory
 
-class AllianceUpdateStatus(UpdateStatusBase):
+
+class AllianceUpdateStatus(UpdateStatusBaseModel):
     """Model representing the update status of an alliance owner in the tax system."""
 
     owner = models.ForeignKey(
@@ -58,13 +66,17 @@ class AllianceUpdateStatus(UpdateStatusBase):
         return f"{self.owner.name} - {self.section}"
 
 
-class AllianceOwner(OwnerBase):
+class AllianceOwner(models.Model):
     """Model representing an alliance owner in the tax system."""
 
     class Meta:
         default_permissions = ()
 
     objects: AllianceOwnerManager = AllianceOwnerManager()
+
+    name = models.CharField(
+        max_length=255,
+    )
 
     eve_alliance = models.OneToOneField(
         EveAllianceInfo,
@@ -79,62 +91,111 @@ class AllianceOwner(OwnerBase):
         help_text=_("The corporation that owns this alliance tax system."),
     )
 
+    active = models.BooleanField(
+        default=True,
+        help_text=_("Designates whether this alliance owner is active."),
+    )
+
+    tax_amount = models.DecimalField(
+        max_digits=16,
+        decimal_places=0,
+        help_text=_("Tax Amount in ISK that is set for the alliance. Max 16 Digits"),
+        default=0,
+        validators=[MaxValueValidator(9999999999999999)],
+    )
+
+    tax_period = models.PositiveIntegerField(
+        help_text=_(
+            "Tax Period in days for the alliance. Max 365 days. Default: 30 days"
+        ),
+        default=30,
+        validators=[MaxValueValidator(365)],
+    )
+
     def __str__(self) -> str:
         return f"{self.eve_alliance.alliance_name}"
 
-    # Abstract properties implementation
     @property
     def eve_id(self) -> int:
         """Return the Eve Alliance ID."""
         return self.eve_alliance.alliance_id
 
     @property
-    def payment_accounts_manager(self):
-        """Return the alliance payment accounts related manager."""
-        return self.ts_alliance_payment_accounts
-
-    @property
-    def update_status_manager(self) -> models.QuerySet[AllianceUpdateStatus]:
-        """Return the related manager for alliance update status objects."""
-        return AllianceUpdateStatus.objects.filter(owner=self)
-
-    @property
-    def update_section_enum(self):
-        """Return the alliance update section enum class."""
-        return AllianceUpdateSection
-
-    @property
-    def payments_class(self) -> type["AlliancePayments"]:
-        """Return the payments class for this alliance owner."""
+    def payment_model(self):
+        """Return the Payment Model for this owner."""
         return AlliancePayments
 
     @property
-    def payments_account_class(self) -> type["AlliancePaymentAccount"]:
-        """Return the payments account class for this alliance owner."""
-        return AlliancePaymentAccount
+    def payment_history_model(self):
+        """Return the Payment History Model for this owner."""
+        # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
+        from taxsystem.models.logs import AlliancePaymentHistory
 
-    @property
-    def payments_history_class(self) -> type["AlliancePaymentHistory"]:
-        """Return the payments class for this alliance owner."""
         return AlliancePaymentHistory
 
     @property
-    def admin_history_class(self) -> type["AllianceAdminHistory"]:
-        """Return the admin history class for this alliance owner."""
-        return AllianceAdminHistory
+    def account_model(self):
+        """Return the Payment Account Model for this owner."""
+        return AlliancePaymentAccount
 
     @property
-    def filterset_class(self) -> type["AllianceFilterSet"]:
-        """Return the filter set class for this alliance owner."""
+    def filterset_model(self):
+        """Return the Filter Set Model for this owner."""
         return AllianceFilterSet
 
     @property
-    def filter_class(self) -> type["AllianceFilter"]:
-        """Return the filter class for this alliance owner."""
+    def filter_model(self):
+        """Return the Filter Model for this owner."""
         return AllianceFilter
 
+    @property
+    def update_manager(self):
+        """Return the Update Manager helper for this owner."""
+        # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
+        from taxsystem.models.helpers.updater import UpdateManager
 
-class AlliancePaymentAccount(PaymentAccountBase):
+        return UpdateManager(
+            owner=self,
+            update_section=AllianceUpdateSection,
+            update_status=AllianceUpdateStatus,
+        )
+
+    @property
+    def get_status(self) -> UpdateStatus:
+        """Get the update status of this owner.
+
+        Returns:
+            UpdateStatus enum value representing the current status
+        """
+        # pylint: disable=duplicate-code
+        if self.active is False:
+            return UpdateStatus.DISABLED
+
+        # Use type(self) for dynamic QuerySet resolution
+        qs = type(self).objects.filter(pk=self.pk).annotate_total_update_status()
+        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
+        return UpdateStatus(total_update_status)
+
+    @property
+    def get_update_status(self) -> dict[str, str]:
+        """Return a dictionary of update sections and their statuses."""
+        update_status = {}
+        for section in AllianceUpdateSection.get_sections():
+            try:
+                status = AllianceUpdateStatus.objects.get(owner=self, section=section)
+                update_status[section] = {
+                    "is_success": status.is_success,
+                    "last_update_finished_at": status.last_update_finished_at,
+                    "last_run_finished_at": status.last_run_finished_at,
+                }
+            except AllianceUpdateStatus.DoesNotExist:
+                continue
+        return update_status
+
+
+class AlliancePaymentAccount(PaymentAccountBaseModel):
     """Model representing an alliance payment account in the tax system."""
 
     objects: AlliancePaymentAccountManager = AlliancePaymentAccountManager()
@@ -148,11 +209,8 @@ class AlliancePaymentAccount(PaymentAccountBase):
         related_name="ts_alliance_payment_accounts",
     )
 
-    def __str__(self) -> str:
-        return f"{self.name}"
 
-
-class AlliancePayments(PaymentsBase):
+class AlliancePayments(PaymentsBaseModel):
     """Model representing payments made by alliance members in the tax system."""
 
     objects: AlliancePaymentManager = AlliancePaymentManager()
@@ -173,8 +231,33 @@ class AlliancePayments(PaymentsBase):
     def __str__(self) -> str:
         return f"{self.account.name} - {self.amount} ISK"
 
+    def transaction_log(
+        self, user, comment, new_status, action=""
+    ) -> "AlliancePaymentHistory":
+        """Return a log entry for the transaction.
 
-class AllianceFilterSet(FilterSetBase):
+        Args:
+            user: User performing the action
+            comment: Additional message
+            new_status: New status after the action
+            action: Action performed (optional)
+        Returns:
+            AlliancePaymentHistory object
+        """
+        # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
+        from taxsystem.models.logs import AlliancePaymentHistory
+
+        return AlliancePaymentHistory(
+            user=user,
+            payment=self,
+            new_status=new_status,
+            action=action,
+            comment=comment,
+        )
+
+
+class AllianceFilterSet(FilterSetBaseModel):
     owner = models.ForeignKey(
         AllianceOwner,
         on_delete=models.CASCADE,
@@ -198,7 +281,7 @@ class AllianceFilterSet(FilterSetBase):
         return AlliancePayments.objects.none()
 
 
-class AllianceFilter(FilterBase):
+class AllianceFilter(FilterBaseModel):
     filter_set = models.ForeignKey(
         AllianceFilterSet,
         on_delete=models.CASCADE,
@@ -227,41 +310,3 @@ class AllianceFilter(FilterBase):
 
     class Meta:
         default_permissions = ()
-
-
-class AlliancePaymentHistory(PaymentHistoryBase):
-    """Model representing the history of actions taken on alliance payments in the tax system."""
-
-    class Meta:
-        default_permissions = ()
-
-    # pylint: disable=duplicate-code
-    payment = models.ForeignKey(
-        AlliancePayments,
-        on_delete=models.CASCADE,
-        related_name="+",
-        verbose_name=_("Payment"),
-        help_text=_("Payment that the action was performed on"),
-    )
-    # pylint: enable=duplicate-code
-    new_status = models.CharField(
-        max_length=16,
-        choices=AlliancePayments.RequestStatus.choices,
-        verbose_name=_("New Status"),
-        help_text=_("New Status of the action"),
-    )
-
-
-class AllianceAdminHistory(AdminHistoryBase):
-    """Model representing the history of administrative actions taken on alliance owners in the tax system."""
-
-    class Meta:
-        default_permissions = ()
-
-    owner = models.ForeignKey(
-        AllianceOwner,
-        on_delete=models.CASCADE,
-        related_name="+",
-        verbose_name=_("Payment"),
-        help_text=_("Payment that the action was performed on"),
-    )

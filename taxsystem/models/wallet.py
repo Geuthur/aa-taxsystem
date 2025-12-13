@@ -93,7 +93,7 @@ class CorporationWalletDivision(models.Model):
     balance = models.DecimalField(max_digits=20, decimal_places=2)
     division_id = models.IntegerField()
 
-    objects = CorporationDivisionManager()
+    objects: CorporationDivisionManager = CorporationDivisionManager()
 
     class Meta:
         default_permissions = ()
@@ -106,7 +106,7 @@ class CorporationWalletJournalEntry(WalletJournalEntry):
         related_name="ts_corporation_wallet",
     )
 
-    objects = CorporationWalletManager()
+    objects: CorporationWalletManager = CorporationWalletManager()
 
     def __str__(self):
         return f"Corporation Wallet Journal: {self.first_party.name} '{self.ref_type}' {self.second_party.name}: {self.amount} isk"

@@ -17,7 +17,7 @@ from esi.models import Scope, Token
 from eveuniverse.models import EveType
 
 # AA TaxSystem
-from taxsystem.models import UpdateStatusBase
+from taxsystem.models import UpdateStatusBaseModel
 
 
 def dt_eveformat(my_dt: dt.datetime) -> str:

@@ -1,0 +1,27 @@
+
+{% load i18n %}
+
+<!-- view payments details modal -->
+<div class="modal fade" id="taxsystem-view-payment-details" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title fs-5">
+                    {% translate "Payment Account Details" %} </span id="custom-title"></span>
+                </div>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
+            </div>
+            <div class="card border-0 modal-body" id="modal-ajax-content">
+                <div id="table-filter-content">
+                    {% include 'taxsystem/partials/view-manage/payments-details.html' %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-button-cancel-accept-request" type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                    {% translate "Close" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

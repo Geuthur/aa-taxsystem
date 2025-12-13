@@ -7,17 +7,13 @@ from unittest.mock import Mock, patch
 # Django
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import RequestFactory, TestCase
 from django.urls import reverse
-
-# Alliance Auth (External Libs)
-from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem import views
 
 # AA Taxsystem
-from taxsystem.models.corporation import CorporationPaymentAccount
+from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_corporation_owner_from_user,
@@ -38,7 +34,7 @@ class TestViewAccess(TaxSystemTestCase):
             name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
-            status=CorporationPaymentAccount.Status.ACTIVE,
+            status=AccountStatus.ACTIVE,
             deposit=500,
         )
 
@@ -50,10 +46,10 @@ class TestViewAccess(TaxSystemTestCase):
         # when
         response = views.index(request)
         # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_view_administration(self):
-        """Test view administration."""
+        """Test view manage owner."""
         # given
         request = self.factory.get(
             reverse(
@@ -69,7 +65,7 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.manage_owner(request, 2001)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Administration")
+        self.assertContains(response, "Accounts")
 
     def test_view_payments(self):
         """Test view payments."""
@@ -90,12 +86,12 @@ class TestViewAccess(TaxSystemTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Payments")
 
-    def test_view_own_payments(self):
+    def test_view_my_payments(self):
         """Test view own payments."""
         # given
         request = self.factory.get(
             reverse(
-                "taxsystem:own_payments",
+                "taxsystem:my_payments",
                 args=[2001],
             )
         )
@@ -104,7 +100,7 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.own_payments(request, 2001)
+        response = views.my_payments(request, 2001)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Own Payments")
@@ -112,10 +108,15 @@ class TestViewAccess(TaxSystemTestCase):
     def test_view_faq(self):
         """Test view FAQ."""
         # given
-        request = self.factory.get(reverse("taxsystem:faq"))
+        request = self.factory.get(
+            reverse(
+                "taxsystem:faq",
+                args=[2001],
+            )
+        )
         request.user = self.user
         # when
-        response = views.faq(request)
+        response = views.faq(request, 2001)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "FAQ")
@@ -128,6 +129,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:account",
+                args=[2001, 1001],
             )
         )
         request.user = self.user
@@ -136,7 +138,7 @@ class TestViewAccess(TaxSystemTestCase):
         middleware.process_request(request)
 
         # when
-        response = views.account(request)
+        response = views.account(request, 2001, 1001)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertFalse(mock_messages.error.called)
@@ -177,7 +179,7 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.payments(request, 999999)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found")
+        mock_messages.error.assert_called_with(request, "Owner not Found.")
 
     @patch(INDEX_PATH + ".messages")
     def test_view_payments_no_permission(self, mock_messages):
@@ -197,15 +199,15 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.payments(request, 2003)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied")
+        mock_messages.error.assert_called_with(request, "Permission Denied.")
 
     @patch(INDEX_PATH + ".messages")
-    def test_view_own_payments_no_owner(self, mock_messages):
+    def test_view_my_payments_no_owner(self, mock_messages):
         """Test view own payments when owner not found."""
         # given
         request = self.factory.get(
             reverse(
-                "taxsystem:own_payments",
+                "taxsystem:my_payments",
                 args=[999999],
             )
         )
@@ -214,18 +216,18 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.own_payments(request, 999999)
+        response = views.my_payments(request, 999999)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found")
+        mock_messages.error.assert_called_with(request, "Owner not Found.")
 
     @patch(INDEX_PATH + ".messages")
-    def test_view_own_payments_no_permission(self, mock_messages):
+    def test_view_my_payments_no_permission(self, mock_messages):
         """Test view own payments when no permission."""
         # given
         request = self.factory.get(
             reverse(
-                "taxsystem:own_payments",
+                "taxsystem:my_payments",
                 args=[2003],
             )
         )
@@ -234,10 +236,10 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.own_payments(request, 2003)
+        response = views.my_payments(request, 2003)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied")
+        mock_messages.error.assert_called_with(request, "Permission Denied.")
 
     @patch(INDEX_PATH + ".messages")
     def test_view_faq_no_owner(self, mock_messages):
@@ -252,7 +254,7 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.faq(request, 999999)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found")
+        mock_messages.error.assert_called_with(request, "Owner not Found.")
 
     @patch(INDEX_PATH + ".messages")
     def test_view_account_no_owner(self, mock_messages):
@@ -267,7 +269,7 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.account(request, 999999)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found")
+        mock_messages.error.assert_called_with(request, "Owner not Found.")
 
     @patch(INDEX_PATH + ".messages")
     def test_view_account_no_permission(self, mock_messages):
@@ -282,7 +284,7 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.account(request, 2003, 1001)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied")
+        mock_messages.error.assert_called_with(request, "Permission Denied.")
 
     @patch(INDEX_PATH + ".messages")
     def test_view_manage_owner_no_owner(self, mock_messages):
@@ -297,7 +299,7 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.manage_owner(request, 999999)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found")
+        mock_messages.error.assert_called_with(request, "Owner not Found.")
 
     @patch(INDEX_PATH + ".messages")
     def test_view_manage_owner_no_permission(self, mock_messages):
@@ -312,8 +314,8 @@ class TestViewAccess(TaxSystemTestCase):
         response = views.manage_owner(request, 2003)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        # Verify the exact error message is "Permission Denied" (not "Owner not Found")
-        mock_messages.error.assert_called_with(request, "Permission Denied")
+        # Verify the exact error message is "Permission Denied." (not "Owner not Found")
+        mock_messages.error.assert_called_with(request, "Permission Denied.")
 
     @patch(INDEX_PATH + ".messages")
     def test_view_manage_filter_no_permission(self, mock_messages):

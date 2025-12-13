@@ -1,6 +1,5 @@
 # Standard Library
 from io import StringIO
-from unittest.mock import patch
 
 # Django
 from django.core.management import call_command
@@ -10,7 +9,8 @@ from django.utils import timezone
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.models.corporation import CorporationPaymentAccount, CorporationPayments
+from taxsystem.models.corporation import CorporationPayments
+from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 # AA Tax System
 from taxsystem.tests import TaxSystemTestCase
@@ -60,7 +60,7 @@ class TestMigratePayments(TaxSystemTestCase):
             name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
-            status=CorporationPaymentAccount.Status.ACTIVE,
+            status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
@@ -72,7 +72,7 @@ class TestMigratePayments(TaxSystemTestCase):
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",
-            request_status=CorporationPayments.RequestStatus.PENDING,
+            request_status=PaymentRequestStatus.PENDING,
             reviser="",
         )
 

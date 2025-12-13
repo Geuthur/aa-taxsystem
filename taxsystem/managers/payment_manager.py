@@ -15,24 +15,33 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
-from taxsystem.constants import AUTH_SELECT_RELATED_MAIN_CHARACTER
 from taxsystem.decorators import log_timing
-from taxsystem.models.general import CorporationUpdateSection
+from taxsystem.models.general import UpdateSectionResult
+from taxsystem.models.helpers.textchoices import (
+    CorporationUpdateSection,
+    PaymentActions,
+    PaymentRequestStatus,
+    PaymentSystemText,
+)
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
+    from taxsystem.models.corporation import CorporationOwner as OwnerContext
+    from taxsystem.models.corporation import (
+        CorporationPaymentAccount as PaymentAccountContext,
+    )
+    from taxsystem.models.corporation import CorporationPayments as PaymentsContext
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
+class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
     @log_timing(logger)
     def update_or_create_payment_system(
-        self, owner: "CorporationOwner", force_refresh: bool = False
-    ) -> None:
+        self, owner: "OwnerContext", force_refresh: bool = False
+    ) -> UpdateSectionResult:
         """Update or Create Payment System data."""
-        return owner.update_section_if_changed(
+        return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.PAYMENT_SYSTEM,
             fetch_func=self._update_or_create_objs,
             force_refresh=force_refresh,
@@ -41,16 +50,16 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
     @transaction.atomic()
     # pylint: disable=unused-argument
     def _update_or_create_objs(
-        self, owner: "CorporationOwner", force_refresh: bool = False, runs: int = 0
+        self, owner: "OwnerContext", force_refresh: bool = False, runs: int = 0
     ) -> None:
         """Update or Create payment system entries from objs data."""
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
         from taxsystem.models.corporation import (
             CorporationFilterSet,
-            CorporationPaymentHistory,
             CorporationPayments,
         )
+        from taxsystem.models.logs import CorporationPaymentHistory
 
         logger.debug(
             "Updating Payment System for: %s",
@@ -59,7 +68,7 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
 
         payments = CorporationPayments.objects.filter(
             account__owner=owner,
-            request_status=CorporationPayments.RequestStatus.PENDING,
+            request_status=PaymentRequestStatus.PENDING,
         )
 
         _current_payment_ids = set(payments.values_list("id", flat=True))
@@ -75,15 +84,10 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
                 # Apply filter to pending payments
                 payments = filter_obj.filter(payments)
                 for payment in payments:
-                    if (
-                        payment.request_status
-                        == CorporationPayments.RequestStatus.PENDING
-                    ):
+                    if payment.request_status == PaymentRequestStatus.PENDING:
                         # Ensure all transfers are processed in a single transaction
                         with transaction.atomic():
-                            payment.request_status = (
-                                CorporationPayments.RequestStatus.APPROVED
-                            )
+                            payment.request_status = PaymentRequestStatus.APPROVED
                             payment.reviser = "System"
 
                             # Update payment pool for user
@@ -96,9 +100,9 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
                             CorporationPaymentHistory(
                                 user=payment.account.user,
                                 payment=payment,
-                                action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
-                                new_status=CorporationPayments.RequestStatus.APPROVED,
-                                comment=CorporationPaymentHistory.SystemText.AUTOMATIC,
+                                action=PaymentActions.STATUS_CHANGE,
+                                new_status=PaymentRequestStatus.APPROVED,
+                                comment=PaymentSystemText.AUTOMATIC,
                             ).save()
 
                             runs = runs + 1
@@ -110,19 +114,19 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
         needs_approval = _current_payment_ids - set(_automatic_payment_ids)
         approvals = CorporationPayments.objects.filter(
             id__in=needs_approval,
-            request_status=CorporationPayments.RequestStatus.PENDING,
+            request_status=PaymentRequestStatus.PENDING,
         )
 
         for payment in approvals:
-            payment.request_status = CorporationPayments.RequestStatus.NEEDS_APPROVAL
+            payment.request_status = PaymentRequestStatus.NEEDS_APPROVAL
             payment.save()
 
             CorporationPaymentHistory(
                 user=payment.account.user,
                 payment=payment,
-                action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
-                new_status=CorporationPayments.RequestStatus.NEEDS_APPROVAL,
-                comment=CorporationPaymentHistory.SystemText.REVISER,
+                action=PaymentActions.STATUS_CHANGE,
+                new_status=PaymentRequestStatus.NEEDS_APPROVAL,
+                comment=PaymentSystemText.REVISER,
             ).save()
 
             runs = runs + 1
@@ -135,13 +139,13 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
 
         return ("Finished Payment System for %s", owner.name)
 
-    def _check_payment_accounts(self, owner: "CorporationOwner"):
+    def _check_payment_accounts(self, owner: "OwnerContext"):
         """Check payment accounts for a corporation."""
         logger.debug("Checking Payment Accounts for: %s", owner.name)
 
         auth_accounts = UserProfile.objects.filter(
             main_character__isnull=False,
-        ).select_related(*AUTH_SELECT_RELATED_MAIN_CHARACTER)
+        ).prefetch_related("user__profile__main_character")
 
         # Clean up orphaned payment accounts
         self._cleanup_orphaned_accounts(owner, auth_accounts)
@@ -168,7 +172,7 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
 
         return ("Finished checking Payment Accounts for %s", owner.name)
 
-    def _cleanup_orphaned_accounts(self, owner: "CorporationOwner", auth_accounts):
+    def _cleanup_orphaned_accounts(self, owner: "OwnerContext", auth_accounts):
         """Delete payment accounts for users without main characters."""
         ps_user_ids = self.filter(owner=owner).values_list("user_id", flat=True)
         auth_user_ids = set(auth_accounts.values_list("user_id", flat=True))
@@ -182,7 +186,7 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
                     owner.name,
                 )
 
-    def _process_accounts(self, owner: "CorporationOwner", auth_accounts):
+    def _process_accounts(self, owner: "OwnerContext", auth_accounts):
         """Process existing payment accounts and return list of new accounts to create."""
         new_accounts = []
 
@@ -206,9 +210,7 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
 
         return new_accounts
 
-    def _update_existing_account(
-        self, owner: "CorporationOwner", payment_account, main
-    ):
+    def _update_existing_account(self, owner: "OwnerContext", payment_account, main):
         """Update an existing payment account based on current state."""
         pa_corporation_id = payment_account.owner.eve_corporation.corporation_id
         main_corp_id = main.corporation_id
@@ -280,10 +282,10 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
 
     @log_timing(logger)
     def check_pay_day(
-        self, owner: "CorporationOwner", force_refresh: bool = False
-    ) -> None:
+        self, owner: "OwnerContext", force_refresh: bool = False
+    ) -> UpdateSectionResult:
         """Check Payments from Account."""
-        return owner.update_section_if_changed(
+        return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.PAYDAY,
             fetch_func=self._pay_day,
             force_refresh=force_refresh,
@@ -292,7 +294,7 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
     @transaction.atomic()
     # pylint: disable=unused-argument
     def _pay_day(
-        self, owner: "CorporationOwner", force_refresh: bool = False, runs: int = 0
+        self, owner: "OwnerContext", force_refresh: bool = False, runs: int = 0
     ) -> None:
         """Update Deposits from Account."""
         logger.debug(
@@ -323,13 +325,13 @@ class CorporationAccountManager(models.Manager["CorporationPaymentAccount"]):
         return ("Finished Payday for %s", owner.name)
 
 
-class PaymentsManager(models.Manager):
+class PaymentsManager(models.Manager["PaymentsContext"]):
     @log_timing(logger)
     def update_or_create_payments(
-        self, owner: "CorporationOwner", force_refresh: bool = False
-    ) -> None:
+        self, owner: "OwnerContext", force_refresh: bool = False
+    ) -> UpdateSectionResult:
         """Update or Create a Payments entry data."""
-        return owner.update_section_if_changed(
+        return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.PAYMENTS,
             fetch_func=self._update_or_create_objs,
             force_refresh=force_refresh,
@@ -338,7 +340,7 @@ class PaymentsManager(models.Manager):
     @transaction.atomic()
     # pylint: disable=too-many-locals, unused-argument
     def _update_or_create_objs(
-        self, owner: "CorporationOwner", force_refresh: bool = False
+        self, owner: "OwnerContext", force_refresh: bool = False
     ) -> None:
         """Update or Create payment system entries from objs data."""
         # pylint: disable=import-outside-toplevel, cyclic-import
@@ -347,9 +349,9 @@ class PaymentsManager(models.Manager):
             CorporationPaymentAccount as PaymentAccount,
         )
         from taxsystem.models.corporation import (
-            CorporationPaymentHistory,
             CorporationPayments,
         )
+        from taxsystem.models.logs import CorporationPaymentHistory
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         logger.debug(
@@ -390,7 +392,7 @@ class PaymentsManager(models.Manager):
                             name=account.name,
                             account=account,
                             amount=entry.amount,
-                            request_status=CorporationPayments.RequestStatus.PENDING,
+                            request_status=PaymentRequestStatus.PENDING,
                             date=entry.date,
                             reason=entry.reason,
                             owner_id=owner.eve_corporation.corporation_id,
@@ -415,9 +417,9 @@ class PaymentsManager(models.Manager):
                 log_items = CorporationPaymentHistory(
                     user=payment_obj.account.user,
                     payment=payment_obj,
-                    action=CorporationPaymentHistory.Actions.STATUS_CHANGE,
-                    new_status=CorporationPayments.RequestStatus.PENDING,
-                    comment=CorporationPaymentHistory.SystemText.ADDED,
+                    action=PaymentActions.STATUS_CHANGE,
+                    new_status=PaymentRequestStatus.PENDING,
+                    comment=PaymentSystemText.ADDED,
                 )
                 logs_items.append(log_items)
 

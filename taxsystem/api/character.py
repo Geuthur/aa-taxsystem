@@ -2,7 +2,7 @@
 from ninja import NinjaAPI, Schema
 
 # Django
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -14,17 +14,16 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.manage import manage_payments
+from taxsystem.api.helpers.icons import get_taxsystem_manage_payments_action_icons
 from taxsystem.api.schema import (
     CharacterSchema,
     LogHistorySchema,
+    OwnerSchema,
     PaymentSchema,
     RequestStatusSchema,
 )
 from taxsystem.helpers.lazy import get_character_portrait_url
-from taxsystem.models.corporation import (
-    CorporationPaymentAccount,
-)
+from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -32,27 +31,16 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 class PaymentAccountSchema(Schema):
     account_id: int
     account_name: str
+    account_status: str
     character: CharacterSchema
     payment_pool: int
-    payment_status: str
-
-
-class PaymentDetailsSchema(Schema):
-    account: PaymentAccountSchema | None
-    payment: PaymentSchema | None
-    payment_histories: list[LogHistorySchema] | None
 
 
 class PaymentsDetailsResponse(Schema):
-    title: str | None = None
-    entity_pk: int
-    entity_type: str
-    payment_details: PaymentDetailsSchema | list[PaymentDetailsSchema]
-
-
-class PaymentsCharacterResponse(PaymentsDetailsResponse):
-    payment_details: list[PaymentSchema]
-    character: CharacterSchema
+    owner: OwnerSchema
+    account: PaymentAccountSchema
+    payment: PaymentSchema
+    payment_histories: list[LogHistorySchema]
 
 
 class CharacterApiEndpoints:
@@ -61,67 +49,64 @@ class CharacterApiEndpoints:
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "owner/{owner_id}/character/{character_id}/payment/{pk}/view/details/",
+            "owner/{owner_id}/payment/{payment_pk}/view/details/",
             response={200: PaymentsDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         # pylint: disable=too-many-locals
-        def get_payment_details(request, owner_id: int, character_id: int, pk: int):
+        def get_payment_details(request, owner_id: int, payment_pk: int):
             owner, perms = core.get_manage_owner(request, owner_id)
-            perms = perms or core.get_character_permissions(request, character_id)
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner Not Found")}
+                return 404, {"error": _("Owner not Found.")}
+
+            payment = get_object_or_404(owner.payment_model, pk=payment_pk)
+            perms = perms or core.get_character_permissions(
+                request, payment.character_id
+            )
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied")}
-
-            payment = get_object_or_404(owner.payments_class, pk=pk)
-            account = get_object_or_404(
-                owner.payments_account_class,
-                user=payment.account.user,
-                owner=owner,
-            )
+                return 403, {"error": _("Permission Denied.")}
 
             response_payment_histories: list[LogHistorySchema] = []
-            payments_history = owner.payments_history_class.objects.filter(
+            payments_history = owner.payment_history_model.objects.filter(
                 payment=payment,
             ).order_by("-date")
 
+            # Create a list for the payment histories
+            for log in payments_history:
+                response_log = LogHistorySchema(
+                    log_id=log.pk,
+                    reviser=log.user.username if log.user else _("System"),
+                    date=log.date.strftime("%Y-%m-%d %H:%M:%S"),
+                    action=log.get_action_display(),
+                    comment=log.comment,
+                    status=log.get_new_status_display(),
+                )
+                response_payment_histories.append(response_log)
+
             # Create the payment account
             response_account = PaymentAccountSchema(
-                account_id=account.pk,
-                account_name=account.name,
+                account_id=payment.account.pk,
+                account_name=payment.account.name,
+                account_status=AccountStatus(payment.account.status).html(),
                 character=CharacterSchema(
                     character_id=payment.character_id,
                     character_name=payment.account.name,
                     character_portrait=get_character_portrait_url(
                         payment.character_id, size=32, as_html=True
                     ),
-                    corporation_id=account.owner.pk,
-                    corporation_name=account.owner.name,
+                    corporation_id=payment.account.owner.pk,
+                    corporation_name=payment.account.owner.name,
                 ),
-                payment_pool=account.deposit,
-                payment_status=CorporationPaymentAccount.Status(account.status).html(),
+                payment_pool=payment.account.deposit,
             )
-
-            # Create a list for the payment histories
-            for log in payments_history:
-                response_log: LogHistorySchema = LogHistorySchema(
-                    log_id=log.pk,
-                    reviser=log.user.username if log.user else _("System"),
-                    date=log.date.strftime("%Y-%m-%d %H:%M:%S"),
-                    action=log.get_action_display(),
-                    comment=log.get_comment_display(),
-                    status=log.get_new_status_display(),
-                )
-                response_payment_histories.append(response_log)
 
             response_request_status = RequestStatusSchema(
                 status=payment.get_request_status_display(),
-                color=payment.RequestStatus(payment.request_status).color(),
+                html=PaymentRequestStatus(payment.request_status).alert(),
             )
 
             # Create the payment
@@ -135,29 +120,23 @@ class CharacterApiEndpoints:
                 reviser=payment.reviser,
             )
 
-            # Create the payment details
-            payment_details: PaymentDetailsSchema = PaymentDetailsSchema(
+            response_owner = OwnerSchema(
+                owner_id=owner.eve_id,
+                owner_name=owner.name,
+            )
+
+            payment_details_response = PaymentsDetailsResponse(
+                owner=response_owner,
                 account=response_account,
                 payment=response_payment,
                 payment_histories=response_payment_histories,
             )
 
-            # Create the response
-            paymentdetails_response = PaymentsDetailsResponse(
-                entity_pk=owner_id,
-                entity_type="character",
-                payment_details=payment_details,
-            )
-
-            return render(
-                request=request,
-                template_name="taxsystem/modals/view_payment_details.html",
-                context=paymentdetails_response.dict(),
-            )
+            return payment_details_response
 
         @api.get(
             "owner/{owner_id}/character/{character_id}/view/payments/",
-            response={200: list, 403: dict, 404: dict},
+            response={200: list[PaymentSchema], 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_member_payments(request, owner_id: int, character_id: int):
@@ -169,10 +148,10 @@ class CharacterApiEndpoints:
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied")}
+                return 403, {"error": _("Permission Denied.")}
 
             # Filter the last 10000 payments by character
-            payments = owner.payments_class.objects.filter(
+            payments = owner.payment_model.objects.filter(
                 account__owner=owner,
                 account__user__profile__main_character__character_id=character_id,
                 owner_id=owner.eve_id,
@@ -183,26 +162,16 @@ class CharacterApiEndpoints:
 
             response_payments_list: list[PaymentSchema] = []
             for payment in payments:
-                try:
-                    character_id = (
-                        payment.account.user.profile.main_character.character_id
-                    )
-                    portrait = get_character_portrait_url(
-                        character_id, size=32, as_html=True
-                    )
-                except AttributeError:
-                    portrait = ""
-
                 # Create the actions
-                actions_html = manage_payments(
-                    request=request, perms=perms, payment=payment
+                actions_html = get_taxsystem_manage_payments_action_icons(
+                    request=request, payment=payment
                 )
 
                 # pylint: disable=duplicate-code
                 # Create the request status
                 response_request_status = RequestStatusSchema(
                     status=payment.get_request_status_display(),
-                    color=payment.RequestStatus(payment.request_status).color(),
+                    color=PaymentRequestStatus(payment.request_status).color(),
                 )
 
                 response_payment = PaymentSchema(
@@ -217,19 +186,4 @@ class CharacterApiEndpoints:
                 )
                 response_payments_list.append(response_payment)
 
-            character_payments_response = PaymentsCharacterResponse(
-                entity_pk=character_id,
-                entity_type="character",
-                payment_details=response_payments_list,
-                character=CharacterSchema(
-                    character_id=character_id,
-                    character_name=payments[0].account.name,
-                    character_portrait=portrait,
-                ),
-            )
-
-            return render(
-                request,
-                "taxsystem/modals/view_character_payments.html",
-                context=character_payments_response.dict(),
-            )
+            return response_payments_list

@@ -14,18 +14,19 @@ from app_utils.logging import LoggerAddTag
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.api.schema import (
+    DashboardDivisionsSchema,
+    DivisionSchema,
+    UpdateStatusSchema,
+)
 from taxsystem.models.alliance import (
     AllianceOwner,
-    AlliancePaymentAccount,
-    AlliancePayments,
 )
-from taxsystem.models.base import PaymentAccountBase
 from taxsystem.models.corporation import (
     CorporationOwner,
-    CorporationPaymentAccount,
-    CorporationPayments,
     Members,
 )
+from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -61,16 +62,61 @@ class StatisticsResponse(Schema):
     members: MembersStatisticsSchema
 
 
-def get_payments_statistics(owner) -> PaymentsStatisticsSchema:
+def create_dashboard_common_data(owner, divisions):
+    """
+    Create common dashboard data structure
+
+    Args:
+        owner: Owner object (CorporationOwner or AllianceOwner)
+        divisions: QuerySet of CorporationWalletDivision objects
+
+    Returns:
+        dict: Dictionary containing common dashboard data
+    """
+    # Create divisions
+    response_divisions_list = []
+    total_balance = 0
+
+    # Get divisions and calculate total balance
+    for i, division in enumerate(divisions, start=1):
+        division_name = division.name if division.name else f"{i}. {_('Division')}"
+        response_divisions_list.append(
+            DivisionSchema(
+                name=division_name,
+                balance=division.balance,
+            )
+        )
+        total_balance += division.balance
+
+    # Create statistics
+    response_statistics = StatisticsResponse(
+        owner_id=owner.pk,
+        owner_name=owner.name,
+        payment_system=get_payment_system_statistics(owner),
+        payments=get_payments_statistics(owner),
+        members=get_members_statistics(owner),
+    )
+
+    return {
+        "update_status": UpdateStatusSchema(
+            status=owner.get_update_status,
+            icon=owner.get_status.bootstrap_icon(),
+        ),
+        "tax_amount": owner.tax_amount,
+        "tax_period": owner.tax_period,
+        "divisions": DashboardDivisionsSchema(
+            divisions=response_divisions_list,
+            total_balance=total_balance,
+        ),
+        "statistics": response_statistics,
+    }
+
+
+def get_payments_statistics(
+    owner: CorporationOwner | AllianceOwner,
+) -> PaymentsStatisticsSchema:
     """Get payments statistics for an Owner."""
-    # Determine the correct filter based on alliance system setting
-    if isinstance(owner, CorporationOwner):
-        # Determine the correct filter based on alliance system setting
-        payments = CorporationPayments.objects.filter(account__owner=owner)
-    elif isinstance(owner, AllianceOwner):
-        payments = AlliancePayments.objects.filter(account__owner=owner)
-    else:
-        raise ValueError("Owner must be CorporationOwner or AllianceOwner")
+    payments = owner.payment_model.objects.filter(account__owner=owner)
 
     payments_counts = payments.aggregate(
         total=Count("id"),
@@ -80,8 +126,8 @@ def get_payments_statistics(owner) -> PaymentsStatisticsSchema:
             "id",
             filter=Q(
                 request_status__in=[
-                    CorporationPayments.RequestStatus.PENDING,
-                    CorporationPayments.RequestStatus.NEEDS_APPROVAL,
+                    PaymentRequestStatus.PENDING,
+                    PaymentRequestStatus.NEEDS_APPROVAL,
                 ]
             ),
         ),
@@ -95,25 +141,20 @@ def get_payments_statistics(owner) -> PaymentsStatisticsSchema:
     )
 
 
-def get_payment_system_statistics(owner) -> PaymentSystemStatisticsSchema:
+def get_payment_system_statistics(
+    owner: CorporationOwner | AllianceOwner,
+) -> PaymentSystemStatisticsSchema:
     """Get payment system statistics for an Owner."""
-    if isinstance(owner, CorporationOwner):
-        # Determine the correct filter based on alliance system setting
-        payment_system = CorporationPaymentAccount.objects.filter(owner=owner)
-    elif isinstance(owner, AllianceOwner):
-        payment_system = AlliancePaymentAccount.objects.filter(owner=owner)
-    else:
-        raise ValueError("Owner must be CorporationOwner or AllianceOwner")
-
+    payment_system = owner.account_model.objects.filter(owner=owner)
     period = timezone.timedelta(days=owner.tax_period)
 
     payment_system_counts = payment_system.exclude(
-        status=PaymentAccountBase.Status.MISSING
+        status=AccountStatus.MISSING
     ).aggregate(
         users=Count("id"),
-        active=Count("id", filter=Q(status=PaymentAccountBase.Status.ACTIVE)),
-        inactive=Count("id", filter=Q(status=PaymentAccountBase.Status.INACTIVE)),
-        deactivated=Count("id", filter=Q(status=PaymentAccountBase.Status.DEACTIVATED)),
+        active=Count("id", filter=Q(status=AccountStatus.ACTIVE)),
+        inactive=Count("id", filter=Q(status=AccountStatus.INACTIVE)),
+        deactivated=Count("id", filter=Q(status=AccountStatus.DEACTIVATED)),
         paid=Count(
             "id",
             filter=(
@@ -124,7 +165,7 @@ def get_payment_system_statistics(owner) -> PaymentSystemStatisticsSchema:
                     & Q(last_paid__gte=timezone.now() - period)
                 )
             )
-            & Q(status=PaymentAccountBase.Status.ACTIVE),
+            & Q(status=AccountStatus.ACTIVE),
         ),
     )
     # Calculate unpaid count
@@ -140,16 +181,18 @@ def get_payment_system_statistics(owner) -> PaymentSystemStatisticsSchema:
     )
 
 
-def get_members_statistics(owner) -> MembersStatisticsSchema:
+def get_members_statistics(
+    owner: CorporationOwner | AllianceOwner,
+) -> MembersStatisticsSchema:
     # Determine the correct filter based on alliance system setting
     if isinstance(owner, CorporationOwner):
+        # Return all members in the corporation
         members = Members.objects.filter(owner=owner).order_by("character_name")
-    elif isinstance(owner, AllianceOwner):
+    else:
+        # Return all members in the alliance
         members = Members.objects.filter(
             owner__eve_corporation__alliance=owner.eve_alliance
         ).order_by("character_name")
-    else:
-        raise ValueError("Owner must be CorporationOwner or AllianceOwner")
 
     members_count = members.aggregate(
         total=Count("character_id"),

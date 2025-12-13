@@ -11,6 +11,45 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Translation for DataTable
+- implement AppLogger and retry_task_on_esi_error for enhanced logging and error handling
+- OpenAPI ESIStub Class
+- Detailed Doc Strings
+- API
+  - Payments API Endpoint
+
+### Changed
+
+- Moved Manage Requests to API
+- Refactored API Structure
+  - Icons Helper Function
+  -
+- Added DataTable v2 [Version 2.3.5](https://cdn.datatables.net/2.3.5/)
+  - `ColumnControl` Extensions [Docs](https://datatables.net/extensions/columncontrol/)
+  - `FixedHeader` Extensions [Docs](https://datatables.net/extensions/fixedheader/)
+- Refactored JS Structure
+  - Optimized Modal System
+  - Optimized DataTable Structure
+  - Unified Modal Structure
+  - Unified Settings Structure
+  - Unified DataTable Structure
+- Optimized Settings System
+  - Added Locale
+  - Added DataTable Settings
+- Refactored Template Structure
+- use AA `numberFomatter` for Currency
+
+### Removed
+
+- `taxsystem_static` templatetag
+- `allianceauth-app-utils` dependency
+- unused ESI-related functions and imports from decorators.py
+- unused EVE Online and Fuzzwork API settings from app_settings
+- unused add_info_to_context function
+- unused custom exception classes from errors.py
+
 ## [2.0.0-beta.3] - 2025-12-03
 
 > [!WARNING]

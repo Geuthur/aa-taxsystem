@@ -13,19 +13,19 @@
 
 {% block header_nav_collapse_left %}
 
-{% include 'taxsystem/partials/menu/navigation.html' %}
+{% include 'taxsystem/partials/navigation/navigation.html' %}
 
 {% endblock header_nav_collapse_left %}
 
 {% block header_nav_collapse_right %}
 
-{% include 'taxsystem/partials/menu/administration.html' %}
+{% include 'taxsystem/partials/navigation/administration.html' %}
 
 {% endblock header_nav_collapse_right %}
 
 {% block taxsystem_block %}
     <div class="card-body">
-        <div class="card bg-secondary">
+        <div class="card">
             <div class="card-header text-center bg-primary">{% translate "Administration" %}</div>
             <div class="card-body w-25">
                 <form action="{% url 'taxsystem:admin' %}" method="post">

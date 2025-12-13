@@ -1,29 +1,21 @@
-from .alliance import (
-    AllianceFilter,
-    AllianceFilterSet,
-    AllianceOwner,
-    AlliancePaymentAccount,
-    AlliancePayments,
-    AllianceUpdateStatus,
-)
 from .base import (
-    AdminHistoryBase,
-    OwnerBase,
-    PaymentAccountBase,
-    PaymentHistoryBase,
-    PaymentsBase,
-    UpdateStatusBase,
+    PaymentHistoryBaseModel,
+    PaymentsBaseModel,
+    UpdateStatusBaseModel,
 )
 from .corporation import (
-    CorporationAdminHistory,
     CorporationFilter,
     CorporationFilterSet,
     CorporationOwner,
     CorporationPaymentAccount,
-    CorporationPaymentHistory,
     CorporationPayments,
     CorporationUpdateStatus,
     Members,
 )
 from .general import General
+from .logs import (
+    AdminHistory,
+    AlliancePaymentHistory,
+    CorporationPaymentHistory,
+)
 from .wallet import CorporationWalletDivision, CorporationWalletJournalEntry

@@ -12,19 +12,18 @@ app_name: str = "taxsystem"  # pylint: disable=invalid-name
 urlpatterns = [
     # -- Tax System
     path("", views.index, name="index"),
-    path("owners/", views.owner_overview, name="owner_overview"),
-    path("view/faq/", views.faq, name="faq"),
+    path("admin/", views.admin, name="admin"),
+    # -- Add Corporation/Alliance
+    path("corporation/add/", views.add_corp, name="add_corp"),
+    path("alliance/add/", views.add_alliance, name="add_alliance"),
+    # -- Owner Views
     path("owner/<int:owner_id>/view/faq/", views.faq, name="faq"),
-    path("view/account/", views.account, name="account"),
     path("owner/<int:owner_id>/view/account/", views.account, name="account"),
     path(
         "owner/<int:owner_id>/view/account/<int:character_id>/",
         views.account,
         name="account",
     ),
-    path("admin/", views.admin, name="admin"),
-    path("corporation/add/", views.add_corp, name="add_corp"),
-    path("alliance/add/", views.add_alliance, name="add_alliance"),
     # -- Corporation Tax System
     path(
         "owner/<int:owner_id>/view/manage/",
@@ -36,12 +35,6 @@ urlpatterns = [
         views.manage_owner,
         name="manage_owner",
     ),
-    # -- Corporation Manage
-    path(
-        "owner/<int:corporation_id>/manage/member/<int:member_pk>/delete/",
-        views.delete_member,
-        name="delete_member",
-    ),
     # -- Tax System Views
     path(
         "owner/<int:owner_id>/view/payments/",
@@ -49,45 +42,9 @@ urlpatterns = [
         name="payments",
     ),
     path(
-        "owner/view/payments/",
-        views.payments,
-        name="payments",
-    ),
-    path(
-        "owner/<int:owner_id>/view/own-payments/",
-        views.own_payments,
-        name="own_payments",
-    ),
-    path(
-        "owner/view/own-payments/",
-        views.own_payments,
-        name="own_payments",
-    ),
-    # -- Tax Payments
-    path(
-        "owner/<int:owner_id>/payment/<int:payment_system_pk>/add/",
-        views.add_payment,
-        name="add_payment",
-    ),
-    path(
-        "owner/<int:owner_id>/payment/<int:payment_pk>/delete/",
-        views.delete_payment,
-        name="delete_payment",
-    ),
-    path(
-        "owner/<int:owner_id>/payment/<int:payment_pk>/approve/",
-        views.approve_payment,
-        name="approve_payment",
-    ),
-    path(
-        "owner/<int:owner_id>/payment/<int:payment_pk>/undo/",
-        views.undo_payment,
-        name="undo_payment",
-    ),
-    path(
-        "owner/<int:owner_id>/payment/<int:payment_pk>/reject/",
-        views.reject_payment,
-        name="reject_payment",
+        "owner/<int:owner_id>/view/my-payments/",
+        views.my_payments,
+        name="my_payments",
     ),
     # -- Tax Manage
     path(
@@ -101,39 +58,9 @@ urlpatterns = [
         name="update_tax_period",
     ),
     path(
-        "owner/<int:owner_id>/manage/user/<int:payment_system_pk>/switch_user/",
-        views.switch_user,
-        name="switch_user",
-    ),
-    path(
         "owner/<int:owner_id>/view/filters/",
         views.manage_filter,
         name="manage_filter",
-    ),
-    path(
-        "owner/view/filters/",
-        views.manage_filter,
-        name="manage_filter",
-    ),
-    path(
-        "owner/<int:owner_id>/manage/filter_set/<int:filter_set_id>/deactivate/",
-        views.switch_filterset,
-        name="switch_filterset",
-    ),
-    path(
-        "owner/<int:owner_id>/manage/filter_set/<int:filter_set_id>/edit/",
-        views.edit_filterset,
-        name="edit_filterset",
-    ),
-    path(
-        "owner/<int:owner_id>/manage/filter_set/<int:filter_set_id>/delete/",
-        views.delete_filterset,
-        name="delete_filterset",
-    ),
-    path(
-        "owner/<int:owner_id>/manage/filter/<int:filter_pk>/delete/",
-        views.delete_filter,
-        name="delete_filter",
     ),
     # -- API System
     re_path(r"^api/", api.urls),

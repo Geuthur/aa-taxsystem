@@ -1,16 +1,9 @@
 # Django
-from django.contrib.auth.models import Permission
-from django.test import TestCase
 from django.utils import timezone
-
-# Alliance Auth
-from allianceauth.tests.auth_utils import AuthUtils
-
-# Alliance Auth (External Libs)
-from app_utils.testing import create_user_from_evecharacter
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount
+from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.generate_owneraudit import (
     create_corporation_owner_from_user,
@@ -46,7 +39,7 @@ class TestPaymentSystemModel(TaxSystemTestCase):
 
     def test_is_inactive(self):
         """Test if the payment system is inactive."""
-        self.payment_system.status = CorporationPaymentAccount.Status.INACTIVE
+        self.payment_system.status = AccountStatus.INACTIVE
         self.payment_system.save()
 
         payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
@@ -54,14 +47,14 @@ class TestPaymentSystemModel(TaxSystemTestCase):
 
     def test_is_deactivated(self):
         """Test if the payment system is deactivated."""
-        self.payment_system.status = CorporationPaymentAccount.Status.DEACTIVATED
+        self.payment_system.status = AccountStatus.DEACTIVATED
         self.payment_system.save()
         payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
         self.assertFalse(payment_system.is_active)
 
     def test_is_missing(self):
         """Test if the payment system is missing."""
-        self.payment_system.status = CorporationPaymentAccount.Status.MISSING
+        self.payment_system.status = AccountStatus.MISSING
         self.payment_system.save()
 
         payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
@@ -108,45 +101,24 @@ class TestPaymentSystemModel(TaxSystemTestCase):
         payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
         self.assertIn(
             "bg-success",
-            payment_system.Status(payment_system.status).html(),
+            AccountStatus(payment_system.status).html(),
         )
 
         self.assertIn(
             "Active",
-            payment_system.Status(payment_system.status).html(text=True),
+            AccountStatus(payment_system.status).html(text=True),
         )
 
     def test_status_color(self):
         """Test the color representation of the payment system status."""
         payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
-        self.assertEqual(
-            payment_system.Status(payment_system.status).color(), "success"
-        )
+        self.assertEqual(AccountStatus(payment_system.status).color(), "success")
 
     def test_status_icon(self):
         """Test the icon representation of the payment system status."""
         payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
 
         self.assertEqual(
-            payment_system.Status(payment_system.status).icon(),
+            AccountStatus(payment_system.status).icon(),
             "<i class='fas fa-check'></i>",
-        )
-
-    def test_deposit_html(self):
-        """Test the HTML representation of the deposit."""
-        payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
-        self.assertIn("0 ISK", payment_system.deposit_html)
-
-        payment_system.deposit = 1500000
-        payment_system.save()
-        self.assertIn(
-            "<span class='text-success'>1,500,000</span> ISK",
-            payment_system.deposit_html,
-        )
-
-        payment_system = CorporationPaymentAccount.objects.get(owner=self.audit)
-        payment_system.deposit = -500000
-        payment_system.save()
-        self.assertIn(
-            "<span class='text-danger'>-500,000</span> ISK", payment_system.deposit_html
         )

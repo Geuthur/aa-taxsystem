@@ -1,0 +1,96 @@
+{% load i18n %}
+
+<div class="row py-2">
+    <!-- Information -->
+    <div class="col-sm-6" style="min-width: 350px;">
+        <div class="card-body bg-secondary rounded">
+            <h5 class="card-title text-center">
+                <span>{% translate "Payment Information" %}</span>
+            </h5>
+            <hr>
+            <table class="table table-dark table-striped w-100" id="payment-information-table">
+                <tbody>
+                    <tr>
+                        <td>{% trans "Amount" %}:</td>
+                        <td class="text-end" id="payment-amount">N/A</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "Division" %}:</td>
+                        <td class="text-end" id="payment-division">N/A</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "Reason" %}:</td>
+                        <td class="text-end" id="payment-reason">N/A</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Dashboard -->
+    <div class="col-sm-6" style="min-width: 350px;">
+        <div class="card-body bg-secondary rounded">
+            <h5 class="card-title text-center">
+                <span>{% translate "Dashboard" %}</span>
+            </h5>
+            <hr>
+            <div>
+                <table class="table table-dark table-striped w-100" id="payment-dashboard-table">
+                    <tbody>
+                        <tr>
+                            <td>{% trans "Payment Account" %}:</td>
+                            <td class="text-end" id="payment-account">N/A</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Account Status" %}:</td>
+                            <td class="text-end" id="payment-account-status">N/A</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Deposit" %}:</td>
+                            <td class="text-end" id="payment-account-deposit">N/A</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Owner" %}:</td>
+                            <td class="text-end" id="payment-account-owner">N/A</td>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row py-2">
+    <!-- Payment System -->
+    <div class="col-sm-12" style="min-width: 700px;">
+        <div class="card-body bg-secondary rounded">
+            <h5 class="card-title text-center">
+                <span>{% translate "Payment Status" %}</span>
+            </h5>
+            <hr>
+            <div id="payment-status-badge">N/A</div>
+        </div>
+    </div>
+</div>
+<div class="row py-2">
+    <!-- Payment History -->
+    <div class="col-sm-12" style="min-width: 700px;">
+        <div class="card-body bg-secondary rounded">
+            <h5 class="card-title text-center">
+                <span>{% translate "Payment History" %}</span>
+            </h5>
+            <hr>
+            <div>
+                <table class="table table-dark table-hover w-100" id="payment-history-table">
+                    <thead>
+                        <tr>
+                            <th class="w-auto">{% translate "User" %}</th>
+                            <th class="w-auto">{% translate "Date" %}</th>
+                            <th class="w-auto">{% translate "Action" %}</th>
+                            <th class="w-auto">{% translate "Comment" %}</th>
+                            <th class="w-auto">{% translate "Status" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

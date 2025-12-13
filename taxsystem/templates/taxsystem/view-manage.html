@@ -1,0 +1,61 @@
+{% extends 'taxsystem/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load sri %}
+
+{% block page_title %}
+    {{ title }}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block taxsystem_block %}
+    {% include 'taxsystem/partials/view-manage/dashboard.html' %}
+
+    {% include 'taxsystem/partials/view-manage/accounts.html' %}
+
+    {% include 'taxsystem/partials/view-manage/members.html' %}
+{% endblock %}
+
+{% block extra_css %}
+    {% include 'taxsystem/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'taxsystem/bundles/aa-taxsystem-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for aaTaxSystem
+         */
+        const aaTaxSystemSettingsOverride = {
+            url: {
+                Dashboard: '{% url "taxsystem:api:get_dashboard" owner_id=owner.eve_id %}',
+                Members: '{% url "taxsystem:api:get_members" owner_id=owner.eve_id %}',
+                PaymentAccounts: '{% url "taxsystem:api:get_payment_accounts" owner_id=owner.eve_id %}',
+                // Editable
+                UpdateTax: '{% url "taxsystem:update_tax_amount" owner_id=owner.eve_id %}',
+                UpdatePeriod: '{% url "taxsystem:update_tax_period" owner_id=owner.eve_id %}',
+            },
+        };
+    </script>
+    <!-- load modals -->
+    {% include 'taxsystem/modals/request-accept-delete-member.html' %}
+    {% include 'taxsystem/modals/request-accept-add-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-approve-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-undo-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-delete-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-reject-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-switch-payment-account.html' %}
+    {% include 'taxsystem/modals/request-view-payment-account.html' %}
+    {% include 'taxsystem/modals/request-view-payment-details.html' %}
+    {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
+    {% include 'taxsystem/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'taxsystem/bundles/view-manage-js.html' %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+{% endblock extra_script %}
