@@ -34,7 +34,7 @@ from taxsystem.models.corporation import (
     CorporationOwner,
     Members,
 )
-from taxsystem.models.logs import AdminActions, AdminHistory
+from taxsystem.models.logs import AdminActions
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -148,7 +148,7 @@ class CorporationApiEndpoints:
                     reason=reason,
                 )
                 member.delete()
-                AdminHistory(
+                owner.admin_log_model(
                     user=request.user,
                     owner=owner,
                     action=AdminActions.DELETE,

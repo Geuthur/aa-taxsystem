@@ -41,7 +41,6 @@ from taxsystem.models.corporation import (
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.models.logs import (
     AdminActions,
-    AdminHistory,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -416,8 +415,16 @@ def manage_filter(request: WSGIRequest, owner_id: int):
         "forms": {
             "filter": forms.AddJournalFilterForm(queryset=queryset),
             "filter_set": forms.CreateFilterSetForm(),
-            "delete_filter_set": forms.FilterSetDeleteForm(),
-            "delete_filter": forms.FilterDeleteForm(),
+            "delete_filter_set": (
+                forms.DeleteCorporationFilterSetForm()
+                if isinstance(owner, CorporationOwner)
+                else forms.DeleteAllianceFilterSetForm()
+            ),
+            "delete_filter": (
+                forms.DeleteCorporationFilterForm()
+                if isinstance(owner, CorporationOwner)
+                else forms.DeleteAllianceFilterForm()
+            ),
         },
     }
 
@@ -500,7 +507,7 @@ def add_corp(request: WSGIRequest, token):
     )
 
     if created:
-        AdminHistory(
+        owner.admin_log_model(
             user=request.user,
             owner=owner,
             action=AdminActions.ADD,
@@ -546,7 +553,7 @@ def add_alliance(request: WSGIRequest, token):
     )
 
     if created:
-        AdminHistory(
+        owner_alliance.admin_log_model(
             user=request.user,
             owner=owner_alliance,
             action=AdminActions.ADD,

@@ -50,7 +50,6 @@ from taxsystem.models.corporation import (
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.models.logs import (
     AdminActions,
-    AdminHistory,
 )
 from taxsystem.models.wallet import CorporationWalletDivision
 
@@ -231,7 +230,7 @@ class AdminApiEndpoints:
                 return 403, {"error": _("Permission Denied.")}
 
             logs = (
-                AdminHistory.objects.filter(owner=owner)
+                owner.admin_log_model.objects.filter(owner=owner)
                 .select_related("user")
                 .order_by("-date")
             )
@@ -385,7 +384,11 @@ class AdminApiEndpoints:
                 return 403, {"error": _("Permission Denied.")}
 
             # Validate the form data
-            form = forms.FilterSetDeleteForm(data=json.loads(request.body))
+            form = (
+                forms.DeleteCorporationFilterSetForm(data=json.loads(request.body))
+                if isinstance(owner, CorporationOwner)
+                else forms.DeleteAllianceFilterSetForm(data=json.loads(request.body))
+            )
             if not form.is_valid():
                 msg = _("Invalid form data.")
                 return 400, {"success": False, "message": msg}
@@ -409,7 +412,7 @@ class AdminApiEndpoints:
             )
 
             # Log the deletion in Admin History
-            AdminHistory(
+            owner.admin_log_model(
                 user=request.user,
                 owner=owner,
                 action=AdminActions.DELETE,
@@ -502,7 +505,11 @@ class AdminApiEndpoints:
                 return 403, {"error": _("Permission Denied.")}
 
             # Validate the form data
-            form = forms.FilterDeleteForm(data=json.loads(request.body))
+            form = (
+                forms.DeleteCorporationFilterForm(data=json.loads(request.body))
+                if isinstance(owner, CorporationOwner)
+                else forms.DeleteAllianceFilterForm(data=json.loads(request.body))
+            )
             if not form.is_valid():
                 msg = _("Invalid form data.")
                 return 400, {"success": False, "message": msg}
@@ -526,7 +533,7 @@ class AdminApiEndpoints:
                 reason=form.cleaned_data["comment"],
             )
             # Log the deletion in Admin History
-            AdminHistory(
+            owner.admin_log_model(
                 user=request.user,
                 owner=owner,
                 action=AdminActions.DELETE,
@@ -591,7 +598,7 @@ class AdminApiEndpoints:
             )
 
             # Log the Switch in Admin History
-            AdminHistory(
+            owner.admin_log_model(
                 user=request.user,
                 owner=owner,
                 action=AdminActions.DELETE,
@@ -651,11 +658,9 @@ class AdminApiEndpoints:
             )
 
             # Log Action in Admin History
-            AdminHistory(
+            owner.admin_log_model(
                 user=request.user,
-                owner=(
-                    owner if isinstance(owner, CorporationOwner) else owner.corporation
-                ),
+                owner=owner,
                 action=AdminActions.CHANGE,
                 comment=msg,
             ).save()
@@ -713,11 +718,9 @@ class AdminApiEndpoints:
             )
 
             # Log Action in Admin History
-            AdminHistory(
+            owner.admin_log_model(
                 user=request.user,
-                owner=(
-                    owner if isinstance(owner, CorporationOwner) else owner.corporation
-                ),
+                owner=owner,
                 action=AdminActions.CHANGE,
                 comment=msg,
             ).save()

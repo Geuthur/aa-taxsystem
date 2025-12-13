@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
 from taxsystem import __title__
-from taxsystem.models.alliance import AlliancePayments
+from taxsystem.models.alliance import AllianceOwner, AlliancePayments
 from taxsystem.models.base import (
     PaymentHistoryBaseModel,
 )
@@ -46,6 +46,31 @@ class AlliancePaymentHistory(PaymentHistoryBaseModel):
     )
 
 
+class AllianceAdminHistory(PaymentHistoryBaseModel):
+    """
+    Model representing the history of administrative actions taken on owners in the tax system.
+    """
+
+    class Meta:
+        default_permissions = ()
+
+    owner = models.ForeignKey(
+        AllianceOwner,
+        verbose_name=_("Owner"),
+        help_text=_("Owner that the action was performed on"),
+        on_delete=models.CASCADE,
+        related_name="ts_admin_history",
+    )
+
+    action = models.CharField(
+        max_length=20,
+        choices=AdminActions.choices,
+        default=AdminActions.DEFAULT,
+        verbose_name=_("Action"),
+        help_text=_("Action performed"),
+    )
+
+
 class CorporationPaymentHistory(PaymentHistoryBaseModel):
     """Model representing the history of actions taken on corporation payments in the tax system."""
 
@@ -68,7 +93,7 @@ class CorporationPaymentHistory(PaymentHistoryBaseModel):
     )
 
 
-class AdminHistory(PaymentHistoryBaseModel):
+class CorporationAdminHistory(PaymentHistoryBaseModel):
     """
     Model representing the history of administrative actions taken on owners in the tax system.
     """

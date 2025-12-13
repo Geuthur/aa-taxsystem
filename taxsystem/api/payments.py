@@ -48,7 +48,6 @@ from taxsystem.models.helpers.textchoices import (
 )
 from taxsystem.models.logs import (
     AdminActions,
-    AdminHistory,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -340,9 +339,6 @@ class PaymentsApiEndpoints:
                 account__user__profile__main_character__character_id=character_id,
                 owner_id=owner.eve_id,
             ).order_by("-date")[:10000]
-
-            if not payments:
-                return 404, {"error": _("No Payments Found")}
 
             response_payments_list: list[PaymentSchema] = []
             for payment in payments:
@@ -711,8 +707,8 @@ class PaymentsApiEndpoints:
                         reason=reason,
                     )
 
-                    # Log the deletion in Admin History
-                    AdminHistory(
+                    # Log the action in Admin History
+                    owner.admin_log_model(
                         owner=owner,
                         user=request.user,
                         action=AdminActions.DELETE,

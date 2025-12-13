@@ -129,6 +129,15 @@ class CorporationOwner(models.Model):
         return CorporationPaymentHistory
 
     @property
+    def admin_log_model(self):
+        """Return the Admin History Model for this owner."""
+        # pylint: disable=import-outside-toplevel
+        # AA TaxSystem
+        from taxsystem.models.logs import CorporationAdminHistory
+
+        return CorporationAdminHistory
+
+    @property
     def account_model(self):
         """Return the Payment Account Model for this owner."""
         return CorporationPaymentAccount

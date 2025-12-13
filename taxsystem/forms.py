@@ -8,8 +8,9 @@ from django.utils.translation import gettext_lazy as _
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationFilter
 from taxsystem.models.logs import (
-    AdminHistory,
+    AllianceAdminHistory,
     AlliancePaymentHistory,
+    CorporationAdminHistory,
     CorporationPaymentHistory,
 )
 
@@ -220,7 +221,7 @@ class DeleteMemberForm(forms.ModelForm):
     """Form for member deleting."""
 
     class Meta:
-        model = AdminHistory
+        model = CorporationAdminHistory
         fields = ["comment"]
         help_texts = {
             "comment": _("Reason for deleting the member"),
@@ -238,11 +239,11 @@ class DeleteMemberForm(forms.ModelForm):
         }
 
 
-class FilterDeleteForm(forms.ModelForm):
+class DeleteCorporationFilterForm(forms.ModelForm):
     """Form for deleting Filter."""
 
     class Meta:
-        model = AdminHistory
+        model = CorporationAdminHistory
         fields = ["comment"]
         help_texts = {
             "comment": _("Reason for deleting the filter"),
@@ -260,11 +261,55 @@ class FilterDeleteForm(forms.ModelForm):
         }
 
 
-class FilterSetDeleteForm(forms.ModelForm):
+class DeleteCorporationFilterSetForm(forms.ModelForm):
     """Form for deleting Filter Set."""
 
     class Meta:
-        model = AdminHistory
+        model = CorporationAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the filter set"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class DeleteAllianceFilterForm(forms.ModelForm):
+    """Form for deleting Filter."""
+
+    class Meta:
+        model = AllianceAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the filter"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class DeleteAllianceFilterSetForm(forms.ModelForm):
+    """Form for deleting Filter Set."""
+
+    class Meta:
+        model = AllianceAdminHistory
         fields = ["comment"]
         help_texts = {
             "comment": _("Reason for deleting the filter set"),
