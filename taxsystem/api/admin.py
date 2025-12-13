@@ -42,12 +42,10 @@ from taxsystem.api.schema import (
     PaymentSystemSchema,
     UpdateStatusSchema,
 )
-from taxsystem.forms import DeleteMemberForm
 from taxsystem.helpers import lazy
 from taxsystem.models.corporation import (
     CorporationOwner,
     CorporationWalletJournalEntry,
-    Members,
 )
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.models.logs import (
@@ -602,59 +600,3 @@ class AdminApiEndpoints:
 
             # Return success response
             return 200, {"success": True, "message": msg}
-
-        @api.post(
-            "owner/{owner_id}/member/{member_pk}/manage/delete-member/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
-            tags=self.tags,
-        )
-        def delete_member(request: WSGIRequest, owner_id: int, member_pk: int):
-            """
-            Handle an Request to Delete a Member
-
-            This Endpoint deletes a member from an associated payment account.
-            It validates the request, checks permissions, and deletes the member from the according payment account.
-
-            Args:
-                request (WSGIRequest): The HTTP request object.
-                owner_id (int): The ID of the owner whose filter set is to be retrieved.
-                member_pk (int): The ID of the member to be deleted.
-            Returns:
-                dict: A dictionary containing the success status and message.
-            """
-            # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
-
-            # Check if owner exists
-            if owner is None:
-                return 404, {"error": _("Owner not Found.")}
-
-            # Check permissions
-            if perms is False:
-                return 403, {"error": _("Permission Denied.")}
-
-            # Validate the form data
-            form = DeleteMemberForm(data=json.loads(request.body))
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
-
-            reason = form.cleaned_data["comment"]
-
-            member = Members.objects.get(owner=owner, pk=member_pk)
-            if member.is_missing:
-                msg = format_lazy(
-                    _("Member {member} deleted - {reason}"),
-                    member=member.character_name,
-                    reason=reason,
-                )
-                member.delete()
-                AdminHistory(
-                    user=request.user,
-                    owner=owner,
-                    action=AdminActions.DELETE,
-                    comment=msg,
-                ).save()
-                return 200, {"success": True, "message": msg}
-            msg = _("Member is not marked as missing.")
-            return 400, {"success": False, "message": msg}
