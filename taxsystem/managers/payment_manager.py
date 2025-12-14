@@ -18,6 +18,7 @@ from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.models.general import UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
+    AccountStatus,
     CorporationUpdateSection,
     PaymentActions,
     PaymentRequestStatus,
@@ -204,7 +205,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
                         name=main.character_name,
                         owner=owner,
                         user=account.user,
-                        status=self.model.Status.ACTIVE,
+                        status=AccountStatus.ACTIVE,
                     )
                 )
 
@@ -227,8 +228,8 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
             )
 
         # Reactivate if not deactivated
-        if payment_account.status != self.model.Status.DEACTIVATED:
-            payment_account.status = self.model.Status.ACTIVE
+        if payment_account.status != AccountStatus.DEACTIVATED:
+            payment_account.status = AccountStatus.ACTIVE
             payment_account.save()
 
         # Handle corporation changes
@@ -245,7 +246,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
 
         if not payment_account.is_missing:
             # Mark as missing if left corporation
-            payment_account.status = self.model.Status.MISSING
+            payment_account.status = AccountStatus.MISSING
             payment_account.save()
             logger.info("Marked Payment Account %s as MISSING", payment_account.name)
         else:
@@ -256,7 +257,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
                 )
                 payment_account.owner = new_owner
                 payment_account.deposit = 0
-                payment_account.status = self.model.Status.ACTIVE
+                payment_account.status = AccountStatus.ACTIVE
                 payment_account.last_paid = None
                 payment_account.save()
                 logger.info(
@@ -269,7 +270,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
 
     def _reactivate_missing_account(self, payment_account):
         """Reactivate a missing payment account when user returns."""
-        payment_account.status = self.model.Status.ACTIVE
+        payment_account.status = AccountStatus.ACTIVE
         payment_account.notice = None
         payment_account.deposit = 0
         payment_account.last_paid = None
@@ -302,7 +303,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
             owner.name,
         )
 
-        payment_system = self.filter(owner=owner, status=self.model.Status.ACTIVE)
+        payment_system = self.filter(owner=owner, status=AccountStatus.ACTIVE)
 
         for user in payment_system:
             if user.last_paid is None:
