@@ -215,7 +215,7 @@ class UpdateManager:
                 defaults={
                     "is_success": False,
                     "error_message": error_message,
-                    "has_token_error": True,
+                    "has_token_error": False,
                     "last_update_at": timezone.now(),
                 },
             )
