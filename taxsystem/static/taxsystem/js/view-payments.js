@@ -41,21 +41,6 @@ $(document).ready(() => {
                         { targets: [2], type: 'num' },
                         { targets: [3], type: 'date' }
                     ],
-                    filterDropDown: {
-                        columns: [
-                            {
-                                idx: 1,
-                                maxWidth: '200px',
-                            },
-                            {
-                                idx: 4,
-                                maxWidth: '200px',
-                            },
-                        ],
-                        autoSize: false,
-                        bootstrap: true,
-                        bootstrap_version: 5
-                    },
                     columns: [
                         { data: 'character.character_portrait' },
                         { data: 'character.character_name' },
@@ -77,9 +62,47 @@ $(document).ready(() => {
                         { data: 'request_status.status' },
                         { data: 'actions' },
                     ],
+                    initComplete: function () {
+                        const dt = paymentsTable.DataTable();
+
+                        /**
+                         * Helper function: Filter DataTable using DataTables custom search API
+                         */
+                        const applyPaymentFilter = (predicate) => {
+                            // reset custom filters and add a table-scoped predicate
+                            $.fn.dataTable.ext.search = [];
+                            $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData) {
+                                // only apply to this DataTable instance
+                                try {
+                                    if (settings.nTable !== dt.table().node()) {
+                                        return true;
+                                    }
+                                } catch (e) {
+                                    return true;
+                                }
+
+                                if (!rowData) return true;
+                                return predicate(rowData);
+                            });
+                            dt.draw();
+                        };
+
+                        $('#request-filter-all').on('change click', () => {
+                            applyPaymentFilter(() => true);
+                        });
+
+                        $('#request-filter-pending').on('change click', () => {
+                            applyPaymentFilter(rowData => !!(rowData.request_status && rowData.request_status.color === 'info'));
+                        });
+                    },
                     drawCallback: function () {
                         _bootstrapTooltip({selector: '#payments'});
-                    }
+                    },
+                    rowCallback: function(row, data) {
+                        if (data.request_status.color === 'info') {
+                            $(row).addClass('tax-warning tax-hover');
+                        }
+                    },
                 });
             }
         })

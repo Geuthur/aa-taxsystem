@@ -1,7 +1,21 @@
 {% load i18n %}
 <div class="table-responsive">
+    <div class="float-end">
+        {% translate "Filter by Payment Status" %}
+
+        <div class="btn-group btn-group-aa-taxsystem ms-2" title="{% translate 'Filter by Payment Status' %}">
+            <input type="radio" class="btn-check" id="request-filter-all" name="request-filter" autocomplete="off" checked>
+            <label for="request-filter-all" class="btn btn-outline-primary">
+                {% translate "All" %}
+            </label>
+            <input type="radio" class="btn-check" id="request-filter-pending" name="request-filter" autocomplete="off">
+            <label for="request-filter-pending" class="btn btn-outline-primary">
+                {% translate "Pending" %}
+            </label>
+        </div>
+    </div>
     <!-- Payments Content-->
-    <table class="table table-dark w-100 tax-table-hover tax-table-striped" id="payments">
+    <table class="table w-100 tax-table-hover" id="payments">
         <thead>
             <tr>
                 <th class="w-auto">{% translate "Portrait" %}</th>

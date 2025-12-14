@@ -440,24 +440,43 @@ $(document).ready(function() {
                             width: 70
                         },
                     ],
-                    filterDropDown: {
-                        columns: [
-                            {
-                                idx: 2,
-                                maxWidth: '200px',
-                            },
-                            // has_paid
-                            {
-                                idx: 4,
-                                maxWidth: '200px',
-                                title: aaTaxSystemSettings.translations.hasPaid,
-                            },
-                        ],
-                        autoSize: false,
-                        bootstrap: true,
-                        bootstrap_version: 5
-                    },
                     initComplete: function () {
+                        const dt = paymentAccountsTable.DataTable();
+
+                        /**
+                         * Helper function: Filter DataTable using DataTables custom search API
+                         */
+                        const applyPaymentFilter = (predicate) => {
+                            // reset custom filters and add a table-scoped predicate
+                            $.fn.dataTable.ext.search = [];
+                            $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData) {
+                                // only apply to this DataTable instance
+                                try {
+                                    if (settings.nTable !== dt.table().node()) {
+                                        return true;
+                                    }
+                                } catch (e) {
+                                    return true;
+                                }
+
+                                if (!rowData) return true;
+                                return predicate(rowData);
+                            });
+                            dt.draw();
+                        };
+
+                        $('#request-filter-all').on('change click', () => {
+                            applyPaymentFilter(() => true);
+                        });
+
+                        $('#request-filter-paid').on('change click', () => {
+                            applyPaymentFilter(rowData => !!(rowData.has_paid && rowData.has_paid.raw));
+                        });
+
+                        $('#request-filter-not-paid').on('change click', () => {
+                            applyPaymentFilter(rowData => !(rowData.has_paid && rowData.has_paid.raw));
+                        });
+
                         _bootstrapTooltip({selector: '#payment-accounts'});
                     },
                     drawCallback: function () {

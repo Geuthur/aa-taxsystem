@@ -69,3 +69,11 @@
         margin: 0;
     }
 }
+
+/* Filter Dropdown
+------------------------------------------------------------------------------------- */
+.btn-group-aa-taxsystem .btn {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
