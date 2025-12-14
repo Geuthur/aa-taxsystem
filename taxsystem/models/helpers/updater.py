@@ -118,19 +118,25 @@ class UpdateManager:
         """
         section = self.update_section(section)
         try:
-            data = fetch_func(owner=self, force_refresh=force_refresh)
-            logger.debug("%s: Update has changed, section: %s", self, section.label)
+            data = fetch_func(owner=self.owner, force_refresh=force_refresh)
+            logger.debug(
+                "%s: Update has changed, section: %s", self.owner, section.label
+            )
         except HTTPServerError as exc:
-            logger.debug("%s: Update has an HTTP internal server error: %s", self, exc)
+            logger.debug(
+                "%s: Update has an HTTP internal server error: %s", self.owner, exc
+            )
             return UpdateSectionResult(is_changed=False, is_updated=False)
         except HTTPNotModified:
-            logger.debug("%s: Update has not changed, section: %s", self, section.label)
+            logger.debug(
+                "%s: Update has not changed, section: %s", self.owner, section.label
+            )
             return UpdateSectionResult(is_changed=False, is_updated=False)
         except HTTPClientError as exc:
             error_message = f"{type(exc).__name__}: {str(exc)}"
             logger.error(
                 "%s: %s: Update has Client Error: %s %s",
-                self,
+                self.owner,
                 section.label,
                 error_message,
                 exc.status_code,
@@ -167,7 +173,7 @@ class UpdateManager:
             "last_run_finished_at": timezone.now(),
         }
         obj = self.update_status.objects.update_or_create(
-            owner=self,
+            owner=self.owner,
             section=section,
             defaults=defaults,
         )[0]
@@ -176,7 +182,7 @@ class UpdateManager:
             obj.last_update_finished_at = timezone.now()
             obj.save()
         status = "successfully" if is_success else "with errors"
-        logger.info("%s: %s Update run completed %s", self, section.label, status)
+        logger.info("%s: %s Update run completed %s", self.owner, section.label, status)
 
     def perform_update_status(
         self, section: models.TextChoices, method, *args, **kwargs
@@ -199,12 +205,12 @@ class UpdateManager:
             error_message = f"{type(exc).__name__}: {str(exc)}"
             logger.error(
                 "%s: %s: Error during update status: %s",
-                self,
+                self.owner,
                 section.label,
                 error_message,
             )
             self.update_status.objects.update_or_create(
-                owner=self,
+                owner=self.owner,
                 section=section,
                 defaults={
                     "is_success": False,
