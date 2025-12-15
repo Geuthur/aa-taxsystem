@@ -28,9 +28,9 @@ from taxsystem.api.helpers.icons import (
 )
 from taxsystem.api.schema import (
     CharacterSchema,
-    LogHistorySchema,
     MembersSchema,
     OwnerSchema,
+    PaymentHistorySchema,
     PaymentSchema,
     RequestStatusSchema,
 )
@@ -72,7 +72,7 @@ class PaymentsDetailsResponse(Schema):
     owner: OwnerSchema
     account: TaxAccountSchema
     payment: PaymentSchema
-    payment_histories: list[LogHistorySchema]
+    payment_histories: list[PaymentHistorySchema]
 
 
 class PaymentsApiEndpoints:
@@ -125,6 +125,10 @@ class PaymentsApiEndpoints:
                 )
                 .order_by("-date")
             )
+
+            # TODO for Larger datasets implement pagination and server side DataTables
+            # Limit to last 10,000 payments
+            payments = payments[:10000]
 
             response_payments_list: list[PaymentCorporationSchema] = []
             for payment in payments:
@@ -200,6 +204,8 @@ class PaymentsApiEndpoints:
                 )
                 .order_by("-date")
             )
+            # Limit to last 10,000 payments
+            payments = payments[:10000]
 
             response_payments_list: list[PaymentCorporationSchema] = []
             for payment in payments:
@@ -252,14 +258,14 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            response_payment_histories: list[LogHistorySchema] = []
+            response_payment_histories: list[PaymentHistorySchema] = []
             payments_history = owner.payment_history_model.objects.filter(
                 payment=payment,
             ).order_by("-date")
 
             # Create a list for the payment histories
             for log in payments_history:
-                response_log = LogHistorySchema(
+                response_log = PaymentHistorySchema(
                     log_id=log.pk,
                     reviser=log.user.username if log.user else _("System"),
                     date=log.date.strftime("%Y-%m-%d %H:%M:%S"),
@@ -332,12 +338,14 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            # Filter the last 10000 payments by character
+            # Filter payments by character
             payments = owner.payment_model.objects.filter(
                 account__owner=owner,
                 account__user__profile__main_character__character_id=character_id,
                 owner_id=owner.eve_id,
-            ).order_by("-date")[:10000]
+            ).order_by("-date")
+            # Limit to last 10,000 payments
+            payments = payments[:10000]
 
             response_payments_list: list[PaymentSchema] = []
             for payment in payments:

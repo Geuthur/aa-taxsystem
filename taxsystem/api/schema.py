@@ -103,7 +103,7 @@ class DashboardDivisionsSchema(Schema):
     total_balance: float
 
 
-class LogHistorySchema(Schema):
+class PaymentHistorySchema(Schema):
     log_id: int
     reviser: str
     date: str
