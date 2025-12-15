@@ -35,10 +35,9 @@ from taxsystem.api.schema import (
     RequestStatusSchema,
 )
 from taxsystem.helpers import lazy
-from taxsystem.models.alliance import AlliancePaymentAccount, AlliancePayments
+from taxsystem.models.alliance import AlliancePayments
 from taxsystem.models.corporation import (
     CorporationOwner,
-    CorporationPaymentAccount,
     CorporationPayments,
 )
 from taxsystem.models.helpers.textchoices import (
@@ -61,7 +60,7 @@ class MembersResponse(Schema):
     corporation: list[MembersSchema]
 
 
-class PaymentAccountSchema(Schema):
+class TaxAccountSchema(Schema):
     account_id: int
     account_name: str
     account_status: str
@@ -71,7 +70,7 @@ class PaymentAccountSchema(Schema):
 
 class PaymentsDetailsResponse(Schema):
     owner: OwnerSchema
-    account: PaymentAccountSchema
+    account: TaxAccountSchema
     payment: PaymentSchema
     payment_histories: list[LogHistorySchema]
 
@@ -270,8 +269,8 @@ class PaymentsApiEndpoints:
                 )
                 response_payment_histories.append(response_log)
 
-            # Create the payment account
-            response_account = PaymentAccountSchema(
+            # Create the tax account
+            response_account = TaxAccountSchema(
                 account_id=payment.account.pk,
                 account_name=payment.account.name,
                 account_status=AccountStatus(payment.account.status).html(),
@@ -377,13 +376,13 @@ class PaymentsApiEndpoints:
             """
             Handle an Request to Add a custom Payment
 
-            This Endpoint adds a custom payment for a payment account.
-            It validates the request, checks permissions, and adds the payment to the according payment account.
+            This Endpoint adds a custom payment for a tax account.
+            It validates the request, checks permissions, and adds the payment to the according tax account.
 
             Args:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
-                account_pk (int): The ID of the payment account to which the payment will be added.
+                account_pk (int): The ID of the tax account to which the payment will be added.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -397,12 +396,6 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            payment_account_instance = (
-                CorporationPaymentAccount
-                if isinstance(owner, CorporationOwner)
-                else AlliancePaymentAccount
-            )
-
             # Validate the form data
             form = forms.PaymentAddForm(data=json.loads(request.body))
             if not form.is_valid():
@@ -415,7 +408,7 @@ class PaymentsApiEndpoints:
             # Begin transaction
             try:
                 with transaction.atomic():
-                    account = payment_account_instance.objects.get(
+                    account = owner.account_model.objects.get(
                         owner=owner, pk=account_pk
                     )
                     payment = owner.payment_model(
@@ -464,8 +457,8 @@ class PaymentsApiEndpoints:
             """
             Handle an Request to Approve a Payment
 
-            This Endpoint approves a payment from an associated payment account.
-            It validates the request, checks permissions, and approves the payment to the according payment account.
+            This Endpoint approves a payment from an associated tax account.
+            It validates the request, checks permissions, and approves the payment to the according tax account.
 
             Args:
                 request (WSGIRequest): The HTTP request object.
@@ -551,8 +544,8 @@ class PaymentsApiEndpoints:
             """
             Handle an Request to Undo a Payment
 
-            This Endpoint undoes a payment from an associated payment account.
-            It validates the request, checks permissions, and undoes the payment to the according payment account.
+            This Endpoint undoes a payment from an associated tax account.
+            It validates the request, checks permissions, and undoes the payment to the according tax account.
 
             Args:
                 request (WSGIRequest): The HTTP request object.
@@ -635,8 +628,8 @@ class PaymentsApiEndpoints:
             """
             Handle an Request to Delete a Payment
 
-            This Endpoint deletes a payment from an associated payment account.
-            It validates the request, checks permissions, and deletes the payment to the according payment account.
+            This Endpoint deletes a payment from an associated tax account.
+            It validates the request, checks permissions, and deletes the payment to the according tax account.
 
             Args:
                 request (WSGIRequest): The HTTP request object.
@@ -736,8 +729,8 @@ class PaymentsApiEndpoints:
             """
             Handle an Request to Reject a Payment
 
-            This Endpoint rejects a payment from an associated payment account.
-            It validates the request, checks permissions, and rejects the payment to the according payment account.
+            This Endpoint rejects a payment from an associated tax account.
+            It validates the request, checks permissions, and rejects the payment to the according tax account.
 
             Args:
                 request (WSGIRequest): The HTTP request object.

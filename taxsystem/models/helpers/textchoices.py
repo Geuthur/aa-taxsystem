@@ -76,8 +76,8 @@ class UpdateStatus(models.TextChoices):
 
 
 class AccountStatus(models.TextChoices):
-    """Status for Payment Accounts.
-    This indicates the current status of a payment account.
+    """Status for Tax Accounts.
+    This indicates the current status of a tax account.
     """
 
     ACTIVE = "active", _("Active")

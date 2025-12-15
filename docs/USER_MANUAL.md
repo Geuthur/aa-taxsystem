@@ -291,9 +291,9 @@ The management dashboard provides:
    - Members (Mains/Alts/Unregistered)
    - Payment Counts (Total/Pending/Automatic/Manual)
 
-### Payment System Management
+### Tax Systen Management
 
-View and manage all member payment accounts:
+View and manage all member tax accounts:
 
 - **Account Information**: Character, status, balance
 - **Payment Status**: Visual indicators (green = paid, red = unpaid)
@@ -334,7 +334,7 @@ Track all corporation/alliance members:
 
 Auditors can manually add payments:
 
-1. Navigate to **Manage** → **Payment System**
+1. Navigate to **Manage** → **Tax Accounts**
 1. Find the member account
 1. Click **Add Payment**
 1. Enter:

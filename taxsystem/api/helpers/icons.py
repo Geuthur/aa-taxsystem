@@ -43,14 +43,14 @@ def get_taxsystem_manage_action_icons(
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
-        account (CorporationPaymentAccount | AlliancePaymentAccount): The payment account object.
+        account (CorporationPaymentAccount | AlliancePaymentAccount): The tax account object.
     Returns:
         SafeString: HTML string containing the action icons.
     """
     taxsystem_request_icons = "<div class='d-flex justify-content-end'>"
-    taxsystem_request_icons += get_payment_account_add_button(account=account)
-    taxsystem_request_icons += get_payment_account_switch_button(account=account)
-    taxsystem_request_icons += get_payment_account_info_button(account=account)
+    taxsystem_request_icons += get_tax_account_add_button(account=account)
+    taxsystem_request_icons += get_tax_account_switch_button(account=account)
+    taxsystem_request_icons += get_tax_account_info_button(account=account)
     taxsystem_request_icons += "</div>"
     return taxsystem_request_icons
 
@@ -75,7 +75,7 @@ def get_taxsystem_manage_payments_action_icons(
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
-        account (CorporationPaymentAccount | AlliancePaymentAccount): The payment account object.
+        account (CorporationPaymentAccount | AlliancePaymentAccount): The tax account object.
     Returns:
         SafeString: HTML string containing the action icons.
     """
@@ -340,24 +340,24 @@ def get_filter_delete_button(filter_obj: CorporationFilter | AllianceFilter) -> 
     return filter_delete_button
 
 
-def get_payment_account_switch_button(
+def get_tax_account_switch_button(
     account: CorporationPaymentAccount | AlliancePaymentAccount,
 ) -> str:
     """
-    Generate a Payment Account Switch button for the Tax System Management view.
+    Generate a Tax Account Switch button for the Tax System Management view.
 
-    This function creates a HTML Switch button for switching Payment Account Status depending on it's current state.
-    When clicked, it toggles the active state of the Payment Account.
+    This function creates a HTML Switch button for switching Tax Account Status depending on it's current state.
+    When clicked, it toggles the active state of the Tax Account.
 
     Args:
-        account (CorporationPaymentAccount | AlliancePaymentAccount): The payment account object to be viewed.
+        account (CorporationPaymentAccount | AlliancePaymentAccount): The tax account object to be viewed.
     Returns:
         String: HTML string containing the info button.
     """
 
     # Generate the URL for the switch Request
     button_request_switch_url = reverse(
-        "taxsystem:api:switch_payment_account",
+        "taxsystem:api:switch_tax_account",
         kwargs={
             "account_pk": account.pk,
             "owner_id": account.owner.eve_id,
@@ -374,29 +374,29 @@ def get_payment_account_switch_button(
         title = _("Activate Account")
 
     # Create the HTML for the switch icon button
-    payment_account_switch_button = (
+    tax_account_switch_button = (
         "<button "
         f'data-action="{button_request_switch_url}" '
         f'class="btn btn-{color} btn-sm btn-square me-2" '
         'data-bs-toggle="modal" '
         'data-bs-tooltip="aa-taxsystem" '
-        'data-bs-target="#taxsystem-accept-switch-payment-account" '
+        'data-bs-target="#taxsystem-accept-switch-tax-account" '
         f'title="{title}">{icon}</button>'
     )
-    return payment_account_switch_button
+    return tax_account_switch_button
 
 
-def get_payment_account_add_button(
+def get_tax_account_add_button(
     account: CorporationPaymentAccount | AlliancePaymentAccount,
 ) -> str:
     """
     Generate a Add Payment button for the Tax System Management view.
 
-    This function creates a HTML Add Payment button for adding payments to a payment account.
+    This function creates a HTML Add Payment button for adding payments to a tax account.
     When clicked, it triggers a modal to confirm the addition of a payment.
 
     Args:
-        account (CorporationPaymentAccount | AlliancePaymentAccount): The payment account object to be viewed.
+        account (CorporationPaymentAccount | AlliancePaymentAccount): The tax account object to be viewed.
     Returns:
         String: HTML string containing the info button.
     """
@@ -416,7 +416,7 @@ def get_payment_account_add_button(
     title = _("Add Payment")
 
     # Create the HTML for the add payment icon button
-    payment_account_add_button = (
+    tax_account_add_button = (
         "<button "
         f'data-action="{button_request_switch_url}" '
         f'class="btn btn-{color} btn-sm btn-square me-2" '
@@ -425,20 +425,20 @@ def get_payment_account_add_button(
         'data-bs-target="#taxsystem-accept-add-payment" '
         f'title="{title}">{icon}</button>'
     )
-    return payment_account_add_button
+    return tax_account_add_button
 
 
-def get_payment_account_info_button(
+def get_tax_account_info_button(
     account: CorporationPaymentAccount | AlliancePaymentAccount,
 ) -> str:
     """
-    Generate a Payment Account Info button for the Tax System Management view.
+    Generate a Tax Account Info button for the Tax System Management view.
 
-    This function creates a HTML info button for viewing a Payment Account object.
-    When clicked, it triggers a modal to display detailed information about the Payment Account with managing tools.
+    This function creates a HTML info button for viewing a Tax Account object.
+    When clicked, it triggers a modal to display detailed information about the Tax Account with managing tools.
 
     Args:
-        account (CorporationPaymentAccount | AlliancePaymentAccount): The payment account object to be viewed.
+        account (CorporationPaymentAccount | AlliancePaymentAccount): The tax account object to be viewed.
     Returns:
         String: HTML string containing the info button.
     """
@@ -454,26 +454,26 @@ def get_payment_account_info_button(
 
     # Define the icon and tooltip for the info button
     icon = '<i class="fa-solid fa-info"></i>'
-    title = _("View Payment Account")
+    title = _("View Tax Account")
     color = "primary"
 
     # Create the HTML for the info icon button
-    payment_account_info_button = (
+    tax_account_info_button = (
         f'<button data-action="{button_request_info_url}" '
         f'class="btn btn-{color} btn-sm btn-square me-2" '
         'data-bs-toggle="modal" '
         'data-bs-tooltip="aa-taxsystem" '
-        'data-bs-target="#taxsystem-view-payment-account" '
+        'data-bs-target="#taxsystem-view-tax-account" '
         f'title="{title}">{icon}</button>'
     )
-    return payment_account_info_button
+    return tax_account_info_button
 
 
 def get_payments_approve_button(payment: CorporationPayments | AlliancePayments) -> str:
     """
     Generate a Approve Payment button for the Payments Modal view.
 
-    This function creates a HTML Approve Payment button for approving payments to the according payment account.
+    This function creates a HTML Approve Payment button for approving payments to the according tax account.
     When clicked, it triggers a modal to confirm the approval the according payment.
 
     Args:
@@ -522,7 +522,7 @@ def get_payments_undo_button(payment: CorporationPayments | AlliancePayments) ->
     """
     Generate a Undo Payment button for the Payments Modal view.
 
-    This function creates a HTML Undo Payment button for undoing payments to the according payment account.
+    This function creates a HTML Undo Payment button for undoing payments to the according tax account.
     When clicked, it triggers a modal to confirm the undo the according payment.
 
     Args:
@@ -620,7 +620,7 @@ def get_payments_delete_button(payment: CorporationPayments | AlliancePayments) 
     """
     Generate a Delete Payment button for the Payments Modal view.
 
-    This function creates a HTML Delete Payment button for deleting payments to the according payment account.
+    This function creates a HTML Delete Payment button for deleting payments to the according tax account.
     When clicked, it triggers a modal to confirm the deletion of the according payment.
 
     Args:
@@ -669,7 +669,7 @@ def get_payments_reject_button(payment: CorporationPayments | AlliancePayments) 
     """
     Generate a Reject Payment button for the Payments Modal view.
 
-    This function creates a HTML Reject Payment button for rejecting payments to the according payment account.
+    This function creates a HTML Reject Payment button for rejecting payments to the according tax account.
     When clicked, it triggers a modal to confirm the rejection of the according payment.
 
     Args:

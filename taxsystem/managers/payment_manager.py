@@ -38,10 +38,10 @@ logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
     @log_timing(logger)
-    def update_or_create_payment_system(
+    def update_or_create_tax_accounts(
         self, owner: "OwnerContext", force_refresh: bool = False
     ) -> UpdateSectionResult:
-        """Update or Create Payment System data."""
+        """Update or Create Tax Accounts data."""
         return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.PAYMENT_SYSTEM,
             fetch_func=self._update_or_create_objs,
@@ -64,7 +64,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
 
         # TODO Create a Hash Tag to track changes better
         logger.debug(
-            "Updating Payment System for: %s",
+            "Updating Tax Accounts for: %s",
             owner.name,
         )
 
@@ -134,12 +134,12 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
             runs = runs + 1
 
         logger.debug(
-            "Finished %s: Payment System entrys for %s",
+            "Finished %s: Tax Account entrys for %s",
             runs,
             owner.name,
         )
 
-        return ("Finished Payment System for %s", owner.name)
+        return ("Finished Tax Accounts for %s", owner.name)
 
     def _check_tax_accounts(self, owner: "OwnerContext"):
         """

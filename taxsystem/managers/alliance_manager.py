@@ -191,13 +191,13 @@ class AllianceOwnerManager(models.Manager["OwnerContext"]):
         return self.get_queryset().annotate_total_update_status()
 
 
-# TODO Make a all in one manager for both corp and alliance payment accounts?
+# TODO Make a all in one manager for both corp and alliance tax accounts?
 class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
     @log_timing(logger)
-    def update_or_create_payment_system(
+    def update_or_create_tax_accounts(
         self, owner: "OwnerContext", force_refresh: bool = False
     ) -> None:
-        """Update or Create Payment System data."""
+        """Update or Create Tax Account data."""
         return owner.update_manager.update_section_if_changed(
             section=AllianceUpdateSection.PAYMENT_SYSTEM,
             fetch_func=self._update_or_create_objs,
@@ -220,7 +220,7 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
 
         # TODO Create a Hash Tag to track changes better
         logger.debug(
-            "Updating Payment System for: %s",
+            "Updating Tax Accounts for: %s",
             owner.name,
         )
 
@@ -290,12 +290,12 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
             runs = runs + 1
 
         logger.debug(
-            "Finished %s: Payment System entrys for %s",
+            "Finished %s: Tax Accounts entrys for %s",
             runs,
             owner.name,
         )
 
-        return ("Finished Payment System for %s", owner.name)
+        return ("Finished Tax Accounts for %s", owner.name)
 
     # pylint: disable=duplicate-code
     def _check_tax_accounts(self, owner: "OwnerContext"):

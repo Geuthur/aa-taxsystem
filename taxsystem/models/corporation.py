@@ -139,7 +139,7 @@ class CorporationOwner(models.Model):
 
     @property
     def account_model(self):
-        """Return the Payment Account Model for this owner."""
+        """Return the Tax Account Model for this owner."""
         return CorporationPaymentAccount
 
     @property
@@ -240,7 +240,7 @@ class CorporationOwner(models.Model):
     def update_payments(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the payments for this owner.
         Args:
-            force_refresh: Force refresh from ESI even if not modified
+            force_refresh: Force refresh
         Returns:
             UpdateSectionResult object for this section
         """
@@ -249,20 +249,20 @@ class CorporationOwner(models.Model):
         )
 
     def update_payment_system(self, force_refresh: bool) -> UpdateSectionResult:
-        """Update the payment system for this owner.
+        """Update the tax accounts for this owner.
         Args:
-            force_refresh: Force refresh from ESI even if not modified
+            force_refresh: Force refresh
         Returns:
             UpdateSectionResult object for this section
         """
-        return CorporationPaymentAccount.objects.update_or_create_payment_system(
+        return CorporationPaymentAccount.objects.update_or_create_tax_accounts(
             owner=self, force_refresh=force_refresh
         )
 
     def update_payday(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the payday for this owner.
         Args:
-            force_refresh: Force refresh from ESI even if not modified
+            force_refresh: Force refresh
         Returns:
             UpdateSectionResult object for this section
         """
@@ -373,7 +373,7 @@ class Members(models.Model):
 
 
 class CorporationPaymentAccount(PaymentAccountBaseModel):
-    """Model representing a corporation payment account in the tax system."""
+    """Model representing a corporation tax account in the tax system."""
 
     objects: CorporationAccountManager = CorporationAccountManager()
 
@@ -383,7 +383,7 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
     owner = models.ForeignKey(
         CorporationOwner,
         on_delete=models.CASCADE,
-        related_name="ts_corporation_payment_accounts",
+        related_name="ts_corp_tax_accounts",
     )
 
 

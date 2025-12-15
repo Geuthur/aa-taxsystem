@@ -17,7 +17,7 @@ from taxsystem.tests.testdata.generate_owneraudit import (
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
-    create_payment_system,
+    create_tax_account,
 )
 from taxsystem.tests.testdata.generate_walletjournal import (
     create_division,
@@ -55,7 +55,7 @@ class TestPaymentsModel(TaxSystemTestCase):
             second_party=cls.eve_character_second_party,
         )
 
-        cls.payment_system = create_payment_system(
+        cls.tax_account = create_tax_account(
             name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
@@ -64,7 +64,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         cls.payments = create_payment(
             name="Gneuten",
             entry_id=1,
-            account=cls.payment_system,
+            account=cls.tax_account,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             request_status="needs_approval",
@@ -72,12 +72,12 @@ class TestPaymentsModel(TaxSystemTestCase):
         )
 
     def test_str(self):
-        expected_str = CorporationPayments.objects.get(account=self.payment_system)
+        expected_str = CorporationPayments.objects.get(account=self.tax_account)
         self.assertEqual(self.payments, expected_str)
 
     def test_is_automatic(self):
         """Test if the payment is automatic."""
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertFalse(payments.is_automatic)
 
     def test_is_pending(self):
@@ -85,7 +85,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertTrue(payments.is_pending)
 
     def test_is_approved(self):
@@ -93,7 +93,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.APPROVED
         self.payments.save()
 
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertFalse(payments.is_pending)
         self.assertTrue(payments.is_approved)
 
@@ -102,18 +102,18 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.REJECTED
         self.payments.save()
 
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertFalse(payments.is_pending)
         self.assertTrue(payments.is_rejected)
 
     def test_character_id(self):
         """Test if the character_id is correct."""
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertEqual(
             payments.character_id, self.user_character.character.character_id
         )
 
     def test_division(self):
         """Test if the division is correct."""
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertEqual(payments.division_name, "Main Division")

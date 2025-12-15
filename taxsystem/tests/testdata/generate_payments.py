@@ -20,7 +20,7 @@ def create_payment(account: CorporationPaymentAccount, **kwargs) -> CorporationP
 
 
 def create_member(owner: CorporationUpdateStatus, **kwargs) -> Members:
-    """Create a Payment System for a Corporation"""
+    """Create a Member for a Corporation"""
     params = {
         "owner": owner,
     }
@@ -30,14 +30,14 @@ def create_member(owner: CorporationUpdateStatus, **kwargs) -> Members:
     return member
 
 
-def create_payment_system(
+def create_tax_account(
     owner: CorporationUpdateStatus, **kwargs
 ) -> CorporationPaymentAccount:
-    """Create a Payment System for a Corporation"""
+    """Create a Tax Account for a Corporation"""
     params = {
         "owner": owner,
     }
     params.update(kwargs)
-    payment_system = CorporationPaymentAccount(**params)
-    payment_system.save()
-    return payment_system
+    tax_account = CorporationPaymentAccount(**params)
+    tax_account.save()
+    return tax_account

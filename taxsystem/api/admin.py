@@ -137,19 +137,19 @@ class AdminApiEndpoints:
             return dashboard_response
 
         @api.get(
-            "owner/{owner_id}/manage/payment-accounts/",
+            "owner/{owner_id}/manage/tax-accounts/",
             response={200: list, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_payment_accounts(request, owner_id: int):
+        def get_tax_accounts(request, owner_id: int):
             """
-            This Endpoint retrieves the payment accounts associated with a specific owner.
+            This Endpoint retrieves the tax accounts associated with a specific owner.
 
             Args:
                 request (WSGIRequest): The HTTP request object.
-                owner_id (int): The ID of the owner whose payment accounts are to be retrieved.
+                owner_id (int): The ID of the owner whose tax accounts are to be retrieved.
             Returns:
-                PaymentSystemResponse: A response object containing the list of payment accounts.
+                PaymentSystemResponse: A response object containing the list of tax accounts.
             """
             # pylint: disable=duplicate-code
             owner, perms = core.get_manage_owner(request, owner_id)
@@ -160,8 +160,8 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            # Get Payment Accounts for Owner except those missing main character
-            payment_accounts = (
+            # Get Tax Accounts for Owner except those missing main character
+            tax_accounts = (
                 owner.account_model.objects.filter(
                     owner=owner,
                     user__profile__main_character__isnull=False,
@@ -173,10 +173,10 @@ class AdminApiEndpoints:
                 .prefetch_related("user__character_ownerships__character")
             )
 
-            payment_accounts_list: list[PaymentSystemSchema] = []
-            for account in payment_accounts:
-                # Build payment account data
-                payment_account_data = PaymentSystemSchema(
+            tax_accounts_list: list[PaymentSystemSchema] = []
+            for account in tax_accounts:
+                # Build tax account data
+                tax_account_data = PaymentSystemSchema(
                     payment_id=account.pk,
                     account=AccountSchema(
                         character_id=account.user.profile.main_character.character_id,
@@ -202,8 +202,8 @@ class AdminApiEndpoints:
                         request=request, account=account
                     ),
                 )
-                payment_accounts_list.append(payment_account_data)
-            return payment_accounts_list
+                tax_accounts_list.append(tax_account_data)
+            return tax_accounts_list
 
         @api.get(
             "corporation/admin/{corporation_id}/view/logs/",
@@ -548,19 +548,17 @@ class AdminApiEndpoints:
             response={200: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def switch_payment_account(
-            request: WSGIRequest, owner_id: int, account_pk: int
-        ):
+        def switch_tax_account(request: WSGIRequest, owner_id: int, account_pk: int):
             """
-            Handle an Request to Switch a Payment Account
+            Handle an Request to Switch a Tax Account
 
-            This Endpoint switches a payment account from an associated owner.
-            It validates the request, checks permissions, and switches the his state to the according payment account.
+            This Endpoint switches a tax account from an associated owner.
+            It validates the request, checks permissions, and switches the his state to the according tax account.
 
             Args:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
-                account_pk (int): The ID of the payment account to be switched.
+                account_pk (int): The ID of the tax account to be switched.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -575,7 +573,7 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            # Get the Payment Account related to the Owner (Corporation / Alliance)
+            # Get the Tax Account related to the Owner (Corporation / Alliance)
             account = owner.account_model.objects.filter(
                 owner=owner, pk=account_pk
             ).first()

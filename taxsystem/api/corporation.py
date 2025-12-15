@@ -111,8 +111,8 @@ class CorporationApiEndpoints:
             """
             Handle an Request to Delete a Member
 
-            This Endpoint deletes a member from an associated payment account.
-            It validates the request, checks permissions, and deletes the member from the according payment account.
+            This Endpoint deletes a member from an associated tax account.
+            It validates the request, checks permissions, and deletes the member from the according tax account.
 
             Args:
                 request (WSGIRequest): The HTTP request object.

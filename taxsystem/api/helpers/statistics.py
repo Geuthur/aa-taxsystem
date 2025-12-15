@@ -31,24 +31,24 @@ from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestSt
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
-class PaymentSystemStatisticsSchema(Schema):
-    ps_count: int
-    ps_count_active: int
-    ps_count_inactive: int
-    ps_count_deactivated: int
-    ps_count_paid: int
-    ps_count_unpaid: int
+class TaxAccountStatisticsSchema(Schema):
+    accounts: int
+    accounts_active: int
+    accounts_inactive: int
+    accounts_deactivated: int
+    accounts_paid: int
+    accounts_unpaid: int
 
 
 class PaymentsStatisticsSchema(Schema):
-    payments_count: int
+    payments: int
     payments_pending: int
     payments_automatic: int
     payments_manual: int
 
 
 class MembersStatisticsSchema(Schema):
-    members_count: int
+    members: int
     members_unregistered: int
     members_alts: int
     members_mains: int
@@ -57,7 +57,7 @@ class MembersStatisticsSchema(Schema):
 class StatisticsResponse(Schema):
     owner_id: int | None = None
     owner_name: str | None = None
-    payment_system: PaymentSystemStatisticsSchema
+    tax_account: TaxAccountStatisticsSchema
     payments: PaymentsStatisticsSchema
     members: MembersStatisticsSchema
 
@@ -92,7 +92,7 @@ def create_dashboard_common_data(owner, divisions):
     response_statistics = StatisticsResponse(
         owner_id=owner.pk,
         owner_name=owner.name,
-        payment_system=get_payment_system_statistics(owner),
+        tax_account=get_tax_account_statistics(owner),
         payments=get_payments_statistics(owner),
         members=get_members_statistics(owner),
     )
@@ -118,7 +118,7 @@ def get_payments_statistics(
     """Get payments statistics for an Owner."""
     payments = owner.payment_model.objects.filter(account__owner=owner)
 
-    payments_counts = payments.aggregate(
+    payments_statistics = payments.aggregate(
         total=Count("id"),
         automatic=Count("id", filter=Q(reviser="System")),
         manual=Count("id", filter=~Q(reviser="System") & ~Q(reviser="")),
@@ -134,23 +134,21 @@ def get_payments_statistics(
     )
 
     return PaymentsStatisticsSchema(
-        payments_count=payments_counts["total"],
-        payments_pending=payments_counts["pending"],
-        payments_automatic=payments_counts["automatic"],
-        payments_manual=payments_counts["manual"],
+        payments=payments_statistics["total"],
+        payments_pending=payments_statistics["pending"],
+        payments_automatic=payments_statistics["automatic"],
+        payments_manual=payments_statistics["manual"],
     )
 
 
-def get_payment_system_statistics(
+def get_tax_account_statistics(
     owner: CorporationOwner | AllianceOwner,
-) -> PaymentSystemStatisticsSchema:
-    """Get payment system statistics for an Owner."""
-    payment_system = owner.account_model.objects.filter(owner=owner)
+) -> TaxAccountStatisticsSchema:
+    """Get tax account statistics for an Owner."""
+    tax_accounts = owner.account_model.objects.filter(owner=owner)
     period = timezone.timedelta(days=owner.tax_period)
 
-    payment_system_counts = payment_system.exclude(
-        status=AccountStatus.MISSING
-    ).aggregate(
+    statistics = tax_accounts.exclude(status=AccountStatus.MISSING).aggregate(
         users=Count("id"),
         active=Count("id", filter=Q(status=AccountStatus.ACTIVE)),
         inactive=Count("id", filter=Q(status=AccountStatus.INACTIVE)),
@@ -169,15 +167,15 @@ def get_payment_system_statistics(
         ),
     )
     # Calculate unpaid count
-    unpaid = payment_system_counts["active"] - payment_system_counts["paid"]
+    unpaid = statistics["active"] - statistics["paid"]
 
-    return PaymentSystemStatisticsSchema(
-        ps_count=payment_system_counts["users"],
-        ps_count_active=payment_system_counts["active"],
-        ps_count_inactive=payment_system_counts["inactive"],
-        ps_count_deactivated=payment_system_counts["deactivated"],
-        ps_count_paid=payment_system_counts["paid"],
-        ps_count_unpaid=unpaid,
+    return TaxAccountStatisticsSchema(
+        accounts=statistics["users"],
+        accounts_active=statistics["active"],
+        accounts_inactive=statistics["inactive"],
+        accounts_deactivated=statistics["deactivated"],
+        accounts_paid=statistics["paid"],
+        accounts_unpaid=unpaid,
     )
 
 
@@ -194,7 +192,7 @@ def get_members_statistics(
             owner__eve_corporation__alliance=owner.eve_alliance
         ).order_by("character_name")
 
-    members_count = members.aggregate(
+    members_statistics = members.aggregate(
         total=Count("character_id"),
         unregistered=Count("character_id", filter=Q(status=Members.States.NOACCOUNT)),
         alts=Count("character_id", filter=Q(status=Members.States.IS_ALT)),
@@ -202,8 +200,8 @@ def get_members_statistics(
     )
 
     return MembersStatisticsSchema(
-        members_count=members_count["total"],
-        members_unregistered=members_count["unregistered"],
-        members_alts=members_count["alts"],
-        members_mains=members_count["mains"],
+        members=members_statistics["total"],
+        members_unregistered=members_statistics["unregistered"],
+        members_alts=members_statistics["alts"],
+        members_mains=members_statistics["mains"],
     )

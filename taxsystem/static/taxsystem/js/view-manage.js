@@ -3,9 +3,9 @@ $(document).ready(function() {
     /**
      * Modals :: IDs
      */
-    // Table :: Payment Accounts
-    const modalRequestSwitchUser = $('#taxsystem-accept-switch-payment-account');
-    const modalRequestViewPayments = $('#taxsystem-view-payment-account');
+    // Table :: Tax Accounts
+    const modalRequestSwitchUser = $('#taxsystem-accept-switch-tax-account');
+    const modalRequestViewPayments = $('#taxsystem-view-tax-account');
     // Modal :: Table :: Payments
     const modalRequestAddPayment = $('#taxsystem-accept-add-payment');
     const modalRequestApprovePayment = $('#taxsystem-accept-approve-payment');
@@ -23,7 +23,7 @@ $(document).ready(function() {
      * Table :: IDs
      */
     const membersTable = $('#members');
-    const paymentAccountsTable = $('#payment-accounts');
+    const taxAccountsTable = $('#tax-accounts');
     const paymentsTable = $('#payments-table');
 
     /**
@@ -38,17 +38,17 @@ $(document).ready(function() {
          */
         const statistics = newData.statistics;
 
-        $('#statistics_payment_users').text(statistics.payment_system.ps_count);
-        $('#statistics_payment_users_active').text(statistics.payment_system.ps_count_active);
-        $('#statistics_payment_users_inactive').text(statistics.payment_system.ps_count_inactive);
-        $('#statistics_payment_users_deactivated').text(statistics.payment_system.ps_count_deactivated);
-        $('#psystem_payment_users_paid').text(statistics.payment_system.ps_count_paid);
-        $('#psystem_payment_users_unpaid').text(statistics.payment_system.ps_count_unpaid);
+        $('#statistics_payment_users').text(statistics.tax_account.accounts);
+        $('#statistics_payment_users_active').text(statistics.tax_account.accounts_active);
+        $('#statistics_payment_users_inactive').text(statistics.tax_account.accounts_inactive);
+        $('#statistics_payment_users_deactivated').text(statistics.tax_account.accounts_deactivated);
+        $('#psystem_payment_users_paid').text(statistics.tax_account.accounts_paid);
+        $('#psystem_payment_users_unpaid').text(statistics.tax_account.accounts_unpaid);
 
         /**
          * Dashboard :: Statistics :: Payments
          */
-        $('#statistics_payments').text(statistics.payments.payments_count);
+        $('#statistics_payments').text(statistics.payments.payments);
         $('#statistics_payments_pending').text(statistics.payments.payments_pending);
         $('#statistics_payments_auto').text(statistics.payments.payments_automatic);
         $('#statistics_payments_manually').text(statistics.payments.payments_manual);
@@ -56,7 +56,7 @@ $(document).ready(function() {
         /**
          * Dashboard :: Statistics :: Members
          */
-        $('#statistics_members').text(statistics.members.members_count);
+        $('#statistics_members').text(statistics.members.members);
         $('#statistics_members_mains').text(statistics.members.members_mains);
         $('#statistics_members_alts').text(statistics.members.members_alts);
         $('#statistics_members_not_registered').text(statistics.members.members_unregistered);
@@ -197,8 +197,8 @@ $(document).ready(function() {
                 $('#update_payments').html(data.update_status.status.payments && data.update_status.status.payments.last_run_finished_at
                     ? moment(data.update_status.status.payments.last_run_finished_at).fromNow()
                     : 'N/A');
-                $('#update_payment_system').html(data.update_status.status.payment_system && data.update_status.status.payment_system.last_run_finished_at
-                    ? moment(data.update_status.status.payment_system.last_run_finished_at).fromNow()
+                $('#update_tax_account').html(data.update_status.status.tax_account && data.update_status.status.tax_account.last_run_finished_at
+                    ? moment(data.update_status.status.tax_account.last_run_finished_at).fromNow()
                     : 'N/A');
 
                 /**
@@ -352,14 +352,14 @@ $(document).ready(function() {
         });
 
     /**
-     * Table :: Payment Accounts
+     * Table :: Tax Accounts
      */
     fetchGet({
-        url: aaTaxSystemSettings.url.PaymentAccounts
+        url: aaTaxSystemSettings.url.TaxAccounts
     })
         .then((data) => {
             if (data) {
-                const PaymentSystemDataTable = new DataTable(paymentAccountsTable, {
+                const PaymentSystemDataTable = new DataTable(taxAccountsTable, {
                     data: data,
                     language: aaTaxSystemSettings.dataTables.language,
                     layout: aaTaxSystemSettings.dataTables.layout,
@@ -441,7 +441,7 @@ $(document).ready(function() {
                         },
                     ],
                     initComplete: function () {
-                        const dt = paymentAccountsTable.DataTable();
+                        const dt = taxAccountsTable.DataTable();
 
                         /**
                          * Helper function: Filter DataTable using DataTables custom search API
@@ -477,10 +477,10 @@ $(document).ready(function() {
                             applyPaymentFilter(rowData => !(rowData.has_paid && rowData.has_paid.raw));
                         });
 
-                        _bootstrapTooltip({selector: '#payment-accounts'});
+                        _bootstrapTooltip({selector: '#tax-accounts'});
                     },
                     drawCallback: function () {
-                        _bootstrapTooltip({selector: '#payment-accounts'});
+                        _bootstrapTooltip({selector: '#tax-accounts'});
                     },
                     rowCallback: function(row, data) {
                         if (!data.is_active) {
@@ -495,12 +495,12 @@ $(document).ready(function() {
             }
         })
         .catch((error) => {
-            console.error('Error fetching Payment System DataTable:', error);
+            console.error('Error fetching Tax Account DataTable:', error);
         });
 
     /**
      * Function :: Reload Changed Data
-     * Handle reloading of changed data in Dashboard and Payment Accounts DataTable
+     * Handle reloading of changed data in Dashboard and Tax Accounts DataTable
      * @param {Array} newData
      */
     function _reloadChangedData() {
@@ -516,33 +516,33 @@ $(document).ready(function() {
                 console.error('Error fetching Dashboard Data:', error);
             });
         fetchGet({
-            url: aaTaxSystemSettings.url.PaymentAccounts
+            url: aaTaxSystemSettings.url.TaxAccounts
         })
             .then((newData) => {
                 if (newData) {
-                    _reloadPaymentAccountsDataTable(newData);
+                    _reloadTaxAccountsDataTable(newData);
                 }
             })
             .catch((error) => {
-                console.error('Error fetching Payment Accounts DataTable:', error);
+                console.error('Error fetching Tax Accounts DataTable:', error);
             });
     }
 
     /**
-     * Table :: Payment Accounts :: Helper Function :: Reload DataTable
-     * Handle reloading of Payment Accounts DataTable with new data
+     * Table :: Tax Accounts :: Helper Function :: Reload DataTable
+     * Handle reloading of Tax Accounts DataTable with new data
      * @param {Array} newData
      * @private
      */
-    function _reloadPaymentAccountsDataTable(newData) {
-        const dtPaymentAccounts = paymentAccountsTable.DataTable();
-        dtPaymentAccounts.clear().rows.add(newData).draw();
+    function _reloadTaxAccountsDataTable(newData) {
+        const dtTaxAccounts = taxAccountsTable.DataTable();
+        dtTaxAccounts.clear().rows.add(newData).draw();
     }
 
     /**
-     * Modal :: Payment Accounts :: Switch User Button Click Handler
-     * Open Switch Payment Account Modal
-     * On Confirmation send a request to the API Endpoint, reload the Payment Accounts DataTable and close the modal
+     * Modal :: Tax Accounts :: Switch User Button Click Handler
+     * Open Switch Tax Account Modal
+     * On Confirmation send a request to the API Endpoint, reload the Tax Accounts DataTable and close the modal
      */
     modalRequestSwitchUser.on('show.bs.modal', (event) => {
         const button = $(event.relatedTarget);
@@ -570,9 +570,9 @@ $(document).ready(function() {
         });
 
     /**
-     * Modal :: Payment Accounts :: Add Payment Button Click Handler
-     * Open Add Payment Account Modal
-     * On Confirmation send a request to the API Endpoint, reload the Payment Accounts DataTable and close the modal
+     * Modal :: Tax Accounts :: Add Payment Button Click Handler
+     * Open Add Tax Account Modal
+     * On Confirmation send a request to the API Endpoint, reload the Tax Accounts DataTable and close the modal
      */
     const modalRequestAddPaymentDecline = modalRequestAddPayment.find('#request-required-field');
     modalRequestAddPayment.on('show.bs.modal', (event) => {
@@ -736,7 +736,7 @@ $(document).ready(function() {
     /**
      * Sub-Modal :: Payments :: Table :: Approve Button Click Handler
      * Open Approve Payment Modal
-     * On Confirmation send a request to the API Endpoint, reload the Payment Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
+     * On Confirmation send a request to the API Endpoint, reload the Tax Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
      * and reopen the previous Payments Modal
      */
     modalRequestApprovePayment.on('show.bs.modal', (event) => {
@@ -788,7 +788,7 @@ $(document).ready(function() {
     /**
      * Sub-Modal :: Payments :: Table :: Undo Button Click Handler
      * Open Undo Payment Modal
-     * On Confirmation send a request to the API Endpoint, reload the Payment Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
+     * On Confirmation send a request to the API Endpoint, reload the Tax Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
      * and reopen the previous Payments Modal
      */
     const modalRequestUndoDeclineError = modalRequestUndoPayment.find('#request-required-field');
@@ -856,7 +856,7 @@ $(document).ready(function() {
     /**
      * Sub-Modal :: Payments :: Table :: Delete Button Click Handler
      * Open Delete Payment Modal
-     * On Confirmation send a request to the API Endpoint, reload the Payment Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
+     * On Confirmation send a request to the API Endpoint, reload the Tax Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
      * and reopen the previous Payments Modal
      */
     const modalRequestDeleteDeclineError = modalRequestDeletePayment.find('#request-required-field');
@@ -924,7 +924,7 @@ $(document).ready(function() {
     /**
      * Sub-Modal :: Payments :: Table :: Reject Button Click Handler
      * Open Reject Payment Modal
-     * On Confirmation send a request to the API Endpoint, reload the Payment Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
+     * On Confirmation send a request to the API Endpoint, reload the Tax Accounts DataTable and Payments DataTable, update Dashboard statistics, close the modal
      * and reopen the previous Payments Modal
      */
     const modalRequestRejectDeclineError = modalRequestRejectPayment.find('#request-required-field');
@@ -1027,7 +1027,7 @@ $(document).ready(function() {
      * @param {Object} data Ajax API Response Data
      * @private
      */
-    const _loadPaymentAccountModalDataTable = (data) => {
+    const _loadTaxAccountModalDataTable = (data) => {
         // Load Payment Information
         paymentInformationTable.find('#payment-amount').text(
             numberFormatter({
@@ -1042,9 +1042,9 @@ $(document).ready(function() {
         paymentInformationTable.find('#payment-division').text(data.payment.division_name);
         paymentInformationTable.find('#payment-reason').text(data.payment.reason);
         // Payment Dashboard
-        paymentDashboardTable.find('#payment-account').html(`${data.account.character.character_portrait} ${data.account.character.character_name}`);
-        paymentDashboardTable.find('#payment-account-status').html(data.account.account_status);
-        paymentDashboardTable.find('#payment-account-deposit').text(
+        paymentDashboardTable.find('#tax-account').html(`${data.account.character.character_portrait} ${data.account.character.character_name}`);
+        paymentDashboardTable.find('#tax-account-status').html(data.account.account_status);
+        paymentDashboardTable.find('#tax-account-deposit').text(
             numberFormatter({
                 value: data.account.payment_pool,
                 language: aaTaxSystemSettings.locale,
@@ -1054,7 +1054,7 @@ $(document).ready(function() {
                 }
             })
         );
-        paymentDashboardTable.find('#payment-account-owner').text(data.owner.owner_name);
+        paymentDashboardTable.find('#tax-account-owner').text(data.owner.owner_name);
         // Payment Status
         $('#payment-status-badge').html(data.payment.request_status.html);
         // Load Payment History DataTable
@@ -1073,10 +1073,10 @@ $(document).ready(function() {
         paymentInformationTable.find('#payment-division').text('N/A');
         paymentInformationTable.find('#payment-reason').text('N/A');
         // Clear Payment Dashboard
-        paymentDashboardTable.find('#payment-account').html('N/A');
-        paymentDashboardTable.find('#payment-account-status').html('N/A');
-        paymentDashboardTable.find('#payment-account-deposit').text('N/A');
-        paymentDashboardTable.find('#payment-account-owner').text('N/A');
+        paymentDashboardTable.find('#tax-account').html('N/A');
+        paymentDashboardTable.find('#tax-account-status').html('N/A');
+        paymentDashboardTable.find('#tax-account-deposit').text('N/A');
+        paymentDashboardTable.find('#tax-account-owner').text('N/A');
         // Clear Payment Status
         $('#payment-status-badge').html('N/A');
         // Clear Payment History DataTable
@@ -1136,7 +1136,7 @@ $(document).ready(function() {
         })
             .then((data) => {
                 if (data) {
-                    _loadPaymentAccountModalDataTable(data);
+                    _loadTaxAccountModalDataTable(data);
                 }
             })
             .catch((error) => {

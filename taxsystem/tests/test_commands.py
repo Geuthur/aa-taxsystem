@@ -19,7 +19,7 @@ from taxsystem.tests.testdata.generate_owneraudit import (
 )
 from taxsystem.tests.testdata.generate_payments import (
     create_payment,
-    create_payment_system,
+    create_tax_account,
 )
 from taxsystem.tests.testdata.generate_walletjournal import (
     create_division,
@@ -56,7 +56,7 @@ class TestMigratePayments(TaxSystemTestCase):
             second_party=cls.eve_character_second_party,
         )
 
-        cls.payment_system = create_payment_system(
+        cls.tax_account = create_tax_account(
             name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
@@ -67,7 +67,7 @@ class TestMigratePayments(TaxSystemTestCase):
 
         cls.payments = create_payment(
             name=cls.user_character.character.character_name,
-            account=cls.payment_system,
+            account=cls.tax_account,
             entry_id=1,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),

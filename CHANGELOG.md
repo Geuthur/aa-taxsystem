@@ -100,7 +100,7 @@ python manage.py taxsystem_migrate_payments
 - Enhance payment modals with reset functionality and reload logic
 - Reset deposit and update status for payment accounts on owner change
 - shared constant `AUTH_SELECT_RELATED_MAIN_CHARACTER` in `taxsystem/constants.py` to centralize repeated `select_related` fields
-- `check_payment_accounts` method to manage payment account statuses
+- `check_tax_accounts` method to manage payment account statuses
 - Django Admin Integration
   - `AllianceOwnerAdmin` class with:
     - List display showing alliance info, corporation link, and last update timestamp

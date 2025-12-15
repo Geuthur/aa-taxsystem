@@ -131,9 +131,9 @@ $(document).ready(() => {
         paymentInformationTable.find('#payment-division').text(data.payment.division_name);
         paymentInformationTable.find('#payment-reason').text(data.payment.reason);
         // Payment Dashboard
-        paymentDashboardTable.find('#payment-account').html(`${data.account.character.character_portrait} ${data.account.character.character_name}`);
-        paymentDashboardTable.find('#payment-account-status').html(data.account.account_status);
-        paymentDashboardTable.find('#payment-account-deposit').text(
+        paymentDashboardTable.find('#tax-account').html(`${data.account.character.character_portrait} ${data.account.character.character_name}`);
+        paymentDashboardTable.find('#tax-account-status').html(data.account.account_status);
+        paymentDashboardTable.find('#tax-account-deposit').text(
             numberFormatter({
                 value: data.account.payment_pool,
                 language: aaTaxSystemSettings.locale,
@@ -143,7 +143,7 @@ $(document).ready(() => {
                 }
             })
         );
-        paymentDashboardTable.find('#payment-account-owner').text(data.owner.owner_name);
+        paymentDashboardTable.find('#tax-account-owner').text(data.owner.owner_name);
         // Payment Status
         $('#payment-status-badge').html(data.payment.request_status.html);
         // Load Payment History DataTable
@@ -162,10 +162,10 @@ $(document).ready(() => {
         paymentInformationTable.find('#payment-division').text('N/A');
         paymentInformationTable.find('#payment-reason').text('N/A');
         // Clear Payment Dashboard
-        paymentDashboardTable.find('#payment-account').html('N/A');
-        paymentDashboardTable.find('#payment-account-status').html('N/A');
-        paymentDashboardTable.find('#payment-account-deposit').text('N/A');
-        paymentDashboardTable.find('#payment-account-owner').text('N/A');
+        paymentDashboardTable.find('#tax-account').html('N/A');
+        paymentDashboardTable.find('#tax-account-status').html('N/A');
+        paymentDashboardTable.find('#tax-account-deposit').text('N/A');
+        paymentDashboardTable.find('#tax-account-owner').text('N/A');
         // Clear Payment Status
         $('#payment-status-badge').html('N/A');
         // Clear Payment History DataTable

@@ -298,13 +298,13 @@ def account(request: WSGIRequest, owner_id: int, character_id: int = None):
         messages.error(request, _("Permission Denied."))
         return redirect("taxsystem:index")
 
-    payment_user = owner.account_model.objects.filter(
+    tax_account = owner.account_model.objects.filter(
         user__profile=user_profile,
         owner=owner,
     ).first()
 
-    if not payment_user:
-        messages.error(request, _("No Payment System User found."))
+    if not tax_account:
+        messages.error(request, _("No Tax Account found."))
         return redirect("taxsystem:index")
 
     # Get member info
@@ -317,29 +317,29 @@ def account(request: WSGIRequest, owner_id: int, character_id: int = None):
         "title": _("Account"),
         "owner": owner,
         "account": {
-            "name": payment_user.name,
+            "name": tax_account.name,
             "owner": owner,
             "corporation": owner,
             "character_id": character_id,
-            "status": AccountStatus(payment_user.status).html(text=True),
+            "status": AccountStatus(tax_account.status).html(text=True),
             "deposit": (
-                payment_user.deposit
-                if payment_user.status != AccountStatus.MISSING
+                tax_account.deposit
+                if tax_account.status != AccountStatus.MISSING
                 else "N/A"
             ),
             "has_paid": (
-                payment_user.has_paid_icon(badge=True, text=True)
-                if payment_user.status != AccountStatus.MISSING
+                tax_account.has_paid_icon(badge=True, text=True)
+                if tax_account.status != AccountStatus.MISSING
                 else "N/A"
             ),
             "last_paid": (
-                payment_user.last_paid
-                if payment_user.status != AccountStatus.MISSING
+                tax_account.last_paid
+                if tax_account.status != AccountStatus.MISSING
                 else "N/A"
             ),
             "next_due": (
-                payment_user.next_due
-                if payment_user.status != AccountStatus.MISSING
+                tax_account.next_due
+                if tax_account.status != AccountStatus.MISSING
                 else "N/A"
             ),
             "joined": member.joined if member else "N/A",

@@ -32,6 +32,7 @@ from taxsystem.models.base import (
     UpdateStatusBaseModel,
 )
 from taxsystem.models.corporation import CorporationOwner
+from taxsystem.models.general import UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
     AllianceUpdateSection,
     UpdateStatus,
@@ -120,6 +121,39 @@ class AllianceOwner(models.Model):
         """Return the Eve Alliance ID."""
         return self.eve_alliance.alliance_id
 
+    def update_payments(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the payments for this owner.
+        Args:
+            force_refresh: Force refresh
+        Returns:
+            UpdateSectionResult object for this section
+        """
+        return AlliancePayments.objects.update_or_create_payments(
+            owner=self, force_refresh=force_refresh
+        )
+
+    def update_payment_system(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the tax accounts for this owner.
+        Args:
+            force_refresh: Force refresh
+        Returns:
+            UpdateSectionResult object for this section
+        """
+        return AlliancePaymentAccount.objects.update_or_create_tax_accounts(
+            owner=self, force_refresh=force_refresh
+        )
+
+    def update_payday(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the payday for this owner.
+        Args:
+            force_refresh: Force refresh
+        Returns:
+            UpdateSectionResult object for this section
+        """
+        return AlliancePaymentAccount.objects.check_pay_day(
+            owner=self, force_refresh=force_refresh
+        )
+
     @property
     def payment_model(self):
         """Return the Payment Model for this owner."""
@@ -145,7 +179,7 @@ class AllianceOwner(models.Model):
 
     @property
     def account_model(self):
-        """Return the Payment Account Model for this owner."""
+        """Return the Tax Account Model for this owner."""
         return AlliancePaymentAccount
 
     @property
@@ -205,7 +239,7 @@ class AllianceOwner(models.Model):
 
 
 class AlliancePaymentAccount(PaymentAccountBaseModel):
-    """Model representing an alliance payment account in the tax system."""
+    """Model representing an alliance tax account in the tax system."""
 
     objects: AlliancePaymentAccountManager = AlliancePaymentAccountManager()
 
@@ -215,7 +249,7 @@ class AlliancePaymentAccount(PaymentAccountBaseModel):
     owner = models.ForeignKey(
         AllianceOwner,
         on_delete=models.CASCADE,
-        related_name="ts_alliance_payment_accounts",
+        related_name="ts_ally_tax_accounts",
     )
 
 
