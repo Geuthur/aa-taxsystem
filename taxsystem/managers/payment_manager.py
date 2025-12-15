@@ -147,7 +147,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         Create new accounts, update existing ones, and remove orphaned accounts.
         """
         logger.debug("Checking Tax Accounts for: %s", owner.name)
-        new_accounts_items = []
+        items = []
 
         # Get all existing accounts with a Main Character
         auth_accounts = UserProfile.objects.filter(
@@ -155,7 +155,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         ).prefetch_related("user__profile__main_character")
         auth_accounts_ids = set(auth_accounts.values_list("user_id", flat=True))
 
-        # If no valid accounts, exit early
+        # If no valid accounts, return
         if not auth_accounts:
             logger.debug("No valid accounts for skipping Check: %s", owner.name)
             return "No Accounts"
@@ -172,10 +172,17 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         # Cleanup orphaned accounts
         self._cleanup_orphaned_accounts(owner, auth_accounts_ids, existing_accounts_ids)
 
+        # Update existing accounts
+        for tax_account in existing_accounts:
+            self._update_existing_account(tax_account)
+
         # Create new accounts for users without existing tax accounts
         for account in new_accounts:
-            logger.debug("Creating new tax account for user: %s", account.user.username)
-            new_accounts_items.append(
+            logger.debug(
+                "Creating new corporation tax account for user: %s",
+                account.user.username,
+            )
+            items.append(
                 self.model(
                     name=account.main_character.character_name,
                     owner=owner,
@@ -184,20 +191,14 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
                 )
             )
 
-        # Update existing accounts
-        for tax_account in existing_accounts:
-            self._update_existing_account(owner, tax_account)
-
         # Bulk create new accounts
-        if new_accounts_items:
+        if items:
             self.bulk_create(
-                new_accounts_items,
+                items,
                 batch_size=TAXSYSTEM_BULK_BATCH_SIZE,
                 ignore_conflicts=True,
             )
-            logger.info(
-                "Added %s new tax accounts for: %s", len(new_accounts_items), owner.name
-            )
+            logger.info("Added %s new tax accounts for: %s", len(items), owner.name)
         else:
             logger.debug("No new tax accounts for: %s", owner.name)
 
@@ -218,77 +219,49 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
 
     def _update_existing_account(
         self,
-        owner: "OwnerContext",
         tax_account: "PaymentAccountContext",
     ):
         """
         Update an existing tax account based on current state.
 
         Args:
-            owner (OwnerContext): The owner of the tax account.
-            tax_account (PaymentAccount): The tax account to update.
-        """
-        pa_corp_id = tax_account.owner.eve_corporation.corporation_id
-        main_corp_id = tax_account.user.profile.main_character.corporation_id
-
-        # When owner changed, move tax account to new owner
-        if tax_account.owner != owner:
-            self._move_tax_account_to_owner(tax_account, owner)
-            self._reset_account(tax_account)
-            # Save changes
-            tax_account.save()
-            return
-        # Reactivate Account if user returned to corporation
-        if tax_account.status == AccountStatus.MISSING and main_corp_id == pa_corp_id:
-            self._reset_account(tax_account)
-            # Save changes
-            tax_account.save()
-            return
-        # Update Account when user left the corporation
-        if pa_corp_id != main_corp_id:
-            self._handle_corporation_change(tax_account, main_corp_id)
-            return
-
-    def _handle_corporation_change(
-        self, tax_account: "PaymentAccountContext", main_corp_id
-    ):
-        """
-        Handle tax account when user changes corporation.
-        If user left corporation, mark as missing.
-        If user joined new corporation, try to move account.
-
-        Args:
+            owner (CorporationOwner): The owner of the tax account.
             tax_account (CorporationPaymentAccount): The tax account to update.
-            main_corp_id (int): The corporation ID of the user's main character.
         """
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
         from taxsystem.models.corporation import CorporationOwner
 
-        # Mark as missing if not already
-        if not tax_account.is_missing:
-            self._mark_missing_tax_account(tax_account)
-        # Try to move to new corporation if exists
-        try:
-            new_owner = CorporationOwner.objects.get(
-                eve_corporation__corporation_id=main_corp_id
-            )
-            # move and activate for new owner
-            self._move_tax_account_to_owner(tax_account, new_owner)
+        # Get corporation IDs
+        pa_corp_id = tax_account.owner.eve_corporation.corporation_id
+        main_corp_id = tax_account.user.profile.main_character.corporation_id
+
+        # Reactivate Account if user returned to corporation
+        if tax_account.status == AccountStatus.MISSING and main_corp_id == pa_corp_id:
             self._reset_account(tax_account)
+            return
+
+        # Update Account when user left the corporation
+        if pa_corp_id != main_corp_id:
+            # Mark as missing if not already
+            if not tax_account.is_missing:
+                self._mark_missing_tax_account(tax_account)
+            # Try to move to new corporation if exists
+            try:
+                new_owner = CorporationOwner.objects.get(
+                    eve_corporation__corporation_id=main_corp_id
+                )
+                # Move to new owner
+                self._move_tax_account_to_owner(tax_account, new_owner)
+            except CorporationOwner.DoesNotExist:
+                pass
             # Save changes
             tax_account.save()
-            logger.info(
-                "Moved Tax Account %s to Corporation %s",
-                tax_account.name,
-                new_owner.eve_corporation.corporation_name,
-            )
-        except CorporationOwner.DoesNotExist:
-            pass
 
     def _reset_account(self, tax_account: "PaymentAccountContext"):
         """
-        Reset a missing tax account when user returns.
+        Reset tax account state (unsaved).
+
         Args:
             tax_account (CorporationPaymentAccount): The tax account to reset.
         """
@@ -306,12 +279,19 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         self, tax_account: "PaymentAccountContext", owner: "OwnerContext"
     ):
         """
-        Move a tax account to another owner and reset deposit.
+        Move a tax account to another owner.
+        Resets account state.
+
         Args:
             tax_account (CorporationPaymentAccount): The tax account to move.
             owner (CorporationOwner): The new owner of the tax account.
         """
         tax_account.owner = owner
+        tax_account.status = AccountStatus.ACTIVE
+        tax_account.notice = None
+        tax_account.deposit = 0
+        tax_account.last_paid = None
+        tax_account.save()
         logger.info(
             "Moved Tax Account %s to Corporation %s",
             tax_account.name,
@@ -320,11 +300,13 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
 
     def _mark_missing_tax_account(self, tax_account: "PaymentAccountContext"):
         """
-        Mark the tax account as missing.
+        Mark the tax account as missing (unsaved).
+
         Args:
             tax_account (CorporationPaymentAccount): The tax account to mark as missing.
         """
         tax_account.status = AccountStatus.MISSING
+        tax_account.save()
         logger.info("Marked Tax Account %s as MISSING", tax_account.name)
 
     @log_timing(logger)
@@ -349,19 +331,19 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
             owner.name,
         )
 
-        payment_system = self.filter(owner=owner, status=AccountStatus.ACTIVE)
+        tax_accounts = self.filter(owner=owner, status=AccountStatus.ACTIVE)
 
-        for user in payment_system:
-            if user.last_paid is None:
+        for account in tax_accounts:
+            if account.last_paid is None:
                 # First Period is free
-                user.last_paid = timezone.now()
-            if timezone.now() - user.last_paid >= timezone.timedelta(
+                account.last_paid = timezone.now()
+            if timezone.now() - account.last_paid >= timezone.timedelta(
                 days=owner.tax_period
             ):
-                user.deposit -= owner.tax_amount
-                user.last_paid = timezone.now()
+                account.deposit -= owner.tax_amount
+                account.last_paid = timezone.now()
                 runs = runs + 1
-            user.save()
+            account.save()
 
         logger.debug(
             "Finished %s: Payday for %s",
@@ -389,7 +371,7 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
     def _update_or_create_objs(
         self, owner: "OwnerContext", force_refresh: bool = False
     ) -> None:
-        """Update or Create payment system entries from objs data."""
+        """Update or Create payment for Corporation."""
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
         from taxsystem.models.corporation import (
@@ -406,14 +388,15 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
             owner.name,
         )
 
-        payment_accounts = PaymentAccount.objects.filter(owner=owner)
+        tax_accounts = PaymentAccount.objects.filter(owner=owner)
 
-        if not payment_accounts:
+        if not tax_accounts:
             return ("No Payment Users for %s", owner.name)
 
         users = {}
 
-        for account in payment_accounts:
+        # Build Account Map
+        for account in tax_accounts:
             account: PaymentAccount
             alts = account.get_alt_ids()
             users[account] = alts
