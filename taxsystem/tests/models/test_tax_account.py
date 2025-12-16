@@ -5,10 +5,8 @@ from django.utils import timezone
 from taxsystem.models.corporation import CorporationPaymentAccount
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.generate_owneraudit import (
-    create_corporation_owner_from_user,
-)
-from taxsystem.tests.testdata.generate_payments import (
+from taxsystem.tests.testdata.utils import (
+    create_owner_from_user,
     create_tax_account,
 )
 
@@ -19,8 +17,8 @@ class TestPaymentSystemModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_corporation_owner_from_user(cls.user)
-        cls.audit2 = create_corporation_owner_from_user(cls.superuser)
+        cls.audit = create_owner_from_user(cls.user)
+        cls.audit2 = create_owner_from_user(cls.superuser)
 
         cls.tax_account = create_tax_account(
             name=cls.user.username,

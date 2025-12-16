@@ -9,20 +9,15 @@ from django.utils import timezone
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.models.corporation import CorporationPayments
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 # AA Tax System
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.generate_owneraudit import (
-    create_corporation_owner_from_user,
-)
-from taxsystem.tests.testdata.generate_payments import (
+from taxsystem.tests.testdata.utils import (
+    create_division,
+    create_owner_from_user,
     create_payment,
     create_tax_account,
-)
-from taxsystem.tests.testdata.generate_walletjournal import (
-    create_division,
     create_wallet_journal_entry,
 )
 
@@ -33,13 +28,13 @@ class TestMigratePayments(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_corporation_owner_from_user(cls.user)
+        cls.audit = create_owner_from_user(cls.user)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)
 
         cls.division = create_division(
-            corporation=cls.audit,
+            owner=cls.audit,
             division_id=1,
             name="Main Division",
             balance=1000000,

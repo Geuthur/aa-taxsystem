@@ -15,10 +15,7 @@ from taxsystem import views
 # AA Taxsystem
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.generate_owneraudit import (
-    create_corporation_owner_from_user,
-)
-from taxsystem.tests.testdata.generate_payments import create_tax_account
+from taxsystem.tests.testdata.utils import create_owner_from_user, create_tax_account
 
 INDEX_PATH = "taxsystem.views"
 
@@ -27,9 +24,9 @@ class TestViewAccess(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_corporation_owner_from_user(cls.user)
-        cls.audit_2 = create_corporation_owner_from_user(cls.superuser)
-        cls.manage_audit = create_corporation_owner_from_user(cls.manage_own_user)
+        cls.audit = create_owner_from_user(cls.user)
+        cls.audit_2 = create_owner_from_user(cls.superuser)
+        cls.manage_audit = create_owner_from_user(cls.manage_own_user)
         cls.tax_account = create_tax_account(
             name=cls.user_character.character.character_name,
             owner=cls.audit,

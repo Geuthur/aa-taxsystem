@@ -5,16 +5,13 @@ from unittest.mock import Mock, patch
 
 # Django
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User
-from django.test import RequestFactory, TestCase
 
 # AA TaxSystem
 from taxsystem.admin import CorporationOwnerAdmin
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.generate_owneraudit import (
-    create_corporation_owner_from_user,
-    create_user_from_evecharacter_with_access,
+from taxsystem.tests.testdata.utils import (
+    create_owner_from_user,
 )
 
 
@@ -26,7 +23,7 @@ class TestCorporationOwnerAdmin(TaxSystemTestCase):
         cls.user.is_superuser = True
         cls.user.save()
 
-        cls.corporation_owner = create_corporation_owner_from_user(cls.user)
+        cls.corporation_owner = create_owner_from_user(cls.user)
         cls.site = AdminSite()
         cls.admin = CorporationOwnerAdmin(CorporationOwner, cls.site)
 

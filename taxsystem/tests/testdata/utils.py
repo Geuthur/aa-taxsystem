@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 # Alliance Auth
+from allianceauth.authentication.backends import StateBackend
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
@@ -17,7 +18,27 @@ from esi.models import Scope, Token
 from eveuniverse.models import EveType
 
 # AA TaxSystem
-from taxsystem.models import UpdateStatusBaseModel
+from taxsystem.models.alliance import (
+    AllianceFilter,
+    AllianceFilterSet,
+    AllianceOwner,
+    AlliancePaymentAccount,
+    AlliancePayments,
+    AllianceUpdateStatus,
+)
+from taxsystem.models.corporation import (
+    CorporationFilter,
+    CorporationFilterSet,
+    CorporationOwner,
+    CorporationPaymentAccount,
+    CorporationPayments,
+    CorporationUpdateStatus,
+    Members,
+)
+from taxsystem.models.wallet import (
+    CorporationWalletDivision,
+    CorporationWalletJournalEntry,
+)
 
 
 def dt_eveformat(my_dt: dt.datetime) -> str:
@@ -197,9 +218,11 @@ def create_user_from_evecharacter(
     """Create new allianceauth user from EveCharacter object.
 
     Args:
-        character_id: ID of eve character
-        permissions: list of permission names, e.g. `"my_app.my_permission"`
-        scopes: list of scope names
+        character_id (int): ID of eve character
+        permissions (list[str] | None): list of permission names, e.g. `"my_app.my_permission"`
+        scopes (list[str] | None): list of scope names
+    Returns:
+        tuple[User, CharacterOwnership]: Created Alliance Auth User and CharacterOwnership
     """
     auth_character = EveCharacter.objects.get(character_id=character_id)
     user = AuthUtils.create_user(auth_character.character_name.replace(" ", "_"))
@@ -218,8 +241,8 @@ def add_permission_to_user(
 ) -> User:
     """Add permission to existing allianceauth user.
     Args:
-        user: Alliance Auth User
-        permissions: list of permission names, e.g. `"my_app.my_permission"`
+        user (User): Alliance Auth User
+        permissions (list[str] | None): list of permission names, e.g. `"my_app.my_permission"`
     Returns:
         User: Updated Alliance Auth User
     """
@@ -228,3 +251,306 @@ def add_permission_to_user(
             user = AuthUtils.add_permission_to_user_by_name(permission_name, user)
             return user
     raise ValueError("No permissions provided to add to user.")
+
+
+def create_tax_owner(
+    eve_character: EveCharacter, tax_type="Corporation", **kwargs
+) -> CorporationOwner | AllianceOwner:
+    """
+    Create a Tax Owner (CorporationOwner or AllianceOwner) from an EveCharacter.
+    The type of owner created depends on the tax_type parameter.
+    Args:
+        eve_character (EveCharacter): The EveCharacter to create the owner from.
+        tax_type (str): Type of tax owner, either "Corporation" or "Alliance"
+    Returns:
+        CorporationOwner | AllianceOwner: The created tax owner.
+
+    """
+    defaults = {
+        "name": eve_character.corporation.corporation_name,
+    }
+    defaults.update(kwargs)
+    owner = CorporationOwner.objects.get_or_create(
+        eve_corporation=eve_character.corporation,
+        defaults=defaults,
+    )[0]
+    if tax_type == "Alliance":
+        corporation = owner
+        defaults = {
+            "name": eve_character.alliance.alliance_name,
+        }
+        defaults.update(kwargs)
+        owner = AllianceOwner.objects.get_or_create(
+            eve_alliance=eve_character.alliance,
+            corporation=corporation,
+            defaults=defaults,
+        )[0]
+    return owner
+
+
+def create_update_status(
+    owner_audit: CorporationOwner, tax_type="Corporation", **kwargs
+) -> CorporationUpdateStatus | AllianceUpdateStatus:
+    """
+    Create an Update Status for a CorporationOwner.
+    The type of update status created depends on the tax_type parameter.
+    Args:
+        owner_audit (CorporationOwner): The owner for whom to create the update status.
+        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+    """
+    params = {
+        "owner": owner_audit,
+    }
+    params.update(kwargs)
+    if tax_type == "Alliance":
+        update_status = AllianceUpdateStatus(**params)
+    else:
+        update_status = CorporationUpdateStatus(**params)
+    update_status.save()
+    return update_status
+
+
+def create_owner_from_user(
+    user: User, tax_type="Corporation", **kwargs
+) -> CorporationOwner | AllianceOwner:
+    """
+    Create a CorporationOwner or AllianceOwner from a user.
+    The type of owner created depends on the tax_type parameter.
+
+    Args:
+        user (User): The user to create the owner from.
+        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+    """
+    eve_character = user.profile.main_character
+    if not eve_character:
+        raise ValueError("User needs to have a main character.")
+
+    return create_tax_owner(eve_character, tax_type=tax_type, **kwargs)
+
+
+def create_owner_from_evecharacter(
+    character_id: int, tax_type="Corporation", **kwargs
+) -> CorporationOwner | AllianceOwner:
+    """
+    Create a CorporationOwner or AllianceOwner from an existing EveCharacter.
+    The type of owner created depends on the tax_type parameter.
+
+    Args:
+        character_id (int): ID of the EveCharacter to create the owner from.
+        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+    Returns:
+        CorporationOwner | AllianceOwner: The created tax owner.
+    """
+
+    _, character_ownership = create_user_from_evecharacter_with_access(
+        character_id, disconnect_signals=True
+    )
+    return create_tax_owner(character_ownership.character, tax_type=tax_type, **kwargs)
+
+
+def create_user_from_evecharacter_with_access(
+    character_id: int, disconnect_signals: bool = True
+) -> tuple[User, CharacterOwnership]:
+    """
+    Create user with basic access from an existing EveCharacter and use it as main.
+
+    Args:
+        character_id (int): ID of eve character
+        disconnect_signals (bool, optional): Whether to disconnect signals during user creation. Defaults to True.
+    Returns:
+        tuple[User, CharacterOwnership]: Created Alliance Auth User and CharacterOwnership
+    """
+    auth_character = EveCharacter.objects.get(character_id=character_id)
+    username = StateBackend.iterate_username(auth_character.character_name)
+    user = AuthUtils.create_user(username, disconnect_signals=disconnect_signals)
+    user = AuthUtils.add_permission_to_user_by_name(
+        "taxsystem.basic_access", user, disconnect_signals=disconnect_signals
+    )
+    character_ownership = add_character_to_user(
+        user,
+        auth_character,
+        is_main=True,
+        scopes=CorporationOwner.get_esi_scopes(),
+        disconnect_signals=disconnect_signals,
+    )
+    return user, character_ownership
+
+
+def add_auth_character_to_user(
+    user: User, character_id: int, disconnect_signals: bool = True
+) -> CharacterOwnership:
+    """Add an existing :class:`EveCharacter` to a User.
+
+    Args:
+        user (User): Alliance Auth User
+        character_id (int): ID of eve character
+        disconnect_signals (bool, optional): Whether to disconnect signals during addition. Defaults to True.
+    Returns:
+        CharacterOwnership: The created CharacterOwnership instance.
+    """
+    auth_character = EveCharacter.objects.get(character_id=character_id)
+    return add_character_to_user(
+        user,
+        auth_character,
+        is_main=False,
+        scopes=CorporationOwner.get_esi_scopes(),
+        disconnect_signals=disconnect_signals,
+    )
+
+
+def add_owner_to_user(
+    user: User,
+    character_id: int,
+    disconnect_signals: bool = True,
+    tax_type="Corporation",
+    **kwargs,
+) -> CorporationOwner | AllianceOwner:
+    """
+    Add a CorporationOwner or AllianceOwner character to a user.
+    The type of owner created depends on the tax_type parameter.
+
+    Args:
+        user (User): Alliance Auth User
+        character_id (int): ID of eve character
+        disconnect_signals (bool, optional): Whether to disconnect signals during addition. Defaults to True.
+        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+    Returns:
+        CorporationOwner | AllianceOwner: The created tax owner.
+    """
+    character_ownership = add_auth_character_to_user(
+        user,
+        character_id,
+        disconnect_signals=disconnect_signals,
+    )
+    return create_tax_owner(character_ownership.character, tax_type=tax_type, **kwargs)
+
+
+def create_payment(
+    account: CorporationPaymentAccount | AlliancePaymentAccount, **kwargs
+) -> CorporationPayments | AlliancePayments:
+    """Create a Payment for a Corporation or Alliance
+    The type of payment created depends on the type of account provided.
+
+    Args:
+        account (CorporationPaymentAccount | AlliancePaymentAccount): The payment account.
+    Returns:
+        CorporationPayments | AlliancePayments: The created payment.
+    """
+    params = {
+        "account": account,
+    }
+    params.update(kwargs)
+    if isinstance(account, AlliancePaymentAccount):
+        payment = AlliancePayments(**params)
+    else:
+        payment = CorporationPayments(**params)
+    payment.save()
+    return payment
+
+
+def create_member(owner: CorporationOwner, **kwargs) -> Members:
+    """
+    Create a Member for a Corporation
+
+    Args:
+        owner (CorporationOwner): The owner.
+    Returns:
+        Members: The created member.
+    """
+    params = {
+        "owner": owner,
+    }
+    params.update(kwargs)
+    member = Members(**params)
+    member.save()
+    return member
+
+
+def create_tax_account(
+    owner: CorporationOwner | AllianceOwner, **kwargs
+) -> CorporationPaymentAccount | AlliancePaymentAccount:
+    """
+    Create a Tax Account for a Corporation or Alliance
+    The type of tax account created depends on the type of owner provided.
+
+    Args:
+        owner (CorporationOwner | AllianceOwner): The owner.
+    Returns:
+        CorporationPaymentAccount | AlliancePaymentAccount: The created tax account.
+    """
+    params = {
+        "owner": owner,
+    }
+    params.update(kwargs)
+    if isinstance(owner, AllianceOwner):
+        tax_account = AlliancePaymentAccount(**params)
+    else:
+        tax_account = CorporationPaymentAccount(**params)
+    tax_account.save()
+    return tax_account
+
+
+def create_division(owner: CorporationOwner, **kwargs) -> CorporationWalletDivision:
+    """
+    Create a CorporationWalletDivision
+
+    Args:
+        owner (CorporationOwner): The owner.
+    Returns:
+        CorporationWalletDivision: The created division.
+    """
+    params = {
+        "corporation": owner,
+    }
+    params.update(kwargs)
+    division = CorporationWalletDivision(**params)
+    division.save()
+    return division
+
+
+def create_wallet_journal_entry(**kwargs) -> CorporationWalletJournalEntry:
+    """
+    Create a CorporationWalletJournalEntry
+
+    Args:
+        kwargs: Fields for the CorporationWalletJournalEntry
+    Returns:
+        CorporationWalletJournalEntry: The created journal entry.
+    """
+    params = {}
+    params.update(kwargs)
+    journal_entry = CorporationWalletJournalEntry(**params)
+    journal_entry.save()
+    return journal_entry
+
+
+def create_filterset(
+    owner: CorporationOwner | AllianceOwner, **kwargs
+) -> CorporationFilterSet | AllianceFilterSet:
+    """Create a FilterSet for a Corporation"""
+    params = {
+        "owner": owner,
+    }
+    params.update(kwargs)
+    if isinstance(owner, AllianceOwner):
+        journal_filter_set = AllianceFilterSet(**params)
+    else:
+        journal_filter_set = CorporationFilterSet(**params)
+    journal_filter_set.save()
+    return journal_filter_set
+
+
+def create_filter(
+    filter_set: CorporationFilterSet | AllianceFilterSet, **kwargs
+) -> CorporationFilter | AllianceFilter:
+    """Create a Filter for a Corporation"""
+    params = {
+        "filter_set": filter_set,
+    }
+    params.update(kwargs)
+    if isinstance(filter_set, AllianceFilterSet):
+        journal_filter = AllianceFilter(**params)
+    else:
+        journal_filter = CorporationFilter(**params)
+    journal_filter.save()
+    return journal_filter

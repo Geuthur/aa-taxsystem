@@ -3,7 +3,6 @@ from django.test import TestCase
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
-from app_utils.testing import create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
@@ -12,15 +11,11 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
 )
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.generate_owneraudit import (
-    create_corporation_owner_from_user,
-)
-from taxsystem.tests.testdata.generate_payments import (
+from taxsystem.tests.testdata.utils import (
+    create_division,
+    create_owner_from_user,
     create_payment,
     create_tax_account,
-)
-from taxsystem.tests.testdata.generate_walletjournal import (
-    create_division,
     create_wallet_journal_entry,
 )
 
@@ -31,14 +26,14 @@ class TestPaymentsModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_corporation_owner_from_user(cls.user)
-        cls.audit2 = create_corporation_owner_from_user(cls.superuser)
+        cls.audit = create_owner_from_user(cls.user)
+        cls.audit2 = create_owner_from_user(cls.superuser)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)
 
         cls.division = create_division(
-            corporation=cls.audit,
+            owner=cls.audit,
             division_id=1,
             name="Main Division",
             balance=1000000,
