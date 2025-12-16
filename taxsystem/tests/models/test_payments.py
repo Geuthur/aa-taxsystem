@@ -33,7 +33,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)
 
         cls.division = create_division(
-            owner=cls.audit,
+            corporation=cls.audit,
             division_id=1,
             name="Main Division",
             balance=1000000,

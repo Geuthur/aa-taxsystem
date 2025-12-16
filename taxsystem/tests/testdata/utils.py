@@ -15,7 +15,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from esi.models import Scope, Token
 
 # Alliance Auth (External Libs)
-from eveuniverse.models import EveType
+from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.models.alliance import (
@@ -254,16 +254,16 @@ def add_permission_to_user(
 
 
 def create_tax_owner(
-    eve_character: EveCharacter, tax_type="Corporation", **kwargs
+    eve_character: EveCharacter, tax_type="corporation", **kwargs
 ) -> CorporationOwner | AllianceOwner:
     """
     Create a Tax Owner (CorporationOwner or AllianceOwner) from an EveCharacter.
     The type of owner created depends on the tax_type parameter.
     Args:
         eve_character (EveCharacter): The EveCharacter to create the owner from.
-        tax_type (str): Type of tax owner, either "Corporation" or "Alliance"
+        tax_type (str, optional): Type of tax owner, either "corporation" or "alliance"
     Returns:
-        CorporationOwner | AllianceOwner: The created tax owner.
+        (CorporationOwner or AllianceOwner): The created tax owner.
 
     """
     defaults = {
@@ -274,7 +274,7 @@ def create_tax_owner(
         eve_corporation=eve_character.corporation,
         defaults=defaults,
     )[0]
-    if tax_type == "Alliance":
+    if tax_type == "alliance":
         corporation = owner
         defaults = {
             "name": eve_character.alliance.alliance_name,
@@ -289,20 +289,32 @@ def create_tax_owner(
 
 
 def create_update_status(
-    owner_audit: CorporationOwner, tax_type="Corporation", **kwargs
+    owner_audit: CorporationOwner,
+    section: str,
+    error_message="",
+    tax_type="corporation",
+    **kwargs,
 ) -> CorporationUpdateStatus | AllianceUpdateStatus:
     """
     Create an Update Status for a CorporationOwner.
     The type of update status created depends on the tax_type parameter.
+
     Args:
         owner_audit (CorporationOwner): The owner for whom to create the update status.
-        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+        section (str): The section for the update status.
+        error_message (str, optional): The error message for the update status.
+        tax_type (str, optional): Type of tax owner, either "corporation" or "alliance"
+        **kwargs: Additional fields for the Update Status
+    Returns:
+        (CorporationUpdateStatus or AllianceUpdateStatus): The created update status.
     """
     params = {
         "owner": owner_audit,
+        "section": section,
+        "error_message": error_message,
     }
     params.update(kwargs)
-    if tax_type == "Alliance":
+    if tax_type == "alliance":
         update_status = AllianceUpdateStatus(**params)
     else:
         update_status = CorporationUpdateStatus(**params)
@@ -426,18 +438,30 @@ def add_owner_to_user(
 
 
 def create_payment(
-    account: CorporationPaymentAccount | AlliancePaymentAccount, **kwargs
+    account: CorporationPaymentAccount | AlliancePaymentAccount,
+    name: str,
+    amount: float,
+    request_status: str,
+    **kwargs,
 ) -> CorporationPayments | AlliancePayments:
     """Create a Payment for a Corporation or Alliance
     The type of payment created depends on the type of account provided.
 
     Args:
         account (CorporationPaymentAccount | AlliancePaymentAccount): The payment account.
+        name (str): The name of the character that made the payment.
+        amount (float): The amount of the payment.
+        request_status (str): The request status of the payment.
+
+
     Returns:
         CorporationPayments | AlliancePayments: The created payment.
     """
     params = {
         "account": account,
+        "name": name,
+        "amount": amount,
+        "request_status": request_status,
     }
     params.update(kwargs)
     if isinstance(account, AlliancePaymentAccount):
@@ -448,17 +472,24 @@ def create_payment(
     return payment
 
 
-def create_member(owner: CorporationOwner, **kwargs) -> Members:
+def create_member(
+    owner: CorporationOwner, character_name: str, character_id: int, **kwargs
+) -> Members:
     """
     Create a Member for a Corporation
 
     Args:
         owner (CorporationOwner): The owner.
+        character_name (str): The name of the member character.
+        character_id (int): The ID of the member character.
+        **kwargs: Additional fields for the Member
     Returns:
         Members: The created member.
     """
     params = {
         "owner": owner,
+        "character_name": character_name,
+        "character_id": character_id,
     }
     params.update(kwargs)
     member = Members(**params)
@@ -467,7 +498,11 @@ def create_member(owner: CorporationOwner, **kwargs) -> Members:
 
 
 def create_tax_account(
-    owner: CorporationOwner | AllianceOwner, **kwargs
+    owner: CorporationOwner | AllianceOwner,
+    name: str,
+    user: User,
+    deposit: int,
+    **kwargs,
 ) -> CorporationPaymentAccount | AlliancePaymentAccount:
     """
     Create a Tax Account for a Corporation or Alliance
@@ -475,11 +510,18 @@ def create_tax_account(
 
     Args:
         owner (CorporationOwner | AllianceOwner): The owner.
+        name (str): The name of the tax account.
+        user (User): The user associated with the tax account.
+        deposit (int): The deposit amount for the tax account.
+        **kwargs: Additional fields for the Tax Account
     Returns:
         CorporationPaymentAccount | AlliancePaymentAccount: The created tax account.
     """
     params = {
         "owner": owner,
+        "name": name,
+        "user": user,
+        "deposit": int,
     }
     params.update(kwargs)
     if isinstance(owner, AllianceOwner):
@@ -490,17 +532,24 @@ def create_tax_account(
     return tax_account
 
 
-def create_division(owner: CorporationOwner, **kwargs) -> CorporationWalletDivision:
+def create_division(
+    corporation: CorporationOwner, balance: float, division_id: int, **kwargs
+) -> CorporationWalletDivision:
     """
     Create a CorporationWalletDivision
 
     Args:
-        owner (CorporationOwner): The owner.
+        corporation (CorporationOwner): The corporation.
+        balance (float): The balance of the division.
+        division_id (int): The division ID.
+        **kwargs: Fields for the CorporationWalletDivision
     Returns:
         CorporationWalletDivision: The created division.
     """
     params = {
-        "corporation": owner,
+        "corporation": corporation,
+        "balance": balance,
+        "division_id": division_id,
     }
     params.update(kwargs)
     division = CorporationWalletDivision(**params)
@@ -508,16 +557,40 @@ def create_division(owner: CorporationOwner, **kwargs) -> CorporationWalletDivis
     return division
 
 
-def create_wallet_journal_entry(**kwargs) -> CorporationWalletJournalEntry:
+def create_wallet_journal_entry(
+    division: CorporationWalletDivision,
+    date: str,
+    description: str,
+    first_party: EveEntity,
+    second_party: EveEntity,
+    entry_id: int,
+    ref_type: str,
+    **kwargs,
+) -> CorporationWalletJournalEntry:
     """
     Create a CorporationWalletJournalEntry
 
     Args:
-        kwargs: Fields for the CorporationWalletJournalEntry
+        division (CorporationWalletDivision): The division.
+        date (str): The date of the journal entry.
+        description (str): The description of the journal entry.
+        first_party (EveEntity): The first party entity.
+        second_party (EveEntity): The second party entity.
+        entry_id (int): The entry ID.
+        ref_type (str): The reference type.
+        **kwargs: Fields for the CorporationWalletJournalEntry
     Returns:
         CorporationWalletJournalEntry: The created journal entry.
     """
-    params = {}
+    params = {
+        "division": division,
+        "date": date,
+        "description": description,
+        "first_party": first_party,
+        "second_party": second_party,
+        "entry_id": entry_id,
+        "ref_type": ref_type,
+    }
     params.update(kwargs)
     journal_entry = CorporationWalletJournalEntry(**params)
     journal_entry.save()
@@ -525,11 +598,21 @@ def create_wallet_journal_entry(**kwargs) -> CorporationWalletJournalEntry:
 
 
 def create_filterset(
-    owner: CorporationOwner | AllianceOwner, **kwargs
+    owner: CorporationOwner | AllianceOwner, name: str, **kwargs
 ) -> CorporationFilterSet | AllianceFilterSet:
-    """Create a FilterSet for a Corporation"""
+    """
+    Create a FilterSet for a Corporation or Alliance
+
+    Args:
+        owner (CorporationOwner | AllianceOwner): The owner.
+        name (str): The name of the filter set.
+        **kwargs: Additional fields for the FilterSet
+    Returns:
+        CorporationFilterSet | AllianceFilterSet: The created filter set.
+    """
     params = {
         "owner": owner,
+        "name": name,
     }
     params.update(kwargs)
     if isinstance(owner, AllianceOwner):
@@ -541,13 +624,23 @@ def create_filterset(
 
 
 def create_filter(
-    filter_set: CorporationFilterSet | AllianceFilterSet, **kwargs
+    filter_set: CorporationFilterSet | AllianceFilterSet, filter_type: str, value: str
 ) -> CorporationFilter | AllianceFilter:
-    """Create a Filter for a Corporation"""
+    """
+    Create a Filter for a Corporation or Alliance
+
+    Args:
+        filter_set (CorporationFilterSet | AllianceFilterSet): The filter set.
+        filter_type (str): The type of the filter.
+        value (str): The value of the filter.
+    Returns:
+        CorporationFilter | AllianceFilter: The created filter.
+    """
     params = {
         "filter_set": filter_set,
+        "filter_type": filter_type,
+        "value": value,
     }
-    params.update(kwargs)
     if isinstance(filter_set, AllianceFilterSet):
         journal_filter = AllianceFilter(**params)
     else:
