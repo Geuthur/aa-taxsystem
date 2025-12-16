@@ -37,6 +37,7 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
     UpdateStatus,
 )
+from taxsystem.models.helpers.updater import UpdateManager
 from taxsystem.models.wallet import CorporationWalletJournalEntry
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
@@ -183,10 +184,6 @@ class AllianceOwner(models.Model):
     @property
     def update_manager(self):
         """Return the Update Manager helper for this owner."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.helpers.updater import UpdateManager
-
         return UpdateManager(
             owner=self,
             update_section=AllianceUpdateSection,

@@ -16,12 +16,17 @@ from app_utils.logging import LoggerAddTag
 from taxsystem import __title__
 from taxsystem.models.general import (
     UpdateSectionResult,
+    _NeedsUpdate,
 )
 
 if TYPE_CHECKING:
     # AA TaxSystem
-    from taxsystem.models.alliance import AllianceOwner
-    from taxsystem.models.corporation import CorporationOwner
+    from taxsystem.models.alliance import AllianceOwner, AllianceUpdateStatus
+    from taxsystem.models.corporation import CorporationOwner, CorporationUpdateStatus
+    from taxsystem.models.helpers.textchoices import (
+        AllianceUpdateSection,
+        CorporationUpdateSection,
+    )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -32,15 +37,15 @@ class UpdateManager:
 
     Args:
         owner (CorporationOwner | AllianceOwner): The owner model (corporation or alliance)
-        update_section (Type[models.TextChoices]): The update section class (CorporationUpdateSection or AllianceUpdateSection)
-        update_status (Type[models.Model]): The update status model (CorporationUpdateStatus or AllianceUpdateStatus)
+        update_section (CorporationUpdateSection | AllianceUpdateSection): The update section class (CorporationUpdateSection or AllianceUpdateSection)
+        update_status (CorporationUpdateStatus | AllianceUpdateStatus): The update status class (CorporationUpdateStatus or AllianceUpdateStatus)
     """
 
     def __init__(
         self,
         owner: Union["CorporationOwner", "AllianceOwner"],
-        update_section: models.TextChoices,
-        update_status: models.Model,
+        update_section: Union["CorporationUpdateSection", "AllianceUpdateSection"],
+        update_status: Union["CorporationUpdateStatus", "AllianceUpdateStatus"],
     ):
         self.owner = owner
         self.update_section = update_section
@@ -54,10 +59,6 @@ class UpdateManager:
         Returns:
             _NeedsUpdate: An object containing a mapping of sections to their update needs.
         """
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.general import _NeedsUpdate
-
         sections_needs_update = {
             section: True for section in self.update_section.get_sections()
         }
