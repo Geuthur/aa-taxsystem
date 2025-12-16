@@ -58,9 +58,9 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         # AA TaxSystem
         from taxsystem.models.corporation import (
             CorporationFilterSet,
+            CorporationPaymentHistory,
             CorporationPayments,
         )
-        from taxsystem.models.logs import CorporationPaymentHistory
 
         # TODO Create a Hash Tag to track changes better
         logger.debug(
@@ -378,9 +378,9 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
             CorporationPaymentAccount as PaymentAccount,
         )
         from taxsystem.models.corporation import (
+            CorporationPaymentHistory,
             CorporationPayments,
         )
-        from taxsystem.models.logs import CorporationPaymentHistory
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         logger.debug(

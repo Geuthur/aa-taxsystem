@@ -367,7 +367,7 @@ class FilterSetBaseModel(models.Model):
         raise NotImplementedError("Create filter_contains method")
 
 
-class PaymentHistoryBaseModel(models.Model):
+class HistoryBaseModel(models.Model):
     """Basemodel for Payments History"""
 
     class Meta:

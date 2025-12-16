@@ -214,9 +214,9 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         # AA TaxSystem
         from taxsystem.models.alliance import (
             AllianceFilterSet,
+            AlliancePaymentHistory,
             AlliancePayments,
         )
-        from taxsystem.models.logs import AlliancePaymentHistory
 
         # TODO Create a Hash Tag to track changes better
         logger.debug(
@@ -535,9 +535,7 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
         from taxsystem.models.alliance import AlliancePaymentAccount as PaymentAccount
-        from taxsystem.models.logs import (
-            AlliancePaymentHistory,
-        )
+        from taxsystem.models.alliance import AlliancePaymentHistory
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         logger.debug(

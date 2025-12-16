@@ -40,10 +40,7 @@ from taxsystem.models.corporation import (
     CorporationOwner,
     CorporationWalletJournalEntry,
 )
-from taxsystem.models.helpers.textchoices import AccountStatus
-from taxsystem.models.logs import (
-    AdminActions,
-)
+from taxsystem.models.helpers.textchoices import AccountStatus, AdminActions
 from taxsystem.models.wallet import CorporationWalletDivision
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)

@@ -42,11 +42,9 @@ from taxsystem.models.corporation import (
 )
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
+    AdminActions,
     PaymentActions,
     PaymentRequestStatus,
-)
-from taxsystem.models.logs import (
-    AdminActions,
 )
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)

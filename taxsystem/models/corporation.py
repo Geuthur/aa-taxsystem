@@ -1,8 +1,5 @@
 """Models for Tax System."""
 
-# Standard Library
-from typing import TYPE_CHECKING
-
 # Django
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -33,6 +30,7 @@ from taxsystem.managers.payment_manager import (
 from taxsystem.models.base import (
     FilterBaseModel,
     FilterSetBaseModel,
+    HistoryBaseModel,
     PaymentAccountBaseModel,
     PaymentsBaseModel,
     UpdateStatusBaseModel,
@@ -40,16 +38,17 @@ from taxsystem.models.base import (
 from taxsystem.models.general import (
     UpdateSectionResult,
 )
-from taxsystem.models.helpers.textchoices import CorporationUpdateSection, UpdateStatus
+from taxsystem.models.helpers.textchoices import (
+    AdminActions,
+    CorporationUpdateSection,
+    PaymentRequestStatus,
+    UpdateStatus,
+)
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
 from taxsystem.providers import esi
-
-if TYPE_CHECKING:
-    # AA TaxSystem
-    from taxsystem.models.logs import CorporationPaymentHistory
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
@@ -122,19 +121,11 @@ class CorporationOwner(models.Model):
     @property
     def payment_history_model(self):
         """Return the Payment History Model for this owner."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.logs import CorporationPaymentHistory
-
         return CorporationPaymentHistory
 
     @property
     def admin_log_model(self):
         """Return the Admin History Model for this owner."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.logs import CorporationAdminHistory
-
         return CorporationAdminHistory
 
     @property
@@ -410,6 +401,7 @@ class CorporationPayments(PaymentsBaseModel):
     def __str__(self) -> str:
         return f"{self.account.name} - {self.amount} ISK"
 
+    # pylint: disable=duplicate-code
     def transaction_log(
         self, user, comment, new_status, action=""
     ) -> "CorporationPaymentHistory":
@@ -423,10 +415,6 @@ class CorporationPayments(PaymentsBaseModel):
         Returns:
             CorporationPaymentHistory object
         """
-        # pylint: disable=import-outside-toplevel, duplicate-code
-        # AA TaxSystem
-        from taxsystem.models.logs import CorporationPaymentHistory
-
         return CorporationPaymentHistory(
             user=user,
             payment=self,
@@ -500,3 +488,54 @@ class CorporationFilter(FilterBaseModel):
 
     def __str__(self) -> str:
         return f"Filter: {self.filter_type} = {self.value}"
+
+
+class CorporationPaymentHistory(HistoryBaseModel):
+    """Model representing the history of actions taken on corporation payments in the tax system."""
+
+    class Meta:
+        default_permissions = ()
+
+    # pylint: disable=duplicate-code
+    payment = models.ForeignKey(
+        CorporationPayments,
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("Payment"),
+        help_text=_("Payment that the action was performed on"),
+    )
+
+    # pylint: disable=duplicate-code
+    new_status = models.CharField(
+        max_length=20,
+        choices=PaymentRequestStatus.choices,
+        verbose_name=_("New Status"),
+        help_text=_("New Status of the action"),
+    )
+
+
+class CorporationAdminHistory(HistoryBaseModel):
+    """
+    Model representing the history of administrative actions taken on owners in the tax system.
+    """
+
+    class Meta:
+        default_permissions = ()
+
+    # pylint: disable=duplicate-code
+    owner = models.ForeignKey(
+        CorporationOwner,
+        verbose_name=_("Owner"),
+        help_text=_("Owner that the action was performed on"),
+        on_delete=models.CASCADE,
+        related_name="ts_admin_history",
+    )
+
+    # pylint: disable=duplicate-code
+    action = models.CharField(
+        max_length=20,
+        choices=AdminActions.choices,
+        default=AdminActions.DEFAULT,
+        verbose_name=_("Action"),
+        help_text=_("Action performed"),
+    )

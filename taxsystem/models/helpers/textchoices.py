@@ -200,3 +200,10 @@ class AllianceUpdateSection(UpdateSection):
     PAYMENT_SYSTEM = "payment_system", _("Payment System")
     PAYMENTS = "payments", _("Payments")
     PAYDAY = "payday", _("Payday")
+
+
+class AdminActions(models.TextChoices):
+    DEFAULT = "", ""
+    ADD = "Added", _("Added")
+    CHANGE = "Changed", _("Changed")
+    DELETE = "Deleted", _("Deleted")

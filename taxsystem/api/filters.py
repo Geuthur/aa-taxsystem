@@ -32,7 +32,7 @@ from taxsystem.api.schema import (
 from taxsystem.models.corporation import (
     CorporationOwner,
 )
-from taxsystem.models.logs import (
+from taxsystem.models.helpers.textchoices import (
     AdminActions,
 )
 

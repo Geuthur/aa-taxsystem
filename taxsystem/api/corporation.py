@@ -34,7 +34,7 @@ from taxsystem.models.corporation import (
     CorporationOwner,
     Members,
 )
-from taxsystem.models.logs import AdminActions
+from taxsystem.models.helpers.textchoices import AdminActions
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 

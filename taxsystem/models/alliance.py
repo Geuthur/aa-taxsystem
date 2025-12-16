@@ -1,8 +1,5 @@
 """Models for Tax System."""
 
-# Standard Library
-from typing import TYPE_CHECKING
-
 # Django
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -27,6 +24,7 @@ from taxsystem.managers.alliance_manager import (
 from taxsystem.models.base import (
     FilterBaseModel,
     FilterSetBaseModel,
+    HistoryBaseModel,
     PaymentAccountBaseModel,
     PaymentsBaseModel,
     UpdateStatusBaseModel,
@@ -34,16 +32,14 @@ from taxsystem.models.base import (
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.general import UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
+    AdminActions,
     AllianceUpdateSection,
+    PaymentRequestStatus,
     UpdateStatus,
 )
 from taxsystem.models.wallet import CorporationWalletJournalEntry
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
-
-if TYPE_CHECKING:
-    # AA TaxSystem
-    from taxsystem.models.logs import AlliancePaymentHistory
 
 
 class AllianceUpdateStatus(UpdateStatusBaseModel):
@@ -162,19 +158,11 @@ class AllianceOwner(models.Model):
     @property
     def payment_history_model(self):
         """Return the Payment History Model for this owner."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.logs import AlliancePaymentHistory
-
         return AlliancePaymentHistory
 
     @property
     def admin_log_model(self):
         """Return the Admin History Model for this owner."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.logs import AllianceAdminHistory
-
         return AllianceAdminHistory
 
     @property
@@ -287,10 +275,6 @@ class AlliancePayments(PaymentsBaseModel):
         Returns:
             AlliancePaymentHistory object
         """
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.logs import AlliancePaymentHistory
-
         return AlliancePaymentHistory(
             user=user,
             payment=self,
@@ -353,3 +337,51 @@ class AllianceFilter(FilterBaseModel):
 
     class Meta:
         default_permissions = ()
+
+
+class AlliancePaymentHistory(HistoryBaseModel):
+    """Model representing the history of actions taken on alliance payments in the tax system."""
+
+    class Meta:
+        default_permissions = ()
+
+    # pylint: disable=duplicate-code
+    payment = models.ForeignKey(
+        AlliancePayments,
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("Payment"),
+        help_text=_("Payment that the action was performed on"),
+    )
+    # pylint: enable=duplicate-code
+    new_status = models.CharField(
+        max_length=20,
+        choices=PaymentRequestStatus.choices,
+        verbose_name=_("New Status"),
+        help_text=_("New Status of the action"),
+    )
+
+
+class AllianceAdminHistory(HistoryBaseModel):
+    """
+    Model representing the history of administrative actions taken on owners in the tax system.
+    """
+
+    class Meta:
+        default_permissions = ()
+
+    owner = models.ForeignKey(
+        AllianceOwner,
+        verbose_name=_("Owner"),
+        help_text=_("Owner that the action was performed on"),
+        on_delete=models.CASCADE,
+        related_name="ts_admin_history",
+    )
+
+    action = models.CharField(
+        max_length=20,
+        choices=AdminActions.choices,
+        default=AdminActions.DEFAULT,
+        verbose_name=_("Action"),
+        help_text=_("Action performed"),
+    )

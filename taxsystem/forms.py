@@ -6,11 +6,13 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
-from taxsystem.models.corporation import CorporationFilter
-from taxsystem.models.logs import (
+from taxsystem.models.alliance import (
     AllianceAdminHistory,
     AlliancePaymentHistory,
+)
+from taxsystem.models.corporation import (
     CorporationAdminHistory,
+    CorporationFilter,
     CorporationPaymentHistory,
 )
 
