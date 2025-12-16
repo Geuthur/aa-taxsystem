@@ -27,6 +27,7 @@ Details: why, what, notes for reviewers
 - `runtests.py` — test entrypoint; sets `DJANGO_SETTINGS_MODULE` to `testauth.settings.local`
 - `Makefile` + `.make/conf.d/tests.mk` — common developer commands (`make coverage`, `make build-test`)
 - `docs/` and `taxsystem/docs/` — user and developer documentation and design notes
+ - `.github/PULL_REQUEST_TEMPLATE.md` — PR template and checklist used for contributions
 
 ## Developer workflows & commands (concrete)
 - Run unit tests quickly (uses local `testauth` fixture):
@@ -57,6 +58,25 @@ Details: why, what, notes for reviewers
 ## What reviewers/agents should avoid changing
 - Do not change the task naming conventions or the `QueueOnce` usage without ensuring backward compatibility with Celery scheduling and once-only semantics.
 - Avoid altering `TAXSYSTEM_*` default keys in `app_settings.py` without documenting migration or rollout steps.
+
+If any section is unclear or you want more examples (for instance, a short walkthrough of adding a new `update_*` section), tell me which area and I'll expand with concrete code snippets.
+## Pre-PR checks (must do before opening a PR)
+- Always run the test coverage target inside the project's virtual environment before creating a PR.
+
+Typical steps (example environment used by CI/deployments for this repo):
+
+```bash
+# Activate the virtualenv used for tests
+# (example) activate the virtualenv used for tests — replace with your own venv
+# A Fully installed ([AA Dev Environment](https://allianceauth.readthedocs.io/en/latest/development/dev_setup/aa-dev-setup-wsl-vsc-v2.html)) is assumed here 
+source /home/testauth/venv/bin/activate
+
+# Change into the repository (or use ../auth if you have a symlink)
+cd /home/github/aa-taxsystem
+
+# Run the coverage target (Makefile target)
+make coverage
+```
 
 If any section is unclear or you want more examples (for instance, a short walkthrough of adding a new `update_*` section), tell me which area and I'll expand with concrete code snippets.
 ````
