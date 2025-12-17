@@ -289,18 +289,18 @@ def create_tax_owner(
 
 
 def create_update_status(
-    owner_audit: CorporationOwner,
+    owner: CorporationOwner,
     section: str,
     error_message="",
     tax_type="corporation",
     **kwargs,
 ) -> CorporationUpdateStatus | AllianceUpdateStatus:
     """
-    Create an Update Status for a CorporationOwner.
+    Create an Update Status for a CorporationOwner or AllianceOwner.
     The type of update status created depends on the tax_type parameter.
 
     Args:
-        owner_audit (CorporationOwner): The owner for whom to create the update status.
+        owner (CorporationOwner | AllianceOwner): The owner for whom to create the update status.
         section (str): The section for the update status.
         error_message (str, optional): The error message for the update status.
         tax_type (str, optional): Type of tax owner, either "corporation" or "alliance"
@@ -309,7 +309,7 @@ def create_update_status(
         (CorporationUpdateStatus or AllianceUpdateStatus): The created update status.
     """
     params = {
-        "owner": owner_audit,
+        "owner": owner,
         "section": section,
         "error_message": error_message,
     }
@@ -521,7 +521,7 @@ def create_tax_account(
         "owner": owner,
         "name": name,
         "user": user,
-        "deposit": int,
+        "deposit": deposit,
     }
     params.update(kwargs)
     if isinstance(owner, AllianceOwner):
