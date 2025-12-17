@@ -222,7 +222,7 @@ def create_user_from_evecharacter(
         permissions (list[str] | None): list of permission names, e.g. `"my_app.my_permission"`
         scopes (list[str] | None): list of scope names
     Returns:
-        tuple[User, CharacterOwnership]: Created Alliance Auth User and CharacterOwnership
+        tuple(User, CharacterOwnership): Created Alliance Auth User and CharacterOwnership
     """
     auth_character = EveCharacter.objects.get(character_id=character_id)
     user = AuthUtils.create_user(auth_character.character_name.replace(" ", "_"))
@@ -370,7 +370,7 @@ def create_user_from_evecharacter_with_access(
         character_id (int): ID of eve character
         disconnect_signals (bool, optional): Whether to disconnect signals during user creation. Defaults to True.
     Returns:
-        tuple[User, CharacterOwnership]: Created Alliance Auth User and CharacterOwnership
+        tuple(User, CharacterOwnership): Created Alliance Auth User and CharacterOwnership
     """
     auth_character = EveCharacter.objects.get(character_id=character_id)
     username = StateBackend.iterate_username(auth_character.character_name)
