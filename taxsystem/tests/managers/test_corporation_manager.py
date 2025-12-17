@@ -1,6 +1,5 @@
 # Standard Library
-from unittest.mock import MagicMock, patch
-from urllib import request
+from unittest.mock import patch
 
 # Django
 from django.test import override_settings
@@ -10,13 +9,12 @@ from django.utils import timezone
 from taxsystem.models.corporation import (
     CorporationFilter,
     CorporationPaymentAccount,
-    CorporationPayments,
 )
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
 from taxsystem.tests.testdata.utils import (
-    create_member,
+    create_filter,
+    create_filterset,
     create_owner_from_user,
     create_payment,
     create_tax_account,
@@ -26,8 +24,8 @@ MODULE_PATH = "taxsystem.managers.corporation_manager"
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestCorporationPaymentsManager(TaxSystemTestCase):
-    """Test Payments Manager for Corporation Journal Entries."""
+class TestCorporationManager(TaxSystemTestCase):
+    """Test Corporation Managers."""
 
     @classmethod
     def setUpClass(cls):
@@ -48,11 +46,13 @@ class TestCorporationPaymentsManager(TaxSystemTestCase):
         )
 
     def test_update_tax_account(self):
-        """Test updating corporation payments.
-
+        """
+        Test updating corporation tax accounts payments.
         This test should change 2 Payments in the payment system depending on the given filters.
-        1. Approve a payment as APPROVED depending to the filter.
-        2. Mark a payment as NEEDS_APPROVAL.
+
+        Results:
+            1. Approve a payment as APPROVED depending to the filter.
+            2. Mark a payment as NEEDS_APPROVAL.
         """
         # Test Data
         self.tax_account = create_tax_account(
@@ -109,7 +109,11 @@ class TestCorporationPaymentsManager(TaxSystemTestCase):
 
     @patch(f"{MODULE_PATH}.logger")
     def test_update_tax_accounts_mark_as_missing(self, mock_logger):
-        """Test should mark tax account as missing."""
+        """Test should mark tax account as missing.
+
+        Results:
+            1. Mark a tax account as MISSING when the user is no longer in the corporation.
+        """
         # Test Data
         self.tax_account = create_tax_account(
             name=self.user_2_character.character.character_name,
@@ -135,7 +139,12 @@ class TestCorporationPaymentsManager(TaxSystemTestCase):
     def test_update_tax_accounts_mark_as_missing_and_move_to_new_corporation(
         self, mock_logger
     ):
-        """Test should mark tax account as missing and move to new corporation."""
+        """
+        Test should mark tax account as missing and move to new corporation.
+
+        Results:
+            1. Move a tax account to a new corporation when the user has changed corporation.
+        """
         # Test Data
         self.audit_2 = create_owner_from_user(self.user_2)
         self.tax_account = create_tax_account(
@@ -162,7 +171,12 @@ class TestCorporationPaymentsManager(TaxSystemTestCase):
 
     @patch(f"{MODULE_PATH}.logger")
     def test_update_tax_accounts_reset_a_returning_user(self, mock_logger):
-        """Test should reset a tax account after a user returning to previous corporation."""
+        """
+        Test should reset a tax account after a user returning to previous corporation.
+
+        Results:
+            1. Reset a tax account when the user is back in the corporation.
+        """
         # Test Data
         self.tax_account = create_tax_account(
             name=self.user_character.character.character_name,

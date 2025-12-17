@@ -26,7 +26,7 @@ class TestViewAccess(TaxSystemTestCase):
         super().setUpClass()
         cls.audit = create_owner_from_user(cls.user)
         cls.audit_2 = create_owner_from_user(cls.superuser)
-        cls.manage_audit = create_owner_from_user(cls.manage_own_corp_user)
+        cls.manage_audit = create_owner_from_user(cls.manage_own_user)
         cls.tax_account = create_tax_account(
             name=cls.user_character.character.character_name,
             owner=cls.audit,
@@ -57,7 +57,7 @@ class TestViewAccess(TaxSystemTestCase):
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_corp_user
+        request.user = self.manage_own_user
         # when
         response = views.manage_owner(request, 2001)
         # then
@@ -209,7 +209,7 @@ class TestViewAccess(TaxSystemTestCase):
                 args=[2001],
             )
         )
-        request.user = self.manage_own_corp_user
+        request.user = self.manage_own_user
         # when
         response = views.manage_filter(request, owner_id=2001)
         # then
@@ -309,7 +309,7 @@ class TestViewAccess(TaxSystemTestCase):
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_corp_user
+        request.user = self.manage_own_user
         # when
         response = views.manage_owner(request, 999999)
         # then
@@ -324,7 +324,7 @@ class TestViewAccess(TaxSystemTestCase):
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_corp_user
+        request.user = self.manage_own_user
         # when
         response = views.manage_owner(request, 2003)
         # then

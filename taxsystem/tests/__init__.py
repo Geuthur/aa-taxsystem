@@ -69,13 +69,17 @@ class TaxSystemTestCase(NoSocketsTestCase):
         * `manage_own_user` User with manage own corporation access.
             * 'taxsystem.basic_access' Permission
             * 'taxsystem.manage_own_corp' Permission
+            * 'taxsystem.manage_own_alliances' Permission
             * Character ID 1004
             * Corporation ID 2001
+            * Alliance ID 3001
         * `manage_user` User with manage corporations access.
             * 'taxsystem.basic_access' Permission
             * 'taxsystem.manage_corps' Permission
+            * 'taxsystem.manage_alliances' Permission
             * Character ID 1005
             * Corporation ID 2001
+            * Alliance ID 3001
 
     Example:
         .. code-block:: python
@@ -113,22 +117,20 @@ class TaxSystemTestCase(NoSocketsTestCase):
         cls.superuser.is_superuser = True
         cls.superuser.save()
         # User with Manage Own Corporation Access - Corporation 2001
-        cls.manage_own_corp_user, cls.manage_own_corp_character = (
-            create_user_from_evecharacter(
-                character_id=1004,
-                permissions=[
-                    "taxsystem.basic_access",
-                    "taxsystem.manage_own_corp",
-                ],
-            )
+        cls.manage_own_user, cls.manage_own_character = create_user_from_evecharacter(
+            character_id=1004,
+            permissions=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_own_corp",
+                "taxsystem.manage_own_alliance",
+            ],
         )
         # User with Manage Corporations Access - Corporation 2001
-        cls.manage_corps_user, cls.manage_corps_character = (
-            create_user_from_evecharacter(
-                character_id=1005,
-                permissions=[
-                    "taxsystem.basic_access",
-                    "taxsystem.manage_corps",
-                ],
-            )
+        cls.manage_user, cls.manage_character = create_user_from_evecharacter(
+            character_id=1005,
+            permissions=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_corps",
+                "taxsystem.manage_alliances",
+            ],
         )

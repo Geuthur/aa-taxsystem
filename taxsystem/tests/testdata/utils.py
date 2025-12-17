@@ -323,7 +323,7 @@ def create_update_status(
 
 
 def create_owner_from_user(
-    user: User, tax_type="Corporation", **kwargs
+    user: User, tax_type="corporation", **kwargs
 ) -> CorporationOwner | AllianceOwner:
     """
     Create a CorporationOwner or AllianceOwner from a user.
@@ -331,7 +331,7 @@ def create_owner_from_user(
 
     Args:
         user (User): The user to create the owner from.
-        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+        tax_type (str): Type of tax owner, either "corporation" or "alliance"
     """
     eve_character = user.profile.main_character
     if not eve_character:
@@ -525,6 +525,7 @@ def create_tax_account(
     }
     params.update(kwargs)
     if isinstance(owner, AllianceOwner):
+        print("Creating AlliancePaymentAccount")
         tax_account = AlliancePaymentAccount(**params)
     else:
         tax_account = CorporationPaymentAccount(**params)
