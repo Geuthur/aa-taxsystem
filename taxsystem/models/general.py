@@ -26,7 +26,16 @@ class General(models.Model):
 
 
 class UpdateSectionResult(NamedTuple):
-    """A result of an attempted section update."""
+    """
+    A result of an attempted section update.
+
+    Attributes:
+        is_changed (bool | None): Whether the data has changed. None if unknown.
+        is_updated (bool): Whether the update was successful.
+        has_token_error (bool): Whether there was a token error during the update.
+        error_message (str | None): An error message if applicable.
+        data (Any): The data fetched during the update.
+    """
 
     is_changed: bool | None
     is_updated: bool
@@ -37,7 +46,12 @@ class UpdateSectionResult(NamedTuple):
 
 @dataclass(frozen=True)
 class _NeedsUpdate:
-    """An Object to track if an update is needed."""
+    """
+    An Object to track if an update is needed.
+
+    Results:
+        section_map (dict[str, bool]): A mapping of sections to their update needs.
+    """
 
     section_map: dict[str, bool]
 
