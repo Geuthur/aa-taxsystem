@@ -24,6 +24,7 @@ class TestPaymentSystemModel(TaxSystemTestCase):
             name=cls.user.username,
             owner=cls.audit,
             user=cls.user,
+            deposit=0,
         )
 
     def test_str(self):

@@ -55,30 +55,27 @@ class TaxSystemTestCase(NoSocketsTestCase):
         `self.factory`
 
     Available test users:
-        * `user` User with standard Skillfarm access.
-            * 'skillfarm.basic_access' Permission
+        * `user` User with standard TaxSystem access.
+            * 'taxsystem.basic_access' Permission
             * Character ID 1001
             * Corporation ID 2001
-        * `user_2` Second user with standard Skillfarm access.
-            * 'skillfarm.basic_access' Permission
-            * Character ID 1004
-            * Corporation ID 2001
-        * `manage_own_user` User with manage own corporation access.
-            * 'skillfarm.basic_access' Permission
-            * 'skillfarm.manage_own_corp' Permission
-            * Character ID 1005
-            * Corporation ID 2001
-        * `manage_user` User with manage corporations access.
-            * 'skillfarm.basic_access' Permission
-            * 'skillfarm.manage_corps' Permission
-            * Character ID 1006
-            * Corporation ID 2001
-        * `no_permission_user` User without any Skillfarm permissions.
-            * No Permissions
+        * `user_2` Second user with standard TaxSystem access.
+            * 'taxsystem.basic_access' Permission
             * Character ID 1002
+            * Corporation ID 2002
         * `superuser` Superuser.
             * Access to whole Application
             * Character ID 1003
+        * `manage_own_user` User with manage own corporation access.
+            * 'taxsystem.basic_access' Permission
+            * 'taxsystem.manage_own_corp' Permission
+            * Character ID 1004
+            * Corporation ID 2001
+        * `manage_user` User with manage corporations access.
+            * 'taxsystem.basic_access' Permission
+            * 'taxsystem.manage_corps' Permission
+            * Character ID 1005
+            * Corporation ID 2001
 
     Example:
         .. code-block:: python
@@ -103,33 +100,11 @@ class TaxSystemTestCase(NoSocketsTestCase):
             character_id=1001,
             permissions=["taxsystem.basic_access"],
         )
-        # User with Standard Access - Corporation 2001
+        # User with Standard Access - Corporation 2002
         cls.user_2, cls.user_2_character = create_user_from_evecharacter(
-            character_id=1004,
+            character_id=1002,
             permissions=["taxsystem.basic_access"],
         )
-        # User with Manage Own Corporation Access - Corporation 2001
-        cls.manage_own_user, cls.manage_own_character = create_user_from_evecharacter(
-            character_id=1005,
-            permissions=[
-                "taxsystem.basic_access",
-                "taxsystem.manage_own_corp",
-            ],
-        )
-        # User with Manage Corporations Access - Corporation 2001
-        cls.manage_user, cls.manage_character = create_user_from_evecharacter(
-            character_id=1006,
-            permissions=[
-                "taxsystem.basic_access",
-                "taxsystem.manage_corps",
-            ],
-        )
-        # User without Access to TaxSystem - Corporation 2002
-        cls.no_permission_user, cls.no_perm_character = create_user_from_evecharacter(
-            character_id=1002,
-            permissions=[],
-        )
-
         # User with Superuser Access - Corporation 2003
         cls.superuser, cls.superuser_character = create_user_from_evecharacter(
             character_id=1003,
@@ -137,3 +112,23 @@ class TaxSystemTestCase(NoSocketsTestCase):
         )
         cls.superuser.is_superuser = True
         cls.superuser.save()
+        # User with Manage Own Corporation Access - Corporation 2001
+        cls.manage_own_corp_user, cls.manage_own_corp_character = (
+            create_user_from_evecharacter(
+                character_id=1004,
+                permissions=[
+                    "taxsystem.basic_access",
+                    "taxsystem.manage_own_corp",
+                ],
+            )
+        )
+        # User with Manage Corporations Access - Corporation 2001
+        cls.manage_corps_user, cls.manage_corps_character = (
+            create_user_from_evecharacter(
+                character_id=1005,
+                permissions=[
+                    "taxsystem.basic_access",
+                    "taxsystem.manage_corps",
+                ],
+            )
+        )

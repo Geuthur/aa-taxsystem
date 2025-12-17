@@ -49,6 +49,7 @@ class TestMigratePayments(TaxSystemTestCase):
             ref_type="tax_payment",
             first_party=cls.eve_character_first_party,
             second_party=cls.eve_character_second_party,
+            description="Test Description",
         )
 
         cls.tax_account = create_tax_account(

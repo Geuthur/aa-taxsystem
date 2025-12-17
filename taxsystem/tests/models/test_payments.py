@@ -48,22 +48,24 @@ class TestPaymentsModel(TaxSystemTestCase):
             ref_type="tax_payment",
             first_party=cls.eve_character_first_party,
             second_party=cls.eve_character_second_party,
+            description="Test Description",
         )
 
         cls.tax_account = create_tax_account(
             name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
+            deposit=0,
         )
 
         cls.payments = create_payment(
             name="Gneuten",
-            entry_id=1,
-            account=cls.tax_account,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             request_status="needs_approval",
+            account=cls.tax_account,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reviser="Requires Auditor",
+            entry_id=1,
         )
 
     def test_str(self):
