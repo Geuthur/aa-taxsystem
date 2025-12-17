@@ -50,6 +50,7 @@ class TaxSystemTestCase(NoSocketsTestCase):
     Pre-Load:
         * Alliance Auth Characters, Corporation, Alliance Data
         * Eve Universe Data
+        * Taken User IDs: 1001, 1002, 1003, 1004, 1005
 
     Available Request Factory:
         `self.factory`
