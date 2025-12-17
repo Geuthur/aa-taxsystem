@@ -154,7 +154,6 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         # Get all existing accounts with a Main Character
         auth_accounts = UserProfile.objects.filter(
             main_character__isnull=False,
-            main_character__alliance_id=owner.eve_alliance.alliance_id,
         ).prefetch_related("user__profile__main_character")
         auth_accounts_ids = set(auth_accounts.values_list("user_id", flat=True))
 
