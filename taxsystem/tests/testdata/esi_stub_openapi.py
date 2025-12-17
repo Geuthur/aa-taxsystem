@@ -38,6 +38,39 @@ def _to_pydantic_model_instance(name: str, data: Any) -> Any:
     return data
 
 
+def _select_method_data(method_data: Any, kwargs: dict, endpoint=None):
+    """Select appropriate test data entry from a mapping using endpoint param names.
+
+    - If method_data is a dict and endpoint.param_names are provided, try to match
+      kwargs values (as str or int) to the dict keys. If found, return that value.
+    - If only a single entry exists in the dict, return its value as a sensible default.
+    - Otherwise return method_data unchanged.
+    """
+    if not endpoint or not isinstance(method_data, dict):
+        return method_data
+
+    # Try to match provided kwargs by param names
+    for param_name in endpoint.param_names:
+        if param_name in kwargs and kwargs[param_name] is not None:
+            key = str(kwargs[param_name])
+            if key in method_data:
+                return method_data[key]
+            # try integer key match
+            try:
+                int_key = int(kwargs[param_name])
+            except Exception:
+                int_key = None
+            if int_key is not None:
+                if int_key in method_data:
+                    return method_data[int_key]
+
+    # Fallback: if single-entry dict, return its value
+    if len(method_data) == 1:
+        return list(method_data.values())[0]
+
+    return method_data
+
+
 class MockResponse:
     """
     Mock HTTP response object for testing.
@@ -49,10 +82,9 @@ class MockResponse:
         """
         Initialize mock response.
 
-        :param status_code: HTTP status code
-        :type status_code: int
-        :param headers: Response headers
-        :type headers: dict | None
+        Attributes:
+            status_code (int): HTTP status code
+            headers (dict | None): Response headers
         """
         self.status_code = status_code
         self.headers = headers or {"X-Pages": 1}
@@ -77,14 +109,11 @@ class EsiEndpoint:
         """
         Initialize an ESI endpoint definition.
 
-        :param category: ESI category name (e.g., "Character", "Skills")
-        :type category: str
-        :param method: ESI method name (e.g., "GetCharactersCharacterIdSkills")
-        :type method: str
-        :param param_names: Parameter name(s) used to look up test data
-        :type param_names: str | tuple[str, ...]
-        :param side_effect: Optional exception to raise when this endpoint is called
-        :type side_effect: Exception | None
+        Attributes:
+            category (str): ESI category name (e.g., "Character", "Skills")
+            method (str): ESI method name (e.g., "GetCharactersCharacterIdSkills")
+            param_names (str | tuple[str, ...]): Parameter name(s) used to look up test data
+            side_effect (Exception | None): Optional exception to raise when this endpoint is called
         """
         self.category = category
         self.method = method
@@ -112,10 +141,9 @@ class EsiOperationStub:
         """
         Initialize the operation stub with test data or side effect.
 
-        :param test_data: The data to return when result() or results() is called
-        :type test_data: Any
-        :param side_effect: Exception to raise when result() or results() is called
-        :type side_effect: Exception | None
+        Attributes:
+            test_data (Any): The data to return when result() or results() is called
+            side_effect (Exception | None): Exception to raise when result() or results() is called
         """
         self._test_data = test_data
         self._side_effect = side_effect
@@ -136,17 +164,15 @@ class EsiOperationStub:
 
         If a side_effect was configured, raises that exception instead.
 
-        :param use_etag: Whether to use ETag (ignored in stub)
-        :type use_etag: bool
-        :param return_response: Whether to return response object
-        :type return_response: bool
-        :param force_refresh: Whether to force refresh (ignored in stub)
-        :type force_refresh: bool
-        :param use_cache: Whether to use cache (ignored in stub)
-        :type use_cache: bool
-        :return: Test data as object, or tuple of (data, response) if return_response=True
-        :rtype: Any
-        :raises: Exception if side_effect was configured
+        Args:
+            use_etag (bool) Whether to use ETag (ignored in stub)
+            return_response (bool): Whether to return response object
+            force_refresh (bool): Whether to force refresh (ignored in stub)
+            use_cache (bool): Whether to use cache (ignored in stub)
+        Returns:
+            Any: Test data as object, or tuple of (data, response) if return_response=True
+        Raises:
+            Exception: if side_effect was configured
         """
         # If side_effect is configured, raise it
         if self._side_effect is not None:
@@ -195,17 +221,15 @@ class EsiOperationStub:
 
         If a side_effect was configured, raises that exception instead.
 
-        :param use_etag: Whether to use ETag (ignored in stub)
-        :type use_etag: bool
-        :param return_response: Whether to return response object
-        :type return_response: bool
-        :param force_refresh: Whether to force refresh (ignored in stub)
-        :type force_refresh: bool
-        :param use_cache: Whether to use cache (ignored in stub)
-        :type use_cache: bool
-        :return: Test data as list of objects, or tuple of (data, response) if return_response=True
-        :rtype: list[Any]
-        :raises: Exception if side_effect was configured
+        Args:
+            use_etag (bool): Whether to use ETag (ignored in stub)
+            return_response (bool): Whether to return response object
+            force_refresh (bool): Whether to force refresh (ignored in stub)
+            use_cache (bool): Whether to use cache (ignored in stub)
+        Returns:
+            list[Any]: Test data as list of objects, or tuple of (data, response) if return_response=True
+        Raises:
+            Exception: if side_effect was configured
         """
         # If side_effect is configured, raise it
         if self._side_effect is not None:
@@ -262,12 +286,10 @@ class EsiCategoryStub:
         """
         Initialize the category stub.
 
-        :param category_name: Name of the ESI category (e.g., "Skills")
-        :type category_name: str
-        :param test_data: Dictionary mapping method names to test data
-        :type test_data: dict[str, Any]
-        :param endpoints: Dictionary mapping method names to endpoint definitions
-        :type endpoints: dict[str, EsiEndpoint]
+        Attributes:
+            category_name (str): Name of the ESI category
+            test_data (dict[str, Any]): Test data for methods in this category
+            endpoints (dict[str, EsiEndpoint]): Endpoint definitions for this category
         """
         self._category_name = category_name
         self._test_data = test_data
@@ -277,10 +299,12 @@ class EsiCategoryStub:
         """
         Return a callable that creates an EsiOperationStub when invoked.
 
-        :param method_name: Name of the ESI method
-        :type method_name: str
-        :return: Callable that returns EsiOperationStub
-        :rtype: callable
+        Args:
+            method_name (str): Name of the ESI method
+        Returns:
+            callable: Callable that returns EsiOperationStub
+        Raises:
+            AttributeError: If method is not registered in endpoints
         """
 
         def operation_caller(**kwargs) -> EsiOperationStub:
@@ -304,11 +328,9 @@ class EsiCategoryStub:
             # Look up test data for this method
             method_data = self._test_data.get(method_name, {})
 
-            # If method_data is callable, call it with the kwargs to get dynamic data
-            if callable(method_data):
-                data = method_data(**kwargs)
-            else:
-                data = method_data
+            # print(f"DEBUG: EsiCategoryStub: method_data for {self._category_name}.{method_name}: {method_data}")
+            data = _select_method_data(method_data, kwargs, endpoint)
+            # print(f"DEBUG: EsiCategoryStub: selected data for {self._category_name}.{method_name}: {data}")
 
             # Get side effect from endpoint if defined
             side_effect = endpoint.side_effect if endpoint else None
@@ -334,12 +356,12 @@ class EsiClientStub:
         """
         Initialize the ESI client stub.
 
-        :param test_data_config: Dictionary mapping category names to their method data
-                                 Format: {"CategoryName": {"MethodName": test_data}}
-        :type test_data_config: dict[str, dict[str, Any]]
-        :param endpoints: List of endpoint definitions (REQUIRED). Only these endpoints will be available.
-        :type endpoints: list[EsiEndpoint]
-        :raises ValueError: If endpoints is None or empty
+        Args:
+            test_data_config (dict[str, dict[str, Any]]): Test data configuration
+                Format: {"CategoryName": {"MethodName": test_data}}
+            endpoints (list[EsiEndpoint]): List of endpoint definitions (REQUIRED)
+        Raises:
+            ValueError: If endpoints is None or empty
         """
         if not endpoints:
             raise ValueError(
@@ -371,11 +393,12 @@ class EsiClientStub:
         """
         Return the category stub for the requested ESI category.
 
-        :param category_name: Name of the ESI category
-        :type category_name: str
-        :return: Category stub
-        :rtype: EsiCategoryStub
-        :raises AttributeError: If category is not registered in endpoints
+        Args:
+            category_name (str): Name of the ESI category
+        Returns:
+            EsiCategoryStub: The category stub
+        Raises:
+            AttributeError: If category is not registered in endpoints
         """
         if category_name in self._categories:
             return self._categories[category_name]
@@ -391,10 +414,11 @@ def load_test_data_from_json(file_name: str = "esi_test_data.json") -> dict:
     """
     Load test data from a JSON file in the testdata directory.
 
-    :param file_name: Name of the JSON file
-    :type file_name: str
-    :return: Loaded test data
-    :rtype: dict
+    Args:
+        file_name (str): Name of the JSON file (default: "esi_test_data.json")
+
+    Returns:
+        dict: Loaded test data
     """
     file_path = Path(__file__).parent / file_name
 
@@ -411,14 +435,17 @@ def create_esi_client_stub(
 ) -> EsiClientStub:
     """
     Create an ESI client stub with the provided test data configuration.
+    This function can be used in tests to provide a stub ESI client.
 
-    :param test_data_config: Test data configuration, if None loads from JSON file
-    :type test_data_config: dict[str, dict[str, Any]] | None
-    :param endpoints: List of endpoint definitions (REQUIRED)
-    :type endpoints: list[EsiEndpoint] | None
-    :return: ESI client stub
-    :rtype: EsiClientStub
-    :raises ValueError: If endpoints is None or empty
+    Args:
+        test_data_config (dict[str, dict[str, Any]] | None): Test data configuration, if None loads from JSON file
+        endpoints (list[EsiEndpoint] | None): List of endpoint definitions (REQUIRED)
+
+    Returns:
+        EsiClientStub: ESI client stub
+
+    Raises:
+        ValueError: If endpoints is None or empty
     """
     if test_data_config is None:
         test_data_config = load_test_data_from_json()
