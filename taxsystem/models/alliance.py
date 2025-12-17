@@ -17,10 +17,10 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.managers.alliance_manager import (
-    AllianceOwnerManager,
     AlliancePaymentAccountManager,
     AlliancePaymentManager,
 )
+from taxsystem.managers.owner_manager import AllianceOwnerManager
 from taxsystem.models.base import (
     FilterBaseModel,
     FilterSetBaseModel,

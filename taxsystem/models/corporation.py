@@ -20,12 +20,12 @@ from app_utils.logging import LoggerAddTag
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.managers.corporation_manager import (
-    CorporationOwnerManager,
-    MembersManager,
-)
-from taxsystem.managers.payment_manager import (
     CorporationAccountManager,
+    MembersManager,
     PaymentsManager,
+)
+from taxsystem.managers.owner_manager import (
+    CorporationOwnerManager,
 )
 from taxsystem.models.base import (
     FilterBaseModel,
