@@ -218,7 +218,7 @@
       "GetCorporationsCorporationIdWallets": {
          "2001": [
             {
-               "balance": 27544210.6212,
+               "balance": 0,
                "division": 1
             },
             {
@@ -230,15 +230,15 @@
                "division": 3
             },
             {
-               "balance": 1600000000,
+               "balance": 500000,
                "division": 4
             },
             {
-               "balance": 32320243.96,
+               "balance": 0,
                "division": 5
             },
             {
-               "balance": 0,
+               "balance": 250000,
                "division": 6
             },
             {
