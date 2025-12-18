@@ -473,11 +473,11 @@ $(document).ready(function() {
                         });
 
                         $('#request-filter-paid').on('change click', () => {
-                            applyPaymentFilter(rowData => !!(rowData.has_paid && rowData.has_paid.raw));
+                            applyPaymentFilter(rowData => !!(rowData.has_paid && rowData.has_paid.raw && rowData.is_active));
                         });
 
                         $('#request-filter-not-paid').on('change click', () => {
-                            applyPaymentFilter(rowData => !(rowData.has_paid && rowData.has_paid.raw));
+                            applyPaymentFilter(rowData => rowData.is_active && !(rowData.has_paid && rowData.has_paid.raw));
                         });
 
                         _bootstrapTooltip({selector: '#tax-accounts'});
