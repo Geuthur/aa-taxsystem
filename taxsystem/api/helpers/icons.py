@@ -51,6 +51,7 @@ def get_taxsystem_manage_action_icons(
     taxsystem_request_icons += get_tax_account_add_button(account=account)
     taxsystem_request_icons += get_tax_account_switch_button(account=account)
     taxsystem_request_icons += get_tax_account_info_button(account=account)
+    taxsystem_request_icons += f'<input type="checkbox" class="tax-row-select form-check-input me-2" data-account-pk="{account.pk}" />'
     taxsystem_request_icons += "</div>"
     return taxsystem_request_icons
 

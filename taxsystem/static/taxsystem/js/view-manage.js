@@ -6,6 +6,7 @@ $(document).ready(function() {
     // Table :: Tax Accounts
     const modalRequestSwitchUser = $('#taxsystem-accept-switch-tax-account');
     const modalRequestViewPayments = $('#taxsystem-view-tax-account');
+    const modalRequestAcceptBulkActions = $('#taxsystem-accept-bulk-actions');
     // Modal :: Table :: Payments
     const modalRequestAddPayment = $('#taxsystem-accept-add-payment');
     const modalRequestApprovePayment = $('#taxsystem-accept-approve-payment');
@@ -355,6 +356,74 @@ $(document).ready(function() {
         });
 
     /**
+     * Table :: Tax Accounts :: Bulk Actions :: Update Bulk State
+     * Updates the bulk action panel based on the number of selected checkboxes
+     */
+    const _updateBulkState = () => {
+        const count = $(taxAccountsTable).find('.tax-row-select:checked').length;
+        $('#tax-bulk-count').text(count);
+        if (count > 0) {
+            $('#tax-bulk-panel').removeClass('d-none').addClass('show');
+        } else {
+            $('#tax-bulk-panel').removeClass('show').addClass('d-none');
+        }
+    };
+    /**
+     * Table :: Tax Accounts :: Bulk Actions :: Reset States
+     * Resets the bulk action panel and unchecks all selected checkboxes
+     */
+    const _resetBulkState = () => {
+        $(taxAccountsTable).find('.tax-row-select').prop('checked', false);
+        $('#tax-bulk-panel').addClass('d-none').removeClass('show');
+    };
+
+    /**
+     * Table :: Tax Accounts :: Bulk Actions :: Clear Selection Button Click Handler
+     * Resets the bulk action panel and unchecks all selected checkboxes
+     */
+    $('#tax-bulk-action-clear-selection').on('click', () => {
+        _resetBulkState();
+    });
+
+    /**
+     * Table :: Tax Accounts :: Bulk Actions :: Approve Button Click Handler
+     * Open Approve Bulk Action Modal
+     * On Confirmation send a request to the API Endpoint, reload the Tax Accounts DataTable and update Dashboard statistics, close the modal
+     */
+    modalRequestAcceptBulkActions.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const action = button.data('bulk-action');
+        const selectedRows = $(taxAccountsTable).find('.tax-row-select:checked').closest('tr');
+        const pks = selectedRows.map(function () {
+            return $(this).find('.tax-row-select').data('account-pk');
+        }).get().filter(Boolean);
+
+        modalRequestAcceptBulkActions.find('#modal-button-confirm-accept-request').on('click', () => {
+            fetchPost({
+                url: aaTaxSystemSettings.url.BulkActions,
+                csrfToken: aaTaxSystemSettings.csrfToken,
+                payload: {
+                    pks: pks,
+                    action: action
+                }
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        _reloadChangedData();
+                        _resetBulkState();
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting approve request: ${error.message}`);
+                });
+            modalRequestAcceptBulkActions.modal('hide');
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestAcceptBulkActions.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+
+    /**
      * Table :: Tax Accounts
      */
     fetchGet({
@@ -446,11 +515,17 @@ $(document).ready(function() {
                     initComplete: function () {
                         const dt = taxAccountsTable.DataTable();
 
+                        // per-row checkbox change handler
+                        $(taxAccountsTable).on('change', '.tax-row-select', function () {
+                            _updateBulkState();
+                        });
+
                         /**
                          * Helper function: Filter DataTable using DataTables custom search API
                          */
                         const applyPaymentFilter = (predicate) => {
                             // reset custom filters and add a table-scoped predicate
+                            _resetBulkState();
                             $.fn.dataTable.ext.search = [];
                             $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData) {
                                 // only apply to this DataTable instance

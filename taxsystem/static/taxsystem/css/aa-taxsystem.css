@@ -41,6 +41,14 @@
     .tax-red {
         background-color: rgb(255 0 0 / 10%) !important;
     }
+
+    .tax-bulk-actions {
+        border: 1px solid rgb(0 0 0 / 100%);
+        box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
+        z-index: 1;
+        width: auto;
+        right: 5rem;
+    }
 }
 
 /* Editable

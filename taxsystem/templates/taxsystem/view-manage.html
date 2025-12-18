@@ -18,6 +18,8 @@
 
     {% include 'taxsystem/partials/view-manage/accounts.html' %}
 
+    {% include 'taxsystem/partials/view-manage/bulk_actions.html' %}
+
     {% include 'taxsystem/partials/view-manage/members.html' %}
 {% endblock %}
 
@@ -36,6 +38,7 @@
                 Dashboard: '{% url "taxsystem:api:get_dashboard" owner_id=owner.eve_id %}',
                 Members: '{% url "taxsystem:api:get_members" owner_id=owner.eve_id %}',
                 TaxAccounts: '{% url "taxsystem:api:get_tax_accounts" owner_id=owner.eve_id %}',
+                BulkActions: '{% url "taxsystem:api:perform_bulk_actions_tax_accounts" owner_id=owner.eve_id %}',
                 // Editable
                 UpdateTax: '{% url "taxsystem:api:update_tax_amount" owner_id=owner.eve_id %}',
                 UpdatePeriod: '{% url "taxsystem:api:update_tax_period" owner_id=owner.eve_id %}',
@@ -64,6 +67,7 @@
     {% include 'taxsystem/modals/request-accept-delete-payment.html' %}
     {% include 'taxsystem/modals/request-accept-reject-payment.html' %}
     {% include 'taxsystem/modals/request-accept-switch-tax-account.html' %}
+    {% include 'taxsystem/modals/request-accept-bulk-actions.html' %}
     {% include 'taxsystem/modals/request-view-tax-account.html' %}
     {% include 'taxsystem/modals/request-view-payment-details.html' %}
     {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}

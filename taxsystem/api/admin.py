@@ -373,3 +373,75 @@ class AdminApiEndpoints:
 
             # Return success response
             return 200, {"success": True, "message": msg}
+
+        @api.post(
+            "owner/{owner_id}/manage/bulk-actions/",
+            response={200: dict, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def perform_bulk_actions_tax_accounts(request: WSGIRequest, owner_id: int):
+            """
+            Handle an Request to Bulk Actions
+
+            This Endpoint performs bulk actions for an associated owner.
+            It validates the request, checks permissions, and performs the bulk actions accordingly.
+
+            Args:
+                request (WSGIRequest): The HTTP request object.
+                owner_id (int): The ID of the owner whose filter set is to be retrieved.
+            Returns:
+                dict: A dictionary containing the success status and message.
+            """
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # Check if owner exists
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # Check permissions
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            pks_ids = json.loads(request.body).get("pks", [])
+            action = json.loads(request.body).get("action", "")
+
+            if len(pks_ids) == 0:
+                msg = _("Please select at least one account")
+                return 400, {"success": False, "message": msg}
+
+            if action == "activate":
+                status = AccountStatus.ACTIVE
+                items = owner.account_model.objects.filter(
+                    owner=owner,
+                    pk__in=pks_ids,
+                ).update(status=status)
+            elif action == "deactivate":
+                status = AccountStatus.DEACTIVATED
+                items = owner.account_model.objects.filter(
+                    owner=owner,
+                    pk__in=pks_ids,
+                ).update(status=status)
+            else:
+                msg = _("Please select a valid action")
+                return 400, {"success": False, "message": msg}
+
+            # Create log message
+            msg = format_lazy(
+                _("Bulk '{status}' performed for {items} accounts({pks}) for {owner}"),
+                items=items,
+                status=status,
+                owner=owner,
+                pks=pks_ids,
+            )
+
+            # Log Action in Admin History
+            owner.admin_log_model(
+                user=request.user,
+                owner=owner,
+                action=AdminActions.CHANGE,
+                comment=msg,
+            ).save()
+
+            # Return success response
+            return 200, {"success": True, "message": msg}
