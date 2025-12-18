@@ -213,13 +213,13 @@ class TestCorporationManager(TaxSystemTestCase):
             self.tax_account.name,
         )
 
-    def test_pay_day(self):
+    def test_payment_deadlines(self):
         """
-        Test pay day processing for corporation tax accounts.
-        This test should process the payday for corporation tax accounts, deducting the tax amount from the deposit.
+        Test payment deadlines processing for corporation tax accounts.
+        This test should process the payment deadlines for corporation tax accounts, deducting the tax amount from the deposit.
 
         Results:
-            1. Tax Account deposit is reduced by the tax amount on payday.
+            1. Tax Account deposit is reduced by the tax amount on payment deadlines.
             2. New users within the free period are not charged.
         """
         # Test Data

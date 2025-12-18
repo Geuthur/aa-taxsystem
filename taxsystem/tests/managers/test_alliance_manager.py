@@ -199,13 +199,13 @@ class TestAllianceManager(TaxSystemTestCase):
             self.tax_account.name,
         )
 
-    def test_pay_day(self):
+    def test_payment_deadlines(self):
         """
-        Test pay day processing for alliance tax accounts.
-        This test should process the payday for alliance tax accounts, deducting the tax amount from the deposit.
+        Test payment deadlines processing for alliance tax accounts.
+        This test should process the payment deadlines for alliance tax accounts, deducting the tax amount from the deposit.
 
         Results:
-            1. Tax Account deposit is reduced by the tax amount on payday.
+            1. Tax Account deposit is reduced by the tax amount on payment deadlines.
             2. New users within the free period are not charged.
         """
         # Test Data

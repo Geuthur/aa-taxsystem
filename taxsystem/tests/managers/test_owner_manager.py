@@ -1,28 +1,13 @@
-# Standard Library
-from unittest.mock import MagicMock, patch
-from urllib import request
-
 # Django
 from django.test import override_settings
-from django.utils import timezone
 
 # AA TaxSystem
-from taxsystem.models.corporation import (
-    CorporationFilter,
-    CorporationPaymentAccount,
-    CorporationPayments,
-)
-from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.utils import (
-    create_filter,
-    create_filterset,
     create_owner_from_user,
-    create_payment,
-    create_tax_account,
 )
 
-MODULE_PATH = "taxsystem.managers.corporation_manager"
+MODULE_PATH = "taxsystem.managers.owner_manager"
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
