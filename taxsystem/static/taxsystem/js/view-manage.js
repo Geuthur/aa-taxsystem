@@ -84,7 +84,8 @@ $(document).ready(function() {
                     value: data.activity,
                     options: {
                         style: 'currency',
-                        currency: 'ISK'
+                        currency: 'ISK',
+                        maximumFractionDigits: 0
                     }
                 });
                 const ActivityClass = data.activity >= 0 ? 'text-success' : 'text-danger';
@@ -222,7 +223,8 @@ $(document).ready(function() {
                                         value: division.balance,
                                         options: {
                                             style: 'currency',
-                                            currency: 'ISK'
+                                            currency: 'ISK',
+                                            maximumFractionDigits: 0
                                         }
                                     })
                                 );
@@ -250,7 +252,8 @@ $(document).ready(function() {
                             language: aaTaxSystemSettings.locale,
                             options: {
                                 style: 'currency',
-                                currency: 'ISK'
+                                currency: 'ISK',
+                                maximumFractionDigits: 0
                             }
                         })
                     );
