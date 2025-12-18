@@ -89,12 +89,44 @@ def admin(request: WSGIRequest):
                     priority=7,
                 )
 
+    def _handle_alliance_updates(force_refresh):
+        alliance_id_input = request.POST.get("alliance_id")
+        if alliance_id_input:
+            try:
+                ally_id = int(alliance_id_input)
+                alliance = AllianceOwner.objects.get(eve_alliance__alliance_id=ally_id)
+                messages.info(
+                    request,
+                    _("Queued Update for Alliance: %s") % alliance.name,
+                )
+                tasks.update_alliance.apply_async(
+                    args=[alliance.pk],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+            except (ValueError, AllianceOwner.DoesNotExist):
+                messages.error(
+                    request,
+                    _("Alliance with ID %s not found") % alliance_id_input,
+                )
+        else:
+            messages.info(request, _("Queued Update All Taxsystem Alliances"))
+            alliances = AllianceOwner.objects.filter(active=True)
+            for alliance in alliances:
+                tasks.update_alliance.apply_async(
+                    args=[alliance.pk],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+
     if request.method == "POST":
         force_refresh = bool(request.POST.get("force_refresh", False))
         if request.POST.get("run_taxsystem_updates"):
             _handle_taxsystem_updates(force_refresh)
         if request.POST.get("run_taxsystem_corporation_updates"):
             _handle_corporation_updates(force_refresh)
+        if request.POST.get("run_taxsystem_alliance_updates"):
+            _handle_alliance_updates(force_refresh)
 
     context = {
         "corporation_id": corporation_id,
