@@ -290,6 +290,47 @@ Die Testdaten sollten folgende Struktur haben:
 }
 ```
 
+### Auswahl von Methodendaten per Parameterwert
+
+Die Stub-Implementierung unterstützt auch Mapping-Objekte, bei denen die Werte nach
+eingehenden Parametern ausgewählt werden. Wenn für eine Methode statt eines einfachen
+Objekts ein Dictionary angegeben wird, versucht der Stub, einen passenden Eintrag
+zu finden, dessen Schlüssel dem Parameterwert (als String oder Integer) entspricht.
+
+Beispiel: Wenn der Endpoint `character_id` als Parameter verwendet wird, kann das
+Testdaten-Format so aussehen:
+
+```python
+{
+    "Character": {
+        "GetCharactersCharacterId": {
+            "12345": {"character_id": 12345, "name": "Alpha"},
+            "67890": {"character_id": 67890, "name": "Beta"},
+        }
+    }
+}
+```
+
+Aufruf mit `character_id=12345` liefert dann automatisch den Eintrag für den Schlüssel
+`"12345"`. Numerische Schlüssel werden ebenfalls unterstützt (z. B. `12345` statt
+`"12345"`).
+
+Wenn das Mapping nur einen Eintrag enthält, wird dieser Eintrag als Fallback immer
+zurückgegeben (praktisch für einfache Defaults oder wenn nur ein Testfall benötigt wird).
+
+### Sequentielle Side-Effects
+
+Endpoints können als `side_effect` eine Exception oder eine Liste von Exceptions/Werten
+haben. Wird eine Liste übergeben, werden die Einträge sequenziell verbraucht (nützlich
+für Tests, die mehrere Aufrufe mit unterschiedlichen Ergebnissen simulieren).
+
+### Automatisches Laden aus JSON
+
+`create_esi_client_stub(test_data_config=None, endpoints=...)` lädt automatisch
+Testdaten aus der Datei `esi_test_data.json` im gleichen Verzeichnis, wenn
+`test_data_config` nicht übergeben wird. Die `endpoints`-Liste bleibt weiterhin
+erforderlich und wird validiert.
+
 ### Mit Endpoints und Side-Effects:
 
 ```python
