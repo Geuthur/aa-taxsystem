@@ -327,13 +327,13 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         """
         return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.DEADLINES,
-            fetch_func=self.__payment_deadlines,
+            fetch_func=self._payment_deadlines,
             force_refresh=force_refresh,
         )
 
     @transaction.atomic()
     # pylint: disable=unused-argument
-    def __payment_deadlines(
+    def _payment_deadlines(
         self, owner: "OwnerContext", force_refresh: bool = False
     ) -> None:
         """Update Deposits from Account."""
