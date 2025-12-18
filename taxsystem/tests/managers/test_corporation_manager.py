@@ -9,18 +9,31 @@ from django.utils import timezone
 from taxsystem.models.corporation import (
     CorporationFilter,
     CorporationPaymentAccount,
+    Members,
 )
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests.testdata.esi_stub_openapi import (
+    EsiEndpoint,
+    create_esi_client_stub,
+)
 from taxsystem.tests.testdata.utils import (
     create_filter,
     create_filterset,
+    create_member,
     create_owner_from_user,
     create_payment,
     create_tax_account,
+    create_user_from_evecharacter,
 )
 
 MODULE_PATH = "taxsystem.managers.corporation_manager"
+
+TEST_CORPORATION_MANAGER_ENDPOINTS = [
+    EsiEndpoint(
+        "Corporation", "GetCorporationsCorporationIdMembertracking", "corporation_id"
+    ),
+]
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
@@ -89,7 +102,7 @@ class TestCorporationManager(TaxSystemTestCase):
         )
 
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
         # Expected Results
         self.assertSetEqual(
             set(
@@ -125,7 +138,7 @@ class TestCorporationManager(TaxSystemTestCase):
         )
 
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
         tax_account = CorporationPaymentAccount.objects.get(user=self.user_2)
@@ -157,7 +170,7 @@ class TestCorporationManager(TaxSystemTestCase):
         )
 
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
         tax_account = CorporationPaymentAccount.objects.get(user=self.user_2)
@@ -175,7 +188,7 @@ class TestCorporationManager(TaxSystemTestCase):
         Test should reset a tax account after a user returning to previous corporation.
 
         Results:
-            1. Reset a tax account when the user is back in the corporation.
+            1. Reset a tax account when the user was missing and has returned to the previous corporation.
         """
         # Test Data
         self.tax_account = create_tax_account(
@@ -188,7 +201,7 @@ class TestCorporationManager(TaxSystemTestCase):
         )
 
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
         tax_account = CorporationPaymentAccount.objects.get(user=self.user)
@@ -198,4 +211,106 @@ class TestCorporationManager(TaxSystemTestCase):
         mock_logger.info.assert_any_call(
             "Reset Tax Account %s",
             self.tax_account.name,
+        )
+
+    def test_pay_day(self):
+        """
+        Test pay day processing for corporation tax accounts.
+        This test should process the payday for corporation tax accounts, deducting the tax amount from the deposit.
+
+        Results:
+            1. Tax Account deposit is reduced by the tax amount on payday.
+            2. New users within the free period are not charged.
+        """
+        # Test Data
+        self.audit.tax_amount = 1000
+        self.tax_account = create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
+            user=self.user,
+            status=AccountStatus.ACTIVE,
+            deposit=1000,
+            last_paid=(timezone.now() - timezone.timedelta(days=60)),
+        )
+        self.new_user, self.new_user_character = create_user_from_evecharacter(
+            character_id=1006,
+            permissions=["taxsystem.basic_access"],
+        )
+
+        # 1 Month is free for new users
+        self.tax_account_2 = create_tax_account(
+            name=self.new_user_character.character.character_name,
+            owner=self.audit,
+            user=self.new_user,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=None,
+        )
+
+        # Test Action
+        self.audit.update_deadlines(force_refresh=False)
+
+        # Expected Results
+        tax_account = CorporationPaymentAccount.objects.get(user=self.user)
+        self.assertEqual(tax_account.deposit, 0)
+        tax_account_2 = CorporationPaymentAccount.objects.get(user=self.new_user)
+        self.assertEqual(tax_account_2.deposit, 0)
+
+    @patch(MODULE_PATH + ".esi")
+    @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
+    @patch(MODULE_PATH + ".logger")
+    def test_update_members(self, mock_logger, mock_bulk_resolve, mock_esi):
+        """
+        Test update corporation members.
+        This test should update or create corporation members based on ESI data.
+
+        Results:
+            1. Existing member is updated.
+            2. New members are created based on ESI data.
+            3. Missing members are identified.
+
+            2 New Members created, 1 Existing updated, 1 Missing
+        """
+        # Test Data
+        self.member = create_member(
+            owner=self.audit,
+            character_id=1001,
+            character_name="Member 1",
+            status=Members.States.ACTIVE,
+        )
+
+        self.missing_member = create_member(
+            owner=self.audit,
+            character_id=1004,
+            character_name="Member 4",
+            status=Members.States.ACTIVE,
+        )
+
+        mock_esi.client = create_esi_client_stub(
+            endpoints=TEST_CORPORATION_MANAGER_ENDPOINTS
+        )
+
+        mock_bulk_resolve.return_value.to_name.side_effect = (
+            "Member 1",
+            "Member 2",
+            "Member 3",
+        )
+
+        # Test Action
+        self.audit.update_members(force_refresh=False)
+
+        # Expected Results
+        obj = self.audit.ts_members.get(character_id=1001)
+        self.assertEqual(obj.character_name, "Member 1")
+        obj = self.audit.ts_members.get(character_id=1002)
+        self.assertEqual(obj.character_name, "Member 2")
+        obj = self.audit.ts_members.get(character_id=1003)
+        self.assertEqual(obj.character_name, "Member 3")
+
+        mock_logger.info.assert_called_with(
+            "%s - Old Members: %s, New Members: %s, Missing: %s",
+            self.audit.eve_corporation.corporation_name,
+            1,
+            2,
+            1,
         )

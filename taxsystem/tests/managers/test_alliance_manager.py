@@ -18,6 +18,7 @@ from taxsystem.tests.testdata.utils import (
     create_owner_from_user,
     create_payment,
     create_tax_account,
+    create_user_from_evecharacter,
 )
 
 MODULE_PATH = "taxsystem.managers.alliance_manager"
@@ -89,7 +90,7 @@ class TestAllianceManager(TaxSystemTestCase):
         )
 
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
         # Expected Results
         self.assertSetEqual(
             set(
@@ -107,7 +108,12 @@ class TestAllianceManager(TaxSystemTestCase):
 
     @patch(f"{MODULE_PATH}.logger")
     def test_update_tax_accounts_mark_as_missing(self, mock_logger):
-        """Test should mark tax account as missing."""
+        """
+        Test should mark tax account as missing.
+
+        Results:
+            1. Mark a tax account as MISSING when the user is no longer in the alliance.
+        """
         # Test Data
         self.tax_account = create_tax_account(
             name=self.user_2_character.character.character_name,
@@ -118,7 +124,7 @@ class TestAllianceManager(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
         tax_account = AlliancePaymentAccount.objects.get(user=self.user_2)
@@ -132,7 +138,12 @@ class TestAllianceManager(TaxSystemTestCase):
     def test_update_tax_accounts_mark_as_missing_and_move_to_new_alliance(
         self, mock_logger
     ):
-        """Test should mark tax account as missing and move to new alliance."""
+        """
+        Test should mark tax account as missing and move to new alliance.
+
+        Results:
+            1. Move a tax account to a new alliance when the user has changed alliance.
+        """
         # Test Data
         self.audit_2 = create_owner_from_user(self.user_2, tax_type="alliance")
         self.tax_account = create_tax_account(
@@ -145,7 +156,7 @@ class TestAllianceManager(TaxSystemTestCase):
         )
 
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
         tax_account = AlliancePaymentAccount.objects.get(user=self.user_2)
@@ -159,7 +170,12 @@ class TestAllianceManager(TaxSystemTestCase):
 
     @patch(f"{MODULE_PATH}.logger")
     def test_update_tax_accounts_reset_a_returning_user(self, mock_logger):
-        """Test should reset a tax account after a user returning to previous alliance."""
+        """
+        Test should reset a tax account after a user returning to previous alliance.
+
+        Results:
+            1. Reset a tax account when the user was missing and has returned to the previous alliance.
+        """
         # Test Data
         self.tax_account = create_tax_account(
             name=self.user_character.character.character_name,
@@ -171,7 +187,7 @@ class TestAllianceManager(TaxSystemTestCase):
         )
 
         # Test Action
-        self.audit.update_payment_system(force_refresh=False)
+        self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
         tax_account = AlliancePaymentAccount.objects.get(user=self.user)
@@ -182,3 +198,46 @@ class TestAllianceManager(TaxSystemTestCase):
             "Reset Tax Account %s",
             self.tax_account.name,
         )
+
+    def test_pay_day(self):
+        """
+        Test pay day processing for alliance tax accounts.
+        This test should process the payday for alliance tax accounts, deducting the tax amount from the deposit.
+
+        Results:
+            1. Tax Account deposit is reduced by the tax amount on payday.
+            2. New users within the free period are not charged.
+        """
+        # Test Data
+        self.audit.tax_amount = 1000
+        self.tax_account = create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
+            user=self.user,
+            status=AccountStatus.ACTIVE,
+            deposit=1000,
+            last_paid=(timezone.now() - timezone.timedelta(days=60)),
+        )
+        self.new_user, self.new_user_character = create_user_from_evecharacter(
+            character_id=1006,
+            permissions=["taxsystem.basic_access"],
+        )
+
+        # 1 Month is free for new users
+        self.tax_account_2 = create_tax_account(
+            name=self.new_user_character.character.character_name,
+            owner=self.audit,
+            user=self.new_user,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=None,
+        )
+
+        # Test Action
+        self.audit.update_deadlines(force_refresh=False)
+
+        # Expected Results
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user)
+        self.assertEqual(tax_account.deposit, 0)
+        tax_account_2 = AlliancePaymentAccount.objects.get(user=self.new_user)
+        self.assertEqual(tax_account_2.deposit, 0)
