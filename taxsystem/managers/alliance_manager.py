@@ -44,7 +44,7 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
     ) -> None:
         """Update or Create Tax Account data."""
         return owner.update_manager.update_section_if_changed(
-            section=AllianceUpdateSection.PAYMENT_SYSTEM,
+            section=AllianceUpdateSection.TAX_ACCOUNT,
             fetch_func=self._update_or_create_objs,
             force_refresh=force_refresh,
         )
@@ -316,27 +316,33 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         logger.info("Marked Tax Account %s as MISSING", tax_account.name)
 
     @log_timing(logger)
-    def check_pay_day(self, owner: "OwnerContext", force_refresh: bool = False) -> None:
+    def check_payment_deadlines(
+        self, owner: "OwnerContext", force_refresh: bool = False
+    ) -> None:
         """Check Payments from Account."""
         return owner.update_manager.update_section_if_changed(
-            section=AllianceUpdateSection.PAYDAY,
-            fetch_func=self._pay_day,
+            section=AllianceUpdateSection.DEADLINES,
+            fetch_func=self._payment_deadlines,
             force_refresh=force_refresh,
         )
 
     @transaction.atomic()
     # pylint: disable=unused-argument
-    def _pay_day(
-        self, owner: "OwnerContext", force_refresh: bool = False, runs: int = 0
+    def _payment_deadlines(
+        self, owner: "OwnerContext", force_refresh: bool = False
     ) -> None:
-        """Update Deposits from Account."""
+        """
+        Checking payment deadlines for Alliance.
+        This will deduct tax amounts from deposits if payment period has passed.
+        """
         logger.debug(
-            "Updating payday for: %s",
+            "Updating payment deadlines for: %s",
             owner.name,
         )
 
         tax_accounts = self.filter(owner=owner, status=AccountStatus.ACTIVE)
 
+        items = []
         for account in tax_accounts:
             if account.last_paid is None:
                 # First Period is free
@@ -346,16 +352,25 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
             ):
                 account.deposit -= owner.tax_amount
                 account.last_paid = timezone.now()
-                runs = runs + 1
-            account.save()
+            items.append(account)
+
+        if not items:
+            logger.debug("No new payment deadlines for: %s", owner.name)
+            return ("No new payment deadlines for %s", owner.name)
+
+        self.bulk_update(
+            items,
+            ["deposit", "last_paid"],
+            batch_size=TAXSYSTEM_BULK_BATCH_SIZE,
+        )
 
         logger.debug(
-            "Finished %s: Payday for %s",
-            runs,
+            "Finished %s: payment deadlines for %s",
+            len(items),
             owner.name,
         )
 
-        return ("Finished Payday for %s", owner.name)
+        return ("Finished payment deadlines for %s", owner.name)
 
 
 class AlliancePaymentManager(models.Manager["PaymentsContext"]):
@@ -379,7 +394,7 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
         # pylint: disable=import-outside-toplevel, cyclic-import
         # AA TaxSystem
         from taxsystem.models.alliance import AlliancePaymentAccount as PaymentAccount
-        from taxsystem.models.alliance import AlliancePaymentHistory
+        from taxsystem.models.alliance import AlliancePaymentHistory, AlliancePayments
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         logger.debug(
@@ -420,7 +435,7 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
                 for account, alts in users.items():
                     # Check if entry belongs to user's characters
                     if entry.first_party.id in alts:
-                        payment_item = self.model(
+                        payment_item = AlliancePayments(
                             entry_id=entry.entry_id,
                             name=account.name,
                             account=account,
@@ -432,25 +447,43 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
                         )
                         items.append(payment_item)
 
+            if not items:
+                logger.debug("No new Payments for: %s", owner.name)
+                return ("No new Payments for %s", owner.name)
+
             # Bulk create payments
-            payments = self.bulk_create(
+            new_payments = self.bulk_create(
                 items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
             )
 
-            # Create history entries for new payments
-            for payment in payments:
+            for payment in new_payments:
+                # Only log created payments
+                payment_obj = self.filter(
+                    entry_id=payment.entry_id,
+                    account=payment.account,
+                    owner_id=owner.eve_alliance.alliance_id,
+                ).first()
+
+                if not payment_obj:
+                    continue
+
+                # Use the saved payment object when creating history entries
                 log_items = AlliancePaymentHistory(
                     user=payment.account.user,
-                    payment=payment,
+                    payment=payment_obj,
                     action=PaymentActions.STATUS_CHANGE,
                     new_status=PaymentRequestStatus.PENDING,
                     comment=PaymentSystemText.ADDED,
                 )
                 logs_items.append(log_items)
 
-            AlliancePaymentHistory.objects.bulk_create(
-                logs_items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
-            )
+            # Bulk create log entries once after iterating new payments
+            if logs_items:
+                AlliancePaymentHistory.objects.bulk_create(
+                    logs_items,
+                    batch_size=TAXSYSTEM_BULK_BATCH_SIZE,
+                    ignore_conflicts=True,
+                )
 
         logger.debug(
             "Finished %s Payments for %s",
