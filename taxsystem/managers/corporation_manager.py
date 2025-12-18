@@ -51,7 +51,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
     ) -> UpdateSectionResult:
         """Update or Create Tax Accounts data."""
         return owner.update_manager.update_section_if_changed(
-            section=CorporationUpdateSection.PAYMENT_SYSTEM,
+            section=CorporationUpdateSection.TAX_ACCOUNTS,
             fetch_func=self._update_or_create_objs,
             force_refresh=force_refresh,
         )
@@ -318,29 +318,33 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         logger.info("Marked Tax Account %s as MISSING", tax_account.name)
 
     @log_timing(logger)
-    def check_pay_day(
+    def check_payment_deadlines(
         self, owner: "OwnerContext", force_refresh: bool = False
     ) -> UpdateSectionResult:
-        """Check Payments from Account."""
+        """
+        Checking payment deadlines for Corporation.
+        This will deduct tax amounts from deposits if payment period has passed.
+        """
         return owner.update_manager.update_section_if_changed(
-            section=CorporationUpdateSection.PAYDAY,
-            fetch_func=self._pay_day,
+            section=CorporationUpdateSection.DEADLINES,
+            fetch_func=self.__payment_deadlines,
             force_refresh=force_refresh,
         )
 
     @transaction.atomic()
     # pylint: disable=unused-argument
-    def _pay_day(
-        self, owner: "OwnerContext", force_refresh: bool = False, runs: int = 0
+    def __payment_deadlines(
+        self, owner: "OwnerContext", force_refresh: bool = False
     ) -> None:
         """Update Deposits from Account."""
         logger.debug(
-            "Updating payday for: %s",
+            "Updating payment deadlines for: %s",
             owner.name,
         )
 
         tax_accounts = self.filter(owner=owner, status=AccountStatus.ACTIVE)
 
+        items = []
         for account in tax_accounts:
             if account.last_paid is None:
                 # First Period is free
@@ -350,16 +354,25 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
             ):
                 account.deposit -= owner.tax_amount
                 account.last_paid = timezone.now()
-                runs = runs + 1
-            account.save()
+            items.append(account)
+
+        if not items:
+            logger.debug("No new payment deadlines for: %s", owner.name)
+            return ("No new payment deadlines for %s", owner.name)
+
+        self.bulk_update(
+            items,
+            ["deposit", "last_paid"],
+            batch_size=TAXSYSTEM_BULK_BATCH_SIZE,
+        )
 
         logger.debug(
-            "Finished %s: Payday for %s",
-            runs,
+            "Finished %s: payment deadlines for %s",
+            len(items),
             owner.name,
         )
 
-        return ("Finished Payday for %s", owner.name)
+        return ("Finished payment deadlines for %s", owner.name)
 
 
 class PaymentsManager(models.Manager["PaymentsContext"]):
@@ -437,6 +450,11 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
                         )
                         items.append(payment_item)
 
+            if not items:
+                logger.debug("No new Payments for: %s", owner.name)
+                return ("No new Payments for %s", owner.name)
+
+            # Bulk create payments
             payments = self.bulk_create(
                 items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
             )

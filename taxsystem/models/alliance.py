@@ -129,7 +129,7 @@ class AllianceOwner(models.Model):
             owner=self, force_refresh=force_refresh
         )
 
-    def update_payment_system(self, force_refresh: bool) -> UpdateSectionResult:
+    def update_tax_accounts(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the tax accounts for this owner.
         Args:
             force_refresh: Force refresh
@@ -140,14 +140,14 @@ class AllianceOwner(models.Model):
             owner=self, force_refresh=force_refresh
         )
 
-    def update_payday(self, force_refresh: bool) -> UpdateSectionResult:
-        """Update the payday for this owner.
+    def update_deadlines(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the tax deadlines for this owner.
         Args:
             force_refresh: Force refresh
         Returns:
             UpdateSectionResult object for this section
         """
-        return AlliancePaymentAccount.objects.check_pay_day(
+        return AlliancePaymentAccount.objects.check_payment_deadlines(
             owner=self, force_refresh=force_refresh
         )
 

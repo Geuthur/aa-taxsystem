@@ -44,7 +44,7 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
     ) -> None:
         """Update or Create Tax Account data."""
         return owner.update_manager.update_section_if_changed(
-            section=AllianceUpdateSection.TAX_ACCOUNT,
+            section=AllianceUpdateSection.TAX_ACCOUNTS,
             fetch_func=self._update_or_create_objs,
             force_refresh=force_refresh,
         )

@@ -192,7 +192,7 @@ class CorporationDivisionManager(models.Manager["CorporationWalletDivision"]):
     ) -> None:
         """Update or Create a division entry from ESI data."""
         return owner.update_manager.update_section_if_changed(
-            section=CorporationUpdateSection.DIVISION,
+            section=CorporationUpdateSection.DIVISIONS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )

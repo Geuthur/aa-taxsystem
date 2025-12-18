@@ -186,20 +186,20 @@ class CorporationUpdateSection(UpdateSection):
     """Sections for corporation updates."""
 
     DIVISION_NAMES = "division_names", _("Wallet Division Names")
-    DIVISION = "division", _("Wallet Division")
+    DIVISIONS = "divisions", _("Wallet Divisions")
     WALLET = "wallet", _("Wallet Journal")
     MEMBERS = "members", _("Members")
-    PAYMENT_SYSTEM = "payment_system", _("Payment System")
+    TAX_ACCOUNTS = "tax_accounts", _("Tax Accounts")
     PAYMENTS = "payments", _("Payments")
-    PAYDAY = "payday", _("Payday")
+    DEADLINES = "deadlines", _("Deadlines")
 
 
 class AllianceUpdateSection(UpdateSection):
     """Sections for alliance updates."""
 
-    PAYMENT_SYSTEM = "payment_system", _("Payment System")
+    TAX_ACCOUNTS = "tax_accounts", _("Tax Accounts")
     PAYMENTS = "payments", _("Payments")
-    PAYDAY = "payday", _("Payday")
+    DEADLINES = "deadlines", _("Deadlines")
 
 
 class AdminActions(models.TextChoices):

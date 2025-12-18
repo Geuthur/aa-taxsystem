@@ -128,10 +128,10 @@ def update_corp_division_names(owner_pk: int, force_refresh: bool):
 
 
 @shared_task(**_update_taxsystem_params)
-def update_corp_division(owner_pk: int, force_refresh: bool):
+def update_corp_divisions(owner_pk: int, force_refresh: bool):
     return _update_corp_section(
         owner_pk,
-        section=CorporationUpdateSection.DIVISION,
+        section=CorporationUpdateSection.DIVISIONS,
         force_refresh=force_refresh,
     )
 
@@ -164,19 +164,19 @@ def update_corp_payments(owner_pk: int, force_refresh: bool):
 
 
 @shared_task(**_update_taxsystem_params)
-def update_corp_payment_system(owner_pk: int, force_refresh: bool):
+def update_corp_tax_accounts(owner_pk: int, force_refresh: bool):
     return _update_corp_section(
         owner_pk,
-        section=CorporationUpdateSection.PAYMENT_SYSTEM,
+        section=CorporationUpdateSection.TAX_ACCOUNTS,
         force_refresh=force_refresh,
     )
 
 
 @shared_task(**_update_taxsystem_params)
-def update_corp_payday(owner_pk: int, force_refresh: bool):
+def update_corp_deadlines(owner_pk: int, force_refresh: bool):
     return _update_corp_section(
         owner_pk,
-        section=CorporationUpdateSection.PAYDAY,
+        section=CorporationUpdateSection.DEADLINES,
         force_refresh=force_refresh,
     )
 
@@ -265,19 +265,19 @@ def update_ally_payments(owner_pk: int, force_refresh: bool):
 
 
 @shared_task(**_update_taxsystem_params)
-def update_ally_payment_system(owner_pk: int, force_refresh: bool):
+def update_ally_tax_accounts(owner_pk: int, force_refresh: bool):
     return _update_ally_section(
         owner_pk,
-        section=AllianceUpdateSection.PAYMENT_SYSTEM,
+        section=AllianceUpdateSection.TAX_ACCOUNTS,
         force_refresh=force_refresh,
     )
 
 
 @shared_task(**_update_taxsystem_params)
-def update_ally_payday(owner_pk: int, force_refresh: bool):
+def update_ally_deadlines(owner_pk: int, force_refresh: bool):
     return _update_ally_section(
         owner_pk,
-        section=AllianceUpdateSection.PAYDAY,
+        section=AllianceUpdateSection.DEADLINES,
         force_refresh=force_refresh,
     )
 

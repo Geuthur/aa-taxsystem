@@ -204,14 +204,14 @@ class CorporationOwner(models.Model):
             owner=self, force_refresh=force_refresh
         )
 
-    def update_division(self, force_refresh: bool) -> UpdateSectionResult:
+    def update_divisions(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the divisions for this corporation."""
         return CorporationWalletDivision.objects.update_or_create_esi(
             owner=self, force_refresh=force_refresh
         )
 
     def update_wallet(self, force_refresh: bool) -> UpdateSectionResult:
-        """Update the wallet journal for this corporation."""
+        """Update the wallet journals for this corporation."""
         return CorporationWalletJournalEntry.objects.update_or_create_esi(
             owner=self, force_refresh=force_refresh
         )
@@ -236,7 +236,7 @@ class CorporationOwner(models.Model):
             owner=self, force_refresh=force_refresh
         )
 
-    def update_payment_system(self, force_refresh: bool) -> UpdateSectionResult:
+    def update_tax_accounts(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the tax accounts for this owner.
         Args:
             force_refresh: Force refresh
@@ -247,14 +247,14 @@ class CorporationOwner(models.Model):
             owner=self, force_refresh=force_refresh
         )
 
-    def update_payday(self, force_refresh: bool) -> UpdateSectionResult:
-        """Update the payday for this owner.
+    def update_deadlines(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the tax deadlines for this owner.
         Args:
             force_refresh: Force refresh
         Returns:
             UpdateSectionResult object for this section
         """
-        return CorporationPaymentAccount.objects.check_pay_day(
+        return CorporationPaymentAccount.objects.check_payment_deadlines(
             owner=self, force_refresh=force_refresh
         )
 

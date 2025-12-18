@@ -162,7 +162,7 @@ The Following Settings can be setting up in the `local.py`
 - TAXSYSTEM_BULK_BATCH_SIZE: `500` - Maximum database batch size per operation. Reduce (e.g., 250) if encountering 'max_allowed_packet' errors, increase for better performance if MySQL is configured with higher limits
   Advanced Settings: Stale Status for Each Section
 
-- TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "division": 60, "division_names": 60, "members": 60, "payments": 60, "payment_system":60, "payment_payday": 1440 }` - Defines the stale status duration (in minutes) for each section.
+- TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "divisions": 60, "division_names": 60, "members": 60, "payments": 60, "tax_accounts":60, "deadlines": 1440 }` - Defines the stale status duration (in minutes) for each section.
 
 ## Documentation<a name="documentation"></a>
 
