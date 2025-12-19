@@ -184,8 +184,10 @@ class AdminApiEndpoints:
                     last_paid=account.last_paid,
                     next_due=account.next_due,
                     is_active=account.is_active,
-                    actions=get_taxsystem_manage_action_icons(
-                        request=request, account=account
+                    actions=str(
+                        get_taxsystem_manage_action_icons(
+                            request=request, account=account, checkbox=True
+                        )
                     ),
                 )
                 tax_accounts_list.append(tax_account_data)
