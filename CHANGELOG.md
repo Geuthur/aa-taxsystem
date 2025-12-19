@@ -23,6 +23,7 @@ python manage.py migrate
 
 ### Added
 
+- UpdateManager Class for Tasks
 - Bulk Actions in Managment View
 - Translation for DataTable
 - implement AppLogger and retry_task_on_esi_error for enhanced logging and error handling
@@ -30,14 +31,16 @@ python manage.py migrate
 - Detailed Doc Strings
 - API
   - Payments API Endpoint
+  - Logs API Endpoint
+  - Filter API Endpoint
 
 ### Changed
 
+- removed Arrows for Editable Popup
 - Payments are now only displayed depending on the user's permission.
 - Moved Manage Requests to API
 - Refactored API Structure
   - Icons Helper Function
-  -
 - Added DataTable v2 [Version 2.3.5](https://cdn.datatables.net/2.3.5/)
   - `ColumnControl` Extensions [Docs](https://datatables.net/extensions/columncontrol/)
   - `FixedHeader` Extensions [Docs](https://datatables.net/extensions/fixedheader/)
@@ -52,6 +55,10 @@ python manage.py migrate
   - Added DataTable Settings
 - Refactored Template Structure
 - use AA `numberFomatter` for Currency
+
+### Fixed
+
+- CSS Issues with Standard AA Theme
 
 ### Removed
 
