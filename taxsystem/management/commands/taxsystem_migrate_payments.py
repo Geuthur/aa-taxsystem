@@ -35,7 +35,7 @@ class Command(BaseCommand):
             try:
                 with transaction.atomic():
                     journals = CorporationWalletJournalEntry.objects.filter(
-                        division__corporation__eve_corporation=corporation.eve_corporation
+                        division__corporation=corporation
                     ).select_related("division")
 
                     if not journals:
@@ -49,12 +49,11 @@ class Command(BaseCommand):
                         if journal.entry_id in payments_entry_ids:
                             try:
                                 payment = CorporationPayments.objects.get(
+                                    owner__isnull=True,
                                     entry_id=journal.entry_id,
-                                    owner_id__isnull=True,
                                 )
-                                payment.owner_id = (
-                                    corporation.eve_corporation.corporation_id
-                                )
+                                payment.owner = corporation
+                                payment.journal = journal
                                 payment.save()
                                 self.stdout.write(
                                     f"Updated Payment {payment.pk} and assigned to {corporation} for entry_id {journal.entry_id}."

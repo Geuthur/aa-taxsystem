@@ -11,6 +11,16 @@ Section Order:
 ### Removed
 -->
 
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate old Payments
+> You need to execute the following commands in order to avoid issues with later versions
+
+```bash
+python manage.py taxsystem_cleanup_payments
+python manage.py taxsystem_migrate_payments
+python manage.py migrate
+```
+
 ### Added
 
 - Translation for DataTable

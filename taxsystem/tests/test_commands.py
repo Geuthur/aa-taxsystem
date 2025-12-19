@@ -65,6 +65,7 @@ class TestMigratePayments(TaxSystemTestCase):
             name=cls.user_character.character.character_name,
             account=cls.tax_account,
             entry_id=1,
+            journal=cls.journal_entry,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",

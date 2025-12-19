@@ -6,7 +6,7 @@ from django.db import models, transaction
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.authentication.models import UserProfile
+from allianceauth.authentication.models import User, UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
@@ -375,7 +375,48 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         return ("Finished payment deadlines for %s", owner.name)
 
 
+class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
+    def visible_to(self, user: User, owner: "OwnerContext"):
+        """Return visible payments for the user depending on their permissions."""
+        # superusers get all visible
+        if user.is_superuser:
+            logger.debug(
+                "Returning all payments for superuser %s.",
+                user,
+            )
+            return self.filter(owner=owner)
+
+        if user.has_perm("taxsystem.manage_corps"):
+            logger.debug("Returning all payments for Tax Audit Manager %s.", user)
+            return self.filter(owner=owner)
+        try:
+            char = user.profile.main_character
+            assert char
+            queries = [models.Q(owner=owner, account__user=user)]
+
+            if user.has_perm("taxsystem.manage_own_corp"):
+                logger.debug("Returning own corp payments for %s.", user)
+                queries.append(models.Q(owner=owner))
+            logger.debug(
+                "%s queries for user %s visible corporation.", len(queries), user
+            )
+
+            query = queries.pop()
+            for q in queries:
+                query |= q
+            return self.filter(query)
+        except AssertionError:
+            logger.debug("User %s has no main character. Nothing visible.", user)
+            return self.none()
+
+
 class PaymentsManager(models.Manager["PaymentsContext"]):
+    def get_queryset(self):
+        return PaymentsQuerySet(self.model, using=self._db)
+
+    def get_visible(self, user: User, owner: "OwnerContext"):
+        return self.get_queryset().visible_to(user=user, owner=owner)
+
     @log_timing(logger)
     def update_or_create_payments(
         self, owner: "OwnerContext", force_refresh: bool = False
@@ -422,31 +463,33 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
             alts = account.get_alt_ids()
             users[account] = alts
 
-        journal = CorporationWalletJournalEntry.objects.filter(
+        journal_qs = CorporationWalletJournalEntry.objects.filter(
             division__corporation=owner, ref_type__in=["player_donation"]
         ).order_by("-date")
 
         _current_entry_ids = set(
-            self.filter(account__owner=owner).values_list("entry_id", flat=True)
+            self.filter(account__owner=owner).values_list(
+                "journal__entry_id", flat=True
+            )
         )
         with transaction.atomic():
             items = []
             logs_items = []
-            for entry in journal:
+            for journal in journal_qs:
                 # Skip if already processed
-                if entry.entry_id in _current_entry_ids:
+                if journal.entry_id in _current_entry_ids:
                     continue
                 for account, alts in users.items():
-                    if entry.first_party.id in alts:
+                    if journal.first_party.id in alts:
                         payment_item = CorporationPayments(
-                            entry_id=entry.entry_id,
+                            owner=owner,
+                            journal=journal,
                             name=account.name,
                             account=account,
-                            amount=entry.amount,
+                            amount=journal.amount,
                             request_status=PaymentRequestStatus.PENDING,
-                            date=entry.date,
-                            reason=entry.reason,
-                            owner_id=owner.eve_corporation.corporation_id,
+                            date=journal.date,
+                            reason=journal.reason,
                         )
                         items.append(payment_item)
 
@@ -462,9 +505,9 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
             for payment in payments:
                 # Only log created payments
                 payment_obj = self.filter(
-                    entry_id=payment.entry_id,
+                    journal=payment.journal,
                     account=payment.account,
-                    owner_id=owner.eve_corporation.corporation_id,
+                    owner=owner,
                 ).first()
 
                 if not payment_obj:

@@ -42,7 +42,15 @@ class PaymentsBaseModel(models.Model):
 
     name = models.CharField(max_length=100)
 
-    entry_id = models.BigIntegerField(unique=True, null=True, blank=True)
+    entry_id = models.BigIntegerField(null=True, blank=True)
+
+    journal = models.OneToOneField(
+        "CorporationWalletJournalEntry",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
 
     amount = models.DecimalField(max_digits=12, decimal_places=0)
 
@@ -62,14 +70,6 @@ class PaymentsBaseModel(models.Model):
         blank=True,
         default="",
         help_text=_("Reviser that approved or rejected the payment"),
-    )
-
-    owner_id = models.PositiveIntegerField(
-        help_text=_(
-            "ID of the owner (corporation or alliance) associated with this payment"
-        ),
-        null=True,
-        blank=True,
     )
 
     @property
@@ -110,7 +110,7 @@ class PaymentsBaseModel(models.Model):
         from taxsystem.models.wallet import CorporationWalletJournalEntry
 
         journal = CorporationWalletJournalEntry.objects.filter(
-            entry_id=self.entry_id
+            entry_id=self.journal.entry_id
         ).first()
         if not journal:
             return "N/A"

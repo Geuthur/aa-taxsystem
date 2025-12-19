@@ -116,7 +116,7 @@ def get_payments_statistics(
     owner: CorporationOwner | AllianceOwner,
 ) -> PaymentsStatisticsSchema:
     """Get payments statistics for an Owner."""
-    payments = owner.payment_model.objects.filter(account__owner=owner)
+    payments = owner.payment_model.objects.filter(owner=owner)
 
     payments_statistics = payments.aggregate(
         total=Count("id"),

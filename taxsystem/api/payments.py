@@ -23,8 +23,8 @@ from app_utils.logging import LoggerAddTag
 from taxsystem import __title__, forms
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.icons import (
-    get_payments_info_button,
     get_taxsystem_manage_payments_action_icons,
+    get_taxsystem_payments_action_icons,
 )
 from taxsystem.api.schema import (
     CharacterSchema,
@@ -35,10 +35,8 @@ from taxsystem.api.schema import (
     RequestStatusSchema,
 )
 from taxsystem.helpers import lazy
-from taxsystem.models.alliance import AlliancePayments
 from taxsystem.models.corporation import (
     CorporationOwner,
-    CorporationPayments,
 )
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
@@ -95,7 +93,7 @@ class PaymentsApiEndpoints:
             Returns:
                 A list of payment data if successful, or an error message with appropriate status code.
             """
-            owner, perms = core.get_manage_owner(request, owner_id)
+            owner, perms = core.get_owner(request, owner_id)
 
             if owner is None:
                 return 404, {"error": "Owner not Found."}
@@ -103,18 +101,9 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": "Permission Denied."}
 
-            payments_instance = (
-                CorporationPayments
-                if isinstance(owner, CorporationOwner)
-                else AlliancePayments
-            )
-
             # Get Payments
             payments = (
-                payments_instance.objects.filter(
-                    account__owner=owner,
-                    owner_id=owner.eve_id,
-                )
+                owner.payment_model.objects.get_visible(user=request.user, owner=owner)
                 .select_related(
                     "account",
                     "account__user",
@@ -134,7 +123,7 @@ class PaymentsApiEndpoints:
                     payment.character_id, size=32, as_html=True
                 )
                 # Create the action buttons
-                actions_html = get_payments_info_button(payment=payment)
+                actions_html = str(get_taxsystem_payments_action_icons(payment=payment))
 
                 # Create the request status
                 response_request_status = RequestStatusSchema(
@@ -181,18 +170,11 @@ class PaymentsApiEndpoints:
             if owner is None:
                 return 404, {"error": "Owner not Found."}
 
-            payments_instance = (
-                CorporationPayments
-                if isinstance(owner, CorporationOwner)
-                else AlliancePayments
-            )
-
             # Get Payments
             payments = (
-                payments_instance.objects.filter(
-                    account__owner=owner,
+                owner.payment_model.objects.filter(
+                    owner=owner,
                     account__user=request.user,
-                    owner_id=owner.eve_id,
                 )
                 .select_related(
                     "account",
@@ -338,9 +320,8 @@ class PaymentsApiEndpoints:
 
             # Filter payments by character
             payments = owner.payment_model.objects.filter(
-                account__owner=owner,
                 account__user__profile__main_character__character_id=character_id,
-                owner_id=owner.eve_id,
+                owner=owner,
             ).order_by("-date")
             # Limit to last 10,000 payments
             payments = payments[:10000]
@@ -348,8 +329,10 @@ class PaymentsApiEndpoints:
             response_payments_list: list[PaymentSchema] = []
             for payment in payments:
                 # Create the actions
-                actions_html = get_taxsystem_manage_payments_action_icons(
-                    request=request, payment=payment
+                actions_html = str(
+                    get_taxsystem_manage_payments_action_icons(
+                        request=request, payment=payment
+                    )
                 )
 
                 # pylint: disable=duplicate-code
@@ -418,15 +401,15 @@ class PaymentsApiEndpoints:
                         owner=owner, pk=account_pk
                     )
                     payment = owner.payment_model(
+                        owner=owner,
                         name=account.user.username,
-                        entry_id=None,  # Manual Entry (use NULL to allow multiple manual payments)
+                        journal=None,  # Manual Entry (use NULL to allow multiple manual payments)
                         amount=amount,
                         account=account,
                         date=timezone.now(),
                         reason=reason,
                         request_status=PaymentRequestStatus.APPROVED,
                         reviser=request.user.username,
-                        owner_id=owner_id,
                     )
 
                     # Create log message
@@ -501,7 +484,6 @@ class PaymentsApiEndpoints:
             try:
                 with transaction.atomic():
                     payment = owner.payment_model.objects.get(
-                        account__owner=owner,
                         pk=payment_pk,
                     )
                     # Check if payment is pending or needs approval
@@ -588,7 +570,6 @@ class PaymentsApiEndpoints:
             try:
                 with transaction.atomic():
                     payment = owner.payment_model.objects.get(
-                        account__owner=owner,
                         pk=payment_pk,
                     )
                     # Check if payment is approved or needs approval
@@ -672,11 +653,10 @@ class PaymentsApiEndpoints:
             try:
                 with transaction.atomic():
                     payment = owner.payment_model.objects.get(
-                        account__owner=owner,
                         pk=payment_pk,
                     )
                     if (
-                        payment.entry_id is not None
+                        payment.entry is not None
                     ):  # Prevent deletion of ESI imported payments
                         msg = format_lazy(
                             _(
@@ -773,7 +753,6 @@ class PaymentsApiEndpoints:
             try:
                 with transaction.atomic():
                     payment = owner.payment_model.objects.get(
-                        account__owner=owner,
                         pk=payment_pk,
                     )
                     if payment.is_pending or payment.is_needs_approval:

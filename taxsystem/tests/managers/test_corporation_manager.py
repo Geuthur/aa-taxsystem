@@ -5,6 +5,9 @@ from unittest.mock import patch
 from django.test import override_settings
 from django.utils import timezone
 
+# Alliance Auth (External Libs)
+from eveuniverse.models import EveEntity
+
 # AA TaxSystem
 from taxsystem.models.corporation import (
     CorporationFilter,
@@ -18,6 +21,7 @@ from taxsystem.tests.testdata.esi_stub_openapi import (
     create_esi_client_stub,
 )
 from taxsystem.tests.testdata.utils import (
+    create_division,
     create_filter,
     create_filterset,
     create_member,
@@ -25,6 +29,7 @@ from taxsystem.tests.testdata.utils import (
     create_payment,
     create_tax_account,
     create_user_from_evecharacter,
+    create_wallet_journal_entry,
 )
 
 MODULE_PATH = "taxsystem.managers.corporation_manager"
@@ -58,6 +63,16 @@ class TestCorporationManager(TaxSystemTestCase):
             value=1000,
         )
 
+        cls.division = create_division(
+            corporation=cls.audit,
+            division_id=1,
+            name="Main Division",
+            balance=1000000,
+        )
+
+        cls.eve_character_first_party = EveEntity.objects.get(id=1002)
+        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
+
     def test_update_tax_account(self):
         """
         Test updating corporation tax accounts payments.
@@ -77,11 +92,36 @@ class TestCorporationManager(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
+        self.journal_entry = create_wallet_journal_entry(
+            division=self.division,
+            entry_id=1,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            reason="Tax Payment",
+            ref_type="tax_payment",
+            first_party=self.eve_character_first_party,
+            second_party=self.eve_character_second_party,
+            description="Test Description",
+        )
+
+        self.journal_entry2 = create_wallet_journal_entry(
+            division=self.division,
+            entry_id=2,
+            amount=6000,
+            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
+            reason="Mining Stuff",
+            ref_type="tax_payment",
+            first_party=self.eve_character_first_party,
+            second_party=self.eve_character_second_party,
+            description="Test Description 2",
+        )
+
         # Approved Payment
         self.payments = create_payment(
             name=self.user_character.character.character_name,
             account=self.tax_account,
-            entry_id=1,
+            owner=self.audit,
+            journal=self.journal_entry,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",
@@ -93,30 +133,32 @@ class TestCorporationManager(TaxSystemTestCase):
         self.payments2 = create_payment(
             name=self.user_character.character.character_name,
             account=self.tax_account,
-            entry_id=2,
+            owner=self.audit,
+            journal=self.journal_entry2,
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
             reason="Mining Stuff",
             request_status=PaymentRequestStatus.PENDING,
             reviser="",
         )
-
+        print("before: %s", self.audit.ts_corporation_payments)
         # Test Action
         self.audit.update_tax_accounts(force_refresh=False)
+        print("after: %s", self.audit.ts_corporation_payments)
         # Expected Results
         self.assertSetEqual(
             set(
-                self.tax_account.ts_corporation_payments.values_list(
-                    "entry_id", flat=True
+                self.audit.ts_corporation_payments.values_list(
+                    "journal__entry_id", flat=True
                 )
             ),
             {1, 2},
         )
-        obj = self.tax_account.ts_corporation_payments.get(entry_id=1)
+        obj = self.audit.ts_corporation_payments.get(journal__entry_id=1)
         self.assertEqual(obj.amount, 1000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.APPROVED)
 
-        obj = self.tax_account.ts_corporation_payments.get(entry_id=2)
+        obj = self.audit.ts_corporation_payments.get(journal__entry_id=2)
         self.assertEqual(obj.amount, 6000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.NEEDS_APPROVAL)
 

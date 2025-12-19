@@ -1,5 +1,6 @@
 # Django
 from django.core.handlers.wsgi import WSGIRequest
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -34,7 +35,8 @@ from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestSt
 def get_taxsystem_manage_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     account: CorporationPaymentAccount | AlliancePaymentAccount,
-):
+    checkbox: bool = False,
+) -> str | HttpResponse:
     """
     Generate HTML Action Icons for the Tax System Management view.
 
@@ -44,6 +46,7 @@ def get_taxsystem_manage_action_icons(
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
         account (CorporationPaymentAccount | AlliancePaymentAccount): The tax account object.
+        checkbox (bool): Whether to include a checkbox for bulk actions.
     Returns:
         SafeString: HTML string containing the action icons.
     """
@@ -51,7 +54,8 @@ def get_taxsystem_manage_action_icons(
     taxsystem_request_icons += get_tax_account_add_button(account=account)
     taxsystem_request_icons += get_tax_account_switch_button(account=account)
     taxsystem_request_icons += get_tax_account_info_button(account=account)
-    taxsystem_request_icons += f'<input type="checkbox" class="tax-row-select form-check-input me-2" data-account-pk="{account.pk}" />'
+    if checkbox:
+        taxsystem_request_icons += f'<input type="checkbox" class="tax-row-select form-check-input me-2" data-account-pk="{account.pk}" />'
     taxsystem_request_icons += "</div>"
     return taxsystem_request_icons
 
@@ -67,16 +71,18 @@ def get_taxsystem_manage_action_icons(
 def get_taxsystem_manage_payments_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     payment: CorporationPayments | AlliancePayments,
-):
+    checkbox: bool = False,
+) -> str | HttpResponse:
     """
     Generate HTML Action Icons for the Tax System Management view Payments Modal.
 
-    This function creates a set of action icons for managing tax system accounts.
-    The Buttons include Approve, Reject, Undo, Delete and View Transactions, each represented by an icon depending on User's permissions.
+    This function creates a set of action icons for managing tax system payments.
+    The Buttons include Approve, Reject, Undo, Delete and View Details, each represented by an icon depending on User's permissions.
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
-        account (CorporationPaymentAccount | AlliancePaymentAccount): The tax account object.
+        payment (CorporationPayments | AlliancePayments): The payment object.
+        checkbox (bool): Whether to include a checkbox for bulk actions.
     Returns:
         SafeString: HTML string containing the action icons.
     """
@@ -96,9 +102,28 @@ def get_taxsystem_manage_payments_action_icons(
     ]:
         taxsystem_request_icons += get_payments_undo_button(payment=payment)
     # Only show delete button for custom payments (not linked to an Wallet Entry)
-    if payment.entry_id is None:
+    if payment.journal is None:
         taxsystem_request_icons += get_payments_delete_button(payment=payment)
     # Always show info button
+    taxsystem_request_icons += get_payments_info_button(payment=payment)
+    if checkbox:
+        taxsystem_request_icons += f'<input type="checkbox" class="tax-row-select form-check-input me-2" data-payment-pk="{payment.pk}" />'
+    taxsystem_request_icons += "</div>"
+    return taxsystem_request_icons
+
+
+def get_taxsystem_payments_action_icons(
+    payment: CorporationPayments | AlliancePayments,
+) -> str | HttpResponse:
+    """
+    Generate HTML Action Icons for the Tax System Payments view.
+
+    Args:
+        payment (CorporationPayments | AlliancePayments): The payment object.
+    Returns:
+        SafeString: HTML string containing the action icons.
+    """
+    taxsystem_request_icons = "<div class='d-flex justify-content-end'>"
     taxsystem_request_icons += get_payments_info_button(payment=payment)
     taxsystem_request_icons += "</div>"
     return taxsystem_request_icons
@@ -115,7 +140,7 @@ def get_taxsystem_manage_payments_action_icons(
 def get_filter_set_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     filter_set: CorporationFilterSet | AllianceFilterSet,
-):
+) -> str | HttpResponse:
     """
     Generate HTML Action Icons for Manage Filter Set View.
 

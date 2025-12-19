@@ -416,34 +416,36 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
             users[account] = alts
 
         # Check journal entries for player donations
-        journal = CorporationWalletJournalEntry.objects.filter(
+        journal_qs = CorporationWalletJournalEntry.objects.filter(
             division__corporation=owner.corporation,
             ref_type__in=["player_donation"],
         ).order_by("-date")
 
         _current_entry_ids = set(
-            self.filter(account__owner=owner).values_list("entry_id", flat=True)
+            self.filter(account__owner=owner).values_list(
+                "journal__entry_id", flat=True
+            )
         )
 
         with transaction.atomic():
             items = []
             logs_items = []
-            for entry in journal:
+            for journal in journal_qs:
                 # Skip if already processed
-                if entry.entry_id in _current_entry_ids:
+                if journal.entry_id in _current_entry_ids:
                     continue
                 for account, alts in users.items():
                     # Check if entry belongs to user's characters
-                    if entry.first_party.id in alts:
+                    if journal.first_party.id in alts:
                         payment_item = AlliancePayments(
-                            entry_id=entry.entry_id,
+                            owner=owner,
+                            journal=journal,
                             name=account.name,
                             account=account,
-                            amount=entry.amount,
+                            amount=journal.amount,
                             request_status=PaymentRequestStatus.PENDING,
-                            date=entry.date,
-                            reason=entry.reason,
-                            owner_id=owner.eve_alliance.alliance_id,
+                            date=journal.date,
+                            reason=journal.reason,
                         )
                         items.append(payment_item)
 
@@ -459,9 +461,9 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
             for payment in new_payments:
                 # Only log created payments
                 payment_obj = self.filter(
-                    entry_id=payment.entry_id,
+                    journal=payment.journal,
                     account=payment.account,
-                    owner_id=owner.eve_alliance.alliance_id,
+                    owner=owner,
                 ).first()
 
                 if not payment_obj:

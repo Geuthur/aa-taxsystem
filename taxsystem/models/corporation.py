@@ -392,7 +392,16 @@ class CorporationPayments(PaymentsBaseModel):
     account = models.ForeignKey(
         CorporationPaymentAccount,
         on_delete=models.CASCADE,
+        related_name="+",
+    )
+
+    owner = models.ForeignKey(
+        CorporationOwner,
+        on_delete=models.CASCADE,
         related_name="ts_corporation_payments",
+        help_text=_("Owner of this payment"),
+        null=True,
+        blank=True,
     )
 
     def __str__(self) -> str:

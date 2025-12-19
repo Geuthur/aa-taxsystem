@@ -65,7 +65,8 @@ class TestPaymentsModel(TaxSystemTestCase):
             account=cls.tax_account,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reviser="Requires Auditor",
-            entry_id=1,
+            journal=cls.journal_entry,
+            owner=cls.audit,
         )
 
     def test_str(self):

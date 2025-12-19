@@ -440,6 +440,7 @@ def add_owner_to_user(
 def create_payment(
     account: CorporationPaymentAccount | AlliancePaymentAccount,
     name: str,
+    journal: CorporationWalletJournalEntry,
     amount: float,
     request_status: str,
     **kwargs,
@@ -460,6 +461,7 @@ def create_payment(
     params = {
         "account": account,
         "name": name,
+        "journal": journal,
         "amount": amount,
         "request_status": request_status,
     }

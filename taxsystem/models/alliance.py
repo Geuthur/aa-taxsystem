@@ -253,7 +253,16 @@ class AlliancePayments(PaymentsBaseModel):
     account = models.ForeignKey(
         AlliancePaymentAccount,
         on_delete=models.CASCADE,
+        related_name="+",
+    )
+
+    owner = models.ForeignKey(
+        AllianceOwner,
+        on_delete=models.CASCADE,
         related_name="ts_alliance_payments",
+        help_text=_("Owner of this payment"),
+        null=True,
+        blank=True,
     )
 
     def __str__(self) -> str:
