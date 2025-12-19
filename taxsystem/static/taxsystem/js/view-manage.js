@@ -187,8 +187,8 @@ $(document).ready(function() {
                 $('#update_wallet').html(data.update_status.status.wallet && data.update_status.status.wallet.last_run_finished_at
                     ? moment(data.update_status.status.wallet.last_run_finished_at).fromNow()
                     : 'N/A');
-                $('#update_division').html(data.update_status.status.division && data.update_status.status.division.last_run_finished_at
-                    ? moment(data.update_status.status.division.last_run_finished_at).fromNow()
+                $('#update_divisions').html(data.update_status.status.divisions && data.update_status.status.divisions.last_run_finished_at
+                    ? moment(data.update_status.status.divisions.last_run_finished_at).fromNow()
                     : 'N/A');
                 $('#update_division_name').html(data.update_status.status.division_names && data.update_status.status.division_names.last_run_finished_at
                     ? moment(data.update_status.status.division_names.last_run_finished_at).fromNow()
@@ -199,8 +199,8 @@ $(document).ready(function() {
                 $('#update_payments').html(data.update_status.status.payments && data.update_status.status.payments.last_run_finished_at
                     ? moment(data.update_status.status.payments.last_run_finished_at).fromNow()
                     : 'N/A');
-                $('#update_tax_account').html(data.update_status.status.tax_account && data.update_status.status.tax_account.last_run_finished_at
-                    ? moment(data.update_status.status.tax_account.last_run_finished_at).fromNow()
+                $('#update_deadlines').html(data.update_status.status.deadlines && data.update_status.status.deadlines.last_run_finished_at
+                    ? moment(data.update_status.status.deadlines.last_run_finished_at).fromNow()
                     : 'N/A');
 
                 /**
