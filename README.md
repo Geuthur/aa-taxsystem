@@ -36,31 +36,34 @@ ______________________________________________________________________
 
 - **Multi-Owner Support**: Manage both Corporations and Alliances
 - **Corporation & Alliance Tax System**
+  - Statistics
+    - Owner Information
+    - Payments
+    - Tax Accounts
+    - Division Information
+    - Update Status
   - Member Tracking
     - Check Member is registered in Auth
     - Check Member is Alt Char
-    - See Members as Missing when they leave the Corporation/Alliance
+    - Report members as missing if they leave the corporation/alliance
   - Payment System
     - Allocate User from Member Tracking
     - Automatic Payment Tracking
     - Automatic Payment Approval via Filters
     - Filtering Amount, Reason, Date
-      - Support Hooks for Add more Filters
   - Payments
     - Track Payments that meets filters
     - Manual approval workflow for unfiltered payments
   - Log System
     - Logs Actions from Administration Section
     - Payment history tracking
-- **Owner Overview**: Unified view for all Corporations and Alliances
-- **Dashboard Analytics**: Real-time statistics and financial overviews
-- **Flexible Filtering**: Customizable rules for automatic payment processing
 
 ## Upcoming<a name="upcoming"></a>
 
 - Notify via Discord
 - Enhanced notification system
 - Data export functionality
+- More Filter option (constains, division, etc.)
 
 ## Screenshots<a name="screenshots"></a>
 
@@ -98,7 +101,6 @@ pip install aa-taxsystem
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
-- Add `'allianceauth.corputils',` to `INSTALLED_APPS`
 - Add `'eveuniverse',` to `INSTALLED_APPS`
 - Add `'taxsystem',` to `INSTALLED_APPS`
 
@@ -109,7 +111,7 @@ To set up the Scheduled Tasks add following code to your `local.py`
 ```python
 CELERYBEAT_SCHEDULE["taxsystem_update_all_taxsytem"] = {
     "task": "taxsystem.tasks.update_all_taxsytem",
-    "schedule": crontab(minute="15,45"),
+    "schedule": 1800,
 }
 ```
 
