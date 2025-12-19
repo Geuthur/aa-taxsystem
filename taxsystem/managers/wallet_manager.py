@@ -10,7 +10,6 @@ from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
@@ -19,7 +18,7 @@ from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
 from taxsystem.models.helpers.textchoices import CorporationUpdateSection
-from taxsystem.providers import esi
+from taxsystem.providers import AppLogger, esi
 
 if TYPE_CHECKING:
     # AA TaxSystem
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
         CorporationWalletJournalEntry,
     )
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationJournalContext:

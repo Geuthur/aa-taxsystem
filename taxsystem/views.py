@@ -20,9 +20,6 @@ from allianceauth.eveonline.models import (
 from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__, forms, tasks
 from taxsystem.api.helpers.core import (
@@ -39,8 +36,9 @@ from taxsystem.models.corporation import (
     Members,
 )
 from taxsystem.models.helpers.textchoices import AccountStatus, AdminActions
+from taxsystem.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 @login_required

@@ -11,9 +11,6 @@ from celery import chain, shared_task
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__, app_settings
 from taxsystem.models.alliance import AllianceOwner
@@ -22,8 +19,9 @@ from taxsystem.models.helpers.textchoices import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
+from taxsystem.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 MAX_RETRIES_DEFAULT = 3
 

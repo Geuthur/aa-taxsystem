@@ -8,9 +8,6 @@ from django.db.models import Case, Count, Q, Value, When
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.models.helpers.textchoices import (
@@ -18,8 +15,9 @@ from taxsystem.models.helpers.textchoices import (
     CorporationUpdateSection,
     UpdateStatus,
 )
+from taxsystem.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA TaxSystem

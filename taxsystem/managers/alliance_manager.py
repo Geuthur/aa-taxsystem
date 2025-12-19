@@ -9,9 +9,6 @@ from django.utils import timezone
 from allianceauth.authentication.models import UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
@@ -23,8 +20,9 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
     PaymentSystemText,
 )
+from taxsystem.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA TaxSystem

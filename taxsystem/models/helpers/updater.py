@@ -9,9 +9,6 @@ from django.utils import timezone
 from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.models.general import (
@@ -28,7 +25,10 @@ if TYPE_CHECKING:
         CorporationUpdateSection,
     )
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+# AA TaxSystem
+from taxsystem.providers import AppLogger
+
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class UpdateManager:

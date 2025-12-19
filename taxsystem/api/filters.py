@@ -13,9 +13,6 @@ from django.utils.translation import gettext as _
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__, forms
 from taxsystem.api.helpers import core
@@ -35,8 +32,9 @@ from taxsystem.models.corporation import (
 from taxsystem.models.helpers.textchoices import (
     AdminActions,
 )
+from taxsystem.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class FilterApiEndpoints:

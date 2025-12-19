@@ -23,6 +23,7 @@ python manage.py migrate
 
 ### Added
 
+- Bulk Actions in Managment View
 - Translation for DataTable
 - implement AppLogger and retry_task_on_esi_error for enhanced logging and error handling
 - OpenAPI ESIStub Class
@@ -32,6 +33,7 @@ python manage.py migrate
 
 ### Changed
 
+- Payments are now only displayed depending on the user's permission.
 - Moved Manage Requests to API
 - Refactored API Structure
   - Icons Helper Function

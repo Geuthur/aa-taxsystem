@@ -10,7 +10,6 @@ from allianceauth.authentication.models import User, UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
@@ -25,7 +24,9 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
     PaymentSystemText,
 )
-from taxsystem.providers import esi
+from taxsystem.providers import AppLogger, esi
+
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -40,8 +41,6 @@ if TYPE_CHECKING:
     )
     from taxsystem.models.corporation import CorporationPayments as PaymentsContext
     from taxsystem.models.corporation import Members as MembersContext
-
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
@@ -376,6 +375,7 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
 
 
 class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
+    # pylint: disable=duplicate-code
     def visible_to(self, user: User, owner: "OwnerContext"):
         """Return visible payments for the user depending on their permissions."""
         # superusers get all visible

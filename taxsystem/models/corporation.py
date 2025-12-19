@@ -14,9 +14,6 @@ from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.managers.corporation_manager import (
@@ -49,9 +46,9 @@ from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
-from taxsystem.providers import esi
+from taxsystem.providers import AppLogger, esi
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationUpdateStatus(UpdateStatusBaseModel):
