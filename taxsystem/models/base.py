@@ -94,7 +94,12 @@ class PaymentsBaseModel(models.Model):
 
     @property
     def character_id(self) -> int:
-        """Return the character ID or first OwnershipRecord from user who made the payment."""
+        """
+        Return the character ID or first OwnershipRecord from user who made the payment.
+
+        Returns:
+            int: Character ID
+        """
         try:
             character_id = self.account.user.profile.main_character.character_id
         except AttributeError:
@@ -104,17 +109,13 @@ class PaymentsBaseModel(models.Model):
 
     @property
     def division_name(self) -> "CorporationWalletJournalEntry":
-        """Return the division name of the payment."""
-        # pylint: disable=import-outside-toplevel
-        # AA TaxSystem
-        from taxsystem.models.wallet import CorporationWalletJournalEntry
-
-        journal = CorporationWalletJournalEntry.objects.filter(
-            entry_id=self.journal.entry_id
-        ).first()
-        if not journal:
+        """
+        Returns:
+            str: The name of the division or "N/A".
+        """
+        if not self.journal:
             return "N/A"
-        return journal.division.name
+        return self.journal.division.name
 
     def get_request_status(self) -> str:
         return self.get_request_status_display()
@@ -194,7 +195,12 @@ class PaymentAccountBaseModel(models.Model):
 
     @property
     def has_paid(self) -> bool:
-        """Return True if user has paid for alliance."""
+        """
+        Return True if user has paid for alliance.
+
+        Returns:
+            bool: True if paid, False otherwise.
+        """
         subclass = getattr(self, "owner", None)
         if not subclass:
             raise NotImplementedError(
@@ -211,7 +217,12 @@ class PaymentAccountBaseModel(models.Model):
 
     @property
     def next_due(self):
-        """Return the next due date for alliance payment."""
+        """
+        Return the next due date for alliance payment.
+
+        Returns:
+            datetime or None: Next due date or None if inactive/deactivated or never paid.
+        """
         subclass = getattr(self, "owner", None)
         if not subclass:
             raise NotImplementedError(
@@ -225,7 +236,12 @@ class PaymentAccountBaseModel(models.Model):
         return None
 
     def has_paid_icon(self, badge=False, text=False) -> str:
-        """Return the HTML icon for has_paid."""
+        """
+        Return the HTML icon for has_paid.
+
+        Returns:
+            str: HTML icon string.
+        """
         color = "success" if self.has_paid else "danger"
 
         if self.has_paid:
