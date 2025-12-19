@@ -2,10 +2,10 @@
 import json
 
 # Third Party
-from humanize import intcomma
 from ninja import NinjaAPI
 
 # Django
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils.text import format_lazy
 from django.utils.translation import gettext as _
