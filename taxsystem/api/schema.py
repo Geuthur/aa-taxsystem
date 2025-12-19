@@ -65,7 +65,8 @@ class AccountSchema(CharacterSchema):
 
 class MembersSchema(Schema):
     character: CharacterSchema
-    is_faulty: bool
+    is_missing: bool
+    is_noaccount: bool
     status: str
     joined: datetime
     actions: str | None = None

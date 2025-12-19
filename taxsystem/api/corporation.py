@@ -92,7 +92,8 @@ class CorporationApiEndpoints:
                             member.character_id, size=32, as_html=True
                         ),
                     ),
-                    is_faulty=member.is_faulty,
+                    is_missing=member.is_missing,
+                    is_noaccount=member.is_noaccount,
                     status=member.get_status_display(),
                     joined=member.joined,
                     actions=actions,

@@ -63,6 +63,30 @@ $(document).ready(function() {
         $('#statistics_members_not_registered').text(statistics.members.members_unregistered);
     };
 
+    /**
+     * Helper function: Filter DataTable using DataTables custom search API
+     * @param {Function} predicate - Predicate function to filter rows
+     * @param {Object} dt - DataTable instance
+     */
+    const applyPaymentFilter = (predicate, dt) => {
+        // reset custom filters and add a table-scoped predicate
+        _resetBulkState();
+        $.fn.dataTable.ext.search = [];
+        $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData) {
+            // only apply to this DataTable instance
+            try {
+                if (settings.nTable !== dt.table().node()) {
+                    return true;
+                }
+            } catch (e) {
+                return true;
+            }
+
+            if (!rowData) return true;
+            return predicate(rowData);
+        });
+        dt.draw();
+    };
 
     fetchGet({
         url: aaTaxSystemSettings.url.Dashboard
@@ -326,25 +350,28 @@ $(document).ready(function() {
                             width: 32
                         },
                     ],
-                    filterDropDown: {
-                        columns: [
-                            {
-                                idx: 2,
-                                maxWidth: '200px',
-                            }
-                        ],
-                        autoSize: false,
-                        bootstrap: true,
-                        bootstrap_version: 5
-                    },
                     initComplete: function () {
+                        const dt = membersTable.DataTable();
+
+                        $('#request-filter-members-all').on('change click', () => {
+                            applyPaymentFilter(() => true, dt);
+                        });
+
+                        $('#request-filter-members-not-registered').on('change click', () => {
+                            applyPaymentFilter(rowData => rowData.is_noaccount, dt);
+                        });
+
+                        $('#request-filter-members-missing').on('change click', () => {
+                            applyPaymentFilter(rowData => rowData.is_missing, dt);
+                        });
+
                         _bootstrapTooltip({selector: '#members'});
                     },
                     drawCallback: function () {
                         _bootstrapTooltip({selector: '#members'});
                     },
                     rowCallback: function(row, data) {
-                        if (data.is_faulty) {
+                        if (data.is_missing || data.is_noaccount) {
                             $(row).addClass('tax-red tax-hover');
                         }
                     },
@@ -520,39 +547,16 @@ $(document).ready(function() {
                             _updateBulkState();
                         });
 
-                        /**
-                         * Helper function: Filter DataTable using DataTables custom search API
-                         */
-                        const applyPaymentFilter = (predicate) => {
-                            // reset custom filters and add a table-scoped predicate
-                            _resetBulkState();
-                            $.fn.dataTable.ext.search = [];
-                            $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData) {
-                                // only apply to this DataTable instance
-                                try {
-                                    if (settings.nTable !== dt.table().node()) {
-                                        return true;
-                                    }
-                                } catch (e) {
-                                    return true;
-                                }
-
-                                if (!rowData) return true;
-                                return predicate(rowData);
-                            });
-                            dt.draw();
-                        };
-
-                        $('#request-filter-all').on('change click', () => {
-                            applyPaymentFilter(() => true);
+                        $('#request-filter-accounts-all').on('change click', () => {
+                            applyPaymentFilter(() => true, dt);
                         });
 
-                        $('#request-filter-paid').on('change click', () => {
-                            applyPaymentFilter(rowData => !!(rowData.has_paid && rowData.has_paid.raw && rowData.is_active));
+                        $('#request-filter-accounts-paid').on('change click', () => {
+                            applyPaymentFilter(rowData => !!(rowData.has_paid && rowData.has_paid.raw && rowData.is_active), dt);
                         });
 
-                        $('#request-filter-not-paid').on('change click', () => {
-                            applyPaymentFilter(rowData => rowData.is_active && !(rowData.has_paid && rowData.has_paid.raw));
+                        $('#request-filter-accounts-not-paid').on('change click', () => {
+                            applyPaymentFilter(rowData => rowData.is_active && !(rowData.has_paid && rowData.has_paid.raw), dt);
                         });
 
                         _bootstrapTooltip({selector: '#tax-accounts'});
