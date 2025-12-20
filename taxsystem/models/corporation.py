@@ -300,10 +300,6 @@ class Members(models.Model):
 
     class Meta:
         default_permissions = ()
-        indexes = [
-            models.Index(fields=["owner", "character_name"]),
-            models.Index(fields=["status"]),
-        ]
 
     objects: MembersManager = MembersManager()
 
@@ -377,12 +373,6 @@ class CorporationPayments(PaymentsBaseModel):
 
     class Meta:
         default_permissions = ()
-        indexes = [
-            models.Index(
-                fields=["account", "owner", "request_status", "-date"],
-            ),
-            models.Index(fields=["request_status", "-date"]),
-        ]
 
     objects: PaymentsManager = PaymentsManager()
 
