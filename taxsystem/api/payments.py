@@ -2,10 +2,10 @@
 import json
 
 # Third Party
-from humanize import intcomma
 from ninja import NinjaAPI, Schema
 
 # Django
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
