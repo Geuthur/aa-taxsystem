@@ -390,7 +390,7 @@ class PaymentsApiEndpoints:
                 return 400, {"success": False, "message": msg}
 
             amount = form.cleaned_data["amount"]
-            reason = form.cleaned_data["comment"]
+            comment = form.cleaned_data["comment"]
 
             # Begin transaction
             try:
@@ -405,15 +405,15 @@ class PaymentsApiEndpoints:
                         amount=amount,
                         account=account,
                         date=timezone.now(),
-                        reason=reason,
+                        reason="",
                         request_status=PaymentRequestStatus.APPROVED,
                         reviser=request.user.username,
                     )
 
                     # Create log message
                     msg = format_lazy(
-                        _("Custom Payment Added: {reason}"),
-                        reason=reason,
+                        _("Custom Payment Added: {comment}"),
+                        comment=comment,
                     )
 
                     payment.save()
@@ -423,9 +423,9 @@ class PaymentsApiEndpoints:
                     # Log the Payment Action
                     payment.transaction_log(
                         user=request.user,
-                        action=PaymentActions.PAYMENT_ADDED,
+                        action=PaymentActions.CUSTOM_PAYMENT,
                         new_status=PaymentRequestStatus.APPROVED,
-                        comment=msg,
+                        comment=comment,
                     ).save()
 
                 return 200, {"success": True, "message": msg}
