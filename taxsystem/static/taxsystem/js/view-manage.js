@@ -16,7 +16,7 @@ $(document).ready(function() {
     const modalRequestViewPaymentsDetails = $('#taxsystem-view-payment-details');
     // Sub Modal :: Payments Details :: Tables
     const paymentInformationTable = $('#payment-information-table');
-    const paymentDashboardTable = $('#payment-dashboard-table');
+    const paymentAccountTable = $('#payment-account-table');
     const paymentHistoryTable = $('#payment-history-table');
     // Modal :: Table :: Members
     const modalRequestDeleteMember = $('#taxsystem-accept-delete-member');
@@ -1124,9 +1124,9 @@ $(document).ready(function() {
         paymentInformationTable.find('#payment-division').text(data.payment.division_name);
         paymentInformationTable.find('#payment-reason').text(data.payment.reason);
         // Payment Dashboard
-        paymentDashboardTable.find('#tax-account').html(`${data.account.character.character_portrait} ${data.account.character.character_name}`);
-        paymentDashboardTable.find('#tax-account-status').html(data.account.account_status);
-        paymentDashboardTable.find('#tax-account-deposit').text(
+        paymentAccountTable.find('#tax-account-user').html(`${data.account.character.character_portrait} ${data.account.character.character_name}`);
+        paymentAccountTable.find('#tax-account-status').html(data.account.account_status);
+        paymentAccountTable.find('#tax-account-deposit').text(
             numberFormatter({
                 value: data.account.payment_pool,
                 language: aaTaxSystemSettings.locale,
@@ -1136,7 +1136,7 @@ $(document).ready(function() {
                 }
             })
         );
-        paymentDashboardTable.find('#tax-account-owner').text(data.owner.owner_name);
+        paymentAccountTable.find('#tax-account-owner').text(data.owner.owner_name);
         // Payment Status
         $('#payment-status-badge').html(data.payment.request_status.html);
         // Load Payment History DataTable
@@ -1155,10 +1155,10 @@ $(document).ready(function() {
         paymentInformationTable.find('#payment-division').text('N/A');
         paymentInformationTable.find('#payment-reason').text('N/A');
         // Clear Payment Dashboard
-        paymentDashboardTable.find('#tax-account').html('N/A');
-        paymentDashboardTable.find('#tax-account-status').html('N/A');
-        paymentDashboardTable.find('#tax-account-deposit').text('N/A');
-        paymentDashboardTable.find('#tax-account-owner').text('N/A');
+        paymentAccountTable.find('#tax-account-user').html('N/A');
+        paymentAccountTable.find('#tax-account-status').html('N/A');
+        paymentAccountTable.find('#tax-account-deposit').text('N/A');
+        paymentAccountTable.find('#tax-account-owner').text('N/A');
         // Clear Payment Status
         $('#payment-status-badge').html('N/A');
         // Clear Payment History DataTable
