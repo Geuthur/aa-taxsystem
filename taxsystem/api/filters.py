@@ -47,7 +47,7 @@ class FilterApiEndpoints:
             response={200: list, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_filter(request, owner_id: int, filterset_pk: int):
+        def get_filters(request, owner_id: int, filterset_pk: int):
             """
             Handle an Request to retrieve Filters for a Filter Set.
             This Endpoint retrieves the filters for a filter set for a owner.

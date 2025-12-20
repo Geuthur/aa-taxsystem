@@ -178,7 +178,7 @@ def get_filter_set_info_button(
 
     # Generate the URL for the delete Request
     button_request_info_url = reverse(
-        "taxsystem:api:get_filter",
+        "taxsystem:api:get_filters",
         kwargs={
             "filterset_pk": filter_set.pk,
             "owner_id": filter_set.owner.eve_id,
@@ -342,7 +342,7 @@ def get_filter_delete_button(filter_obj: CorporationFilter | AllianceFilter) -> 
     )
     # Generate the URL for reloading the Modal Data
     modal_request_url = reverse(
-        "taxsystem:api:get_filter",
+        "taxsystem:api:get_filters",
         kwargs={
             "filterset_pk": filter_obj.filter_set.pk,
             "owner_id": filter_obj.filter_set.owner.eve_id,
