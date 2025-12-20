@@ -379,7 +379,7 @@ class CorporationPayments(PaymentsBaseModel):
         default_permissions = ()
         indexes = [
             models.Index(
-                fields=["account", "owner_id", "request_status", "-date"],
+                fields=["account", "owner", "request_status", "-date"],
             ),
             models.Index(fields=["request_status", "-date"]),
         ]
