@@ -136,7 +136,7 @@ class TestEsiStubUsage(NoSocketsTestCase):
         self.assertEqual(len(result.skills), 1)
         self.assertEqual(result.skills[0].skill_id, 99999)
 
-    @patch("skillfarm.providers.esi")
+    @patch("taxsystem.providers.esi")
     def test_should_mock_esi(self, mock_esi):
         """
         Test should mock esi provider to return the stub client.

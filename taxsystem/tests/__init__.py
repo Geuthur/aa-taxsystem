@@ -5,7 +5,6 @@ import socket
 from django.test import RequestFactory, TestCase
 
 # AA TaxSystem
-# AA Skillfarm
 from taxsystem.tests.testdata.integrations.allianceauth import load_allianceauth
 from taxsystem.tests.testdata.integrations.eveuniverse import load_eveuniverse
 from taxsystem.tests.testdata.utils import create_user_from_evecharacter

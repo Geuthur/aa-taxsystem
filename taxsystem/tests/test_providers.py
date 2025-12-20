@@ -32,7 +32,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.task.request.retries = 1
         self.task.retry = MagicMock(side_effect=Exception("Retry called"))
 
-    @patch("skillfarm.providers.random.uniform")
+    @patch("taxsystem.providers.random.uniform")
     def test_should_retry_on_esi_error_limit_exception(self, mock_random):
         """
         Test should retry task when ESI error limit is reached.
@@ -54,7 +54,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.assertEqual(call_kwargs["exc"], exc)
         self.assertEqual(call_kwargs["countdown"], 63)
 
-    @patch("skillfarm.providers.random.uniform")
+    @patch("taxsystem.providers.random.uniform")
     def test_should_retry_on_esi_bucket_limit_exception(self, mock_random):
         """
         Test should retry task when ESI bucket limit is reached.
@@ -77,7 +77,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.assertEqual(call_kwargs["exc"], exc)
         self.assertEqual(call_kwargs["countdown"], 34)
 
-    @patch("skillfarm.providers.random.uniform")
+    @patch("taxsystem.providers.random.uniform")
     def test_should_retry_on_http_502_error(self, mock_random):
         """
         Test should retry task on HTTP 502 Bad Gateway error.
@@ -98,7 +98,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.assertEqual(call_kwargs["exc"], exc)
         self.assertEqual(call_kwargs["countdown"], 62)
 
-    @patch("skillfarm.providers.random.uniform")
+    @patch("taxsystem.providers.random.uniform")
     def test_should_retry_on_http_503_error(self, mock_random):
         """
         Test should retry task on HTTP 503 Service Unavailable error.
@@ -118,7 +118,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         call_kwargs = self.task.retry.call_args[1]
         self.assertEqual(call_kwargs["countdown"], 63)
 
-    @patch("skillfarm.providers.random.uniform")
+    @patch("taxsystem.providers.random.uniform")
     def test_should_retry_on_http_504_error(self, mock_random):
         """
         Test should retry task on HTTP 504 Gateway Timeout error.
@@ -170,7 +170,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.task.retry.assert_not_called()
         self.assertEqual(context.exception.status_code, 400)
 
-    @patch("skillfarm.providers.random.uniform")
+    @patch("taxsystem.providers.random.uniform")
     def test_should_apply_backoff_jitter_on_retries(self, mock_random):
         """
         Test should apply exponential backoff jitter based on retry count.
