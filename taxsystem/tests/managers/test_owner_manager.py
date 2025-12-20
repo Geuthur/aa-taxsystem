@@ -39,8 +39,8 @@ class TestOwnerManager(TaxSystemTestCase):
             4. Both alliance owners are visible to a user with 'taxsystem.manage_alliances' permission.
         """
         # Setup additional user and owner
-        audit_2 = create_owner_from_user(self.user_2)
-        alliance_audit_2 = create_owner_from_user(self.user_2, tax_type="alliance")
+        audit_2 = create_owner_from_user(self.user2)
+        alliance_audit_2 = create_owner_from_user(self.user2, tax_type="alliance")
 
         # Test that audit is visible to its user
         visible_audits_user_1 = type(self.audit).objects.visible_to(self.user)
@@ -48,7 +48,7 @@ class TestOwnerManager(TaxSystemTestCase):
         self.assertNotIn(audit_2, visible_audits_user_1)
 
         # Test that audit_2 is visible to its user
-        visible_audits_user_2 = type(audit_2).objects.visible_to(self.user_2)
+        visible_audits_user_2 = type(audit_2).objects.visible_to(self.user2)
         self.assertIn(audit_2, visible_audits_user_2)
         self.assertNotIn(self.audit, visible_audits_user_2)
 
@@ -70,7 +70,7 @@ class TestOwnerManager(TaxSystemTestCase):
 
         # Test that alliance_audit_2 is visible to its user
         visible_alliance_audits_user_2 = type(alliance_audit_2).objects.visible_to(
-            self.user_2
+            self.user2
         )
         self.assertIn(alliance_audit_2, visible_alliance_audits_user_2)
         self.assertNotIn(self.alliance_audit, visible_alliance_audits_user_2)
@@ -114,15 +114,15 @@ class TestOwnerManager(TaxSystemTestCase):
             5. Both alliance owners are manageable to a user with 'taxsystem.manage_alliances' permission.
         """
         # Setup additional user and owner
-        audit_2 = create_owner_from_user(self.user_2)
-        alliance_audit_2 = create_owner_from_user(self.user_2, tax_type="alliance")
+        audit_2 = create_owner_from_user(self.user2)
+        alliance_audit_2 = create_owner_from_user(self.user2, tax_type="alliance")
 
         # Test that user can not be managed by its user
         manageable_audits_user_1 = type(self.audit).objects.manage_to(self.user)
         self.assertNotIn(self.audit, manageable_audits_user_1)
 
         # Test that audit can not be managed by other user
-        manageable_audits_user_2 = type(audit_2).objects.manage_to(self.user_2)
+        manageable_audits_user_2 = type(audit_2).objects.manage_to(self.user2)
         self.assertNotIn(audit_2, manageable_audits_user_2)
         self.assertNotIn(self.audit, manageable_audits_user_2)
 
@@ -148,7 +148,7 @@ class TestOwnerManager(TaxSystemTestCase):
         self.assertNotIn(self.alliance_audit, manageable_audits_user_1)
 
         # Test that alliance audit can not be managed by other user
-        manageable_audits_user_2 = type(alliance_audit_2).objects.manage_to(self.user_2)
+        manageable_audits_user_2 = type(alliance_audit_2).objects.manage_to(self.user2)
         self.assertNotIn(alliance_audit_2, manageable_audits_user_2)
         self.assertNotIn(self.alliance_audit, manageable_audits_user_2)
 

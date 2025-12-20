@@ -39,7 +39,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the initialization of the UpdateManager.
         """
-        # Test Environment
+        # Test Data
         mock_owner = MagicMock()
         mock_update_section = MagicMock()
         mock_update_status = MagicMock()
@@ -60,7 +60,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the calc_update_needed method.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -82,7 +82,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the reset_update_status method.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -106,7 +106,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the reset_has_token_error method.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -133,7 +133,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the update_section_if_changed method for a successful update.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -161,7 +161,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the update_section_if_changed method for a token error scenario.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -193,7 +193,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the update_section_if_changed method for no change scenario.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -220,7 +220,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the update_section_if_changed method for server error scenario.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -247,7 +247,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the update_section_log method for an updated section.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -281,7 +281,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the update_section_log method for a section with token error.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -316,7 +316,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the perform_update_status method.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,
@@ -353,7 +353,7 @@ class TestUpdateManager(TaxSystemTestCase):
         """
         Test the perform_update_status method for token error scenario.
         """
-        # Test Environment
+        # Test Data
         self.audit = create_owner_from_user(self.user)
         manager = self.updater(
             owner=self.audit,

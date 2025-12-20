@@ -21,6 +21,8 @@ INDEX_PATH = "taxsystem.views"
 
 
 class TestViewAccess(TaxSystemTestCase):
+    """Test View General Access Permissions."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -294,7 +296,7 @@ class TestViewAccess(TaxSystemTestCase):
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user_2
+        request.user = self.user2
         # when
         response = views.account(request, 2003, 1001)
         # then

@@ -16,6 +16,8 @@ from taxsystem.tests.testdata.utils import (
 
 
 class TestCorporationOwnerAdmin(TaxSystemTestCase):
+    """Test Backend AA Administration for Tax System"""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

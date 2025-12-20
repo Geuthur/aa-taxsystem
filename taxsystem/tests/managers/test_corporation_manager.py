@@ -83,7 +83,7 @@ class TestCorporationManager(TaxSystemTestCase):
             2. Mark a payment as NEEDS_APPROVAL.
         """
         # Test Data
-        self.tax_account = create_tax_account(
+        tax_account = create_tax_account(
             name=self.user_character.character.character_name,
             owner=self.audit,
             user=self.user,
@@ -92,7 +92,7 @@ class TestCorporationManager(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        self.journal_entry = create_wallet_journal_entry(
+        journal_entry = create_wallet_journal_entry(
             division=self.division,
             entry_id=1,
             amount=1000,
@@ -104,7 +104,7 @@ class TestCorporationManager(TaxSystemTestCase):
             description="Test Description",
         )
 
-        self.journal_entry2 = create_wallet_journal_entry(
+        journal_entry2 = create_wallet_journal_entry(
             division=self.division,
             entry_id=2,
             amount=6000,
@@ -117,11 +117,11 @@ class TestCorporationManager(TaxSystemTestCase):
         )
 
         # Approved Payment
-        self.payments = create_payment(
+        create_payment(
             name=self.user_character.character.character_name,
-            account=self.tax_account,
+            account=tax_account,
             owner=self.audit,
-            journal=self.journal_entry,
+            journal=journal_entry,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reason="Tax Payment",
@@ -130,11 +130,11 @@ class TestCorporationManager(TaxSystemTestCase):
         )
 
         # Needs Approval Payment
-        self.payments2 = create_payment(
+        create_payment(
             name=self.user_character.character.character_name,
-            account=self.tax_account,
+            account=tax_account,
             owner=self.audit,
-            journal=self.journal_entry2,
+            journal=journal_entry2,
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
             reason="Mining Stuff",
@@ -170,10 +170,10 @@ class TestCorporationManager(TaxSystemTestCase):
             1. Mark a tax account as MISSING when the user is no longer in the corporation.
         """
         # Test Data
-        self.tax_account = create_tax_account(
-            name=self.user_2_character.character.character_name,
+        tax_account = create_tax_account(
+            name=self.user2_character.character.character_name,
             owner=self.audit,
-            user=self.user_2,
+            user=self.user2,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -183,11 +183,11 @@ class TestCorporationManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = CorporationPaymentAccount.objects.get(user=self.user_2)
+        tax_account = CorporationPaymentAccount.objects.get(user=self.user2)
         self.assertEqual(tax_account.status, AccountStatus.MISSING)
         mock_logger.info.assert_any_call(
             "Marked Tax Account %s as MISSING",
-            self.tax_account.name,
+            tax_account.name,
         )
 
     @patch(f"{MODULE_PATH}.logger")
@@ -201,11 +201,11 @@ class TestCorporationManager(TaxSystemTestCase):
             1. Move a tax account to a new corporation when the user has changed corporation.
         """
         # Test Data
-        self.audit_2 = create_owner_from_user(self.user_2)
-        self.tax_account = create_tax_account(
-            name=self.user_2_character.character.character_name,
+        audit_2 = create_owner_from_user(self.user2)
+        tax_account = create_tax_account(
+            name=self.user2_character.character.character_name,
             owner=self.audit,
-            user=self.user_2,
+            user=self.user2,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -215,13 +215,13 @@ class TestCorporationManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = CorporationPaymentAccount.objects.get(user=self.user_2)
+        tax_account = CorporationPaymentAccount.objects.get(user=self.user2)
         self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
-        self.assertEqual(tax_account.owner, self.audit_2)
+        self.assertEqual(tax_account.owner, audit_2)
         mock_logger.info.assert_any_call(
             "Moved Tax Account %s to Corporation %s",
-            self.tax_account.name,
-            self.audit_2.eve_corporation.corporation_name,
+            tax_account.name,
+            audit_2.eve_corporation.corporation_name,
         )
 
     @patch(f"{MODULE_PATH}.logger")
@@ -233,7 +233,7 @@ class TestCorporationManager(TaxSystemTestCase):
             1. Reset a tax account when the user was missing and has returned to the previous corporation.
         """
         # Test Data
-        self.tax_account = create_tax_account(
+        tax_account = create_tax_account(
             name=self.user_character.character.character_name,
             owner=self.audit,
             user=self.user,
@@ -252,7 +252,7 @@ class TestCorporationManager(TaxSystemTestCase):
         self.assertEqual(tax_account.owner, self.audit)
         mock_logger.info.assert_any_call(
             "Reset Tax Account %s",
-            self.tax_account.name,
+            tax_account.name,
         )
 
     def test_payment_deadlines(self):
@@ -266,7 +266,7 @@ class TestCorporationManager(TaxSystemTestCase):
         """
         # Test Data
         self.audit.tax_amount = 1000
-        self.tax_account = create_tax_account(
+        tax_account = create_tax_account(
             name=self.user_character.character.character_name,
             owner=self.audit,
             user=self.user,
@@ -274,16 +274,16 @@ class TestCorporationManager(TaxSystemTestCase):
             deposit=1000,
             last_paid=(timezone.now() - timezone.timedelta(days=60)),
         )
-        self.new_user, self.new_user_character = create_user_from_evecharacter(
+        new_user, new_user_character = create_user_from_evecharacter(
             character_id=1006,
             permissions=["taxsystem.basic_access"],
         )
 
         # 1 Month is free for new users
-        self.tax_account_2 = create_tax_account(
-            name=self.new_user_character.character.character_name,
+        tax_account_2 = create_tax_account(
+            name=new_user_character.character.character_name,
             owner=self.audit,
-            user=self.new_user,
+            user=new_user,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=None,
@@ -295,7 +295,7 @@ class TestCorporationManager(TaxSystemTestCase):
         # Expected Results
         tax_account = CorporationPaymentAccount.objects.get(user=self.user)
         self.assertEqual(tax_account.deposit, 0)
-        tax_account_2 = CorporationPaymentAccount.objects.get(user=self.new_user)
+        tax_account_2 = CorporationPaymentAccount.objects.get(user=new_user)
         self.assertEqual(tax_account_2.deposit, 0)
 
     @patch(MODULE_PATH + ".esi")

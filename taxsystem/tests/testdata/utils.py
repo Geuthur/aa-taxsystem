@@ -23,6 +23,7 @@ from taxsystem.models.alliance import (
     AllianceFilterSet,
     AllianceOwner,
     AlliancePaymentAccount,
+    AlliancePaymentHistory,
     AlliancePayments,
     AllianceUpdateStatus,
 )
@@ -31,6 +32,7 @@ from taxsystem.models.corporation import (
     CorporationFilterSet,
     CorporationOwner,
     CorporationPaymentAccount,
+    CorporationPaymentHistory,
     CorporationPayments,
     CorporationUpdateStatus,
     Members,
@@ -650,3 +652,34 @@ def create_filter(
         journal_filter = CorporationFilter(**params)
     journal_filter.save()
     return journal_filter
+
+
+def create_payment_history(
+    payment: CorporationPayments | AlliancePayments,
+    user: User,
+    new_status: str,
+    action: str,
+    **kwargs,
+) -> CorporationPaymentHistory | AlliancePaymentHistory:
+    """
+    Create a Payment History entry for a Corporation or Alliance Payment
+
+    Args:
+        payment (CorporationPayments | AlliancePayments): The payment.
+        action (str): The action taken.
+        comment (str, optional): Additional comment. Defaults to "".
+        **kwargs: Additional fields for the Payment History
+    """
+    params = {
+        "payment": payment,
+        "user": user,
+        "new_status": new_status,
+        "action": action,
+    }
+    params.update(kwargs)
+    if isinstance(payment, AlliancePayments):
+        payment_log = AlliancePaymentHistory(**params)
+    else:
+
+        payment_log = CorporationPaymentHistory(**params)
+    payment_log.save()

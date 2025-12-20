@@ -16,7 +16,6 @@ from taxsystem.tests.testdata.esi_stub_openapi import (
 from taxsystem.tests.testdata.utils import (
     create_division,
     create_owner_from_user,
-    create_wallet_journal_entry,
 )
 
 MODULE_PATH = "taxsystem.managers.wallet_manager"

@@ -159,9 +159,9 @@ class TestAllianceManager(TaxSystemTestCase):
         """
         # Test Data
         self.tax_account = create_tax_account(
-            name=self.user_2_character.character.character_name,
+            name=self.user2_character.character.character_name,
             owner=self.audit,
-            user=self.user_2,
+            user=self.user2,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -170,7 +170,7 @@ class TestAllianceManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = AlliancePaymentAccount.objects.get(user=self.user_2)
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user2)
         self.assertEqual(tax_account.status, AccountStatus.MISSING)
         mock_logger.info.assert_any_call(
             "Marked Tax Account %s as MISSING",
@@ -188,11 +188,11 @@ class TestAllianceManager(TaxSystemTestCase):
             1. Move a tax account to a new alliance when the user has changed alliance.
         """
         # Test Data
-        self.audit_2 = create_owner_from_user(self.user_2, tax_type="alliance")
+        self.audit_2 = create_owner_from_user(self.user2, tax_type="alliance")
         self.tax_account = create_tax_account(
-            name=self.user_2_character.character.character_name,
+            name=self.user2_character.character.character_name,
             owner=self.audit,
-            user=self.user_2,
+            user=self.user2,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -202,7 +202,7 @@ class TestAllianceManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = AlliancePaymentAccount.objects.get(user=self.user_2)
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user2)
         self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
         self.assertEqual(tax_account.owner, self.audit_2)
         mock_logger.info.assert_any_call(

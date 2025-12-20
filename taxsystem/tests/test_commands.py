@@ -25,6 +25,8 @@ COMMAND_PATH = "taxsystem.management.commands.taxsystem_migrate_payments"
 
 
 class TestMigratePayments(TaxSystemTestCase):
+    """Test Tax System Payment Migration Command."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -74,12 +76,13 @@ class TestMigratePayments(TaxSystemTestCase):
         )
 
     def test_should_migrate(self):
-        # when
+        # Test Data
         out = StringIO()
+
+        # Test Action
         call_command("taxsystem_migrate_payments", stdout=out)
         output = out.getvalue()
-
-        # then
+        # Expected Result
         self.assertIn(
             "Migration report for Hell RiderZ: 1 entries migrated.",
             output,

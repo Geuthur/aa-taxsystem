@@ -59,7 +59,7 @@ class TaxSystemTestCase(NoSocketsTestCase):
             * 'taxsystem.basic_access' Permission
             * Character ID 1001
             * Corporation ID 2001
-        * `user_2` Second user with standard TaxSystem access.
+        * `user2` Second user with standard TaxSystem access.
             * 'taxsystem.basic_access' Permission
             * Character ID 1002
             * Corporation ID 2002
@@ -105,7 +105,7 @@ class TaxSystemTestCase(NoSocketsTestCase):
             permissions=["taxsystem.basic_access"],
         )
         # User with Standard Access - Corporation 2002
-        cls.user_2, cls.user_2_character = create_user_from_evecharacter(
+        cls.user2, cls.user2_character = create_user_from_evecharacter(
             character_id=1002,
             permissions=["taxsystem.basic_access"],
         )
