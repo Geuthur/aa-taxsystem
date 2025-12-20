@@ -1,4 +1,4 @@
-# Makefile for AA Ledger
+# Makefile for AA Taxsystem
 
 # Specify the shell to be used for executing the commands in this Makefile.
 # In this case, it is set to /bin/bash.
