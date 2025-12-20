@@ -1,4 +1,4 @@
-"""Shared ESI client for Skillfarm."""
+"""Shared ESI client for Taxsystem."""
 
 # Standard Library
 import logging
