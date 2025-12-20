@@ -149,7 +149,7 @@ class PaymentsApiEndpoints:
 
         @api.get(
             "owner/{owner_id}/view/my-payments/",
-            response={200: list, 403: dict, 404: dict},
+            response={200: list, 404: dict},
             tags=self.tags,
         )
         def get_my_payments(request: WSGIRequest, owner_id: int):
@@ -412,10 +412,8 @@ class PaymentsApiEndpoints:
 
                     # Create log message
                     msg = format_lazy(
-                        _("Payment ID: {pid} - Amount: {amount} - Name: {name} added"),
-                        pid=payment.pk,
-                        amount=intcomma(payment.amount),
-                        name=payment.name,
+                        _("Custom Payment Added: {reason}"),
+                        reason=reason,
                     )
 
                     payment.save()
@@ -654,17 +652,15 @@ class PaymentsApiEndpoints:
                         pk=payment_pk,
                     )
                     if (
-                        payment.entry is not None
+                        payment.journal is not None
                     ):  # Prevent deletion of ESI imported payments
-                        msg = format_lazy(
-                            _(
-                                "Payment ID: {pid} - Amount: {amount} - Name: {name} deletion failed - ESI imported payments cannot be deleted"
-                            ),
-                            pid=payment.pk,
-                            amount=intcomma(payment.amount),
-                            name=payment.name,
-                        )
+                        msg = _("ESI imported payments cannot be deleted")
                         return 400, {"success": False, "message": msg}
+
+                    # Capture values before deletion
+                    pid = payment.pk
+                    amount = intcomma(payment.amount)
+                    name = payment.name
 
                     # Refund if approved
                     if payment.is_approved:
@@ -678,9 +674,9 @@ class PaymentsApiEndpoints:
                         _(
                             "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
                         ),
-                        pid=payment.pk,
-                        amount=intcomma(payment.amount),
-                        name=payment.name,
+                        pid=pid,
+                        amount=amount,
+                        name=name,
                         reason=reason,
                     )
 
@@ -691,14 +687,6 @@ class PaymentsApiEndpoints:
                         action=AdminActions.DELETE,
                         comment=msg,
                     ).save()
-
-                    # Create response message
-                    msg = format_lazy(
-                        _("Payment ID: {pid} - Amount: {amount} - Name: {name} undone"),
-                        pid=payment.pk,
-                        amount=intcomma(payment.amount),
-                        name=payment.name,
-                    )
                     return 200, {"success": True, "message": msg}
             except IntegrityError:
                 msg = _("Transaction failed. Please try again.")
