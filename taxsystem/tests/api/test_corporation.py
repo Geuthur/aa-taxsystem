@@ -34,7 +34,7 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
     def test_get_members_should_404(self):
@@ -48,7 +48,7 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_get_members_should_200(self):
@@ -82,7 +82,7 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn("Test Character", str(response.json()))
         self.assertIn("Missing Character", str(response.json()))
@@ -108,7 +108,7 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.post(path=url, data=data)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
     def test_delete_member_should_200(self):
@@ -139,7 +139,7 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         )
         print(json.loads(response.content))
 
-        # Excepted Result
+        # Expected Result
         result = "Member {member} deleted - {reason}".format(
             member=member.character_name, reason=data["comment"]
         )

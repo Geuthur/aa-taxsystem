@@ -93,7 +93,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn(str(payment.amount), str(response.json()))
 
@@ -139,7 +139,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn(str(payment.amount), str(response.json()))
 
@@ -192,7 +192,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn(str(payment.amount), str(response.json()))
 
@@ -209,7 +209,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertNotIn(str(payment.amount), str(response.json()))
 
@@ -226,7 +226,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn(str(payment.amount), str(response.json()))
 
@@ -281,7 +281,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn(str(payment.amount), str(response.json()))
         self.assertIn(payment.reason, str(response.json()))
@@ -297,7 +297,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Action
         response = self.client.get(url)
 
-        # Excepted Result
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertNotIn(str(payment.amount), str(response.json()))
         self.assertNotIn(payment.reason, str(response.json()))
@@ -342,7 +342,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Custom Payment Added: {reason}".format(reason=data["comment"])
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json().get("message"), result)
@@ -364,7 +364,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Permission Denied."
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
@@ -420,7 +420,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Payment ID: {pid} - Amount: {amount} - Name: {name} approved".format(
             pid=payment.pk, amount=intcomma(payment.amount), name=payment.name
         )
@@ -439,7 +439,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Permission Denied."
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
@@ -507,7 +507,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Payment ID: {pid} - Amount: {amount} - Name: {name} undone".format(
             pid=reject_payment.pk,
             amount=intcomma(reject_payment.amount),
@@ -547,7 +547,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Payment ID: {pid} - Amount: {amount} - Name: {name} undone".format(
             pid=payment.pk,
             amount=intcomma(payment.amount),
@@ -570,7 +570,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Permission Denied."
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
@@ -640,7 +640,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}".format(
             pid=custom_payment.pk,
             amount=intcomma(custom_payment.amount),
@@ -662,7 +662,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Permission Denied."
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
@@ -683,7 +683,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "ESI imported payments cannot be deleted"
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertEqual(response.json().get("message"), result)
@@ -739,7 +739,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected - {reason}".format(
             pid=payment.pk,
             amount=intcomma(payment.amount),
@@ -761,5 +761,5 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             path=url, data=json.dumps(data), content_type="application/json"
         )
 
-        # Excepted Result
+        # Expected Result
         result = "Permission Denied."
