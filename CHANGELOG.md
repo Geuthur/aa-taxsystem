@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0-beta.4] - 2025-12-21
+
 > [!WARNING]
 > We changed the Payments Information, please use the following django command to migrate old Payments
 > You need to execute the following commands in order to avoid issues with later versions
@@ -20,6 +22,9 @@ python manage.py taxsystem_cleanup_payments
 python manage.py taxsystem_migrate_payments
 python manage.py migrate
 ```
+
+> [!NOTE]
+> `entry_id` is depreacted and will be deleted with version 2.1, a Migration is necessary to avoid data loss!
 
 ### Added
 
@@ -606,5 +611,8 @@ python manage.py taxsystem_migrate_payments
 [1.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.1 "1.0.1"
 [1.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.1...v1.0.2 "1.0.2"
 [2.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.1 "2.0.0-beta.1"
+[2.0.0-beta.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.2 "2.0.0-beta.2"
+[2.0.0-beta.3]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.3 "2.0.0-beta.3"
+[2.0.0-beta.4]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.4 "2.0.0-beta.4"
 [in development]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
