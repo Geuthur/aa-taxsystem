@@ -1,6 +1,6 @@
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
 from taxsystem.models.alliance import AllianceOwner
