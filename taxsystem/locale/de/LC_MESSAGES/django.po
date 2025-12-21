@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-10-14 13:35+0200\n"
-"PO-Revision-Date: 2025-12-21 13:30+0000\n"
+"PO-Revision-Date: 2025-12-21 14:05+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/"
@@ -93,28 +93,28 @@ msgid "Reason for undoing"
 msgstr "Grund des Zurücksetzens"
 
 msgid "Filter Set"
-msgstr ""
+msgstr "Filtersatz"
 
 msgid "Filter Type"
-msgstr ""
+msgstr "Filter Typ"
 
 msgid "Filter Value"
-msgstr ""
+msgstr "Filterwert"
 
 msgid "Enter filter value"
-msgstr ""
+msgstr "Filterwert eingeben"
 
 msgid "Filter Set Name"
-msgstr ""
+msgstr "Filtersatz Name"
 
 msgid "Enter filter set name"
-msgstr ""
+msgstr "Filtersatz Name eingeben"
 
 msgid "Filter Set Description"
-msgstr ""
+msgstr "Filtersatz Beschreibung"
 
 msgid "Enter filter set description"
-msgstr ""
+msgstr "Filtersatz Beschreibung eingeben"
 
 msgid "Master Wallet"
 msgstr "Haupt Konto"
@@ -210,10 +210,10 @@ msgid "Wallet Journal"
 msgstr "Transaktionsjournal"
 
 msgid "Wallet Division Names"
-msgstr ""
+msgstr "Namen der Konto-Abteilungen"
 
 msgid "Wallet Division"
-msgstr ""
+msgstr "Konto Abteilung"
 
 msgid "Members"
 msgstr "Mitglieder"
@@ -225,7 +225,7 @@ msgid "Payment System"
 msgstr "Zahlungs System"
 
 msgid "Payday"
-msgstr ""
+msgstr "Zahltag"
 
 msgid "disabled"
 msgstr "deaktiviert"
@@ -237,7 +237,7 @@ msgid "error"
 msgstr "Fehler"
 
 msgid "ok"
-msgstr ""
+msgstr "Ok"
 
 msgid "incomplete"
 msgstr "unvollständig"
@@ -382,22 +382,22 @@ msgid "Tax Paid"
 msgstr "Steuer Gezahlt"
 
 msgid "Frequently Asked Questions"
-msgstr ""
+msgstr "Häufig gestellte Fragen"
 
 msgid "Filter Sets"
-msgstr ""
+msgstr "Filtersätze"
 
 msgid "Filter Setup"
-msgstr ""
+msgstr "Filter Setup"
 
 msgid "Add Filter"
-msgstr ""
+msgstr "Filter hinzufügen"
 
 msgid "Add Filter Set"
-msgstr ""
+msgstr "Filtersatz Hinzufügen"
 
 msgid "Edit Filter Set"
-msgstr ""
+msgstr "Filtersatz bearbeiten"
 
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -409,7 +409,7 @@ msgid "Close"
 msgstr "Schließen"
 
 msgid "ISK"
-msgstr ""
+msgstr "ISK"
 
 msgid "Edited by"
 msgstr "Bearbeitet von"
@@ -421,7 +421,7 @@ msgid "No character found."
 msgstr "Kein Charakter gefunden."
 
 msgid "Filters"
-msgstr ""
+msgstr "Filter"
 
 msgid "No Filter found."
 msgstr "Kein Filter gefunden."
@@ -433,10 +433,10 @@ msgid "Payment Account"
 msgstr "Zahlungs Account"
 
 msgid "Dashboard"
-msgstr ""
+msgstr "Dashboard"
 
 msgid "Account"
-msgstr ""
+msgstr "Account"
 
 msgid "Deposit"
 msgstr ""
@@ -469,10 +469,10 @@ msgid "Tax Period:"
 msgstr "Steuerzeitraum:"
 
 msgid "Wallet Activity:"
-msgstr ""
+msgstr "Konto Aktivität:"
 
 msgid "Last 30 days"
-msgstr ""
+msgstr "Letzte 30 Tage"
 
 msgid "Filters:"
 msgstr ""
@@ -484,28 +484,28 @@ msgid "Update Status:"
 msgstr "Update Status:"
 
 msgid "Last Wallet Update:"
-msgstr "Letztes Update Konto:"
+msgstr "Letztes Aktualisierung der Konten:"
 
 msgid "Last Division Update:"
-msgstr "Letztes Abteilung Update:"
+msgstr "Letzte Aktualisierung der Abteilungen:"
 
 msgid "Last Division Names Update:"
 msgstr "Letzte Aktualisierung der Abteilungsnamen:"
 
 msgid "Last Member Update:"
-msgstr "Letztes Mitglieder Update:"
+msgstr "Letzte Aktualisierung der Mitglieder:"
 
 msgid "Last Payments Update:"
-msgstr "Letztes Zahlungs Update:"
+msgstr "Letzte Aktualisierung der Zahlungen:"
 
 msgid "Last Payment System Update:"
-msgstr "Letztes Zahlungssystem Update:"
+msgstr "Letzte Aktualisierung des Zahlungssystem:"
 
 msgid "Division Dashboard"
 msgstr "Abteilung Dashboard"
 
 msgid "Statistics Dashboard"
-msgstr ""
+msgstr "Statistiken Dashboard"
 
 msgid "Pending Payments"
 msgstr "Ausstehende Zahlungen"
@@ -550,7 +550,7 @@ msgid "Info"
 msgstr ""
 
 msgid "Character Name"
-msgstr ""
+msgstr "Charakter Name"
 
 msgid "Joined"
 msgstr "Beigetreten"
@@ -568,7 +568,7 @@ msgid "FAQ"
 msgstr ""
 
 msgid "Balance Due"
-msgstr ""
+msgstr "Fälliger Saldo"
 
 msgid "No Corporations found."
 msgstr "Keine Corporationen gefunden."
@@ -576,28 +576,33 @@ msgstr "Keine Corporationen gefunden."
 msgid ""
 "Here you can find answers to the most common questions regarding the tax "
 "system."
-msgstr ""
+msgstr "Hier finden Sie Antworten auf die häufigsten Fragen zum Steuersystem."
 
 msgid ""
 "If you have any further questions, please contact the tax administration."
 msgstr ""
+"Wenn Sie weitere Fragen haben, wenden Sie sich bitte an die tax verwalter."
 
 msgid "How do I pay taxes?"
-msgstr ""
+msgstr "Wie zahle ich Steuern?"
 
 msgid "Click Your Profile then Click the Corporation"
-msgstr ""
+msgstr "Klicken Sie auf Ihr Profil und dann auf „Corporation“"
 
 msgid ""
 "Click on the three dots on the upper right on the Information Screen about "
 "your Corporation:"
 msgstr ""
+"Klicken Sie auf die drei Punkte oben rechts auf dem Informationsbildschirm "
+"zu Ihrer Corporation:"
 
 msgid "Select 'Give Money':"
-msgstr ""
+msgstr "Wählen Sie „Geld spenden“:"
 
 msgid "Enter the appropriate Amount and the Reason(case insensitive):"
 msgstr ""
+"Geben Sie den entsprechenden Betrag und den Grund ein "
+"(Groß-/Kleinschreibung spielt keine Rolle):"
 
 msgid "Incoming Payments"
 msgstr "Eingehende Zahlungen"
@@ -609,36 +614,36 @@ msgid "Queued Clear All ETags"
 msgstr "Alle zwischengespeicherten ETags löschen - in Warteschlange eingereiht"
 
 msgid "Queued Update All Taxsystem"
-msgstr ""
+msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
 
 msgid "Tax System Superuser Administration"
-msgstr ""
+msgstr "Steuersystem-Superuser-Verwaltung"
 
 msgid "Manage Filters"
-msgstr ""
+msgstr "Filter verwalten"
 
 msgid "You do not have permission to manage this corporation."
 msgstr "Du hast keine Berechtigung diese Corporation zu verwalten."
 
 msgid "A filter with this name already exists."
-msgstr ""
+msgstr "Ein Filter mit diesem Namen existiert bereits."
 
 msgid "Something went wrong, please try again later."
-msgstr ""
+msgstr "Es ist ein Fehler aufgetreten, bitte versuchen Sie es später erneut."
 
 msgid "A filter set with this name already exists."
-msgstr ""
+msgstr "Ein Filtersatz mit diesem Namen existiert bereits."
 
 msgid "Deactivate Filter Set"
 msgstr "Deaktiviere Filtersatz"
 
 #, python-brace-format
 msgid "Filter set switched to {filter_set.enabled} successfully."
-msgstr ""
+msgstr "Filterset erfolgreich auf {filter_set.enabled} umgeschaltet."
 
 #, python-brace-format
 msgid "{filter_set.name} from {owner.name} deleted"
-msgstr ""
+msgstr "{filter_set.name} von {owner.name} gelöscht"
 
 msgid "Filter set deleted successfully."
 msgstr "Filtersatz wurde erfolgreich gelöscht."
@@ -656,6 +661,8 @@ msgid ""
 "{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} "
 "deleted - {form.cleaned_data['delete_reason']}"
 msgstr ""
+"{filter_obj.filter_type}({filter_obj.value}) aus {filter_obj.filter_set} "
+"gelöscht – {form.cleaned_data[‚delete_reason‘]}"
 
 msgid "Filter set updated successfully."
 msgstr "Filtersatz aktualisierungen erfolgreich abgeschlossen."
@@ -710,7 +717,7 @@ msgstr "Steuer Periode von {corp.name} aktualisiert auf {value}"
 
 #, python-brace-format
 msgid "Member {member.character_name} deleted - {reason}"
-msgstr ""
+msgstr "Mitglied {member.character_name} gelöscht – {reason}"
 
 #, python-format
 #~ msgid "Payment ID: %s - Amount: %s - Name: %s rejected"
