@@ -8,11 +8,11 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-10-14 13:35+0200\n"
-"PO-Revision-Date: 2025-10-16 05:25+0000\n"
+"PO-Revision-Date: 2025-12-21 13:30+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
-"Language-Team: German <https://weblate.voices-of-war.de/projects/"
-"allianceauth/aa-taxsystem/de/>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/"
+"aa-taxsystem/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -72,13 +72,13 @@ msgid "Deactivate"
 msgstr "Deaktiviere"
 
 msgid "Deactivate User"
-msgstr "Deaktiviere User"
+msgstr "Deaktiviere Benutzer"
 
 msgid "Activate"
 msgstr "Aktiviere"
 
 msgid "Activate User"
-msgstr "Aktiviere User"
+msgstr "Aktiviere Benutzer"
 
 msgid "Total"
 msgstr "Gesamt"
@@ -135,7 +135,7 @@ msgid "Amount"
 msgstr "Betrag"
 
 msgid "Can access the Tax System"
-msgstr "Kann Steuer System verwalten"
+msgstr "Kann auf das Steuersystem zugreifen"
 
 msgid "Can add Corporation"
 msgstr "Kann Corporation Hinzufügen"
@@ -168,13 +168,13 @@ msgid "Payment"
 msgstr "Zahlung"
 
 msgid "Payment that the action was performed on"
-msgstr "Zahlung in der die Aktion durchgeführt wurde"
+msgstr "Zahlung, für die diese Aktion durchgeführt wurde"
 
 msgid "User"
 msgstr "Benutzer"
 
 msgid "User that performed the action"
-msgstr "Benutzer der die Action ausgeführt hat"
+msgstr "Benutzer der diese Action ausgeführt hat"
 
 msgid "Date"
 msgstr "Datum"
@@ -264,12 +264,11 @@ msgid "Updates completed successfully"
 msgstr "Aktualisierungen erfolgreich abgeschlossen"
 
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr ""
-"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+msgstr "Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
 
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
-"Steuer Periode in tagen für die Corporation. Max 365 tage Standard: 30 tage"
+"Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
 
 msgid "Tax System Audit"
 msgstr "Steuer System Audit"
@@ -311,7 +310,7 @@ msgid "Tax Payment Systems"
 msgstr "Steuer Zahlungs Systeme"
 
 msgid "Approved"
-msgstr "Bestätigt"
+msgstr "Genehmigt"
 
 msgid "Pending"
 msgstr "Ausstehend"
@@ -326,7 +325,7 @@ msgid "Request Status"
 msgstr "Status der Anfrage"
 
 msgid "Reviser that approved or rejected the payment"
-msgstr "Prüfer, der die Zahlung bearbeitet hat"
+msgstr "Prüfer, der diese Zahlung bearbeitet hat"
 
 msgid "Tax Payments"
 msgstr "Steuer Zahlungen"
@@ -464,7 +463,7 @@ msgid "Tax Amount:"
 msgstr "Steuer Betrag:"
 
 msgid "Click on the value to edit"
-msgstr "Klicke auf den Betrag um ihn zu editieren"
+msgstr "Klicke auf den Betrag um diesen zu bearbeiten"
 
 msgid "Tax Period:"
 msgstr "Steuerzeitraum:"
@@ -491,7 +490,7 @@ msgid "Last Division Update:"
 msgstr "Letztes Abteilung Update:"
 
 msgid "Last Division Names Update:"
-msgstr "Letztes Abteilung Namen Update:"
+msgstr "Letzte Aktualisierung der Abteilungsnamen:"
 
 msgid "Last Member Update:"
 msgstr "Letztes Mitglieder Update:"
@@ -659,7 +658,7 @@ msgid ""
 msgstr ""
 
 msgid "Filter set updated successfully."
-msgstr "Aktualisierungen erfolgreich abgeschlossen."
+msgstr "Filtersatz aktualisierungen erfolgreich abgeschlossen."
 
 msgid "No Corporation found."
 msgstr "Keine Corporationen gefunden."
@@ -669,14 +668,15 @@ msgstr "Zum Steuersystem hinzugefügt"
 
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
-msgstr "{corporation_name} erfolgreich hinzugefügt/geupdated in Steuer System"
+msgstr ""
+"{corporation_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
-msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} akzeptiert"
+msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} genehmigt"
 
 msgid "Transaction failed. Please try again."
-msgstr "Transcation fehlgeschlagen. Versuche es später erneut."
+msgstr "Transaktion fehlgeschlagen. Versuche es später erneut."
 
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
@@ -688,11 +688,11 @@ msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} abgelehnt"
 
 #, python-format
 msgid "Payment System User: %s deactivated"
-msgstr "Zahlungssystem User %s deaktiviert"
+msgstr "Zahlungssystem Benutzer %s deaktiviert"
 
 #, python-format
 msgid "Payment System User: %s activated"
-msgstr "Zahlungssystem User %s aktiviert"
+msgstr "Zahlungssystem Benutzer %s aktiviert"
 
 msgid "Please enter a valid number"
 msgstr "Bitte gib einen gültigen Betrag ein"
