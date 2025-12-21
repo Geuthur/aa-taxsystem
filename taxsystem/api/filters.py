@@ -8,7 +8,7 @@ from ninja import NinjaAPI
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils.text import format_lazy
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger

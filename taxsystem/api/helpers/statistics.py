@@ -4,7 +4,7 @@ from ninja import Schema
 # Django
 from django.db.models import Count, F, Q
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger

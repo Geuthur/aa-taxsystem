@@ -24,7 +24,7 @@ python manage.py migrate
 ```
 
 > [!NOTE]
-> `entry_id` is depreacted and will be deleted with version 2.1, a Migration is necessary to avoid data loss!
+> `entry_id` entry_id from Corporation/Alliance Payments Model is deprecated and will be deleted with version 2.1, a Migration is necessary to avoid data loss!
 
 ### Added
 
