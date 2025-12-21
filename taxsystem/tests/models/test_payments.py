@@ -3,43 +3,31 @@ from django.test import TestCase
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
-from app_utils.testing import create_user_from_evecharacter
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPayments
-from taxsystem.tests.testdata.generate_owneraudit import (
-    create_corporation_owner_from_user,
+from taxsystem.models.helpers.textchoices import (
+    PaymentRequestStatus,
 )
-from taxsystem.tests.testdata.generate_payments import (
-    create_payment,
-    create_payment_system,
-)
-from taxsystem.tests.testdata.generate_walletjournal import (
+from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests.testdata.utils import (
     create_division,
+    create_owner_from_user,
+    create_payment,
+    create_tax_account,
     create_wallet_journal_entry,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
-from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
 
 MODULE_PATH = "taxsystem.models.tax"
 
 
-class TestPaymentsModel(TestCase):
+class TestPaymentsModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001, permissions=["taxsystem.basic_access"]
-        )
-        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(
-            1002, permissions=["taxsystem.basic_access"]
-        )
-        cls.audit = create_corporation_owner_from_user(cls.user)
-        cls.audit2 = create_corporation_owner_from_user(cls.user2)
+        cls.audit = create_owner_from_user(cls.user)
+        cls.audit2 = create_owner_from_user(cls.superuser)
 
         cls.eve_character_first_party = EveEntity.objects.get(id=2001)
         cls.eve_character_second_party = EveEntity.objects.get(id=1001)
@@ -60,67 +48,70 @@ class TestPaymentsModel(TestCase):
             ref_type="tax_payment",
             first_party=cls.eve_character_first_party,
             second_party=cls.eve_character_second_party,
+            description="Test Description",
         )
 
-        cls.payment_system = create_payment_system(
-            name=cls.character_ownership.character.character_name,
+        cls.tax_account = create_tax_account(
+            name=cls.user_character.character.character_name,
             owner=cls.audit,
             user=cls.user,
+            deposit=0,
         )
 
         cls.payments = create_payment(
             name="Gneuten",
-            entry_id=1,
-            account=cls.payment_system,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             request_status="needs_approval",
+            account=cls.tax_account,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             reviser="Requires Auditor",
+            journal=cls.journal_entry,
+            owner=cls.audit,
         )
 
     def test_str(self):
-        expected_str = CorporationPayments.objects.get(account=self.payment_system)
+        expected_str = CorporationPayments.objects.get(account=self.tax_account)
         self.assertEqual(self.payments, expected_str)
 
     def test_is_automatic(self):
         """Test if the payment is automatic."""
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertFalse(payments.is_automatic)
 
     def test_is_pending(self):
         """Test if the payment is pending."""
-        self.payments.request_status = CorporationPayments.RequestStatus.PENDING
+        self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertTrue(payments.is_pending)
 
     def test_is_approved(self):
         """Test if the payment is approved."""
-        self.payments.request_status = CorporationPayments.RequestStatus.APPROVED
+        self.payments.request_status = PaymentRequestStatus.APPROVED
         self.payments.save()
 
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertFalse(payments.is_pending)
         self.assertTrue(payments.is_approved)
 
     def test_is_rejected(self):
         """Test if the payment is rejected."""
-        self.payments.request_status = CorporationPayments.RequestStatus.REJECTED
+        self.payments.request_status = PaymentRequestStatus.REJECTED
         self.payments.save()
 
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertFalse(payments.is_pending)
         self.assertTrue(payments.is_rejected)
 
     def test_character_id(self):
         """Test if the character_id is correct."""
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertEqual(
-            payments.character_id, self.character_ownership.character.character_id
+            payments.character_id, self.user_character.character.character_id
         )
 
     def test_division(self):
         """Test if the division is correct."""
-        payments = CorporationPayments.objects.get(account=self.payment_system)
+        payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertEqual(payments.division_name, "Main Division")

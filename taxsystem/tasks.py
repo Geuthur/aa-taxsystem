@@ -11,17 +11,17 @@ from celery import chain, shared_task
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__, app_settings
-from taxsystem.decorators import when_esi_is_available
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
-from taxsystem.models.general import AllianceUpdateSection, CorporationUpdateSection
+from taxsystem.models.helpers.textchoices import (
+    AllianceUpdateSection,
+    CorporationUpdateSection,
+)
+from taxsystem.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 MAX_RETRIES_DEFAULT = 3
 
@@ -41,12 +41,12 @@ _update_taxsystem_params = {
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
     """Update all taxsystem data"""
     corporations: list[CorporationOwner] = CorporationOwner.objects.select_related(
         "eve_corporation"
     ).filter(active=1)
+
     alliances: list[AllianceOwner] = AllianceOwner.objects.select_related(
         "eve_alliance"
     ).filter(active=1)
@@ -66,7 +66,6 @@ def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
-@when_esi_is_available
 def update_corporation(owner_pk, force_refresh=False):
     """Update a corporation"""
     owner: CorporationOwner = CorporationOwner.objects.prefetch_related(
@@ -83,9 +82,9 @@ def update_corporation(owner_pk, force_refresh=False):
 
     if force_refresh:
         # Reset Token Error if we are forcing a refresh
-        owner.reset_has_token_error()
+        owner.update_manager.reset_has_token_error()
 
-    needs_update = owner.calc_update_needed()
+    needs_update = owner.update_manager.calc_update_needed()
 
     if not needs_update and not force_refresh:
         logger.info("No updates needed for %s", owner.name)
@@ -127,10 +126,10 @@ def update_corp_division_names(owner_pk: int, force_refresh: bool):
 
 
 @shared_task(**_update_taxsystem_params)
-def update_corp_division(owner_pk: int, force_refresh: bool):
+def update_corp_divisions(owner_pk: int, force_refresh: bool):
     return _update_corp_section(
         owner_pk,
-        section=CorporationUpdateSection.DIVISION,
+        section=CorporationUpdateSection.DIVISIONS,
         force_refresh=force_refresh,
     )
 
@@ -163,19 +162,19 @@ def update_corp_payments(owner_pk: int, force_refresh: bool):
 
 
 @shared_task(**_update_taxsystem_params)
-def update_corp_payment_system(owner_pk: int, force_refresh: bool):
+def update_corp_tax_accounts(owner_pk: int, force_refresh: bool):
     return _update_corp_section(
         owner_pk,
-        section=CorporationUpdateSection.PAYMENT_SYSTEM,
+        section=CorporationUpdateSection.TAX_ACCOUNTS,
         force_refresh=force_refresh,
     )
 
 
 @shared_task(**_update_taxsystem_params)
-def update_corp_payday(owner_pk: int, force_refresh: bool):
+def update_corp_deadlines(owner_pk: int, force_refresh: bool):
     return _update_corp_section(
         owner_pk,
-        section=CorporationUpdateSection.PAYDAY,
+        section=CorporationUpdateSection.DEADLINES,
         force_refresh=force_refresh,
     )
 
@@ -183,12 +182,12 @@ def update_corp_payday(owner_pk: int, force_refresh: bool):
 def _update_corp_section(owner_pk: int, section: str, force_refresh: bool):
     """Update a specific section of the corporation."""
     section = CorporationUpdateSection(section)
-    corporation: CorporationOwner = CorporationOwner.objects.get(pk=owner_pk)
-    logger.debug("Updating %s for %s", section.label, corporation.name)
+    owner = CorporationOwner.objects.get(pk=owner_pk)
+    logger.debug("Updating %s for %s", section.label, owner.name)
 
-    corporation.reset_update_status(section)
+    owner.update_manager.reset_update_status(section)
 
-    method: Callable = getattr(corporation, section.method_name)
+    method: Callable = getattr(owner, section.method_name)
     method_signature = inspect.signature(method)
 
     if "force_refresh" in method_signature.parameters:
@@ -196,8 +195,8 @@ def _update_corp_section(owner_pk: int, section: str, force_refresh: bool):
     else:
         kwargs = {}
 
-    result = corporation.perform_update_status(section, method, **kwargs)
-    corporation.update_section_log(section, result)
+    result = owner.update_manager.perform_update_status(section, method, **kwargs)
+    owner.update_manager.update_section_log(section, result)
 
 
 # Alliance Tasks
@@ -220,9 +219,9 @@ def update_alliance(owner_pk, force_refresh=False):
 
     if force_refresh:
         # Reset Token Error if we are forcing a refresh
-        owner.reset_has_token_error()
+        owner.update_manager.reset_has_token_error()
 
-    needs_update = owner.calc_update_needed()
+    needs_update = owner.update_manager.calc_update_needed()
 
     if not needs_update and not force_refresh:
         logger.info("No updates needed for %s", owner.name)
@@ -264,19 +263,19 @@ def update_ally_payments(owner_pk: int, force_refresh: bool):
 
 
 @shared_task(**_update_taxsystem_params)
-def update_ally_payment_system(owner_pk: int, force_refresh: bool):
+def update_ally_tax_accounts(owner_pk: int, force_refresh: bool):
     return _update_ally_section(
         owner_pk,
-        section=AllianceUpdateSection.PAYMENT_SYSTEM,
+        section=AllianceUpdateSection.TAX_ACCOUNTS,
         force_refresh=force_refresh,
     )
 
 
 @shared_task(**_update_taxsystem_params)
-def update_ally_payday(owner_pk: int, force_refresh: bool):
+def update_ally_deadlines(owner_pk: int, force_refresh: bool):
     return _update_ally_section(
         owner_pk,
-        section=AllianceUpdateSection.PAYDAY,
+        section=AllianceUpdateSection.DEADLINES,
         force_refresh=force_refresh,
     )
 
@@ -284,9 +283,9 @@ def update_ally_payday(owner_pk: int, force_refresh: bool):
 def _update_ally_section(owner_pk: int, section: str, force_refresh: bool):
     """Update a specific section of the alliance."""
     section = AllianceUpdateSection(section)
-    alliance: AllianceOwner = AllianceOwner.objects.get(pk=owner_pk)
+    alliance = AllianceOwner.objects.get(pk=owner_pk)
     logger.debug("Updating %s for %s", section.label, alliance.name)
-    alliance.reset_update_status(section)
+    alliance.update_manager.reset_update_status(section)
 
     method: Callable = getattr(alliance, section.method_name)
     method_signature = inspect.signature(method)
@@ -296,5 +295,5 @@ def _update_ally_section(owner_pk: int, section: str, force_refresh: bool):
     else:
         kwargs = {}
 
-    result = alliance.perform_update_status(section, method, **kwargs)
-    alliance.update_section_log(section, result)
+    result = alliance.update_manager.perform_update_status(section, method, **kwargs)
+    alliance.update_manager.update_section_log(section, result)

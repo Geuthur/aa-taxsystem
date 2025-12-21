@@ -1,185 +1,147 @@
 # Standard Library
+import json
 from http import HTTPStatus
 
-# Third Party
-from ninja import NinjaAPI
-
 # Django
-from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from django.utils import timezone
-
-# Alliance Auth (External Libs)
-from app_utils.testdata_factories import UserMainFactory
-from app_utils.testing import (
-    create_user_from_evecharacter,
-)
 
 # AA TaxSystem
-from taxsystem.api.character import CharacterApiEndpoints
-from taxsystem.models.corporation import (
-    CorporationFilter,
-    CorporationPaymentAccount,
-    CorporationPayments,
-)
-from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
-from taxsystem.tests.testdata.generate_owneraudit import (
-    add_corporation_owner_to_user,
-    create_user_from_evecharacter_with_access,
-)
-from taxsystem.tests.testdata.generate_payments import (
-    create_payment,
-    create_payment_system,
-)
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
-from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
+from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests.testdata.utils import create_member, create_owner_from_user
 
 MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestCoreHelpers(TestCase):
+class TestCorporationApiEndpoints(TaxSystemTestCase):
+    """Test Corporation API Endpoints."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
 
-        cls.api = NinjaAPI()
-        cls.character_endpoint = CharacterApiEndpoints(cls.api)
-        cls.factory = RequestFactory()
-        cls.user, cls.character_ownership = create_user_from_evecharacter(
-            1001,
-            permissions=[
-                "taxsystem.basic_access",
-                "taxsystem.manage_corps",
-            ],
-        )
-        cls.audit = add_corporation_owner_to_user(user=cls.user, character_id=1001)
-        cls.user_no_payments, cls.character_ownership_no_payments = (
-            create_user_from_evecharacter_with_access(1004)
-        )
-        cls.no_evecharacter_user = UserMainFactory(permissions=[])
+        cls.audit = create_owner_from_user(user=cls.user)
 
-        cls.payment_system = create_payment_system(
-            name=cls.character_ownership.character.character_name,
-            owner=cls.audit,
-            user=cls.user,
-            status=CorporationPaymentAccount.Status.ACTIVE,
-            deposit=0,
-            last_paid=(timezone.now() - timezone.timedelta(days=30)),
-        )
-
-        cls.payments = create_payment(
-            name=cls.character_ownership.character.character_name,
-            account=cls.payment_system,
-            owner_id=cls.character_ownership.character.corporation_id,
-            entry_id=1,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
-            reason="Tax Payment",
-            request_status=CorporationPayments.RequestStatus.PENDING,
-            reviser="",
-        )
-
-        cls.payments2 = create_payment(
-            name=cls.character_ownership.character.character_name,
-            account=cls.payment_system,
-            owner_id=cls.character_ownership.character.corporation_id,
-            entry_id=2,
-            amount=6000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
-            reason="Mining Stuff",
-            request_status=CorporationPayments.RequestStatus.PENDING,
-            reviser="",
-        )
-
-        cls.filter_set = create_filterset(
-            owner=cls.audit,
-            name="100m",
-            description="Filter for payments over 100m",
-        )
-
-        cls.filter_amount = create_filter(
-            filter_set=cls.filter_set,
-            filter_type=CorporationFilter.FilterType.AMOUNT,
-            value=1000,
-        )
-
-    def test_get_payments_access(self):
-        """Test should be able to access payments API endpoint"""
-        # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_payments", kwargs={"corporation_id": corporation_id}
-        )
+    def test_get_members_should_403(self):
+        """
+        Test should return 403 Forbidden when user lacks permissions.
+        """
+        # Test Data
+        corporation_id = self.user_character.character.corporation_id
+        url = reverse(f"{API_URL}:get_members", kwargs={"owner_id": corporation_id})
         self.client.force_login(self.user)
-        # when
-        response = self.client.get(url)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        response_data = response.json()
-        self.assertIn("owner", response_data)
-        self.assertEqual(len(response_data["owner"]), 2)
 
-    def test_get_payments_without_access(self):
-        """Test should not be able to access payments API endpoint without permission"""
-        # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_payments", kwargs={"corporation_id": corporation_id}
-        )
-        self.client.force_login(self.no_evecharacter_user)
-        # when
+        # Test Action
         response = self.client.get(url)
-        response_data = response.json()
-        # then
+
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-        self.assertIn("Permission Denied", response_data.get("error", ""))
 
-    def test_get_own_payments_access(self):
-        """Test should be able to access own payments API endpoint"""
-        # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_own_payments", kwargs={"corporation_id": corporation_id}
-        )
-        self.client.force_login(self.user)
-        # when
+    def test_get_members_should_404(self):
+        """
+        Test should return 404 Not Found when resource does not exist.
+        """
+        # Test Data
+        url = reverse(f"{API_URL}:get_members", kwargs={"owner_id": 9999})
+        self.client.force_login(self.superuser)
+
+        # Test Action
         response = self.client.get(url)
-        # then
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+    def test_get_members_should_200(self):
+        """
+        Test should return 200 OK when user has permissions.
+
+        Results:
+        - Contains Test Character
+        - Contains Missing Character
+        """
+        # Test Data
+        corporation_id = self.user_character.character.corporation_id
+        create_member(
+            owner=self.audit,
+            character_id=9999,
+            character_name="Test Character",
+            joined="2023-01-01",
+            status="active",
+        )
+        create_member(
+            owner=self.audit,
+            character_id=10000,
+            character_name="Missing Character",
+            joined="2022-01-01",
+            status="missing",
+        )
+
+        url = reverse(f"{API_URL}:get_members", kwargs={"owner_id": corporation_id})
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        response_data = response.json()
-        self.assertIn("owner", response_data)
-        self.assertEqual(len(response_data["owner"]), 2)
+        self.assertIn("Test Character", str(response.json()))
+        self.assertIn("Missing Character", str(response.json()))
 
-    def test_get_own_payments_no_payments(self):
-        """Test should display not found when no own payments exist"""
-        # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_own_payments", kwargs={"corporation_id": corporation_id}
+    def test_delete_member_should_403(self):
+        """
+        Test should return 403 Forbidden when user lacks permissions.
+        """
+        # Test Data
+        corporation_id = self.user_character.character.corporation_id
+        member = create_member(
+            owner=self.audit,
+            character_id=9999,
+            character_name="Test Character",
         )
-        self.client.force_login(self.user_no_payments)
-        # when
-        response = self.client.get(url)
-        response_data = response.json()
-        print(response_data)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertIn("Not Found", response_data.get("detail", ""))
+        url = reverse(
+            f"{API_URL}:delete_member",
+            kwargs={"owner_id": corporation_id, "member_pk": member.pk},
+        )
+        data = {"comment": "Removing member for testing purposes."}
+        self.client.force_login(self.user)
 
-    def test_get_own_payments_without_access(self):
-        """Test should not be able to access own payments API endpoint without permission"""
-        # given
-        corporation_id = self.character_ownership.character.corporation_id
-        url = reverse(
-            f"{API_URL}:get_own_payments", kwargs={"corporation_id": corporation_id}
+        # Test Action
+        response = self.client.post(path=url, data=data)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_delete_member_should_200(self):
+        """
+        Test should return 200 OK when user has permissions.
+
+        Results:
+        - Member is deleted
+        """
+        # Test Data
+        corporation_id = self.user_character.character.corporation_id
+        member = create_member(
+            owner=self.audit,
+            character_id=9999,
+            character_name="Test Character",
+            status="missing",
         )
-        self.client.force_login(self.no_evecharacter_user)
-        # when
-        response = self.client.get(url)
-        response_data = response.json()
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertIn("Corporation Not Found", response_data.get("error", ""))
+        url = reverse(
+            f"{API_URL}:delete_member",
+            kwargs={"owner_id": corporation_id, "member_pk": member.pk},
+        )
+        data = {"comment": "Removing member for testing purposes."}
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url, body=json.dumps(data), content_type="application/json"
+        )
+        print(json.loads(response.content))
+
+        # Expected Result
+        result = "Member {member} deleted - {reason}".format(
+            member=member.character_name, reason=data["comment"]
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIn(response.json().get("message"), result)

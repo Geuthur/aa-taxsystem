@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load navactive %}
+
+{% if request.resolver_match.url_name == "payments" or request.resolver_match.url_name == "my_payments" or request.resolver_match.url_name == "faq" or request.resolver_match.url_name == "account" or request.resolver_match.url_name == "manage_owner" %}
+    <a class="nav-link {% navactive request 'taxsystem:payments' %}" href="{% url 'taxsystem:payments' owner_id=owner.eve_id %}">{% translate 'Payments' %}</a>
+    <a class="nav-link {% navactive request 'taxsystem:my_payments' %}" href="{% url 'taxsystem:my_payments' owner_id=owner.eve_id %}">{% translate 'Own Payments' %}</a>
+    <a class="nav-link {% navactive request 'taxsystem:faq' %}" href="{% url 'taxsystem:faq' owner_id=owner.eve_id %}">{% translate 'FAQ' %}</a>
+    <a class="nav-link {% navactive request 'taxsystem:account' %}" href="{% url 'taxsystem:account' owner_id=owner.eve_id %}">{% translate 'Account' %}</a>
+{% endif %}
+
+{% if request.resolver_match.url_name == "manage_filter" %}
+    <a class="nav-link {% navactive request 'taxsystem:manage_owner' %}" href="{% url 'taxsystem:manage_owner' owner_id=owner.eve_id %}">{% translate 'Manage Tax System' %}</a>
+{% endif %}

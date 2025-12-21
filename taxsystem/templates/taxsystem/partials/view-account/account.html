@@ -1,0 +1,60 @@
+{% load i18n %}
+{% load humanize %}
+
+<div class="card-body d-flex">
+    <!-- Bildbereich -->
+    <div class="text-center" id="portrait">
+        <img src="https://images.evetech.net/characters/{{ account.character_id }}/portrait?size=256" class="img-thumbnail rounded-circle">
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Main Info -->
+            <div class="col-md-8 w-auto" id="info-panel">
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Account" %}:</dt>
+                    <dd class="nowrap" id="account_name">{{ account.name }}</dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Owner" %}:</dt>
+                    <dd class="nowrap" id="owner_name">{{ account.owner.name }}</dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Account Status" %}:</dt>
+                    <dd class="nowrap" id="account_status">{{ account.status }}</dd>
+                </dl>
+            </div>
+            <!-- Costs Info -->
+            <div class="col-md-8 w-auto" id="info-amounts-panel">
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Balance Due" %}:</dt>
+                    <dd class="nowrap" id="deposit_amount">{{ account.deposit|floatformat:0|intcomma|safe }} ISK</dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Payment Status" %}:</dt>
+                    <dd class="nowrap" id="payment_status">{{ account.has_paid|safe }}</dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Last Debit" %}:</dt>
+                    <dd class="nowrap" id="last_paid">{{ account.last_paid|naturaltime|default:"N/A" }}</dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Next Due" %}:</dt>
+                    <dd class="nowrap" id="next_due">{{ account.next_due|naturaltime|default:"N/A" }}</dd>
+                </dl>
+
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Joined" %}:</dt>
+                    <dd class="nowrap" id="joined">{{ account.joined|naturaltime }}</dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>{% trans "Last Login" %}:</dt>
+                    <dd class="nowrap" id="last_login">{{ account.last_login|naturaltime }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>

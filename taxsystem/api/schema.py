@@ -4,9 +4,6 @@ from ninja import Schema
 # Django
 from django.utils.timezone import datetime
 
-# AA TaxSystem
-from taxsystem.api.helpers.statistics import StatisticsResponse
-
 
 class DataTableSchema(Schema):
     raw: str | int | float | bool
@@ -30,7 +27,8 @@ class UpdateStatusSchema(RequestStatusSchema):
 class OwnerSchema(Schema):
     owner_id: int
     owner_name: str
-    owner_type: str
+    owner_type: str | None = None
+    owner_portrait: str | None = None
 
 
 class CharacterSchema(Schema):
@@ -41,6 +39,7 @@ class CharacterSchema(Schema):
     corporation_name: str | None = None
     alliance_id: int | None = None
     alliance_name: str | None = None
+    display: str | None = None
 
 
 class CorporationSchema(OwnerSchema):
@@ -66,7 +65,8 @@ class AccountSchema(CharacterSchema):
 
 class MembersSchema(Schema):
     character: CharacterSchema
-    is_faulty: bool
+    is_missing: bool
+    is_noaccount: bool
     status: str
     joined: datetime
     actions: str | None = None
@@ -104,7 +104,7 @@ class DashboardDivisionsSchema(Schema):
     total_balance: float
 
 
-class LogHistorySchema(Schema):
+class PaymentHistorySchema(Schema):
     log_id: int
     reviser: str
     date: str
@@ -126,22 +126,12 @@ class FilterSetModelSchema(Schema):
     name: str
     description: str
     enabled: bool
+    status: DataTableSchema | None = None
     actions: str | None = None
 
 
 class FilterModelSchema(Schema):
     filter_set: FilterSetModelSchema
     filter_type: str
-    value: str
+    value: str | DataTableSchema
     actions: str | None = None
-
-
-class BaseDashboardResponse(Schema):
-    """Base schema for dashboard responses to avoid code duplication"""
-
-    update_status: UpdateStatusSchema
-    tax_amount: int
-    tax_period: int
-    divisions: DashboardDivisionsSchema
-    statistics: StatisticsResponse
-    activity: float

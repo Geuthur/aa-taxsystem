@@ -1,0 +1,46 @@
+{% load i18n %}
+<div class="card mb-3">
+    <div class="card-header bg-primary rounded-top">
+        <h3 class="me-3">{% translate "Accounts" %}</h3>
+    </div>
+    <div class="card-body rounded-bottom">
+
+        <div class="float-end">
+            {% translate "Filter by Payment Status" %}
+
+            <div class="btn-group btn-group-aa-taxsystem ms-2" title="{% translate 'Filter by Payment Status' %}">
+                <input type="radio" class="btn-check" id="request-filter-accounts-all" name="request-filter" autocomplete="off" checked>
+                <label for="request-filter-accounts-all" class="btn btn-outline-primary">
+                    {% translate "All" %}
+                </label>
+                <input type="radio" class="btn-check" id="request-filter-accounts-paid" name="request-filter" autocomplete="off">
+                <label for="request-filter-accounts-paid" class="btn btn-outline-primary">
+                    {% translate "Paid" %}
+                </label>
+                <input type="radio" class="btn-check" id="request-filter-accounts-not-paid" name="request-filter" autocomplete="off">
+                <label for="request-filter-accounts-not-paid" class="btn btn-outline-primary">
+                    {% translate "Unpaid" %}
+                </label>
+            </div>
+        </div>
+        <!-- Tax Account Content -->
+        <table class="table w-100 tax-table-hover" id="tax-accounts">
+            <thead>
+                <tr>
+                    <th class="w-auto">{% translate "Portrait" %}</th>
+                    <th class="w-auto">{% translate "Character Name" %}</th>
+                    <th class="w-auto">{% translate "Status" %}</th>
+                    <th class="w-auto">{% translate "Deposit" %}</th>
+                    <th class="w-auto">{% translate "Tax Paid" %}</th>
+                    <th class="w-auto">{% translate "Last Debit" %}</th>
+                    <th class="w-auto">{% translate "Next Due" %}</th>
+                    <th class="w-auto">{% translate "Actions" %}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- Payment Users -->
+            </tbody>
+        </table>
+    </div>
+</div>

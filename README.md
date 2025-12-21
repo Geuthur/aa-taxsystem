@@ -36,49 +36,56 @@ ______________________________________________________________________
 
 - **Multi-Owner Support**: Manage both Corporations and Alliances
 - **Corporation & Alliance Tax System**
+  - Statistics
+    - Owner Information
+    - Payments
+    - Tax Accounts
+    - Division Information
+    - Update Status
   - Member Tracking
     - Check Member is registered in Auth
     - Check Member is Alt Char
-    - See Members as Missing when they leave the Corporation/Alliance
+    - Report members as missing if they leave the corporation/alliance
   - Payment System
     - Allocate User from Member Tracking
     - Automatic Payment Tracking
     - Automatic Payment Approval via Filters
     - Filtering Amount, Reason, Date
-      - Support Hooks for Add more Filters
   - Payments
     - Track Payments that meets filters
     - Manual approval workflow for unfiltered payments
   - Log System
     - Logs Actions from Administration Section
     - Payment history tracking
-- **Owner Overview**: Unified view for all Corporations and Alliances
-- **Dashboard Analytics**: Real-time statistics and financial overviews
-- **Flexible Filtering**: Customizable rules for automatic payment processing
 
 ## Upcoming<a name="upcoming"></a>
 
 - Notify via Discord
 - Enhanced notification system
 - Data export functionality
+- More Filter option (constains, division, etc.)
 
 ## Screenshots<a name="screenshots"></a>
 
 ### Administration View
 
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/taxsystem/docs/images/administration.png)
+![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/administration.png)
 
 ### Account User Payments History
 
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/taxsystem/docs/images/administrationpaymentaccount.png)
+![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/administrationpaymentaccount.png)
+
+### Tax Filters
+
+![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/filters.png)
 
 ### Payments Details
 
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/taxsystem/docs/images/paymentdetails.png)
+![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/paymentdetails.png)
 
 ### Payments
 
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/taxsystem/docs/images/payments.png)
+![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/payments.png)
 
 ## Installation<a name="installation"></a>
 
@@ -98,7 +105,6 @@ pip install aa-taxsystem
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
-- Add `'allianceauth.corputils',` to `INSTALLED_APPS`
 - Add `'eveuniverse',` to `INSTALLED_APPS`
 - Add `'taxsystem',` to `INSTALLED_APPS`
 
@@ -109,7 +115,7 @@ To set up the Scheduled Tasks add following code to your `local.py`
 ```python
 CELERYBEAT_SCHEDULE["taxsystem_update_all_taxsytem"] = {
     "task": "taxsystem.tasks.update_all_taxsytem",
-    "schedule": crontab(minute="15,45"),
+    "schedule": 1800,
 }
 ```
 
@@ -162,7 +168,7 @@ The Following Settings can be setting up in the `local.py`
 - TAXSYSTEM_BULK_BATCH_SIZE: `500` - Maximum database batch size per operation. Reduce (e.g., 250) if encountering 'max_allowed_packet' errors, increase for better performance if MySQL is configured with higher limits
   Advanced Settings: Stale Status for Each Section
 
-- TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "division": 60, "members": 60, "payments": 60, "payment_system":60, "payment_payday": 1440 }` - Defines the stale status duration (in minutes) for each section.
+- TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "divisions": 60, "division_names": 60, "members": 60, "payments": 60, "tax_accounts":60, "deadlines": 1440 }` - Defines the stale status duration (in minutes) for each section.
 
 ## Documentation<a name="documentation"></a>
 

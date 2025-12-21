@@ -1,0 +1,74 @@
+{% extends 'taxsystem/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load evelinks %}
+{% load sri %}
+
+{% block page_title %}
+    {{ title }} ⋗ {% translate "Overview" %}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block taxsystem_block %}
+    <div class="card">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Overview" %}</h3>
+        </div>
+        <div class="card-body">
+            {% include 'taxsystem/partials/view-taxsystem/overview.html' %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    {% include 'taxsystem/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'taxsystem/bundles/aa-taxsystem-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for aaTaxSystem
+         */
+        const aaTaxSystemSettingsOverride = {};
+    </script>
+    {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
+    {% include 'taxsystem/bundles/datatables-2-js.html' with extColumnControl=True %}
+    <script>
+        $(document).ready(function() {
+            /**
+            * Table :: Overview
+            */
+            const OwnerOverviewTable = $('#taxsystem-owner-overview');
+            const ownerOverviewDataTable = new DataTable(OwnerOverviewTable, {
+                language: aaTaxSystemSettings.dataTables.language,
+                layout: aaTaxSystemSettings.dataTables.layout,
+                ordering: aaTaxSystemSettings.dataTables.ordering,
+                columnControl: aaTaxSystemSettings.dataTables.columnControl,
+                order: [[1, 'asc']],
+                columns: [
+                    { data: 'portrait' },
+                    { data: 'name' },
+                    { data: 'type'},
+                    { data: 'actions'},
+                ],
+                columnDefs: [
+                    {
+                        targets: [0, 3],
+                        orderable: false,
+                        columnControl: [
+                            {target: 0, content: []},
+                            {target: 1, content: []}
+                        ]
+                    },
+                ],
+                pageLength: 25,
+            });
+        });
+    </script>
+{% endblock %}

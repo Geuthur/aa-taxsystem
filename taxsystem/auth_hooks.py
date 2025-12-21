@@ -25,7 +25,7 @@ class TaxSystemMenuItem(MenuItemHook):
         super().__init__(
             f"{app_settings.TAXSYSTEM_APP_NAME}",
             "fas fa-landmark fa-fw",
-            "taxsystem:owner_overview",
+            "taxsystem:index",
             navactive=["taxsystem:"],
         )
 

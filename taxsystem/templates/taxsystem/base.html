@@ -10,17 +10,60 @@
 {% endblock header_nav_brand %}
 
 {% block header_nav_collapse_left %}
-    {% include 'taxsystem/partials/menu/navigation.html' %}
+    {% include 'taxsystem/partials/navigation/navigation.html' %}
 {% endblock header_nav_collapse_left %}
 
 {% block header_nav_collapse_right %}
-    {% include 'taxsystem/partials/menu/administration.html' %}
+    {% include 'taxsystem/partials/navigation/administration.html' %}
 {% endblock header_nav_collapse_right %}
 
 {% block content %}
     {% include 'bundles/datatables-css-bs5.html' %}
-    <div class="allianceauth-taxsystem">
-        <div class="taxsystem-body">
+    <div class="aa-taxsystem">
+        <div class="aa-taxsystem-body">
+            {% get_datatables_language_static LANGUAGE_CODE as DT_LANG_PATH %}
+            <script type="application/javascript">
+                const aaTaxSystemDefaultSettings = {
+                    // Alliance Auth settings
+                    locale: '{{ LANGUAGE_CODE }}',
+                    csrfToken: '{{ csrf_token }}',
+                    // TaxSystem settings
+                    dataTables: {
+                        paging: true,
+                        language: {url: '{{ DT_LANG_PATH }}'},
+                        layout: {
+                            topStart: 'pageLength',
+                            topEnd: null,
+                            bottomStart: 'info',
+                            bottomEnd: 'paging'
+                        },
+                        ordering: {
+                            indicators: false,
+                            handler: false
+                        },
+                        columnControl: [
+                            {
+                                target: 0,
+                                content: [
+                                    'order',
+                                ]
+                            },
+                            {
+                                target: 1,
+                                content: [
+                                    'search'
+                                ]
+                            }
+                        ]
+                    },
+                    translations: {
+                        days: '{% translate "days" %}',
+                        internalServerError: "{% translate 'Internal Server Error' %}",
+                        hasPaid: "{% translate 'Tax Paid' %}",
+                    },
+                };
+            </script>
+
             {% block taxsystem_block %}
                 <!-- Your content goes here -->
             {% endblock %}

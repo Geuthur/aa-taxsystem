@@ -11,6 +11,69 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0-beta.4] - 2025-12-21
+
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate old Payments
+> You need to execute the following commands in order to avoid issues with later versions
+
+```bash
+python manage.py taxsystem_cleanup_payments
+python manage.py taxsystem_migrate_payments
+python manage.py migrate
+```
+
+> [!NOTE]
+> `entry_id` is depreacted and will be deleted with version 2.1, a Migration is necessary to avoid data loss!
+
+### Added
+
+- UpdateManager Class for Tasks
+- Bulk Actions in Managment View
+- Translation for DataTable
+- implement AppLogger and retry_task_on_esi_error for enhanced logging and error handling
+- OpenAPI ESIStub Class
+- Detailed Doc Strings
+- API
+  - Payments API Endpoint
+  - Logs API Endpoint
+  - Filter API Endpoint
+
+### Changed
+
+- removed Arrows for Editable Popup
+- Payments are now only displayed depending on the user's permission.
+- Moved Manage Requests to API
+- Refactored API Structure
+  - Icons Helper Function
+- Added DataTable v2 [Version 2.3.5](https://cdn.datatables.net/2.3.5/)
+  - `ColumnControl` Extensions [Docs](https://datatables.net/extensions/columncontrol/)
+  - `FixedHeader` Extensions [Docs](https://datatables.net/extensions/fixedheader/)
+- Refactored JS Structure
+  - Optimized Modal System
+  - Optimized DataTable Structure
+  - Unified Modal Structure
+  - Unified Settings Structure
+  - Unified DataTable Structure
+- Optimized Settings System
+  - Added Locale
+  - Added DataTable Settings
+- Refactored Template Structure
+- use AA `numberFomatter` for Currency
+
+### Fixed
+
+- CSS Issues with Standard AA Theme
+
+### Removed
+
+- `taxsystem_static` templatetag
+- `allianceauth-app-utils` dependency
+- unused ESI-related functions and imports from decorators.py
+- unused EVE Online and Fuzzwork API settings from app_settings
+- unused add_info_to_context function
+- unused custom exception classes from errors.py
+
 ## [2.0.0-beta.3] - 2025-12-03
 
 > [!WARNING]
@@ -61,7 +124,7 @@ python manage.py taxsystem_migrate_payments
 - Enhance payment modals with reset functionality and reload logic
 - Reset deposit and update status for payment accounts on owner change
 - shared constant `AUTH_SELECT_RELATED_MAIN_CHARACTER` in `taxsystem/constants.py` to centralize repeated `select_related` fields
-- `check_payment_accounts` method to manage payment account statuses
+- `check_tax_accounts` method to manage payment account statuses
 - Django Admin Integration
   - `AllianceOwnerAdmin` class with:
     - List display showing alliance info, corporation link, and last update timestamp
@@ -548,5 +611,8 @@ python manage.py taxsystem_migrate_payments
 [1.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.1 "1.0.1"
 [1.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.1...v1.0.2 "1.0.2"
 [2.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.1 "2.0.0-beta.1"
+[2.0.0-beta.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.2 "2.0.0-beta.2"
+[2.0.0-beta.3]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.3 "2.0.0-beta.3"
+[2.0.0-beta.4]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.4 "2.0.0-beta.4"
 [in development]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"

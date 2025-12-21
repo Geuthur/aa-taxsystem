@@ -1,0 +1,103 @@
+{% extends 'taxsystem/base.html' %}
+{% load i18n %}
+{% load bootstrap %}
+
+{% block page_title %}
+    {{ title }}
+{% endblock %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block taxsystem_block %}
+    <div class="card">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Filter Sets" %}</h3>
+        </div>
+        <div class="card-body">
+            {% include 'taxsystem/partials/view-manage/filter-set.html' %}
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Filter Setup" %}</h3>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                {% if forms.filter %}
+                    <div class="col-md-6">
+                        <form method="post">
+                            {% csrf_token %}
+                            <fieldset class="tax-filter-form">
+                                {{ forms.filter|bootstrap }}
+                            </fieldset>
+                            <button type="submit" class="btn btn-success mt-3">
+                                <i class="fa-solid fa-plus"></i> {% translate "Add Filter" %}
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+                {% if forms.filter_set %}
+                    <div class="col-md-6">
+                        <form method="post">
+                            {% csrf_token %}
+                            <fieldset class="tax-filter-form">
+                                {{ forms.filter_set|bootstrap }}
+                            </fieldset>
+                            <button type="submit" class="btn btn-success mt-3">
+                                <i class="fa-solid fa-plus"></i> {% translate "Add Filter Set" %}
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+                {% if forms.edit_filter_set %}
+                    <div class="col-md-6">
+                        <form method="post">
+                            {% csrf_token %}
+                            <fieldset class="tax-filter-form">
+                                {{ forms.edit_filter_set|bootstrap }}
+                            </fieldset>
+                            <button type="submit" class="btn btn-success mt-3">
+                                <i class="fa-solid fa-plus"></i> {% translate "Edit Filter Set" %}
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    {% include 'taxsystem/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'taxsystem/bundles/aa-taxsystem-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for aaTaxSystem
+         */
+        const aaTaxSystemSettingsOverride = {
+            url: {
+                FilterSet: '{% url "taxsystem:api:get_filter_set" owner_id=owner.eve_id %}',
+            },
+        };
+    </script>
+    <!-- load modals -->
+    {% include 'taxsystem/modals/request-accept-delete-filter-set.html' %}
+    {% include 'taxsystem/modals/request-accept-delete-filter.html' %}
+    {% include 'taxsystem/modals/request-view-filter-set.html' %}
+    {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
+    {% include 'taxsystem/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'taxsystem/bundles/view-filter-js.html' %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+{% endblock extra_script %}

@@ -5,15 +5,13 @@ from django.db import IntegrityError, transaction
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.models.corporation import CorporationOwner, CorporationPayments
 from taxsystem.models.wallet import CorporationWalletJournalEntry
+from taxsystem.providers import AppLogger
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class Command(BaseCommand):
@@ -35,7 +33,7 @@ class Command(BaseCommand):
             try:
                 with transaction.atomic():
                     journals = CorporationWalletJournalEntry.objects.filter(
-                        division__corporation__eve_corporation=corporation.eve_corporation
+                        division__corporation=corporation
                     ).select_related("division")
 
                     if not journals:
@@ -49,12 +47,11 @@ class Command(BaseCommand):
                         if journal.entry_id in payments_entry_ids:
                             try:
                                 payment = CorporationPayments.objects.get(
+                                    owner__isnull=True,
                                     entry_id=journal.entry_id,
-                                    owner_id__isnull=True,
                                 )
-                                payment.owner_id = (
-                                    corporation.eve_corporation.corporation_id
-                                )
+                                payment.owner = corporation
+                                payment.journal = journal
                                 payment.save()
                                 self.stdout.write(
                                     f"Updated Payment {payment.pk} and assigned to {corporation} for entry_id {journal.entry_id}."

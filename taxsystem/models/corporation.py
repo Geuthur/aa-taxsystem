@@ -1,6 +1,7 @@
 """Models for Tax System."""
 
 # Django
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -13,37 +14,44 @@ from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
 
-# Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.managers.corporation_manager import (
-    CorporationOwnerManager,
-    MembersManager,
-)
-from taxsystem.managers.payment_manager import (
     CorporationAccountManager,
+    MembersManager,
     PaymentsManager,
 )
-from taxsystem.models.base import (
-    AdminHistoryBase,
-    FilterBase,
-    FilterSetBase,
-    OwnerBase,
-    PaymentAccountBase,
-    PaymentHistoryBase,
-    PaymentsBase,
-    UpdateStatusBase,
+from taxsystem.managers.owner_manager import (
+    CorporationOwnerManager,
 )
-from taxsystem.models.general import CorporationUpdateSection
-from taxsystem.models.wallet import CorporationWalletJournalEntry
-from taxsystem.providers import esi
+from taxsystem.models.base import (
+    FilterBaseModel,
+    FilterSetBaseModel,
+    HistoryBaseModel,
+    PaymentAccountBaseModel,
+    PaymentsBaseModel,
+    UpdateStatusBaseModel,
+)
+from taxsystem.models.general import (
+    UpdateSectionResult,
+)
+from taxsystem.models.helpers.textchoices import (
+    AdminActions,
+    CorporationUpdateSection,
+    PaymentRequestStatus,
+    UpdateStatus,
+)
+from taxsystem.models.helpers.updater import UpdateManager
+from taxsystem.models.wallet import (
+    CorporationWalletDivision,
+    CorporationWalletJournalEntry,
+)
+from taxsystem.providers import AppLogger, esi
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class CorporationUpdateStatus(UpdateStatusBase):
+class CorporationUpdateStatus(UpdateStatusBaseModel):
     """Model representing the update status of a corporation owner in the tax system."""
 
     owner = models.ForeignKey(
@@ -63,7 +71,7 @@ class CorporationUpdateStatus(UpdateStatusBase):
         return f"{self.owner} - {self.section}"
 
 
-class CorporationOwner(OwnerBase):
+class CorporationOwner(models.Model):
     """Model representing a corporation owner in the tax system."""
 
     class Meta:
@@ -71,12 +79,76 @@ class CorporationOwner(OwnerBase):
 
     objects: CorporationOwnerManager = CorporationOwnerManager()
 
+    name = models.CharField(
+        max_length=255,
+    )
+
     eve_corporation = models.OneToOneField(
         EveCorporationInfo, on_delete=models.CASCADE, related_name="+"
     )
 
+    active = models.BooleanField(
+        default=True,
+        help_text=_("Designates whether this corporation owner is active."),
+    )
+
+    tax_amount = models.DecimalField(
+        max_digits=16,
+        decimal_places=0,
+        help_text=_("Tax Amount in ISK that is set for the corporation. Max 16 Digits"),
+        default=0,
+        validators=[MaxValueValidator(9999999999999999)],
+    )
+
+    tax_period = models.PositiveIntegerField(
+        help_text=_(
+            "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
+        ),
+        default=30,
+        validators=[MaxValueValidator(365)],
+    )
+
     def __str__(self):
         return f"{self.name}"
+
+    @property
+    def payment_model(self):
+        """Return the Payment Model for this owner."""
+        return CorporationPayments
+
+    @property
+    def payment_history_model(self):
+        """Return the Payment History Model for this owner."""
+        return CorporationPaymentHistory
+
+    @property
+    def admin_log_model(self):
+        """Return the Admin History Model for this owner."""
+        return CorporationAdminHistory
+
+    @property
+    def account_model(self):
+        """Return the Tax Account Model for this owner."""
+        return CorporationPaymentAccount
+
+    @property
+    def filterset_model(self):
+        """Return the Filter Set Model for this owner."""
+        return CorporationFilterSet
+
+    @property
+    def filter_model(self):
+        """Return the Filter Model for this owner."""
+        return CorporationFilter
+
+    @property
+    def update_manager(self):
+        """Return the Update Manager helper for this owner."""
+        return UpdateManager(
+            owner=self,
+            update_section=CorporationUpdateSection,
+            update_status=CorporationUpdateStatus,
+        )
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -123,27 +195,65 @@ class CorporationOwner(OwnerBase):
                 )
         return False
 
-    def update_division_names(self, force_refresh: bool) -> None:
+    def update_division_names(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the divisions for this corporation."""
-        return self.ts_corporation_division.update_or_create_esi_names(
-            self, force_refresh=force_refresh
+        return CorporationWalletDivision.objects.update_or_create_esi_names(
+            owner=self, force_refresh=force_refresh
         )
 
-    def update_division(self, force_refresh: bool) -> None:
+    def update_divisions(self, force_refresh: bool) -> UpdateSectionResult:
         """Update the divisions for this corporation."""
-        return self.ts_corporation_division.update_or_create_esi(
-            self, force_refresh=force_refresh
+        return CorporationWalletDivision.objects.update_or_create_esi(
+            owner=self, force_refresh=force_refresh
         )
 
-    def update_wallet(self, force_refresh: bool) -> CorporationUpdateStatus:
-        """Update the wallet journal for this corporation."""
+    def update_wallet(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the wallet journals for this corporation."""
         return CorporationWalletJournalEntry.objects.update_or_create_esi(
-            self, force_refresh=force_refresh
+            owner=self, force_refresh=force_refresh
         )
 
-    def update_members(self, force_refresh: bool) -> CorporationUpdateStatus:
-        """Update the members for this corporation."""
-        return self.ts_members.update_or_create_esi(self, force_refresh=force_refresh)
+    def update_members(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the members for this corporation.
+        Args:
+            force_refresh: Force refresh from ESI even if not modified
+        Returns:
+            UpdateSectionResult object for this section
+        """
+        return Members.objects.update_or_create_esi(self, force_refresh=force_refresh)
+
+    def update_payments(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the payments for this owner.
+        Args:
+            force_refresh: Force refresh
+        Returns:
+            UpdateSectionResult object for this section
+        """
+        return CorporationPayments.objects.update_or_create_payments(
+            owner=self, force_refresh=force_refresh
+        )
+
+    def update_tax_accounts(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the tax accounts for this owner.
+        Args:
+            force_refresh: Force refresh
+        Returns:
+            UpdateSectionResult object for this section
+        """
+        return CorporationPaymentAccount.objects.update_or_create_tax_accounts(
+            owner=self, force_refresh=force_refresh
+        )
+
+    def update_deadlines(self, force_refresh: bool) -> UpdateSectionResult:
+        """Update the tax deadlines for this owner.
+        Args:
+            force_refresh: Force refresh
+        Returns:
+            UpdateSectionResult object for this section
+        """
+        return CorporationPaymentAccount.objects.check_payment_deadlines(
+            owner=self, force_refresh=force_refresh
+        )
 
     # Abstract properties implementation
     @property
@@ -152,49 +262,37 @@ class CorporationOwner(OwnerBase):
         return self.eve_corporation.corporation_id
 
     @property
-    def payment_accounts_manager(self):
-        """Return the corporation payment accounts related manager."""
-        return self.ts_corporation_payment_accounts
+    def get_status(self) -> UpdateStatus:
+        """Get the update status of this owner.
+
+        Returns:
+            UpdateStatus enum value representing the current status
+        """
+        if self.active is False:
+            return UpdateStatus.DISABLED
+
+        # Use type(self) for dynamic QuerySet resolution
+        qs = type(self).objects.filter(pk=self.pk).annotate_total_update_status()
+        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
+        return UpdateStatus(total_update_status)
 
     @property
-    def update_status_manager(self) -> models.QuerySet[CorporationUpdateStatus]:
-        """Return the related manager for corporation update status objects."""
-        return CorporationUpdateStatus.objects.filter(owner=self)
-
-    @property
-    def update_section_enum(self):
-        """Return the corporation update section enum class."""
-        return CorporationUpdateSection
-
-    @property
-    def payments_class(self) -> type["CorporationPayments"]:
-        """Return the payments class for this corporation owner."""
-        return CorporationPayments
-
-    @property
-    def payments_account_class(self) -> type["CorporationPaymentAccount"]:
-        """Return the payments account class for this corporation owner."""
-        return CorporationPaymentAccount
-
-    @property
-    def payments_history_class(self) -> type["CorporationPaymentHistory"]:
-        """Return the payments class for this corporation owner."""
-        return CorporationPaymentHistory
-
-    @property
-    def filterset_class(self) -> type["CorporationFilterSet"]:
-        """Return the filter set class for this corporation owner."""
-        return CorporationFilterSet
-
-    @property
-    def filter_class(self) -> type["CorporationFilter"]:
-        """Return the filter class for this corporation owner."""
-        return CorporationFilter
-
-    @property
-    def admin_history_class(self) -> type["CorporationAdminHistory"]:
-        """Return the admin history class for this corporation owner."""
-        return CorporationAdminHistory
+    def get_update_status(self) -> dict[str, str]:
+        """Return a dictionary of update sections and their statuses."""
+        update_status = {}
+        for section in CorporationUpdateSection.get_sections():
+            try:
+                status = CorporationUpdateStatus.objects.get(
+                    owner=self, section=section
+                )
+                update_status[section] = {
+                    "is_success": status.is_success,
+                    "last_update_finished_at": status.last_update_finished_at,
+                    "last_run_finished_at": status.last_run_finished_at,
+                }
+            except CorporationUpdateStatus.DoesNotExist:
+                continue
+        return update_status
 
 
 class Members(models.Model):
@@ -202,10 +300,8 @@ class Members(models.Model):
 
     class Meta:
         default_permissions = ()
-        indexes = [
-            models.Index(fields=["owner", "character_name"]),
-            models.Index(fields=["status"]),
-        ]
+
+    objects: MembersManager = MembersManager()
 
     class States(models.TextChoices):
         ACTIVE = "active", _("Active")
@@ -236,8 +332,6 @@ class Members(models.Model):
     def __str__(self):
         return f"{self.character_name} - {self.character_id}"
 
-    objects = MembersManager()
-
     @property
     def is_active(self) -> bool:
         return self.status == self.States.ACTIVE
@@ -259,8 +353,10 @@ class Members(models.Model):
         return self.status in [self.States.MISSING, self.States.NOACCOUNT]
 
 
-class CorporationPaymentAccount(PaymentAccountBase):
-    """Model representing a corporation payment account in the tax system."""
+class CorporationPaymentAccount(PaymentAccountBaseModel):
+    """Model representing a corporation tax account in the tax system."""
+
+    objects: CorporationAccountManager = CorporationAccountManager()
 
     class Meta:
         default_permissions = ()
@@ -268,40 +364,60 @@ class CorporationPaymentAccount(PaymentAccountBase):
     owner = models.ForeignKey(
         CorporationOwner,
         on_delete=models.CASCADE,
-        related_name="ts_corporation_payment_accounts",
+        related_name="ts_corp_tax_accounts",
     )
 
-    objects: CorporationAccountManager = CorporationAccountManager()
 
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-
-class CorporationPayments(PaymentsBase):
+class CorporationPayments(PaymentsBaseModel):
     """Model representing payments made by corporation members in the tax system."""
 
     class Meta:
         default_permissions = ()
-        indexes = [
-            models.Index(
-                fields=["account", "owner_id", "request_status", "-date"],
-            ),
-            models.Index(fields=["request_status", "-date"]),
-        ]
+
+    objects: PaymentsManager = PaymentsManager()
 
     account = models.ForeignKey(
         CorporationPaymentAccount,
         on_delete=models.CASCADE,
-        related_name="ts_corporation_payments",
+        related_name="+",
     )
 
-    objects = PaymentsManager()
+    owner = models.ForeignKey(
+        CorporationOwner,
+        on_delete=models.CASCADE,
+        related_name="ts_corporation_payments",
+        help_text=_("Owner of this payment"),
+        null=True,
+        blank=True,
+    )
 
     def __str__(self) -> str:
         return f"{self.account.name} - {self.amount} ISK"
 
+    # pylint: disable=duplicate-code
+    def transaction_log(
+        self, user, comment, new_status, action=""
+    ) -> "CorporationPaymentHistory":
+        """Return a log entry for the transaction.
 
-class CorporationFilterSet(FilterSetBase):
+        Args:
+            user: User performing the action
+            comment: Additional message
+            new_status: New status after the action
+            action: Action performed (optional)
+        Returns:
+            CorporationPaymentHistory object
+        """
+        return CorporationPaymentHistory(
+            user=user,
+            payment=self,
+            new_status=new_status,
+            action=action,
+            comment=comment,
+        )
+
+
+class CorporationFilterSet(FilterSetBaseModel):
     class Meta:
         default_permissions = ()
 
@@ -329,8 +445,11 @@ class CorporationFilterSet(FilterSetBase):
             return payments
         return CorporationPayments.objects.none()
 
+    def __str__(self) -> str:
+        return f"Filter Set: {self.name}"
 
-class CorporationFilter(FilterBase):
+
+class CorporationFilter(FilterBaseModel):
     class Meta:
         default_permissions = ()
 
@@ -360,13 +479,17 @@ class CorporationFilter(FilterBase):
         # weitere Felder
         return qs
 
+    def __str__(self) -> str:
+        return f"Filter: {self.filter_type} = {self.value}"
 
-class CorporationPaymentHistory(PaymentHistoryBase):
+
+class CorporationPaymentHistory(HistoryBaseModel):
     """Model representing the history of actions taken on corporation payments in the tax system."""
 
     class Meta:
         default_permissions = ()
 
+    # pylint: disable=duplicate-code
     payment = models.ForeignKey(
         CorporationPayments,
         on_delete=models.CASCADE,
@@ -375,24 +498,37 @@ class CorporationPaymentHistory(PaymentHistoryBase):
         help_text=_("Payment that the action was performed on"),
     )
 
+    # pylint: disable=duplicate-code
     new_status = models.CharField(
-        max_length=16,
-        choices=CorporationPayments.RequestStatus.choices,
+        max_length=20,
+        choices=PaymentRequestStatus.choices,
         verbose_name=_("New Status"),
         help_text=_("New Status of the action"),
     )
 
 
-class CorporationAdminHistory(AdminHistoryBase):
-    """Model representing the history of administrative actions taken on corporation owners in the tax system."""
+class CorporationAdminHistory(HistoryBaseModel):
+    """
+    Model representing the history of administrative actions taken on owners in the tax system.
+    """
 
     class Meta:
         default_permissions = ()
 
+    # pylint: disable=duplicate-code
     owner = models.ForeignKey(
         CorporationOwner,
+        verbose_name=_("Owner"),
+        help_text=_("Owner that the action was performed on"),
         on_delete=models.CASCADE,
-        related_name="+",
-        verbose_name=_("Payment"),
-        help_text=_("Payment that the action was performed on"),
+        related_name="ts_admin_history",
+    )
+
+    # pylint: disable=duplicate-code
+    action = models.CharField(
+        max_length=20,
+        choices=AdminActions.choices,
+        default=AdminActions.DEFAULT,
+        verbose_name=_("Action"),
+        help_text=_("Action performed"),
     )

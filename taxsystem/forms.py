@@ -6,7 +6,15 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
-from taxsystem.models.corporation import CorporationFilter, CorporationFilterSet
+from taxsystem.models.alliance import (
+    AllianceAdminHistory,
+    AlliancePaymentHistory,
+)
+from taxsystem.models.corporation import (
+    CorporationAdminHistory,
+    CorporationFilter,
+    CorporationPaymentHistory,
+)
 
 
 def get_mandatory_form_label_text(text: str) -> str:
@@ -19,24 +27,178 @@ def get_mandatory_form_label_text(text: str) -> str:
     )
 
 
-class PaymentRejectForm(forms.Form):
-    """Form for payment rejecting."""
+class AcceptCorporationPaymentForm(forms.ModelForm):
+    """Form for accepting corporation payment."""
 
-    reject_reason = forms.CharField(
-        required=True,
-        label=get_mandatory_form_label_text(text=_("Reason for rejecting")),
-        widget=forms.Textarea(attrs={"rows": 5}),
-    )
+    class Meta:
+        model = CorporationPaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for accepting the payment"),
+        }
+        labels = {
+            "comment": _("Comment (optional)"),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                }
+            ),
+        }
 
 
-class PaymentDeleteForm(forms.Form):
-    """Form for payment deleting."""
+class AcceptAlliancePaymentForm(forms.ModelForm):
+    """Form for accepting alliance payment."""
 
-    delete_reason = forms.CharField(
-        required=True,
-        label=get_mandatory_form_label_text(text=_("Reason for deleting payment")),
-        widget=forms.Textarea(attrs={"rows": 5}),
-    )
+    class Meta:
+        model = AlliancePaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for accepting the payment"),
+        }
+        labels = {
+            "comment": _("Comment (optional)"),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                }
+            ),
+        }
+
+
+class RejectCorporationPaymentForm(forms.ModelForm):
+    """Form for corporation payment rejecting."""
+
+    class Meta:
+        model = CorporationPaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for rejecting the payment"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Reject Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class RejectAlliancePaymentForm(forms.ModelForm):
+    """Form for alliance payment rejecting."""
+
+    class Meta:
+        model = AlliancePaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for rejecting the payment"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Reject Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class UndoCorporationPaymentForm(forms.ModelForm):
+    """Form for corporation payment undoing."""
+
+    class Meta:
+        model = CorporationPaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for undoing the payment"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Undo Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class UndoAlliancePaymentForm(forms.ModelForm):
+    """Form for alliance payment undoing."""
+
+    class Meta:
+        model = AlliancePaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for undoing the payment"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Undo Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class DeleteCorporationPaymentForm(forms.ModelForm):
+    """Form for corporation payment deleting."""
+
+    class Meta:
+        model = CorporationPaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the payment"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class DeleteAlliancePaymentForm(forms.ModelForm):
+    """Form for alliance payment deleting."""
+
+    class Meta:
+        model = AlliancePaymentHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the payment"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
 
 
 class PaymentAddForm(forms.Form):
@@ -45,62 +207,126 @@ class PaymentAddForm(forms.Form):
     amount = forms.IntegerField(
         required=True,
         label=get_mandatory_form_label_text(text=_("Amount")),
+        help_text=_("Amount to be added"),
         widget=forms.NumberInput(attrs={"min": "0"}),
     )
 
-    add_reason = forms.CharField(
+    comment = forms.CharField(
         required=True,
-        label=get_mandatory_form_label_text(text=_("Reason for adding payment")),
+        label=get_mandatory_form_label_text(text=_("Add Reason")),
+        help_text=_("Reason for adding this payment"),
         widget=forms.Textarea(attrs={"rows": 5}),
     )
 
 
-class PaymentAcceptForm(forms.Form):
-    """Form for payment accepting."""
-
-    accept_info = forms.CharField(
-        required=False,
-        label=_("Comment") + " (optional)",
-        widget=forms.Textarea(attrs={"rows": 5}),
-    )
-
-
-class PaymentUndoForm(forms.Form):
-    """Form for payment undoing."""
-
-    undo_reason = forms.CharField(
-        required=True,
-        label=get_mandatory_form_label_text(text=_("Reason for undoing")),
-        widget=forms.Textarea(attrs={"rows": 5}),
-    )
-
-
-class MemberDeleteForm(forms.Form):
+class DeleteMemberForm(forms.ModelForm):
     """Form for member deleting."""
 
-    delete_reason = forms.CharField(
-        required=False,
-        label=_("Comment") + " (optional)",
-        widget=forms.Textarea(attrs={"rows": 5}),
-    )
+    class Meta:
+        model = CorporationAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the member"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
 
 
-class FilterDeleteForm(forms.Form):
-    """Form for deleting."""
+class DeleteCorporationFilterForm(forms.ModelForm):
+    """Form for deleting Filter."""
 
-    delete_reason = forms.CharField(
-        required=False,
-        label=_("Comment") + " (optional)",
-        widget=forms.Textarea(attrs={"rows": 5}),
-    )
+    class Meta:
+        model = CorporationAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the filter"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
 
-    filter = forms.HiddenInput()
+
+class DeleteCorporationFilterSetForm(forms.ModelForm):
+    """Form for deleting Filter Set."""
+
+    class Meta:
+        model = CorporationAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the filter set"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
 
 
-class TaxSwitchUserForm(forms.Form):
-    """Form for switching user."""
+class DeleteAllianceFilterForm(forms.ModelForm):
+    """Form for deleting Filter."""
 
-    user = forms.HiddenInput()
+    class Meta:
+        model = AllianceAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the filter"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
+
+
+class DeleteAllianceFilterSetForm(forms.ModelForm):
+    """Form for deleting Filter Set."""
+
+    class Meta:
+        model = AllianceAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the filter set"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }
 
 
 class AddJournalFilterForm(forms.Form):
@@ -139,9 +365,3 @@ class CreateFilterSetForm(forms.Form):
             attrs={"placeholder": _("Enter filter set description"), "rows": 3}
         ),
     )
-
-
-class EditFilterSetForm(forms.ModelForm):
-    class Meta:
-        model = CorporationFilterSet
-        fields = ["name", "description"]

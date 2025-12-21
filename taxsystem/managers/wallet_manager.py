@@ -10,7 +10,6 @@ from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
 # Alliance Auth (External Libs)
-from app_utils.logging import LoggerAddTag
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
@@ -18,17 +17,18 @@ from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
-from taxsystem.models.general import CorporationUpdateSection
-from taxsystem.providers import esi
+from taxsystem.models.helpers.textchoices import CorporationUpdateSection
+from taxsystem.providers import AppLogger, esi
 
 if TYPE_CHECKING:
     # AA TaxSystem
     from taxsystem.models.corporation import CorporationOwner
     from taxsystem.models.wallet import (
         CorporationWalletDivision,
+        CorporationWalletJournalEntry,
     )
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationJournalContext:
@@ -67,13 +67,13 @@ class CorporationWalletContext:
     balance: float
 
 
-class CorporationWalletManager(models.Manager):
+class CorporationWalletManager(models.Manager["CorporationWalletJournalEntry"]):
     @log_timing(logger)
     def update_or_create_esi(
         self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a wallet journal entry from ESI data."""
-        return owner.update_section_if_changed(
+        return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.WALLET,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
@@ -184,14 +184,14 @@ class CorporationWalletManager(models.Manager):
             raise DatabaseError("DB Fail")
 
 
-class CorporationDivisionManager(models.Manager):
+class CorporationDivisionManager(models.Manager["CorporationWalletDivision"]):
     @log_timing(logger)
     def update_or_create_esi(
         self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a division entry from ESI data."""
-        return owner.update_section_if_changed(
-            section=CorporationUpdateSection.DIVISION,
+        return owner.update_manager.update_section_if_changed(
+            section=CorporationUpdateSection.DIVISIONS,
             fetch_func=self._fetch_esi_data,
             force_refresh=force_refresh,
         )
@@ -201,7 +201,7 @@ class CorporationDivisionManager(models.Manager):
         self, owner: "CorporationOwner", force_refresh: bool = False
     ) -> None:
         """Update or Create a division entry from ESI data."""
-        return owner.update_section_if_changed(
+        return owner.update_manager.update_section_if_changed(
             section=CorporationUpdateSection.DIVISION_NAMES,
             fetch_func=self._fetch_esi_data_names,
             force_refresh=force_refresh,

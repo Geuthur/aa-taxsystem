@@ -1,325 +1,286 @@
+# Standard Library
+from unittest.mock import patch
+
 # Django
 from django.test import override_settings
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
-from app_utils.testing import NoSocketsTestCase, create_user_from_evecharacter
+from eveuniverse.models import EveEntity
 
 # AA TaxSystem
-from taxsystem.models.alliance import AlliancePaymentAccount, AlliancePayments
-from taxsystem.tests.testdata.generate_filter import create_filter, create_filterset
-from taxsystem.tests.testdata.generate_owneraudit import (
-    create_alliance_owner_from_user,
+from taxsystem.models.alliance import (
+    AllianceFilter,
+    AlliancePaymentAccount,
 )
-from taxsystem.tests.testdata.generate_payments import (
-    create_alliance_payment,
-    create_alliance_payment_system,
+from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
+from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests.testdata.utils import (
+    create_division,
+    create_filter,
+    create_filterset,
+    create_owner_from_user,
+    create_payment,
+    create_tax_account,
+    create_user_from_evecharacter,
+    create_wallet_journal_entry,
 )
-from taxsystem.tests.testdata.load_allianceauth import load_allianceauth
-from taxsystem.tests.testdata.load_eveuniverse import load_eveuniverse
+
+MODULE_PATH = "taxsystem.managers.alliance_manager"
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestAlliancePaymentAccountManager(NoSocketsTestCase):
-    """Test Alliance Payment Account Manager methods."""
+class TestAllianceManager(TaxSystemTestCase):
+    """Test Alliance Managers."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
 
-        # Create users with alliance characters (1001 and 1004 both belong to alliance 3001)
-        cls.user, cls.character_ownership = create_user_from_evecharacter(1001)
-        cls.user2, cls.character_ownership2 = create_user_from_evecharacter(1004)
+        cls.audit = create_owner_from_user(cls.user, tax_type="alliance")
 
-        cls.alliance = create_alliance_owner_from_user(
-            user=cls.user,
-            tax_amount=1000,
-            tax_period=30,
+        cls.filter_set = create_filterset(
+            owner=cls.audit,
+            name="100m",
+            description="Filter for payments over 100m",
         )
 
-    def test_update_payment_accounts_creates_new_accounts(self):
-        """Test that new payment accounts are created for alliance members."""
-        # Ensure clean state
-        AlliancePaymentAccount.objects.filter(owner=self.alliance).delete()
-
-        # Run update
-        AlliancePaymentAccount.objects._update_payment_accounts(self.alliance)
-
-        # Verify accounts created for both users
-        payment_accounts = AlliancePaymentAccount.objects.filter(owner=self.alliance)
-        self.assertEqual(payment_accounts.count(), 2)
-
-        # Verify first user account
-        account1 = payment_accounts.get(user=self.user)
-        self.assertEqual(account1.status, AlliancePaymentAccount.Status.ACTIVE)
-        self.assertEqual(
-            account1.name, self.character_ownership.character.character_name
+        cls.filter_amount = create_filter(
+            filter_set=cls.filter_set,
+            filter_type=AllianceFilter.FilterType.AMOUNT,
+            value=1000,
         )
 
-        # Verify second user account
-        account2 = payment_accounts.get(user=self.user2)
-        self.assertEqual(account2.status, AlliancePaymentAccount.Status.ACTIVE)
-
-    def test_update_payment_accounts_moves_to_new_alliance(self):
-        """Test that payment account is moved when user changes alliance."""
-        # Create second alliance
-        user3, _ = create_user_from_evecharacter(1003)
-        alliance2 = create_alliance_owner_from_user(
-            user=user3,
-            tax_amount=2000,
-            tax_period=30,
+        cls.division = create_division(
+            corporation=cls.audit.corporation,
+            division_id=1,
+            name="Main Division",
+            balance=1000000,
         )
 
-        # Create payment account for first alliance
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=alliance2,
+        cls.eve_character_first_party = EveEntity.objects.get(id=1002)
+        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
+
+    def test_update_tax_account(self):
+        """
+        Test updating alliance tax accounts payments.
+        This test should change 2 Payments in the payment system depending on the given filters.
+
+        Results:
+            1. Approve a payment as APPROVED depending to the filter.
+            2. Mark a payment as NEEDS_APPROVAL.
+        """
+        # Test Data
+        self.tax_account = create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
             user=self.user,
-            status=AlliancePaymentAccount.Status.ACTIVE,
-            deposit=500,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        # Update to new alliance
-        AlliancePaymentAccount.objects._update_payment_accounts(self.alliance)
+        self.journal_entry = create_wallet_journal_entry(
+            division=self.division,
+            entry_id=1,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            reason="Tax Payment",
+            ref_type="tax_payment",
+            first_party=self.eve_character_first_party,
+            second_party=self.eve_character_second_party,
+            description="Test Description",
+        )
 
-        # Refresh from database
-        payment_account.refresh_from_db()
+        self.journal_entry2 = create_wallet_journal_entry(
+            division=self.division,
+            entry_id=2,
+            amount=6000,
+            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
+            reason="Mining Stuff",
+            ref_type="tax_payment",
+            first_party=self.eve_character_first_party,
+            second_party=self.eve_character_second_party,
+            description="Test Description 2",
+        )
 
-        # Verify moved to new alliance and deposit reset
-        self.assertEqual(payment_account.owner, self.alliance)
-        self.assertEqual(payment_account.deposit, 0)
+        # Approved Payment
+        self.payments = create_payment(
+            name=self.user_character.character.character_name,
+            account=self.tax_account,
+            owner=self.audit,
+            journal=self.journal_entry,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            reason="Tax Payment",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
 
-    def test_update_payment_accounts_reactivate_inactive(self):
-        """Test that inactive accounts are reactivated."""
-        # Create inactive payment account
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
+        # Needs Approval Payment
+        self.payments2 = create_payment(
+            name=self.user_character.character.character_name,
+            account=self.tax_account,
+            owner=self.audit,
+            journal=self.journal_entry2,
+            amount=6000,
+            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
+            reason="Mining Stuff",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
+        # Expected Results
+        self.assertSetEqual(
+            set(
+                self.audit.ts_alliance_payments.values_list(
+                    "journal__entry_id", flat=True
+                )
+            ),
+            {1, 2},
+        )
+        obj = self.audit.ts_alliance_payments.get(journal__entry_id=1)
+        self.assertEqual(obj.amount, 1000)
+        self.assertEqual(obj.request_status, PaymentRequestStatus.APPROVED)
+
+        obj = self.audit.ts_alliance_payments.get(journal__entry_id=2)
+        self.assertEqual(obj.amount, 6000)
+        self.assertEqual(obj.request_status, PaymentRequestStatus.NEEDS_APPROVAL)
+
+    @patch(f"{MODULE_PATH}.logger")
+    def test_update_tax_accounts_mark_as_missing(self, mock_logger):
+        """
+        Test should mark tax account as missing.
+
+        Results:
+            1. Mark a tax account as MISSING when the user is no longer in the alliance.
+        """
+        # Test Data
+        self.tax_account = create_tax_account(
+            name=self.user2_character.character.character_name,
+            owner=self.audit,
+            user=self.user2,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
+        )
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
+
+        # Expected Results
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user2)
+        self.assertEqual(tax_account.status, AccountStatus.MISSING)
+        mock_logger.info.assert_any_call(
+            "Marked Tax Account %s as MISSING",
+            self.tax_account.name,
+        )
+
+    @patch(f"{MODULE_PATH}.logger")
+    def test_update_tax_accounts_mark_as_missing_and_move_to_new_alliance(
+        self, mock_logger
+    ):
+        """
+        Test should mark tax account as missing and move to new alliance.
+
+        Results:
+            1. Move a tax account to a new alliance when the user has changed alliance.
+        """
+        # Test Data
+        self.audit_2 = create_owner_from_user(self.user2, tax_type="alliance")
+        self.tax_account = create_tax_account(
+            name=self.user2_character.character.character_name,
+            owner=self.audit,
+            user=self.user2,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
+        )
+
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
+
+        # Expected Results
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user2)
+        self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
+        self.assertEqual(tax_account.owner, self.audit_2)
+        mock_logger.info.assert_any_call(
+            "Moved Tax Account %s to Alliance %s",
+            self.tax_account.name,
+            self.audit_2.eve_alliance.alliance_name,
+        )
+
+    @patch(f"{MODULE_PATH}.logger")
+    def test_update_tax_accounts_reset_a_returning_user(self, mock_logger):
+        """
+        Test should reset a tax account after a user returning to previous alliance.
+
+        Results:
+            1. Reset a tax account when the user was missing and has returned to the previous alliance.
+        """
+        # Test Data
+        self.tax_account = create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
             user=self.user,
-            status=AlliancePaymentAccount.Status.INACTIVE,
+            status=AccountStatus.MISSING,
+            deposit=10000,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        # Update accounts
-        AlliancePaymentAccount.objects._update_payment_accounts(self.alliance)
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
 
-        # Refresh from database
-        payment_account.refresh_from_db()
+        # Expected Results
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user)
+        self.assertEqual(tax_account.deposit, 0)
+        self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
+        self.assertEqual(tax_account.owner, self.audit)
+        mock_logger.info.assert_any_call(
+            "Reset Tax Account %s",
+            self.tax_account.name,
+        )
 
-        # Verify reactivation
-        self.assertEqual(payment_account.status, AlliancePaymentAccount.Status.ACTIVE)
+    def test_payment_deadlines(self):
+        """
+        Test payment deadlines processing for alliance tax accounts.
+        This test should process the payment deadlines for alliance tax accounts, deducting the tax amount from the deposit.
 
-    def test_update_payment_accounts_keep_deactivated(self):
-        """Test that deactivated accounts stay deactivated."""
-        # Create deactivated payment account
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
+        Results:
+            1. Tax Account deposit is reduced by the tax amount on payment deadlines.
+            2. New users within the free period are not charged.
+        """
+        # Test Data
+        self.audit.tax_amount = 1000
+        self.tax_account = create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
             user=self.user,
-            status=AlliancePaymentAccount.Status.DEACTIVATED,
+            status=AccountStatus.ACTIVE,
+            deposit=1000,
+            last_paid=(timezone.now() - timezone.timedelta(days=60)),
+        )
+        self.new_user, self.new_user_character = create_user_from_evecharacter(
+            character_id=1006,
+            permissions=["taxsystem.basic_access"],
         )
 
-        # Update accounts
-        AlliancePaymentAccount.objects._update_payment_accounts(self.alliance)
-
-        # Refresh from database
-        payment_account.refresh_from_db()
-
-        # Verify stays deactivated
-        self.assertEqual(
-            payment_account.status, AlliancePaymentAccount.Status.DEACTIVATED
-        )
-
-    def test_check_payment_accounts_mark_missing(self):
-        """Test that accounts are marked missing when user leaves alliance."""
-        # Create second alliance
-        user3, char3 = create_user_from_evecharacter(1003)
-        alliance2 = create_alliance_owner_from_user(
-            user=user3,
-            tax_amount=2000,
-            tax_period=30,
-        )
-
-        # Create payment account for first alliance
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
-            user=self.user,
-            status=AlliancePaymentAccount.Status.ACTIVE,
-        )
-
-        # Move user to second alliance by getting accounts from alliance2
-        # This simulates the user being in a different alliance
-        accounts = self.user.profile.__class__.objects.filter(
-            main_character__isnull=False,
-            main_character__alliance_id=alliance2.eve_alliance.alliance_id,
-        )
-
-        # Run check - since user is now in alliance2, their account in alliance1 should be marked missing
-        # But we need to check with the user in a different alliance
-        # Simulate by temporarily changing the user's alliance
-        original_alliance_id = self.user.profile.main_character.alliance_id
-        self.user.profile.main_character.alliance_id = (
-            alliance2.eve_alliance.alliance_id
-        )
-        self.user.profile.main_character.save()
-
-        # Get accounts with the updated alliance
-        accounts = self.user.profile.__class__.objects.filter(
-            main_character__isnull=False,
-            main_character__alliance_id=alliance2.eve_alliance.alliance_id,
-        )
-
-        # Run check
-        AlliancePaymentAccount.objects._check_payment_accounts(self.alliance, accounts)
-
-        # Restore original alliance
-        self.user.profile.main_character.alliance_id = original_alliance_id
-        self.user.profile.main_character.save()
-
-        # Refresh from database
-        payment_account.refresh_from_db()
-
-        # Verify marked as missing
-        self.assertEqual(payment_account.status, AlliancePaymentAccount.Status.MISSING)
-
-    def test_check_payment_accounts_reactivate_missing(self):
-        """Test that missing accounts are reactivated when user returns."""
-        # Create missing payment account with data
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
-            user=self.user,
-            status=AlliancePaymentAccount.Status.MISSING,
-            deposit=500,
-            last_paid=timezone.now() - timezone.timedelta(days=10),
-        )
-        payment_account.notice = "User left alliance"
-        payment_account.save()
-
-        # Get accounts queryset (user is back in alliance)
-        accounts = self.user.profile.__class__.objects.filter(
-            main_character__isnull=False,
-            main_character__alliance_id=self.alliance.eve_alliance.alliance_id,
-        )
-
-        # Run check
-        AlliancePaymentAccount.objects._check_payment_accounts(self.alliance, accounts)
-
-        # Refresh from database
-        payment_account.refresh_from_db()
-
-        # Verify reactivation
-        self.assertEqual(payment_account.status, AlliancePaymentAccount.Status.ACTIVE)
-        self.assertEqual(payment_account.deposit, 0)
-        self.assertIsNone(payment_account.last_paid)
-        self.assertIsNone(payment_account.notice)
-
-
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestAlliancePayDayManager(NoSocketsTestCase):
-    """Test Alliance Pay Day Manager methods."""
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        load_allianceauth()
-        load_eveuniverse()
-
-        cls.user, cls.character_ownership = create_user_from_evecharacter(1001)
-
-        cls.alliance = create_alliance_owner_from_user(
-            user=cls.user,
-            tax_amount=1000,
-            tax_period=30,
-        )
-
-    def test_pay_day_first_period_free(self):
-        """Test that first period is free (last_paid is set but no deduction)."""
-        # Create payment account without last_paid
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
-            user=self.user,
-            status=AlliancePaymentAccount.Status.ACTIVE,
-            deposit=5000,
+        # 1 Month is free for new users
+        self.tax_account_2 = create_tax_account(
+            name=self.new_user_character.character.character_name,
+            owner=self.audit,
+            user=self.new_user,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
             last_paid=None,
         )
 
-        # Run payday
-        AlliancePaymentAccount.objects._pay_day(self.alliance)
+        # Test Action
+        self.audit.update_deadlines(force_refresh=False)
 
-        # Refresh from database
-        payment_account.refresh_from_db()
-
-        # Verify first period is free
-        self.assertIsNotNone(payment_account.last_paid)
-        self.assertEqual(payment_account.deposit, 5000)  # No deduction
-
-    def test_pay_day_deduct_tax(self):
-        """Test that tax is deducted after period expires."""
-        # Create payment account with expired last_paid
-        old_date = timezone.now() - timezone.timedelta(days=31)
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
-            user=self.user,
-            status=AlliancePaymentAccount.Status.ACTIVE,
-            deposit=5000,
-            last_paid=old_date,
-        )
-
-        # Run payday
-        AlliancePaymentAccount.objects._pay_day(self.alliance)
-
-        # Refresh from database
-        payment_account.refresh_from_db()
-
-        # Verify tax was deducted
-        self.assertEqual(payment_account.deposit, 4000)  # 5000 - 1000
-        self.assertNotEqual(payment_account.last_paid, old_date)
-
-    def test_pay_day_skip_inactive(self):
-        """Test that inactive accounts are skipped."""
-        # Create inactive payment account
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
-            user=self.user,
-            status=AlliancePaymentAccount.Status.INACTIVE,
-            deposit=5000,
-            last_paid=timezone.now() - timezone.timedelta(days=31),
-        )
-
-        # Run payday
-        AlliancePaymentAccount.objects._pay_day(self.alliance)
-
-        # Refresh from database
-        payment_account.refresh_from_db()
-
-        # Verify no deduction for inactive account
-        self.assertEqual(payment_account.deposit, 5000)
-
-    def test_pay_day_not_expired(self):
-        """Test that tax is not deducted if period hasn't expired."""
-        # Create payment account with recent last_paid
-        recent_date = timezone.now() - timezone.timedelta(days=15)
-        payment_account = create_alliance_payment_system(
-            name=self.character_ownership.character.character_name,
-            owner=self.alliance,
-            user=self.user,
-            status=AlliancePaymentAccount.Status.ACTIVE,
-            deposit=5000,
-            last_paid=recent_date,
-        )
-
-        # Run payday
-        AlliancePaymentAccount.objects._pay_day(self.alliance)
-
-        # Refresh from database
-        payment_account.refresh_from_db()
-
-        # Verify no deduction
-        self.assertEqual(payment_account.deposit, 5000)
-        self.assertEqual(payment_account.last_paid, recent_date)
+        # Expected Results
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user)
+        self.assertEqual(tax_account.deposit, 0)
+        tax_account_2 = AlliancePaymentAccount.objects.get(user=self.new_user)
+        self.assertEqual(tax_account_2.deposit, 0)
