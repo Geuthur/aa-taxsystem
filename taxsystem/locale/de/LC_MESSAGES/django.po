@@ -5,14 +5,14 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-10-14 13:35+0200\n"
+"POT-Creation-Date: 2025-12-21 15:56+0100\n"
 "PO-Revision-Date: 2025-12-21 14:05+0000\n"
-"Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
-"war.de>\n"
-"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/"
-"aa-taxsystem/de/>\n"
+"Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-war."
+"de>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
+"taxsystem/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,575 +20,1120 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.13.3\n"
 
-msgid "Payment Details"
-msgstr "Zahlungsdetails"
+#: taxsystem/admin.py:78 taxsystem/admin.py:161
+msgid "last update run"
+msgstr ""
 
-msgid "View Payment Details"
-msgstr "Zeige Zahlungsdetails"
+#: taxsystem/admin.py:90
+msgid "Force update selected corporations"
+msgstr ""
 
-msgid "Yes"
-msgstr "Ja"
+#: taxsystem/admin.py:101
+#, python-brace-format
+msgid ""
+"Started force update for {count} corporation(s). Updates will run in the "
+"background."
+msgstr ""
 
-msgid "No"
-msgstr "Nein"
+#: taxsystem/admin.py:173
+msgid "Force update selected alliances"
+msgstr ""
 
+#: taxsystem/admin.py:184
+#, python-brace-format
+msgid ""
+"Started force update for {count} alliance(s). Updates will run in the "
+"background."
+msgstr ""
+
+#: taxsystem/api/admin.py:81 taxsystem/api/admin.py:217
+#: taxsystem/api/admin.py:279 taxsystem/api/admin.py:339
+#: taxsystem/api/admin.py:399 taxsystem/api/corporation.py:63
+#: taxsystem/api/corporation.py:128 taxsystem/api/filters.py:67
+#: taxsystem/api/filters.py:126 taxsystem/api/filters.py:189
+#: taxsystem/api/filters.py:242 taxsystem/api/filters.py:311
+#: taxsystem/api/logs.py:54 taxsystem/api/logs.py:98
+#: taxsystem/api/payments.py:228 taxsystem/api/payments.py:380
+#: taxsystem/api/payments.py:459 taxsystem/api/payments.py:545
+#: taxsystem/api/payments.py:628 taxsystem/api/payments.py:718
+#: taxsystem/views.py:219 taxsystem/views.py:249 taxsystem/views.py:277
+#: taxsystem/views.py:321 taxsystem/views.py:386
+msgid "Owner not Found."
+msgstr ""
+
+#: taxsystem/api/admin.py:84 taxsystem/api/admin.py:145
+#: taxsystem/api/admin.py:221 taxsystem/api/admin.py:283
+#: taxsystem/api/admin.py:343 taxsystem/api/admin.py:403
+#: taxsystem/api/corporation.py:66 taxsystem/api/corporation.py:132
+#: taxsystem/api/filters.py:70 taxsystem/api/filters.py:130
+#: taxsystem/api/filters.py:192 taxsystem/api/filters.py:246
+#: taxsystem/api/filters.py:315 taxsystem/api/logs.py:57
+#: taxsystem/api/logs.py:101 taxsystem/api/payments.py:237
+#: taxsystem/api/payments.py:317 taxsystem/api/payments.py:384
+#: taxsystem/api/payments.py:463 taxsystem/api/payments.py:549
+#: taxsystem/api/payments.py:632 taxsystem/api/payments.py:722
+#: taxsystem/views.py:223 taxsystem/views.py:253 taxsystem/views.py:281
+#: taxsystem/views.py:325 taxsystem/views.py:390
+#, fuzzy
+#| msgid "Permission Denied"
+msgid "Permission Denied."
+msgstr "Zugriff verweigert"
+
+#: taxsystem/api/admin.py:142
+msgid "Owner Not Found"
+msgstr ""
+
+#: taxsystem/api/admin.py:228
+#, fuzzy
+#| msgid "Account Status"
+msgid "Account not found."
+msgstr "Account Status"
+
+#: taxsystem/api/admin.py:240
+#, python-brace-format
+msgid "{account} switched to {status}"
+msgstr ""
+
+#: taxsystem/api/admin.py:288 taxsystem/api/admin.py:348
+msgid "Please enter a valid number"
+msgstr "Bitte gib einen gültigen Betrag ein"
+
+#: taxsystem/api/admin.py:300 taxsystem/api/admin.py:360
+#, fuzzy, python-brace-format
+#| msgid "Tax Period from {corp.name} updated to {value}"
+msgid "Tax Period from {owner} changed to {value}"
+msgstr "Steuer Periode von {corp.name} aktualisiert auf {value}"
+
+#: taxsystem/api/admin.py:409
+msgid "Please select at least one account"
+msgstr ""
+
+#: taxsystem/api/admin.py:425
+#, fuzzy
+#| msgid "Please enter a valid number"
+msgid "Please select a valid action"
+msgstr "Bitte gib einen gültigen Betrag ein"
+
+#: taxsystem/api/admin.py:430
+#, python-brace-format
+msgid "Bulk '{status}' performed for {items} accounts({pks}) for {owner}"
+msgstr ""
+
+#: taxsystem/api/corporation.py:137 taxsystem/api/filters.py:139
+#: taxsystem/api/filters.py:255 taxsystem/api/payments.py:389
+#: taxsystem/api/payments.py:474 taxsystem/api/payments.py:560
+#: taxsystem/api/payments.py:643 taxsystem/api/payments.py:733
+#, fuzzy
+#| msgid "Invalid Method"
+msgid "Invalid form data."
+msgstr "Ungültige methode"
+
+#: taxsystem/api/corporation.py:145
+#, fuzzy, python-brace-format
+#| msgid "Member {member.character_name} deleted - {reason}"
+msgid "Member {member} deleted - {reason}"
+msgstr "Mitglied {member.character_name} gelöscht – {reason}"
+
+#: taxsystem/api/corporation.py:157
+msgid "Member is not marked as missing."
+msgstr ""
+
+#: taxsystem/api/filters.py:147
+#, fuzzy
+#| msgid "No Filter found."
+msgid "Filter not found."
+msgstr "Kein Filter gefunden."
+
+#: taxsystem/api/filters.py:155
+#, python-brace-format
+msgid "{filter_obj} in \"{filter_set}\" deleted - Reason: {reason}"
+msgstr ""
+
+#: taxsystem/api/filters.py:263 taxsystem/api/filters.py:322
+#, fuzzy
+#| msgid "No Filter found."
+msgid "Filter Set not found."
+msgstr "Kein Filter gefunden."
+
+#: taxsystem/api/filters.py:271
+#, python-brace-format
+msgid "{filter_set} deleted - Reason: {reason}"
+msgstr ""
+
+#: taxsystem/api/filters.py:331
+#, fuzzy, python-brace-format
+#| msgid "Filter set switched to {filter_set.enabled} successfully."
+msgid "{filter_set} switched to {enabled}"
+msgstr "Filterset erfolgreich auf {filter_set.enabled} umgeschaltet."
+
+#: taxsystem/api/helpers/icons.py:190
+#, fuzzy
+#| msgid "Edit Filter Set"
+msgid "View Filter Set"
+msgstr "Filtersatz bearbeiten"
+
+#: taxsystem/api/helpers/icons.py:233
+msgid "Deactivate Filter Set"
+msgstr "Deaktiviere Filtersatz"
+
+#: taxsystem/api/helpers/icons.py:236
+#, fuzzy
+#| msgid "Deactivate Filter Set"
+msgid "Activate Filter Set"
+msgstr "Deaktiviere Filtersatz"
+
+#: taxsystem/api/helpers/icons.py:275
+msgid "Delete Filter Set"
+msgstr "Lösche Filtersatz"
+
+#: taxsystem/api/helpers/icons.py:306 taxsystem/models/corporation.py:307
+#: taxsystem/models/helpers/textchoices.py:83
+#: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:9
 msgid "Active"
 msgstr "Aktiv"
 
-msgid "Deactivated"
-msgstr "Deaktiviert"
-
+#: taxsystem/api/helpers/icons.py:310
+#: taxsystem/models/helpers/textchoices.py:84
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
 msgid "Inactive"
 msgstr "Inaktiv"
 
-msgid "Are you sure to Confirm"
-msgstr "Sind Sie sicher, dass Sie bestätigen möchten"
-
-msgid "Delete"
-msgstr "Lösche"
-
-msgid "Delete Member"
-msgstr "Lösche Mitglied"
-
+#: taxsystem/api/helpers/icons.py:353
 msgid "Delete Filter"
 msgstr "Lösche Filter"
 
+#: taxsystem/api/helpers/icons.py:397
+#: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:24
+#, fuzzy
+#| msgid "Deactivated Accounts"
+msgid "Deactivate Account"
+msgstr "Deaktivierte Accounts"
+
+#: taxsystem/api/helpers/icons.py:400
+#: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:17
+#, fuzzy
+#| msgid "Active Accounts"
+msgid "Activate Account"
+msgstr "Aktive Accounts"
+
+#: taxsystem/api/helpers/icons.py:442
+#, fuzzy
+#| msgid "Undo Payment"
+msgid "Add Payment"
+msgstr "Zahlung Rückgängig machen"
+
+#: taxsystem/api/helpers/icons.py:483
+#, fuzzy
+#| msgid "Enter Tax Amount"
+msgid "View Tax Account"
+msgstr "Steuerbetrag eingeben"
+
+#: taxsystem/api/helpers/icons.py:531
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:17
 msgid "Approve Payment"
 msgstr "Zahlung freigeben"
 
-msgid "from"
-msgstr "von"
-
-msgid "Reject Payment"
-msgstr "Zahlung ablehnen"
-
+#: taxsystem/api/helpers/icons.py:580
 msgid "Undo Payment"
 msgstr "Zahlung Rückgängig machen"
 
-msgid "View Payments"
-msgstr "Zeige Zahlungen"
+#: taxsystem/api/helpers/icons.py:629
+msgid "Show Details"
+msgstr ""
 
-msgid "Deactivate"
-msgstr "Deaktiviere"
+#: taxsystem/api/helpers/icons.py:678 taxsystem/api/helpers/icons.py:768
+#, fuzzy
+#| msgid "Reject Payment"
+msgid "Delete Payment"
+msgstr "Zahlung ablehnen"
 
-msgid "Deactivate User"
-msgstr "Deaktiviere Benutzer"
+#: taxsystem/api/helpers/icons.py:727
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:24
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:31
+msgid "Reject Payment"
+msgstr "Zahlung ablehnen"
 
-msgid "Activate"
-msgstr "Aktiviere"
+#: taxsystem/api/payments.py:248
+#, fuzzy
+#| msgid "Tax System"
+msgid "System"
+msgstr "Steuer System"
 
-msgid "Activate User"
-msgstr "Aktiviere Benutzer"
+#: taxsystem/api/payments.py:313
+#, fuzzy
+#| msgid "No Corporation found."
+msgid "Corporation Not Found"
+msgstr "Keine Corporationen gefunden."
 
-msgid "Total"
-msgstr "Gesamt"
+#: taxsystem/api/payments.py:415
+#, python-brace-format
+msgid "Custom Payment Added: {comment}"
+msgstr ""
 
-msgid "Reason for rejecting"
+#: taxsystem/api/payments.py:433 taxsystem/api/payments.py:519
+#: taxsystem/api/payments.py:602 taxsystem/api/payments.py:692
+#: taxsystem/api/payments.py:772
+msgid "Transaction failed. Please try again."
+msgstr "Transaktion fehlgeschlagen. Versuche es später erneut."
+
+#: taxsystem/api/payments.py:509
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
+msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} genehmigt"
+
+#: taxsystem/api/payments.py:516 taxsystem/api/payments.py:769
+msgid "Payment is not pending or does not need approval."
+msgstr ""
+
+#: taxsystem/api/payments.py:592
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
+msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} Rückgängig gemacht"
+
+#: taxsystem/api/payments.py:599
+#, fuzzy
+#| msgid "Payment must be approved by an reviser"
+msgid "Payment is approved or rejected."
+msgstr "Die Zahlung muss von einem Prüfer genehmigt werden"
+
+#: taxsystem/api/payments.py:657
+msgid "ESI imported payments cannot be deleted"
+msgstr ""
+
+#: taxsystem/api/payments.py:675
+#, fuzzy, python-brace-format
+#| msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
+msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} abgelehnt"
+
+#: taxsystem/api/payments.py:753
+#, fuzzy, python-brace-format
+#| msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected - {reason}"
+msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} abgelehnt"
+
+#: taxsystem/forms.py:37 taxsystem/forms.py:58
+#, fuzzy
+#| msgid "Reason for rejecting"
+msgid "Reason for accepting the payment"
 msgstr "Grund der Ablehnung"
 
-msgid "Comment"
-msgstr "Kommentar"
+#: taxsystem/forms.py:40 taxsystem/forms.py:61
+#, fuzzy
+#| msgid "Comment of the action"
+msgid "Comment (optional)"
+msgstr "Kommentar der Aktion"
 
-msgid "Reason for undoing"
+#: taxsystem/forms.py:79 taxsystem/forms.py:101
+#, fuzzy
+#| msgid "Reason for rejecting"
+msgid "Reason for rejecting the payment"
+msgstr "Grund der Ablehnung"
+
+#: taxsystem/forms.py:82 taxsystem/forms.py:104
+#, fuzzy
+#| msgid "Reject Payment"
+msgid "Reject Reason"
+msgstr "Zahlung ablehnen"
+
+#: taxsystem/forms.py:123 taxsystem/forms.py:145
+#, fuzzy
+#| msgid "Reason for undoing"
+msgid "Reason for undoing the payment"
 msgstr "Grund des Zurücksetzens"
 
-msgid "Filter Set"
-msgstr "Filtersatz"
-
-msgid "Filter Type"
-msgstr "Filter Typ"
-
-msgid "Filter Value"
-msgstr "Filterwert"
-
-msgid "Enter filter value"
-msgstr "Filterwert eingeben"
-
-msgid "Filter Set Name"
-msgstr "Filtersatz Name"
-
-msgid "Enter filter set name"
-msgstr "Filtersatz Name eingeben"
-
-msgid "Filter Set Description"
-msgstr "Filtersatz Beschreibung"
-
-msgid "Enter filter set description"
-msgstr "Filtersatz Beschreibung eingeben"
-
-msgid "Master Wallet"
-msgstr "Haupt Konto"
-
-msgid "Unknown"
-msgstr "Unbekannt"
-
-msgid "Journal Filter Set"
-msgstr ""
-
-msgid "Journal Filter Sets"
-msgstr ""
-
-msgid "Reason"
+#: taxsystem/forms.py:126 taxsystem/forms.py:148
+#, fuzzy
+#| msgid "Reason"
+msgid "Undo Reason"
 msgstr "Grund"
 
+#: taxsystem/forms.py:167 taxsystem/forms.py:189
+#, fuzzy
+#| msgid "Reason for rejecting"
+msgid "Reason for deleting the payment"
+msgstr "Grund der Ablehnung"
+
+#: taxsystem/forms.py:170 taxsystem/forms.py:192 taxsystem/forms.py:232
+#: taxsystem/forms.py:254 taxsystem/forms.py:276 taxsystem/forms.py:298
+#: taxsystem/forms.py:320
+#, fuzzy
+#| msgid "Delete"
+msgid "Delete Reason"
+msgstr "Lösche"
+
+#: taxsystem/forms.py:209 taxsystem/models/base.py:332
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:14
 msgid "Amount"
 msgstr "Betrag"
 
-msgid "Can access the Tax System"
-msgstr "Kann auf das Steuersystem zugreifen"
+#: taxsystem/forms.py:210
+msgid "Amount to be added"
+msgstr ""
 
-msgid "Can add Corporation"
-msgstr "Kann Corporation Hinzufügen"
+#: taxsystem/forms.py:216
+#, fuzzy
+#| msgid "Reason"
+msgid "Add Reason"
+msgstr "Grund"
 
-msgid "Can manage own Corporation"
-msgstr "Kann eigene Corporation Verwalten"
+#: taxsystem/forms.py:217
+#, fuzzy
+#| msgid "Reason for undoing"
+msgid "Reason for adding this payment"
+msgstr "Grund des Zurücksetzens"
 
-msgid "Can manage all Corporations"
-msgstr "Kann alle Corporationen Verwalten"
+#: taxsystem/forms.py:229
+#, fuzzy
+#| msgid "Reason for rejecting"
+msgid "Reason for deleting the member"
+msgstr "Grund der Ablehnung"
 
-msgid "Payment added to system"
-msgstr "Zahlung zum System hinzugefügt"
+#: taxsystem/forms.py:251 taxsystem/forms.py:295
+#, fuzzy
+#| msgid "Reason for rejecting"
+msgid "Reason for deleting the filter"
+msgstr "Grund der Ablehnung"
 
-msgid "Automated approved Payment"
-msgstr "Automatisch genehmigte Zahlung"
+#: taxsystem/forms.py:273 taxsystem/forms.py:317
+#, fuzzy
+#| msgid "Reason for rejecting"
+msgid "Reason for deleting the filter set"
+msgstr "Grund der Ablehnung"
 
-msgid "Payment must be approved by an reviser"
-msgstr "Die Zahlung muss von einem Prüfer genehmigt werden"
+#: taxsystem/forms.py:335
+msgid "Filter Set"
+msgstr "Filtersatz"
 
-msgid "Status Changed"
-msgstr "Status Geändert"
+#: taxsystem/forms.py:340
+#: taxsystem/templates/taxsystem/partials/view-filter-set/filter.html:7
+msgid "Filter Type"
+msgstr "Filter Typ"
 
-msgid "Payment Added"
-msgstr "Zahlung Hinzugefügt"
+#: taxsystem/forms.py:344
+#: taxsystem/templates/taxsystem/partials/view-filter-set/filter.html:8
+msgid "Filter Value"
+msgstr "Filterwert"
 
-msgid "Reviser Comment"
-msgstr "Prüfer Kommentar"
+#: taxsystem/forms.py:346
+msgid "Enter filter value"
+msgstr "Filterwert eingeben"
 
+#: taxsystem/forms.py:357
+msgid "Filter Set Name"
+msgstr "Filtersatz Name"
+
+#: taxsystem/forms.py:359
+msgid "Enter filter set name"
+msgstr "Filtersatz Name eingeben"
+
+#: taxsystem/forms.py:362
+msgid "Filter Set Description"
+msgstr "Filtersatz Beschreibung"
+
+#: taxsystem/forms.py:365
+msgid "Enter filter set description"
+msgstr "Filtersatz Beschreibung eingeben"
+
+#: taxsystem/managers/wallet_manager.py:266
+msgid "Master Wallet"
+msgstr "Haupt Konto"
+
+#: taxsystem/managers/wallet_manager.py:268
+#: taxsystem/managers/wallet_manager.py:295
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#: taxsystem/models/alliance.py:87
+msgid "The corporation that owns this alliance tax system."
+msgstr ""
+
+#: taxsystem/models/alliance.py:92
+msgid "Designates whether this alliance owner is active."
+msgstr ""
+
+#: taxsystem/models/alliance.py:98
+#, fuzzy
+#| msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
+msgid "Tax Amount in ISK that is set for the alliance. Max 16 Digits"
+msgstr ""
+"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+
+#: taxsystem/models/alliance.py:105
+#, fuzzy
+#| msgid ""
+#| "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
+msgid "Tax Period in days for the alliance. Max 365 days. Default: 30 days"
+msgstr ""
+"Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
+
+#: taxsystem/models/alliance.py:257 taxsystem/models/corporation.py:389
+#, fuzzy
+#| msgid "Own Payments"
+msgid "Owner of this payment"
+msgstr "Eigene Zahlungen"
+
+#: taxsystem/models/alliance.py:353 taxsystem/models/corporation.py:497
 msgid "Payment"
 msgstr "Zahlung"
 
+#: taxsystem/models/alliance.py:354 taxsystem/models/corporation.py:498
 msgid "Payment that the action was performed on"
 msgstr "Zahlung, für die diese Aktion durchgeführt wurde"
 
-msgid "User"
-msgstr "Benutzer"
-
-msgid "User that performed the action"
-msgstr "Benutzer der diese Action ausgeführt hat"
-
-msgid "Date"
-msgstr "Datum"
-
-msgid "Date of the action"
-msgstr "Datum der Aktion"
-
-msgid "Action"
-msgstr "Aktion"
-
-msgid "Action performed"
-msgstr "Aktion ausgeführt"
-
-msgid "Comment of the action"
-msgstr "Kommentar der Aktion"
-
+#: taxsystem/models/alliance.py:360 taxsystem/models/corporation.py:505
 msgid "New Status"
 msgstr "Neuer Status"
 
+#: taxsystem/models/alliance.py:361 taxsystem/models/corporation.py:506
 msgid "New Status of the action"
 msgstr "Neuer Status der Aktion"
 
-msgid "Added"
-msgstr "Hinzugefügt"
+#: taxsystem/models/alliance.py:375 taxsystem/models/corporation.py:521
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:19
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:52
+msgid "Owner"
+msgstr ""
 
-msgid "Changed"
-msgstr "Geändert"
+#: taxsystem/models/alliance.py:376 taxsystem/models/corporation.py:522
+#, fuzzy
+#| msgid "Payment that the action was performed on"
+msgid "Owner that the action was performed on"
+msgstr "Zahlung, für die diese Aktion durchgeführt wurde"
 
-msgid "Deleted"
-msgstr "Gelöscht"
+#: taxsystem/models/alliance.py:385 taxsystem/models/base.py:409
+#: taxsystem/models/corporation.py:532
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:86
+msgid "Action"
+msgstr "Aktion"
 
-msgid "Wallet Journal"
-msgstr "Transaktionsjournal"
+#: taxsystem/models/alliance.py:386 taxsystem/models/base.py:410
+#: taxsystem/models/corporation.py:533
+msgid "Action performed"
+msgstr "Aktion ausgeführt"
 
-msgid "Wallet Division Names"
-msgstr "Namen der Konto-Abteilungen"
+#: taxsystem/models/base.py:63
+msgid "Request Status"
+msgstr "Status der Anfrage"
 
-msgid "Wallet Division"
-msgstr "Konto Abteilung"
+#: taxsystem/models/base.py:70
+msgid "Reviser that approved or rejected the payment"
+msgstr "Prüfer, der diese Zahlung bearbeitet hat"
 
-msgid "Members"
-msgstr "Mitglieder"
+#: taxsystem/models/base.py:125
+msgid "No date"
+msgstr "Kein Datum"
 
-msgid "Payments"
-msgstr "Zahlungen"
+#: taxsystem/models/base.py:154
+msgid "Deposit Pool in ISK. Max 16 Digits"
+msgstr "Einzahlungsbetrag in ISK. Maximal 16 Ziffern"
 
-msgid "Payment System"
-msgstr "Zahlungs System"
+#: taxsystem/models/base.py:331
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:22
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:14
+msgid "Reason"
+msgstr "Grund"
 
-msgid "Payday"
-msgstr "Zahltag"
+#: taxsystem/models/base.py:395
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:4
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:40
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:84
+msgid "User"
+msgstr "Benutzer"
 
-msgid "disabled"
-msgstr "deaktiviert"
+#: taxsystem/models/base.py:396
+msgid "User that performed the action"
+msgstr "Benutzer der diese Action ausgeführt hat"
 
-msgid "token error"
-msgstr "token Fehler"
+#: taxsystem/models/base.py:401
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:85
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:11
+#: taxsystem/templates/taxsystem/partials/view-my-payments/my-payments.html:8
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:24
+msgid "Date"
+msgstr "Datum"
 
-msgid "error"
-msgstr "Fehler"
+#: taxsystem/models/base.py:402
+msgid "Date of the action"
+msgstr "Datum der Aktion"
 
-msgid "ok"
-msgstr "Ok"
+#: taxsystem/models/base.py:416
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:87
+msgid "Comment"
+msgstr "Kommentar"
 
-msgid "incomplete"
-msgstr "unvollständig"
+#: taxsystem/models/base.py:417
+msgid "Comment of the action"
+msgstr "Kommentar der Aktion"
 
-msgid "in progress"
-msgstr "in Arbeit"
+#: taxsystem/models/corporation.py:92
+msgid "Designates whether this corporation owner is active."
+msgstr ""
 
-msgid "Update is disabled"
-msgstr "Update ist deaktiviert"
-
-msgid "One section has a token error during update"
-msgstr "Eine Sektion hat einen token Fehler während des update"
-
-msgid "One or more sections have not been updated"
-msgstr "Eine oder mehr Sektionen wurden nicht aktualisiert"
-
-msgid "Update is in progress"
-msgstr "Aktualisierung ist in Arbeit"
-
-msgid "An error occurred during update"
-msgstr "Ein Fehler trat während des Update auf"
-
-msgid "Updates completed successfully"
-msgstr "Aktualisierungen erfolgreich abgeschlossen"
-
+#: taxsystem/models/corporation.py:98
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr "Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+msgstr ""
+"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
 
+#: taxsystem/models/corporation.py:105
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 "Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
 
-msgid "Tax System Audit"
-msgstr "Steuer System Audit"
-
-msgid "Tax System Audits"
-msgstr "Steuer System Audits"
-
+#: taxsystem/models/corporation.py:308
+#: taxsystem/models/helpers/textchoices.py:86
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
 msgid "Missing"
 msgstr "Vermisst"
 
+#: taxsystem/models/corporation.py:309
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
 msgid "Unregistered"
 msgstr "Nicht Registriert"
 
+#: taxsystem/models/corporation.py:310
 msgid "Is Alt"
 msgstr "Ist Alt"
 
+#: taxsystem/models/corporation.py:321
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:32
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:13
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:32
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:44
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:88
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:12
+#: taxsystem/templates/taxsystem/partials/view-my-payments/my-payments.html:9
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:25
 msgid "Status"
 msgstr "Status"
 
-msgid "Tax Member System"
-msgstr "Steuer Mitglied System"
+#: taxsystem/models/general.py:18
+msgid "Can access the Tax System"
+msgstr "Kann auf das Steuersystem zugreifen"
 
-msgid "Tax Member Systems"
-msgstr "Steuer Mitglied Systeme"
+#: taxsystem/models/general.py:19
+#, fuzzy
+#| msgid "Can add Corporation"
+msgid "Can add Corporation/Alliance"
+msgstr "Kann Corporation Hinzufügen"
 
-msgid "Paid"
-msgstr "Gezahlt"
+#: taxsystem/models/general.py:20
+msgid "Can manage own Corporation"
+msgstr "Kann eigene Corporation Verwalten"
 
-msgid "Unpaid"
-msgstr "Nicht Gezahlt"
+#: taxsystem/models/general.py:21
+msgid "Can manage all Corporations"
+msgstr "Kann alle Corporationen Verwalten"
 
-msgid "Deposit Pool in ISK. Max 16 Digits"
-msgstr "Einzahlungsbetrag in ISK. Maximal 16 Ziffern"
+#: taxsystem/models/general.py:22
+#, fuzzy
+#| msgid "Can manage own Corporation"
+msgid "Can manage own Alliance"
+msgstr "Kann eigene Corporation Verwalten"
 
-msgid "Tax Payment System"
-msgstr "Steuer Zahlungs System"
+#: taxsystem/models/general.py:23
+#, fuzzy
+#| msgid "Can manage all Corporations"
+msgid "Can manage all Alliances"
+msgstr "Kann alle Corporationen Verwalten"
 
-msgid "Tax Payment Systems"
-msgstr "Steuer Zahlungs Systeme"
+#: taxsystem/models/helpers/textchoices.py:29
+msgid "disabled"
+msgstr "deaktiviert"
 
+#: taxsystem/models/helpers/textchoices.py:30
+msgid "token error"
+msgstr "token Fehler"
+
+#: taxsystem/models/helpers/textchoices.py:31
+msgid "error"
+msgstr "Fehler"
+
+#: taxsystem/models/helpers/textchoices.py:32
+msgid "ok"
+msgstr "Ok"
+
+#: taxsystem/models/helpers/textchoices.py:33
+msgid "incomplete"
+msgstr "unvollständig"
+
+#: taxsystem/models/helpers/textchoices.py:34
+msgid "in progress"
+msgstr "in Arbeit"
+
+#: taxsystem/models/helpers/textchoices.py:68
+msgid "Update is disabled"
+msgstr "Update ist deaktiviert"
+
+#: taxsystem/models/helpers/textchoices.py:69
+msgid "One section has a token error during update"
+msgstr "Eine Sektion hat einen token Fehler während des update"
+
+#: taxsystem/models/helpers/textchoices.py:70
+msgid "One or more sections have not been updated"
+msgstr "Eine oder mehr Sektionen wurden nicht aktualisiert"
+
+#: taxsystem/models/helpers/textchoices.py:71
+msgid "Update is in progress"
+msgstr "Aktualisierung ist in Arbeit"
+
+#: taxsystem/models/helpers/textchoices.py:72
+msgid "An error occurred during update"
+msgstr "Ein Fehler trat während des Update auf"
+
+#: taxsystem/models/helpers/textchoices.py:73
+msgid "Updates completed successfully"
+msgstr "Aktualisierungen erfolgreich abgeschlossen"
+
+#: taxsystem/models/helpers/textchoices.py:85
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+#: taxsystem/models/helpers/textchoices.py:120
 msgid "Approved"
 msgstr "Genehmigt"
 
+#: taxsystem/models/helpers/textchoices.py:121
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
 msgid "Pending"
 msgstr "Ausstehend"
 
+#: taxsystem/models/helpers/textchoices.py:122
 msgid "Rejected"
 msgstr "Abgewiesen"
 
+#: taxsystem/models/helpers/textchoices.py:123
 msgid "Requires Auditor"
 msgstr "Benötigt Prüfer"
 
-msgid "Request Status"
-msgstr "Status der Anfrage"
+#: taxsystem/models/helpers/textchoices.py:149
+msgid "Status Changed"
+msgstr "Status Geändert"
 
-msgid "Reviser that approved or rejected the payment"
-msgstr "Prüfer, der diese Zahlung bearbeitet hat"
+#: taxsystem/models/helpers/textchoices.py:150
+msgid "Payment Added"
+msgstr "Zahlung Hinzugefügt"
 
-msgid "Tax Payments"
-msgstr "Steuer Zahlungen"
+#: taxsystem/models/helpers/textchoices.py:151
+#, fuzzy
+#| msgid "Payment Added"
+msgid "Custom Payment Added"
+msgstr "Zahlung Hinzugefügt"
 
-msgid "No date"
-msgstr "Kein Datum"
+#: taxsystem/models/helpers/textchoices.py:152
+msgid "Reviser Comment"
+msgstr "Prüfer Kommentar"
 
+#: taxsystem/models/helpers/textchoices.py:160
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
+msgid "Paid"
+msgstr "Gezahlt"
+
+#: taxsystem/models/helpers/textchoices.py:161
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
+msgid "Unpaid"
+msgstr "Nicht Gezahlt"
+
+#: taxsystem/models/helpers/textchoices.py:178
+msgid "Payment added to system"
+msgstr "Zahlung zum System hinzugefügt"
+
+#: taxsystem/models/helpers/textchoices.py:179
+msgid "Automated approved Payment"
+msgstr "Automatisch genehmigte Zahlung"
+
+#: taxsystem/models/helpers/textchoices.py:181
+msgid "Payment must be approved by an reviser"
+msgstr "Die Zahlung muss von einem Prüfer genehmigt werden"
+
+#: taxsystem/models/helpers/textchoices.py:188
+msgid "Wallet Division Names"
+msgstr "Namen der Konto-Abteilungen"
+
+#: taxsystem/models/helpers/textchoices.py:189
+#, fuzzy
+#| msgid "Wallet Division"
+msgid "Wallet Divisions"
+msgstr "Konto Abteilung"
+
+#: taxsystem/models/helpers/textchoices.py:190
+msgid "Wallet Journal"
+msgstr "Transaktionsjournal"
+
+#: taxsystem/models/helpers/textchoices.py:191
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:172
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:5
+msgid "Members"
+msgstr "Mitglieder"
+
+#: taxsystem/models/helpers/textchoices.py:192
+#: taxsystem/models/helpers/textchoices.py:200
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:196
+#, fuzzy
+#| msgid "Tax Amount:"
+msgid "Tax Accounts"
+msgstr "Steuer Betrag:"
+
+#: taxsystem/models/helpers/textchoices.py:193
+#: taxsystem/models/helpers/textchoices.py:201
+#: taxsystem/templates/taxsystem/modals/request-view-tax-account.html:10
+#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:5
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:156
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:4
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:33
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:35
+#: taxsystem/templates/taxsystem/view-payments.html:19 taxsystem/views.py:228
+msgid "Payments"
+msgstr "Zahlungen"
+
+#: taxsystem/models/helpers/textchoices.py:194
+#: taxsystem/models/helpers/textchoices.py:202
+msgid "Deadlines"
+msgstr ""
+
+#: taxsystem/models/helpers/textchoices.py:207
+msgid "Added"
+msgstr "Hinzugefügt"
+
+#: taxsystem/models/helpers/textchoices.py:208
+msgid "Changed"
+msgstr "Geändert"
+
+#: taxsystem/models/helpers/textchoices.py:209
+msgid "Deleted"
+msgstr "Gelöscht"
+
+#: taxsystem/templates/taxsystem/admin.html:5
+#: taxsystem/templates/taxsystem/base.html:9
+#: taxsystem/templates/taxsystem/view-account.html:7
+#: taxsystem/templates/taxsystem/view-faq.html:7
+#: taxsystem/templates/taxsystem/view-my-payments.html:6
+#: taxsystem/templates/taxsystem/view-payments.html:6
 msgid "Tax System"
 msgstr "Steuer System"
 
-msgid "Account Status"
-msgstr "Account Status"
-
+#: taxsystem/templates/taxsystem/admin.html:29
 msgid "Administration"
 msgstr "Verwaltung"
 
+#: taxsystem/templates/taxsystem/admin.html:35
 msgid "Mark all tasks as Force Refresh"
 msgstr "Erzwinge Aktualisierung für alle markierten Tasks"
 
+#: taxsystem/templates/taxsystem/admin.html:40
 msgid "Clear all cached ETags"
 msgstr "Alle zwischengespeicherten ETags löschen"
 
-msgid "Update Taxsystem Updates"
+#: taxsystem/templates/taxsystem/admin.html:44
+#, fuzzy
+#| msgid "Tax System Audits"
+msgid "All Taxsystem Updates"
+msgstr "Steuer System Audits"
+
+#: taxsystem/templates/taxsystem/admin.html:48
+msgid "Update Taxsystem Corporation Updates"
 msgstr ""
 
+#: taxsystem/templates/taxsystem/admin.html:51
+#, fuzzy
+#| msgid "No Corporation found."
+msgid "Corporation ID (optional)"
+msgstr "Keine Corporationen gefunden."
+
+#: taxsystem/templates/taxsystem/admin.html:52
+#, fuzzy
+#| msgid "Corporations"
+msgid "Enter Corporation ID"
+msgstr "Corporationen"
+
+#: taxsystem/templates/taxsystem/admin.html:53
+#, fuzzy
+#| msgid "Can manage all Corporations"
+msgid "Leave empty to update all corporations"
+msgstr "Kann alle Corporationen Verwalten"
+
+#: taxsystem/templates/taxsystem/admin.html:57
+msgid "Update Taxsystem Alliance Updates"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/admin.html:60
+msgid "Alliance ID (optional)"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/admin.html:61
+msgid "Enter Alliance ID"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/admin.html:62
+msgid "Leave empty to update all alliances"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/admin.html:64
 msgid "Submit"
 msgstr "Senden"
 
-msgid "Corporation Overview"
-msgstr "Corporation Übersicht"
-
-msgid "Actions"
-msgstr "Aktionen"
-
-msgid "Show"
-msgstr "Zeige"
-
-msgid "No Permission"
-msgstr "Keine Berechtigung"
-
+#: taxsystem/templates/taxsystem/base.html:60
+#: taxsystem/templates/taxsystem/view-manage.html:48
 msgid "days"
 msgstr "tage"
 
-msgid "Enter Tax Amount"
-msgstr "Steuerbetrag eingeben"
-
-msgid "Enter Tax Period"
-msgstr "Steuerzeitraum eingeben"
-
+#: taxsystem/templates/taxsystem/base.html:61
 msgid "Internal Server Error"
 msgstr "Interner Server Fehler"
 
+#: taxsystem/templates/taxsystem/base.html:62
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:34
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:219
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:16
 msgid "Tax Paid"
 msgstr "Steuer Gezahlt"
 
-msgid "Frequently Asked Questions"
-msgstr "Häufig gestellte Fragen"
+#: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:38
+msgid "Accept Add Payment request"
+msgstr ""
 
-msgid "Filter Sets"
-msgstr "Filtersätze"
-
-msgid "Filter Setup"
-msgstr "Filter Setup"
-
-msgid "Add Filter"
-msgstr "Filter hinzufügen"
-
-msgid "Add Filter Set"
-msgstr "Filtersatz Hinzufügen"
-
-msgid "Edit Filter Set"
-msgstr "Filtersatz bearbeiten"
-
-msgid "Cancel"
-msgstr "Abbrechen"
-
-msgid "Confirm"
-msgstr "Bestätigen"
-
+#: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:13
+#: taxsystem/templates/taxsystem/modals/request-view-filter-set.html:13
+#: taxsystem/templates/taxsystem/modals/request-view-filter-set.html:22
+#: taxsystem/templates/taxsystem/modals/request-view-payment-details.html:13
+#: taxsystem/templates/taxsystem/modals/request-view-payment-details.html:22
+#: taxsystem/templates/taxsystem/modals/request-view-tax-account.html:13
+#: taxsystem/templates/taxsystem/modals/request-view-tax-account.html:22
 msgid "Close"
 msgstr "Schließen"
 
-msgid "ISK"
-msgstr "ISK"
-
-msgid "Edited by"
-msgstr "Bearbeitet von"
-
-msgid "Division"
-msgstr "Abteilung"
-
-msgid "No character found."
-msgstr "Kein Charakter gefunden."
-
-msgid "Filters"
-msgstr "Filter"
-
-msgid "No Filter found."
-msgstr "Kein Filter gefunden."
-
-msgid "Payment Information"
-msgstr "Zahlungsinformation"
-
-msgid "Payment Account"
-msgstr "Zahlungs Account"
-
-msgid "Dashboard"
-msgstr "Dashboard"
-
-msgid "Account"
-msgstr "Account"
-
-msgid "Deposit"
+#: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:18
+msgid "Are you sure you want to add custom payment?"
 msgstr ""
 
-msgid "Corporation"
-msgstr ""
-
-msgid "Payment Status"
-msgstr "Zahlungsstatus"
-
-msgid "Payment History"
-msgstr "Zahlungsverlauf"
-
-msgid "Own Payments"
-msgstr "Eigene Zahlungen"
-
-msgid "Corporations"
-msgstr "Corporationen"
-
+#: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:26
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:26
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:26
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:26
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:26
+#: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:25
+#: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:25
+#: taxsystem/templates/taxsystem/partials/form/required-field.html:4
 msgid "This field is required"
 msgstr "Dieses Feld ist erforderlich"
 
-msgid "Tax Amount:"
-msgstr "Steuer Betrag:"
+#: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:33
+#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:30
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:25
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:33
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:33
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:33
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:33
+#: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:32
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:25
+#: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:32
+msgid "Cancel"
+msgstr "Abbrechen"
 
-msgid "Click on the value to edit"
-msgstr "Klicke auf den Betrag um diesen zu bearbeiten"
-
-msgid "Tax Period:"
-msgstr "Steuerzeitraum:"
-
-msgid "Wallet Activity:"
-msgstr "Konto Aktivität:"
-
-msgid "Last 30 days"
-msgstr "Letzte 30 Tage"
-
-msgid "Filters:"
+#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:10
+msgid "Accept Payment request"
 msgstr ""
 
-msgid "Automatic Payments Filters"
-msgstr "Automatische Zahlungen Filter"
-
-msgid "Update Status:"
-msgstr "Update Status:"
-
-msgid "Last Wallet Update:"
-msgstr "Letztes Aktualisierung der Konten:"
-
-msgid "Last Division Update:"
-msgstr "Letzte Aktualisierung der Abteilungen:"
-
-msgid "Last Division Names Update:"
-msgstr "Letzte Aktualisierung der Abteilungsnamen:"
-
-msgid "Last Member Update:"
-msgstr "Letzte Aktualisierung der Mitglieder:"
-
-msgid "Last Payments Update:"
-msgstr "Letzte Aktualisierung der Zahlungen:"
-
-msgid "Last Payment System Update:"
-msgstr "Letzte Aktualisierung des Zahlungssystem:"
-
-msgid "Division Dashboard"
-msgstr "Abteilung Dashboard"
-
-msgid "Statistics Dashboard"
-msgstr "Statistiken Dashboard"
-
-msgid "Pending Payments"
-msgstr "Ausstehende Zahlungen"
-
-msgid "Automated Payments"
-msgstr "Automatische Zahlungen"
-
-msgid "Edited Payments"
-msgstr "Bearbeitete Zahlungen"
-
-msgid "Mains"
+#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:18
+msgid "Are you sure you want to approve this payment?"
 msgstr ""
 
-msgid "Alts"
+#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:35
+#, fuzzy
+#| msgid "Approve Payment"
+msgid "Accept Approve Payment request"
+msgstr "Zahlung freigeben"
+
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:30
+msgid "Accept Bulk Action request"
 msgstr ""
 
-msgid "Payment System Dashboard"
-msgstr "Zahlungssystem Dashboard"
-
-msgid "Accounts"
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:18
+msgid "Are you sure you want to perform this bulk action?"
 msgstr ""
 
-msgid "Active Accounts"
-msgstr "Aktive Accounts"
-
-msgid "Inactive Accounts"
-msgstr "Inaktive Accounts"
-
-msgid "Deactivated Accounts"
-msgstr "Deaktivierte Accounts"
-
-msgid "Tax Unpaid"
-msgstr "Steuer nicht Gezahlt"
-
-msgid "Name"
-msgstr "Name"
-
-msgid "Descriptions"
-msgstr "Beschreibungen"
-
-msgid "Info"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:10
+msgid "Accept Delete request"
 msgstr ""
 
-msgid "Character Name"
-msgstr "Charakter Name"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:18
+msgid "Are you sure you want to delete this filter set?"
+msgstr ""
 
-msgid "Joined"
-msgstr "Beigetreten"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:38
+#, fuzzy
+#| msgid "Delete Filter Set"
+msgid "Accept Delete Filter-Set request"
+msgstr "Lösche Filtersatz"
 
-msgid "Last Debit"
-msgstr "Letzte Abbuchung"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:18
+msgid "Are you sure you want to delete this filter?"
+msgstr ""
 
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:38
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:38
+#, fuzzy
+#| msgid "Delete Filter Set"
+msgid "Accept Delete Filter request"
+msgstr "Lösche Filtersatz"
+
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:18
+msgid "Are you sure you want to delete this member?"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:18
+msgid "Are you sure you want to delete this payment?"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:38
+msgid "Accept Delete Payment request"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:37
+#, fuzzy
+#| msgid "Reject Payment"
+msgid "Accept Reject Payment request"
+msgstr "Zahlung ablehnen"
+
+#: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:18
+msgid "Are you sure you want to reject this payment?"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:30
+msgid "Accept Switch Account request"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:18
+msgid "Are you sure you want to switch this account?"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:37
+#, fuzzy
+#| msgid "Undo Payment"
+msgid "Accept Undo Payment request"
+msgstr "Zahlung Rückgängig machen"
+
+#: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:18
+msgid "Are you sure you want to undo this payment?"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/modals/request-view-filter-set.html:10
+msgid "Filters"
+msgstr "Filter"
+
+#: taxsystem/templates/taxsystem/modals/request-view-payment-details.html:10
+#, fuzzy
+#| msgid "Account Status"
+msgid "Tax Account Details"
+msgstr "Account Status"
+
+#: taxsystem/templates/taxsystem/partials/navigation/administration.html:7
 msgid "Add Corporation"
 msgstr "Corporation hinzufügen"
 
+#: taxsystem/templates/taxsystem/partials/navigation/administration.html:12
+msgid "Add Alliance"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/navigation/administration.html:20
+#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:12
+#: taxsystem/views.py:395
 msgid "Manage Tax System"
 msgstr "Verwalte Steuer System"
 
+#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:6
+#: taxsystem/templates/taxsystem/view-my-payments.html:19
+msgid "Own Payments"
+msgstr "Eigene Zahlungen"
+
+#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:7
+#: taxsystem/views.py:286
 msgid "FAQ"
 msgstr ""
 
+#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:8
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:14
+#: taxsystem/views.py:344
+msgid "Account"
+msgstr "Account"
+
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:24
+#: taxsystem/templates/taxsystem/view-account.html:19
+msgid "Account Status"
+msgstr "Account Status"
+
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:31
 msgid "Balance Due"
 msgstr "Fälliger Saldo"
 
-msgid "No Corporations found."
-msgstr "Keine Corporationen gefunden."
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:36
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:65
+msgid "Payment Status"
+msgstr "Zahlungsstatus"
 
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:41
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:35
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:18
+msgid "Last Debit"
+msgstr "Letzte Abbuchung"
+
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:46
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:36
+msgid "Next Due"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:51
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:14
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:33
+msgid "Joined"
+msgstr "Beigetreten"
+
+#: taxsystem/templates/taxsystem/partials/view-account/account.html:55
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:15
+#, fuzzy
+#| msgid "Last Debit"
+msgid "Last Login"
+msgstr "Letzte Abbuchung"
+
+#: taxsystem/templates/taxsystem/partials/view-faq/faq.html:5
 msgid ""
 "Here you can find answers to the most common questions regarding the tax "
 "system."
 msgstr "Hier finden Sie Antworten auf die häufigsten Fragen zum Steuersystem."
 
+#: taxsystem/templates/taxsystem/partials/view-faq/faq.html:6
 msgid ""
 "If you have any further questions, please contact the tax administration."
 msgstr ""
 "Wenn Sie weitere Fragen haben, wenden Sie sich bitte an die tax verwalter."
 
+#: taxsystem/templates/taxsystem/partials/view-faq/faq.html:9
 msgid "How do I pay taxes?"
 msgstr "Wie zahle ich Steuern?"
 
+#: taxsystem/templates/taxsystem/partials/view-faq/faq.html:10
 msgid "Click Your Profile then Click the Corporation"
 msgstr "Klicken Sie auf Ihr Profil und dann auf „Corporation“"
 
+#: taxsystem/templates/taxsystem/partials/view-faq/faq.html:11
 msgid ""
 "Click on the three dots on the upper right on the Information Screen about "
 "your Corporation:"
@@ -596,128 +1141,598 @@ msgstr ""
 "Klicken Sie auf die drei Punkte oben rechts auf dem Informationsbildschirm "
 "zu Ihrer Corporation:"
 
+#: taxsystem/templates/taxsystem/partials/view-faq/faq.html:13
 msgid "Select 'Give Money':"
 msgstr "Wählen Sie „Geld spenden“:"
 
+#: taxsystem/templates/taxsystem/partials/view-faq/faq.html:15
 msgid "Enter the appropriate Amount and the Reason(case insensitive):"
 msgstr ""
-"Geben Sie den entsprechenden Betrag und den Grund ein "
-"(Groß-/Kleinschreibung spielt keine Rolle):"
+"Geben Sie den entsprechenden Betrag und den Grund ein (Groß-/Kleinschreibung "
+"spielt keine Rolle):"
 
-msgid "Incoming Payments"
-msgstr "Eingehende Zahlungen"
+#: taxsystem/templates/taxsystem/partials/view-filter-set/filter.html:9
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:37
+#: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:10
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:34
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:16
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:26
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:9
+msgid "Actions"
+msgstr "Aktionen"
 
-msgid "You do not have permission to access this page."
-msgstr "Du hast keine Berechtigung diese Seite zu sehen."
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:4
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:203
+msgid "Accounts"
+msgstr ""
 
-msgid "Queued Clear All ETags"
-msgstr "Alle zwischengespeicherten ETags löschen - in Warteschlange eingereiht"
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:9
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:11
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:4
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:6
+#, fuzzy
+#| msgid "Payment Status"
+msgid "Filter by Payment Status"
+msgstr "Zahlungsstatus"
 
-msgid "Queued Update All Taxsystem"
-msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
+msgid "All"
+msgstr ""
 
-msgid "Tax System Superuser Administration"
-msgstr "Steuersystem-Superuser-Verwaltung"
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:30
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:11
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:21
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:6
+msgid "Portrait"
+msgstr ""
 
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:31
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:31
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:22
+msgid "Character Name"
+msgstr "Charakter Name"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:33
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:17
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:48
+msgid "Deposit"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:8
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:8
+#, fuzzy
+#| msgid "Rejected"
+msgid "selected"
+msgstr "Abgewiesen"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:12
+#, fuzzy
+#| msgid "Deactivated Accounts"
+msgid "Activate selected accounts"
+msgstr "Deaktivierte Accounts"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:19
+#, fuzzy
+#| msgid "Deactivated Accounts"
+msgid "Deactivate selected tax accounts"
+msgstr "Deaktivierte Accounts"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:29
+#: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:31
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:36
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:38
+#, fuzzy
+#| msgid "Filter Set Description"
+msgid "Clear Selection"
+msgstr "Filtersatz Beschreibung"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:15
+msgid "Tax Amount:"
+msgstr "Steuer Betrag:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:17
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:24
+msgid "Click on the value to edit"
+msgstr "Klicke auf den Betrag um diesen zu bearbeiten"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:22
+msgid "Tax Period:"
+msgstr "Steuerzeitraum:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:29
+msgid "Wallet Activity:"
+msgstr "Konto Aktivität:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:31
+msgid "Last 30 days"
+msgstr "Letzte 30 Tage"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:36
+#, fuzzy
+#| msgid "Automatic Payments Filters"
+msgid "Payment Filters:"
+msgstr "Automatische Zahlungen Filter"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:38
+msgid "Automatic Payments Filters"
+msgstr "Automatische Zahlungen Filter"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:39
+#: taxsystem/views.py:441
 msgid "Manage Filters"
 msgstr "Filter verwalten"
 
-msgid "You do not have permission to manage this corporation."
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:52
+#, fuzzy
+#| msgid "Payment Information"
+msgid "Update Information"
+msgstr "Zahlungsinformation"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:59
+msgid "Update Status:"
+msgstr "Update Status:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:63
+msgid "Last Wallet Update:"
+msgstr "Letztes Aktualisierung der Konten:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:67
+msgid "Last Division Update:"
+msgstr "Letzte Aktualisierung der Abteilungen:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:71
+msgid "Last Division Names Update:"
+msgstr "Letzte Aktualisierung der Abteilungsnamen:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:75
+msgid "Last Member Update:"
+msgstr "Letzte Aktualisierung der Mitglieder:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:79
+msgid "Last Payments Update:"
+msgstr "Letzte Aktualisierung der Zahlungen:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:83
+#, fuzzy
+#| msgid "Last Division Names Update:"
+msgid "Last Tax Accounts Deadlines Update:"
+msgstr "Letzte Aktualisierung der Abteilungsnamen:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:96
+#, fuzzy
+#| msgid "Division"
+msgid "Divisions"
+msgstr "Abteilung"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:103
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:107
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:111
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:115
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:119
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:123
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:127
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:18
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:15
+msgid "Division"
+msgstr "Abteilung"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:137
+msgid "Total"
+msgstr "Gesamt"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:149
+#, fuzzy
+#| msgid "Statistics Dashboard"
+msgid "Statistics"
+msgstr "Statistiken Dashboard"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:160
+msgid "Pending Payments"
+msgstr "Ausstehende Zahlungen"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:164
+msgid "Automated Payments"
+msgstr "Automatische Zahlungen"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:168
+msgid "Edited Payments"
+msgstr "Bearbeitete Zahlungen"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:176
+msgid "Mains"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:180
+msgid "Alts"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:207
+msgid "Active Accounts"
+msgstr "Aktive Accounts"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:211
+msgid "Inactive Accounts"
+msgstr "Inaktive Accounts"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:215
+msgid "Deactivated Accounts"
+msgstr "Deaktivierte Accounts"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:223
+msgid "Tax Unpaid"
+msgstr "Steuer nicht Gezahlt"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:7
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:7
+msgid "Name"
+msgstr "Name"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:8
+msgid "Descriptions"
+msgstr "Beschreibungen"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:12
+#, fuzzy
+#| msgid "Account"
+msgid "Account Name"
+msgstr "Account"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:9
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:11
+msgid "Filter by Member Status"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8
+msgid "Payment Information"
+msgstr "Zahlungsinformation"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:33
+#, fuzzy
+#| msgid "Tax Amount:"
+msgid "Tax Account"
+msgstr "Steuer Betrag:"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:77
+msgid "Payment History"
+msgstr "Zahlungsverlauf"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:10
+#: taxsystem/templates/taxsystem/partials/view-my-payments/my-payments.html:7
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:23
+msgid "ISK"
+msgstr "ISK"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/payments.html:13
+msgid "Edited by"
+msgstr "Bearbeitet von"
+
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:12
+#, fuzzy
+#| msgid "Approve Payment"
+msgid "Approve selected payments"
+msgstr "Zahlung freigeben"
+
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:19
+#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:26
+#, fuzzy
+#| msgid "Reject Payment"
+msgid "Reject selected payments"
+msgstr "Zahlung ablehnen"
+
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:8
+msgid "Type"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:41
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:43
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:50
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:52
+#, fuzzy
+#| msgid "Manage Filters"
+msgid "Manage"
+msgstr "Filter verwalten"
+
+#: taxsystem/templates/taxsystem/taxsystem.html:8
+#: taxsystem/templates/taxsystem/taxsystem.html:20
+msgid "Overview"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/view-faq.html:19
+msgid "Frequently Asked Questions"
+msgstr "Häufig gestellte Fragen"
+
+#: taxsystem/templates/taxsystem/view-filter.html:18
+msgid "Filter Sets"
+msgstr "Filtersätze"
+
+#: taxsystem/templates/taxsystem/view-filter.html:27
+msgid "Filter Setup"
+msgstr "Filter Setup"
+
+#: taxsystem/templates/taxsystem/view-filter.html:40
+msgid "Add Filter"
+msgstr "Filter hinzufügen"
+
+#: taxsystem/templates/taxsystem/view-filter.html:53
+msgid "Add Filter Set"
+msgstr "Filtersatz Hinzufügen"
+
+#: taxsystem/templates/taxsystem/view-filter.html:66
+msgid "Edit Filter Set"
+msgstr "Filtersatz bearbeiten"
+
+#: taxsystem/templates/taxsystem/view-manage.html:50
+#, fuzzy
+#| msgid "Enter Tax Amount"
+msgid "Enter tax amount"
+msgstr "Steuerbetrag eingeben"
+
+#: taxsystem/templates/taxsystem/view-manage.html:51
+#, fuzzy
+#| msgid "Enter Tax Period"
+msgid "Enter tax period in days"
+msgstr "Steuerzeitraum eingeben"
+
+#: taxsystem/templates/taxsystem/view-manage.html:54
+#, fuzzy
+#| msgid "This field is required"
+msgid "This field is required."
+msgstr "Dieses Feld ist erforderlich"
+
+#: taxsystem/templates/taxsystem/view-manage.html:55
+#, fuzzy
+#| msgid "Please enter a valid number"
+msgid "Please enter a valid number."
+msgstr "Bitte gib einen gültigen Betrag ein"
+
+#: taxsystem/templates/taxsystem/view-manage.html:56
+msgid "Value must be at least 0."
+msgstr ""
+
+#: taxsystem/views.py:49
+msgid "You do not have permission to access this page."
+msgstr "Du hast keine Berechtigung diese Seite zu sehen."
+
+#: taxsystem/views.py:53
+msgid "Queued Update All Taxsystem"
+msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
+
+#: taxsystem/views.py:68
+#, python-format
+msgid "Queued Update for Corporation: %s"
+msgstr ""
+
+#: taxsystem/views.py:78
+#, fuzzy, python-format
+#| msgid "No Corporations found."
+msgid "Corporation with ID %s not found"
+msgstr "Keine Corporationen gefunden."
+
+#: taxsystem/views.py:81
+#, fuzzy
+#| msgid "Queued Update All Taxsystem"
+msgid "Queued Update All Taxsystem Corporations"
+msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
+
+#: taxsystem/views.py:98
+#, fuzzy, python-format
+#| msgid "Queued Update All Taxsystem"
+msgid "Queued Update for Alliance: %s"
+msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
+
+#: taxsystem/views.py:108
+#, python-format
+msgid "Alliance with ID %s not found"
+msgstr ""
+
+#: taxsystem/views.py:111
+#, fuzzy
+#| msgid "Queued Update All Taxsystem"
+msgid "Queued Update All Taxsystem Alliances"
+msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
+
+#: taxsystem/views.py:131
+msgid "Tax System Superuser Administration"
+msgstr "Steuersystem-Superuser-Verwaltung"
+
+#: taxsystem/views.py:159
+msgid "Corporation"
+msgstr ""
+
+#: taxsystem/views.py:182
+msgid "Alliance"
+msgstr ""
+
+#: taxsystem/views.py:198
+#, fuzzy
+#| msgid "Tax System Audit"
+msgid "TaxSystem Overview"
+msgstr "Steuer System Audit"
+
+#: taxsystem/views.py:258
+#, fuzzy
+#| msgid "Payments"
+msgid "My Payments"
+msgstr "Zahlungen"
+
+#: taxsystem/views.py:313
+#, fuzzy
+#| msgid "No Filter found."
+msgid "No User found."
+msgstr "Kein Filter gefunden."
+
+#: taxsystem/views.py:334
+#, fuzzy
+#| msgid "No character found."
+msgid "No Tax Account found."
+msgstr "Kein Charakter gefunden."
+
+#: taxsystem/views.py:433
+#, fuzzy
+#| msgid "You do not have permission to manage this corporation."
+msgid "You do not have permission to manage this owner."
 msgstr "Du hast keine Berechtigung diese Corporation zu verwalten."
 
-msgid "A filter with this name already exists."
+#: taxsystem/views.py:479
+#, fuzzy, python-brace-format
+#| msgid "A filter with this name already exists."
+msgid "A Filter with {filter} already exists."
 msgstr "Ein Filter mit diesem Namen existiert bereits."
 
+#: taxsystem/views.py:485 taxsystem/views.py:506
 msgid "Something went wrong, please try again later."
 msgstr "Es ist ein Fehler aufgetreten, bitte versuchen Sie es später erneut."
 
+#: taxsystem/views.py:501
 msgid "A filter set with this name already exists."
 msgstr "Ein Filtersatz mit diesem Namen existiert bereits."
 
-msgid "Deactivate Filter Set"
-msgstr "Deaktiviere Filtersatz"
-
-#, python-brace-format
-msgid "Filter set switched to {filter_set.enabled} successfully."
-msgstr "Filterset erfolgreich auf {filter_set.enabled} umgeschaltet."
-
-#, python-brace-format
-msgid "{filter_set.name} from {owner.name} deleted"
-msgstr "{filter_set.name} von {owner.name} gelöscht"
-
-msgid "Filter set deleted successfully."
-msgstr "Filtersatz wurde erfolgreich gelöscht."
-
-msgid "Delete Filter Set"
-msgstr "Lösche Filtersatz"
-
-msgid "Invalid Method"
-msgstr "Ungültige methode"
-
-msgid "Permission Denied"
-msgstr "Zugriff verweigert"
-
-msgid ""
-"{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} "
-"deleted - {form.cleaned_data['delete_reason']}"
-msgstr ""
-"{filter_obj.filter_type}({filter_obj.value}) aus {filter_obj.filter_set} "
-"gelöscht – {form.cleaned_data[‚delete_reason‘]}"
-
-msgid "Filter set updated successfully."
-msgstr "Filtersatz aktualisierungen erfolgreich abgeschlossen."
-
-msgid "No Corporation found."
-msgstr "Keine Corporationen gefunden."
-
+#: taxsystem/views.py:541
 msgid "Added to Tax System"
 msgstr "Zum Steuersystem hinzugefügt"
 
+#: taxsystem/views.py:547
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
 msgstr ""
 "{corporation_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
+#: taxsystem/views.py:587
 #, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
-msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} genehmigt"
+msgid "Added Alliance to Tax System with Corporation {corp}"
+msgstr ""
 
-msgid "Transaction failed. Please try again."
-msgstr "Transaktion fehlgeschlagen. Versuche es später erneut."
+#: taxsystem/views.py:595
+#, fuzzy, python-brace-format
+#| msgid "{corporation_name} successfully added/updated to Tax System"
+msgid "{alliance_name} successfully added/updated to Tax System"
+msgstr ""
+"{corporation_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+
+#~ msgid "Payment Details"
+#~ msgstr "Zahlungsdetails"
+
+#~ msgid "View Payment Details"
+#~ msgstr "Zeige Zahlungsdetails"
+
+#~ msgid "Yes"
+#~ msgstr "Ja"
+
+#~ msgid "No"
+#~ msgstr "Nein"
+
+#~ msgid "Are you sure to Confirm"
+#~ msgstr "Sind Sie sicher, dass Sie bestätigen möchten"
+
+#~ msgid "Delete Member"
+#~ msgstr "Lösche Mitglied"
+
+#~ msgid "from"
+#~ msgstr "von"
+
+#~ msgid "View Payments"
+#~ msgstr "Zeige Zahlungen"
+
+#~ msgid "Deactivate"
+#~ msgstr "Deaktiviere"
+
+#~ msgid "Deactivate User"
+#~ msgstr "Deaktiviere Benutzer"
+
+#~ msgid "Activate"
+#~ msgstr "Aktiviere"
+
+#~ msgid "Activate User"
+#~ msgstr "Aktiviere Benutzer"
+
+#~ msgid "Payment System"
+#~ msgstr "Zahlungs System"
+
+#~ msgid "Payday"
+#~ msgstr "Zahltag"
+
+#~ msgid "Tax Member System"
+#~ msgstr "Steuer Mitglied System"
+
+#~ msgid "Tax Member Systems"
+#~ msgstr "Steuer Mitglied Systeme"
+
+#~ msgid "Tax Payment System"
+#~ msgstr "Steuer Zahlungs System"
+
+#~ msgid "Tax Payment Systems"
+#~ msgstr "Steuer Zahlungs Systeme"
+
+#~ msgid "Tax Payments"
+#~ msgstr "Steuer Zahlungen"
+
+#~ msgid "Corporation Overview"
+#~ msgstr "Corporation Übersicht"
+
+#~ msgid "Show"
+#~ msgstr "Zeige"
+
+#~ msgid "No Permission"
+#~ msgstr "Keine Berechtigung"
+
+#~ msgid "Confirm"
+#~ msgstr "Bestätigen"
+
+#~ msgid "Payment Account"
+#~ msgstr "Zahlungs Account"
+
+#~ msgid "Dashboard"
+#~ msgstr "Dashboard"
+
+#~ msgid "Last Payment System Update:"
+#~ msgstr "Letzte Aktualisierung des Zahlungssystem:"
+
+#~ msgid "Division Dashboard"
+#~ msgstr "Abteilung Dashboard"
+
+#~ msgid "Payment System Dashboard"
+#~ msgstr "Zahlungssystem Dashboard"
+
+#~ msgid "Incoming Payments"
+#~ msgstr "Eingehende Zahlungen"
+
+#~ msgid "Queued Clear All ETags"
+#~ msgstr ""
+#~ "Alle zwischengespeicherten ETags löschen - in Warteschlange eingereiht"
 
 #, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
-msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} Rückgängig gemacht"
+#~ msgid "{filter_set.name} from {owner.name} deleted"
+#~ msgstr "{filter_set.name} von {owner.name} gelöscht"
 
-#, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected"
-msgstr "Zahlungs ID: {pid} - Betrag {amount} - Name: {name} abgelehnt"
+#~ msgid "Filter set deleted successfully."
+#~ msgstr "Filtersatz wurde erfolgreich gelöscht."
+
+#~ msgid ""
+#~ "{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} "
+#~ "deleted - {form.cleaned_data['delete_reason']}"
+#~ msgstr ""
+#~ "{filter_obj.filter_type}({filter_obj.value}) aus {filter_obj.filter_set} "
+#~ "gelöscht – {form.cleaned_data[‚delete_reason‘]}"
+
+#~ msgid "Filter set updated successfully."
+#~ msgstr "Filtersatz aktualisierungen erfolgreich abgeschlossen."
 
 #, python-format
-msgid "Payment System User: %s deactivated"
-msgstr "Zahlungssystem Benutzer %s deaktiviert"
+#~ msgid "Payment System User: %s deactivated"
+#~ msgstr "Zahlungssystem Benutzer %s deaktiviert"
 
 #, python-format
-msgid "Payment System User: %s activated"
-msgstr "Zahlungssystem Benutzer %s aktiviert"
-
-msgid "Please enter a valid number"
-msgstr "Bitte gib einen gültigen Betrag ein"
+#~ msgid "Payment System User: %s activated"
+#~ msgstr "Zahlungssystem Benutzer %s aktiviert"
 
 #, python-brace-format
-msgid "Tax Amount from {corp.name} updated to {value}"
-msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
+#~ msgid "Tax Amount from {corp.name} updated to {value}"
+#~ msgstr "Steuerbetrag von {corp.name} aktualisiert auf {value}"
 
-msgid "Invalid request method"
-msgstr "Ungültige anfragen methode"
-
-#, python-brace-format
-msgid "Tax Period from {corp.name} updated to {value}"
-msgstr "Steuer Periode von {corp.name} aktualisiert auf {value}"
-
-#, python-brace-format
-msgid "Member {member.character_name} deleted - {reason}"
-msgstr "Mitglied {member.character_name} gelöscht – {reason}"
+#~ msgid "Invalid request method"
+#~ msgstr "Ungültige anfragen methode"
 
 #, python-format
 #~ msgid "Payment ID: %s - Amount: %s - Name: %s rejected"
