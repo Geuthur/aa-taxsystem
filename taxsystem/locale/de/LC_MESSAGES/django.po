@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-12-21 15:56+0100\n"
-"PO-Revision-Date: 2025-12-21 15:55+0000\n"
+"PO-Revision-Date: 2025-12-21 16:03+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/"
@@ -999,7 +999,7 @@ msgstr "Letzte Abbuchung"
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:46
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:36
 msgid "Next Due"
-msgstr "Nächster Fälligkeitstermin"
+msgstr "Nächste Fälligkeit"
 
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:51
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:14
@@ -1161,7 +1161,7 @@ msgstr "Update Status:"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:63
 msgid "Last Wallet Update:"
-msgstr "Letztes Aktualisierung der Konten:"
+msgstr "Letzte Aktualisierung der Konten:"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:67
 msgid "Last Division Update:"
@@ -1181,7 +1181,7 @@ msgstr "Letzte Aktualisierung der Zahlungen:"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:83
 msgid "Last Tax Accounts Deadlines Update:"
-msgstr "Aktualisierung der letzten Fristen für Steuererklärungen:"
+msgstr "Letzte aktualisierung der Fristen:"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:96
 msgid "Divisions"
