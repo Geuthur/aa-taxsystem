@@ -161,7 +161,6 @@ class AdminApiEndpoints:
             for account in tax_accounts:
                 # Build tax account data
                 tax_account_data = PaymentSystemSchema(
-                    payment_id=account.pk,
                     account=AccountSchema(
                         character_id=account.user.profile.main_character.character_id,
                         character_name=account.user.profile.main_character.character_name,
