@@ -387,7 +387,9 @@ class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             return self.filter(owner=owner)
 
         if user.has_perm("taxsystem.manage_corps"):
-            logger.debug("Returning all payments for Tax Audit Manager %s.", user)
+            logger.debug(
+                "Returning all corporation payments for Tax Audit Manager %s.", user
+            )
             return self.filter(owner=owner)
         try:
             char = user.profile.main_character
@@ -395,7 +397,7 @@ class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             queries = [models.Q(owner=owner, account__user=user)]
 
             if user.has_perm("taxsystem.manage_own_corp"):
-                logger.debug("Returning own corp payments for %s.", user)
+                logger.debug("Returning own corporation payments for %s.", user)
                 queries.append(models.Q(owner=owner))
             logger.debug(
                 "%s queries for user %s visible corporation.", len(queries), user

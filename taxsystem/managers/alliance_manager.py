@@ -6,7 +6,7 @@ from django.db import models, transaction
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.authentication.models import UserProfile
+from allianceauth.authentication.models import User, UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
@@ -371,7 +371,49 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         return ("Finished payment deadlines for %s", owner.name)
 
 
+class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
+    # pylint: disable=duplicate-code
+    def visible_to(self, user: User, owner: "OwnerContext"):
+        """Return visible payments for the user depending on their permissions."""
+        # superusers get all visible
+        if user.is_superuser:
+            logger.debug(
+                "Returning all payments for superuser %s.",
+                user,
+            )
+            return self.filter(owner=owner)
+
+        if user.has_perm("taxsystem.manage_alliances"):
+            logger.debug(
+                "Returning all alliance payments for Tax Audit Manager %s.", user
+            )
+            return self.filter(owner=owner)
+        try:
+            char = user.profile.main_character
+            assert char
+            queries = [models.Q(owner=owner, account__user=user)]
+
+            if user.has_perm("taxsystem.manage_own_alliance"):
+                logger.debug("Returning own alliance payments for %s.", user)
+                queries.append(models.Q(owner=owner))
+            logger.debug("%s queries for user %s visible alliance.", len(queries), user)
+
+            query = queries.pop()
+            for q in queries:
+                query |= q
+            return self.filter(query)
+        except AssertionError:
+            logger.debug("User %s has no main character. Nothing visible.", user)
+            return self.none()
+
+
 class AlliancePaymentManager(models.Manager["PaymentsContext"]):
+    def get_queryset(self):
+        return AlliancePaymentsQuerySet(self.model, using=self._db)
+
+    def get_visible(self, user: User, owner: "OwnerContext"):
+        return self.get_queryset().visible_to(user=user, owner=owner)
+
     @log_timing(logger)
     def update_or_create_payments(
         self, owner: "OwnerContext", force_refresh: bool = False
