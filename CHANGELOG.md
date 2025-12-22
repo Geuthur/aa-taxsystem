@@ -11,6 +11,16 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0-beta.5] - 2025-12-22
+
+### Fixed
+
+- AttributeError: 'NoneType' object has no attribute 'character_id' in Payments Situations
+
+### Added
+
+- Beta Migration Command for Beta Tester (will be deleted with Release v2.0.0)
+
 ## [2.0.0-beta.4] - 2025-12-21
 
 > [!WARNING]
