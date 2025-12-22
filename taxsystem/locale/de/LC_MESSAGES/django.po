@@ -60,6 +60,7 @@ msgstr ""
 #: taxsystem/api/payments.py:628 taxsystem/api/payments.py:718
 #: taxsystem/views.py:219 taxsystem/views.py:249 taxsystem/views.py:277
 #: taxsystem/views.py:321 taxsystem/views.py:386
+#: taxsystem/api/admin.py:142
 msgid "Owner not Found."
 msgstr "Inhaber nicht gefunden."
 
@@ -78,10 +79,6 @@ msgstr "Inhaber nicht gefunden."
 #: taxsystem/views.py:325 taxsystem/views.py:390
 msgid "Permission Denied."
 msgstr "Zugriff verweigert."
-
-#: taxsystem/api/admin.py:142
-msgid "Owner Not Found"
-msgstr ""
 
 #: taxsystem/api/admin.py:228
 msgid "Account not found."
