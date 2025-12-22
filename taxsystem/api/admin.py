@@ -139,7 +139,7 @@ class AdminApiEndpoints:
             owner, perms = core.get_manage_owner(request, owner_id)
 
             if owner is None:
-                return 404, {"error": _("Owner Not Found")}
+                return 404, {"error": _("Owner not Found.")}
 
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
