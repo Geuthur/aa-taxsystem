@@ -14,6 +14,7 @@ from taxsystem.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
+# pylint: disable=duplicate-code
 class Command(BaseCommand):
     help = "Migrate Corporations to new Payments Model"
 
