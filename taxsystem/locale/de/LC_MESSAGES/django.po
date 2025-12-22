@@ -8,17 +8,17 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-12-21 15:56+0100\n"
-"PO-Revision-Date: 2025-12-21 16:03+0000\n"
+"PO-Revision-Date: 2025-12-22 06:58+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.voices-of-"
 "war.de>\n"
-"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/"
-"aa-taxsystem/de/>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
+"taxsystem/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13.3\n"
+"X-Generator: Weblate 5.15.1\n"
 
 #: taxsystem/admin.py:78 taxsystem/admin.py:161
 msgid "last update run"
@@ -39,7 +39,7 @@ msgstr ""
 
 #: taxsystem/admin.py:173
 msgid "Force update selected alliances"
-msgstr ""
+msgstr "Ausgewählte Allianzen zwangsweise aktualisieren"
 
 #: taxsystem/admin.py:184
 #, python-brace-format
@@ -47,6 +47,8 @@ msgid ""
 "Started force update for {count} alliance(s). Updates will run in the "
 "background."
 msgstr ""
+"Die erzwungene Aktualisierung für {count} Allianz(en) wurde gestartet. Die "
+"Aktualisierungen werden im Hintergrund ausgeführt."
 
 #: taxsystem/api/admin.py:81 taxsystem/api/admin.py:217
 #: taxsystem/api/admin.py:279 taxsystem/api/admin.py:339
@@ -389,7 +391,7 @@ msgstr "Die Corporation, das dieses Allianzsteuersystem besitzt."
 
 #: taxsystem/models/alliance.py:92
 msgid "Designates whether this alliance owner is active."
-msgstr "Gibt an, ob dieser Allianzbesitzer aktiv ist."
+msgstr "Gibt an, ob dieser Allianzinhaber aktiv ist."
 
 #: taxsystem/models/alliance.py:98
 msgid "Tax Amount in ISK that is set for the alliance. Max 16 Digits"
@@ -428,7 +430,7 @@ msgstr "Inhaber"
 
 #: taxsystem/models/alliance.py:376 taxsystem/models/corporation.py:522
 msgid "Owner that the action was performed on"
-msgstr "Eigentümer, an dem die Aktion durchgeführt wurde"
+msgstr "Inhaber, an dem die Aktion durchgeführt wurde"
 
 #: taxsystem/models/alliance.py:385 taxsystem/models/base.py:409
 #: taxsystem/models/corporation.py:532
@@ -497,7 +499,7 @@ msgstr "Kommentar der Aktion"
 
 #: taxsystem/models/corporation.py:92
 msgid "Designates whether this corporation owner is active."
-msgstr "Gibt an, ob dieser Corporation inhaber aktiv ist."
+msgstr "Gibt an, ob dieser Corporation Inhaber aktiv ist."
 
 #: taxsystem/models/corporation.py:98
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
@@ -937,7 +939,7 @@ msgstr "Möchten Sie diese Zahlung wirklich rückgängig machen?"
 
 #: taxsystem/templates/taxsystem/modals/request-view-filter-set.html:10
 msgid "Filters"
-msgstr "Filter"
+msgstr "Filters"
 
 #: taxsystem/templates/taxsystem/modals/request-view-payment-details.html:10
 msgid "Tax Account Details"
@@ -965,7 +967,7 @@ msgstr "Eigene Zahlungen"
 #: taxsystem/templates/taxsystem/partials/navigation/navigation.html:7
 #: taxsystem/views.py:286
 msgid "FAQ"
-msgstr ""
+msgstr "FAQ"
 
 #: taxsystem/templates/taxsystem/partials/navigation/navigation.html:8
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:14
@@ -1060,7 +1062,7 @@ msgstr "Aktionen"
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:4
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:203
 msgid "Accounts"
-msgstr ""
+msgstr "Konten"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:9
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:11
@@ -1092,7 +1094,7 @@ msgstr "Charakter Name"
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:17
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:48
 msgid "Deposit"
-msgstr ""
+msgstr "Einlage"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:8
 #: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:8
@@ -1218,11 +1220,11 @@ msgstr "Bearbeitete Zahlungen"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:176
 msgid "Mains"
-msgstr ""
+msgstr "Hauptcharaktere"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:180
 msgid "Alts"
-msgstr ""
+msgstr "Sekundärcharaktere"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:207
 msgid "Active Accounts"
@@ -1365,7 +1367,7 @@ msgstr "Aktualisierung für Corporation in der Warteschlange: %s"
 #: taxsystem/views.py:78
 #, python-format
 msgid "Corporation with ID %s not found"
-msgstr "Unternehmen mit ID %s nicht gefunden"
+msgstr "Corporation mit ID %s nicht gefunden"
 
 #: taxsystem/views.py:81
 msgid "Queued Update All Taxsystem Corporations"
@@ -1391,7 +1393,7 @@ msgstr "Steuersystem-Superuser-Verwaltung"
 
 #: taxsystem/views.py:159
 msgid "Corporation"
-msgstr ""
+msgstr "Corporation"
 
 #: taxsystem/views.py:182
 msgid "Alliance"
@@ -1415,7 +1417,7 @@ msgstr "Kein Steuerkonto gefunden."
 
 #: taxsystem/views.py:433
 msgid "You do not have permission to manage this owner."
-msgstr "Sie haben keine Berechtigung, diesen Eigentümer zu verwalten."
+msgstr "Sie haben keine Berechtigung, diesen Inhaber zu verwalten."
 
 #: taxsystem/views.py:479
 #, python-brace-format
