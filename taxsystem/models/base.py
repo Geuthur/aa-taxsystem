@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.authentication.models import OwnershipRecord, User
+from allianceauth.authentication.models import User
 from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
@@ -93,17 +93,16 @@ class PaymentsBaseModel(models.Model):
     @property
     def character_id(self) -> int:
         """
-        Return the character ID or first OwnershipRecord from user who made the payment.
+        Returns Main Character ID or Journal Character ID associated with this payment.
 
         Returns:
             int: Character ID
         """
         try:
             character_id = self.account.user.profile.main_character.character_id
+            return character_id
         except AttributeError:
-            character = OwnershipRecord.objects.filter(user=self.account.user).first()
-            character_id = character.character.character_id
-        return character_id
+            return self.journal.first_party_id
 
     @property
     def division_name(self) -> "CorporationWalletJournalEntry":

@@ -521,7 +521,7 @@ def get_payments_approve_button(payment: CorporationPayments | AlliancePayments)
         "taxsystem:api:get_member_payments",
         kwargs={
             "owner_id": payment.account.owner.eve_id,
-            "character_id": payment.account.user.profile.main_character.character_id,
+            "character_id": payment.character_id,
         },
     )
 
@@ -570,7 +570,7 @@ def get_payments_undo_button(payment: CorporationPayments | AlliancePayments) ->
         "taxsystem:api:get_member_payments",
         kwargs={
             "owner_id": payment.account.owner.eve_id,
-            "character_id": payment.account.user.profile.main_character.character_id,
+            "character_id": payment.character_id,
         },
     )
 
@@ -619,7 +619,7 @@ def get_payments_info_button(payment: CorporationPayments | AlliancePayments) ->
         "taxsystem:api:get_member_payments",
         kwargs={
             "owner_id": payment.account.owner.eve_id,
-            "character_id": payment.account.user.profile.main_character.character_id,
+            "character_id": payment.character_id,
         },
     )
 
@@ -668,7 +668,7 @@ def get_payments_delete_button(payment: CorporationPayments | AlliancePayments) 
         "taxsystem:api:get_member_payments",
         kwargs={
             "owner_id": payment.account.owner.eve_id,
-            "character_id": payment.account.user.profile.main_character.character_id,
+            "character_id": payment.character_id,
         },
     )
 
@@ -717,7 +717,7 @@ def get_payments_reject_button(payment: CorporationPayments | AlliancePayments) 
         "taxsystem:api:get_member_payments",
         kwargs={
             "owner_id": payment.account.owner.eve_id,
-            "character_id": payment.account.user.profile.main_character.character_id,
+            "character_id": payment.character_id,
         },
     )
 
