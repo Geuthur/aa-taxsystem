@@ -1,11 +1,6 @@
-# Makefile for AA Taxsystem
-
 # Specify the shell to be used for executing the commands in this Makefile.
 # In this case, it is set to /bin/bash.
 SHELL := /bin/bash
-
-# Resolve the AllianceAuth Django project path.
-myauth_path = $(shell path=$$(cat .make/myauth-path 2>/dev/null | grep . || echo "../myauth"); echo "$${path%/}")
 
 # Variables
 appname = aa-taxsystem
