@@ -11,6 +11,12 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0-beta.6] - 2025-12-22
+
+### Fixed
+
+- missing get_visible for Alliance Payments
+
 ## [2.0.0-beta.5] - 2025-12-22
 
 ### Fixed
