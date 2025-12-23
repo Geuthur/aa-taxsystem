@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System \n"
+"Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-12-23 02:11+0100\n"
-"PO-Revision-Date: 2025-12-23 01:10+0000\n"
+"PO-Revision-Date: 2025-12-23 01:13+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.geuthur.de>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
@@ -611,8 +611,6 @@ msgid "Deactivated"
 msgstr "Deaktiviert"
 
 #: taxsystem/models/helpers/textchoices.py:120
-#, fuzzy
-#| msgid "Approved"
 msgid "approved"
 msgstr "Genehmigt"
 
@@ -626,8 +624,6 @@ msgid "rejected"
 msgstr "Abgewiesen"
 
 #: taxsystem/models/helpers/textchoices.py:123
-#, fuzzy
-#| msgid "Requires Auditor"
 msgid "requires auditor"
 msgstr "Benötigt Prüfer"
 
@@ -711,20 +707,14 @@ msgid "Deadlines"
 msgstr "Fristen"
 
 #: taxsystem/models/helpers/textchoices.py:207
-#, fuzzy
-#| msgid "Added"
 msgid "added"
 msgstr "Hinzugefügt"
 
 #: taxsystem/models/helpers/textchoices.py:208
-#, fuzzy
-#| msgid "Changed"
 msgid "changed"
 msgstr "Geändert"
 
 #: taxsystem/models/helpers/textchoices.py:209
-#, fuzzy
-#| msgid "Deleted"
 msgid "deleted"
 msgstr "Gelöscht"
 
@@ -1284,8 +1274,6 @@ msgid "Edited by"
 msgstr "Bearbeitet von"
 
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
-#, fuzzy
-#| msgid "All"
 msgid "all"
 msgstr "Alle"
 
