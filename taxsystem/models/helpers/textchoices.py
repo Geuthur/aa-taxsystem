@@ -80,10 +80,10 @@ class AccountStatus(models.TextChoices):
     This indicates the current status of a tax account.
     """
 
-    ACTIVE = "active", _("Active")
-    INACTIVE = "inactive", _("Inactive")
-    DEACTIVATED = "deactivated", _("Deactivated")
-    MISSING = "missing", _("Missing")
+    ACTIVE = "active", _("active")
+    INACTIVE = "inactive", _("inactive")
+    DEACTIVATED = "deactivated", _("deactivated")
+    MISSING = "missing", _("missing")
 
     def html(self, text=False) -> mark_safe:
         """Return the HTML for the status."""

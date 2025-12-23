@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-23 02:11+0100\n"
+"POT-Creation-Date: 2025-12-23 02:22+0100\n"
 "PO-Revision-Date: 2025-12-23 01:13+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.geuthur.de>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -167,14 +167,12 @@ msgstr "Filterset aktivieren"
 msgid "Delete Filter Set"
 msgstr "Lösche Filtersatz"
 
-#: taxsystem/api/helpers/icons.py:306 taxsystem/models/corporation.py:307
-#: taxsystem/models/helpers/textchoices.py:83
+#: taxsystem/api/helpers/icons.py:306
 #: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:9
 msgid "Active"
 msgstr "Aktiv"
 
 #: taxsystem/api/helpers/icons.py:310
-#: taxsystem/models/helpers/textchoices.py:84
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
 msgid "Inactive"
 msgstr "Inaktiv"
@@ -506,21 +504,31 @@ msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 "Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
 
+#: taxsystem/models/corporation.py:307
+#: taxsystem/models/helpers/textchoices.py:83
+#, fuzzy
+#| msgid "Inactive"
+msgid "active"
+msgstr "Inaktiv"
+
 #: taxsystem/models/corporation.py:308
 #: taxsystem/models/helpers/textchoices.py:86
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
-msgid "Missing"
+#, fuzzy
+#| msgid "Missing"
+msgid "missing"
 msgstr "Vermisst"
 
 #: taxsystem/models/corporation.py:309
-#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
-msgid "Unregistered"
+#, fuzzy
+#| msgid "Unregistered"
+msgid "unregistered"
 msgstr "Nicht Registriert"
 
 #: taxsystem/models/corporation.py:310
-msgid "Is Alt"
-msgstr "Ist Alt"
+msgid "is alt"
+msgstr ""
 
 #: taxsystem/models/corporation.py:321
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:32
@@ -606,8 +614,16 @@ msgstr "Ein Fehler trat während des Update auf"
 msgid "Updates completed successfully"
 msgstr "Aktualisierungen erfolgreich abgeschlossen"
 
+#: taxsystem/models/helpers/textchoices.py:84
+#, fuzzy
+#| msgid "Inactive"
+msgid "inactive"
+msgstr "Inaktiv"
+
 #: taxsystem/models/helpers/textchoices.py:85
-msgid "Deactivated"
+#, fuzzy
+#| msgid "Deactivated"
+msgid "deactivated"
 msgstr "Deaktiviert"
 
 #: taxsystem/models/helpers/textchoices.py:120
@@ -1067,7 +1083,6 @@ msgid "Filter by Payment Status"
 msgstr "Nach Zahlungsstatus filtern"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
 msgid "All"
 msgstr "Alle"
 
@@ -1217,6 +1232,10 @@ msgstr "Hauptcharaktere"
 msgid "Alts"
 msgstr "Sekundärcharaktere"
 
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
+msgid "Unregistered"
+msgstr "Nicht Registriert"
+
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:207
 msgid "Active Accounts"
 msgstr "Aktive Accounts"
@@ -1251,6 +1270,11 @@ msgstr "Kontoname"
 msgid "Filter by Member Status"
 msgstr "Nach Mitgliedsstatus filtern"
 
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
+msgid "all"
+msgstr "Alle"
+
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8
 msgid "Payment Information"
 msgstr "Zahlungsinformation"
@@ -1272,10 +1296,6 @@ msgstr "ISK"
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:13
 msgid "Edited by"
 msgstr "Bearbeitet von"
-
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
-msgid "all"
-msgstr "Alle"
 
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:8
 msgid "Type"
@@ -1438,6 +1458,9 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+
+#~ msgid "Is Alt"
+#~ msgstr "Ist Alt"
 
 #~ msgid "Approve selected payments"
 #~ msgstr "Ausgewählte Zahlungen genehmigen"

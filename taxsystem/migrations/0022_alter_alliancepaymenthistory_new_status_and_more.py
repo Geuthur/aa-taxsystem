@@ -106,4 +106,50 @@ class Migration(migrations.Migration):
                 verbose_name="Action",
             ),
         ),
+        migrations.AlterField(
+            model_name="alliancepaymentaccount",
+            name="status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("active", "active"),
+                    ("inactive", "inactive"),
+                    ("deactivated", "deactivated"),
+                    ("missing", "missing"),
+                ],
+                default="active",
+                max_length=16,
+            ),
+        ),
+        migrations.AlterField(
+            model_name="corporationpaymentaccount",
+            name="status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("active", "active"),
+                    ("inactive", "inactive"),
+                    ("deactivated", "deactivated"),
+                    ("missing", "missing"),
+                ],
+                default="active",
+                max_length=16,
+            ),
+        ),
+        migrations.AlterField(
+            model_name="members",
+            name="status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("active", "active"),
+                    ("missing", "missing"),
+                    ("noaccount", "unregistered"),
+                    ("is_alt", "is alt"),
+                ],
+                default="active",
+                max_length=10,
+                verbose_name="Status",
+            ),
+        ),
     ]

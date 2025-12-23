@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-23 02:11+0100\n"
+"POT-Creation-Date: 2025-12-23 02:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,14 +163,12 @@ msgstr ""
 msgid "Delete Filter Set"
 msgstr ""
 
-#: taxsystem/api/helpers/icons.py:306 taxsystem/models/corporation.py:307
-#: taxsystem/models/helpers/textchoices.py:83
+#: taxsystem/api/helpers/icons.py:306
 #: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:9
 msgid "Active"
 msgstr ""
 
 #: taxsystem/api/helpers/icons.py:310
-#: taxsystem/models/helpers/textchoices.py:84
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
 msgid "Inactive"
 msgstr ""
@@ -497,20 +495,24 @@ msgstr ""
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 
+#: taxsystem/models/corporation.py:307
+#: taxsystem/models/helpers/textchoices.py:83
+msgid "active"
+msgstr ""
+
 #: taxsystem/models/corporation.py:308
 #: taxsystem/models/helpers/textchoices.py:86
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
-msgid "Missing"
+msgid "missing"
 msgstr ""
 
 #: taxsystem/models/corporation.py:309
-#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
-msgid "Unregistered"
+msgid "unregistered"
 msgstr ""
 
 #: taxsystem/models/corporation.py:310
-msgid "Is Alt"
+msgid "is alt"
 msgstr ""
 
 #: taxsystem/models/corporation.py:321
@@ -597,8 +599,12 @@ msgstr ""
 msgid "Updates completed successfully"
 msgstr ""
 
+#: taxsystem/models/helpers/textchoices.py:84
+msgid "inactive"
+msgstr ""
+
 #: taxsystem/models/helpers/textchoices.py:85
-msgid "Deactivated"
+msgid "deactivated"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:120
@@ -1052,7 +1058,6 @@ msgid "Filter by Payment Status"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
 msgid "All"
 msgstr ""
 
@@ -1202,6 +1207,10 @@ msgstr ""
 msgid "Alts"
 msgstr ""
 
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
+msgid "Unregistered"
+msgstr ""
+
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:207
 msgid "Active Accounts"
 msgstr ""
@@ -1236,6 +1245,11 @@ msgstr ""
 msgid "Filter by Member Status"
 msgstr ""
 
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
+msgid "all"
+msgstr ""
+
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8
 msgid "Payment Information"
 msgstr ""
@@ -1256,10 +1270,6 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:13
 msgid "Edited by"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
-msgid "all"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:8

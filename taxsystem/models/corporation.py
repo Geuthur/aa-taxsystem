@@ -304,10 +304,10 @@ class Members(models.Model):
     objects: MembersManager = MembersManager()
 
     class States(models.TextChoices):
-        ACTIVE = "active", _("Active")
-        MISSING = "missing", _("Missing")
-        NOACCOUNT = "noaccount", _("Unregistered")
-        IS_ALT = "is_alt", _("Is Alt")
+        ACTIVE = "active", _("active")
+        MISSING = "missing", _("missing")
+        NOACCOUNT = "noaccount", _("unregistered")
+        IS_ALT = "is_alt", _("is alt")
 
     character_name = models.CharField(max_length=100, db_index=True)
 
