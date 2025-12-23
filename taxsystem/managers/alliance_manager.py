@@ -48,7 +48,7 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         )
 
     @transaction.atomic()
-    # pylint: disable=unused-argument
+    # pylint: disable=unused-argument, too-many-locals
     def _update_or_create_objs(
         self, owner: "OwnerContext", force_refresh: bool = False, runs: int = 0
     ) -> None:
@@ -81,42 +81,37 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         # Check tax accounts before we process payments
         self._check_tax_accounts(owner)
 
-        # Check for any automatic payments
-        try:
-            filters_obj = AllianceFilterSet.objects.filter(owner=owner)
-            for filter_obj in filters_obj:
-                # Apply filter to pending payments
-                payments = filter_obj.filter(payments)
-                for payment in payments:
-                    # Process only pending or needs approval payments
-                    if payment.request_status in [
-                        PaymentRequestStatus.PENDING,
-                        PaymentRequestStatus.NEEDS_APPROVAL,
-                    ]:
-                        # Ensure all transfers are processed in a single transaction
-                        with transaction.atomic():
-                            payment.request_status = PaymentRequestStatus.APPROVED
-                            payment.reviser = "System"
+        filters_obj = AllianceFilterSet.objects.filter(owner=owner)
+        for filter_obj in filters_obj:
+            f_payments = filter_obj.filter(payments)
+            for payment in f_payments:
+                # Process only pending or needs approval payments
+                if payment.request_status in [
+                    PaymentRequestStatus.PENDING,
+                    PaymentRequestStatus.NEEDS_APPROVAL,
+                ]:
+                    # Ensure all transfers are processed in a single transaction
+                    with transaction.atomic():
+                        payment.request_status = PaymentRequestStatus.APPROVED
+                        payment.reviser = "System"
 
-                            # Update payment pool for user
-                            self.filter(owner=owner, user=payment.account.user).update(
-                                deposit=payment.account.deposit + payment.amount
-                            )
+                        # Update payment pool for user
+                        self.filter(owner=owner, user=payment.account.user).update(
+                            deposit=payment.account.deposit + payment.amount
+                        )
 
-                            payment.save()
+                        payment.save()
 
-                            AlliancePaymentHistory(
-                                user=payment.account.user,
-                                payment=payment,
-                                action=PaymentActions.STATUS_CHANGE,
-                                new_status=PaymentRequestStatus.APPROVED,
-                                comment=PaymentSystemText.AUTOMATIC,
-                            ).save()
+                        AlliancePaymentHistory(
+                            user=payment.account.user,
+                            payment=payment,
+                            action=PaymentActions.STATUS_CHANGE,
+                            new_status=PaymentRequestStatus.APPROVED,
+                            comment=PaymentSystemText.AUTOMATIC,
+                        ).save()
 
-                            runs = runs + 1
-                            _automatic_payment_ids.append(payment.pk)
-        except AllianceFilterSet.DoesNotExist:
-            pass
+                        runs = runs + 1
+                        _automatic_payment_ids.append(payment.pk)
 
         # Check for any payments that need approval
         needs_approval = _current_payment_ids - set(_automatic_payment_ids)

@@ -46,14 +46,8 @@ class TestAllianceManager(TaxSystemTestCase):
 
         cls.filter_set = create_filterset(
             owner=cls.audit,
-            name="100m",
-            description="Filter for payments over 100m",
-        )
-
-        cls.filter_amount = create_filter(
-            filter_set=cls.filter_set,
-            filter_type=AllianceFilter.FilterType.AMOUNT,
-            value=1000,
+            name="Test Filter Set",
+            description="Filter Set for Testing Alliance Manager",
         )
 
         cls.division = create_division(
@@ -107,6 +101,13 @@ class TestAllianceManager(TaxSystemTestCase):
             first_party=self.eve_character_first_party,
             second_party=self.eve_character_second_party,
             description="Test Description 2",
+        )
+
+        create_filter(
+            filter_set=self.filter_set,
+            filter_type=AllianceFilter.FilterType.AMOUNT,
+            match_type=FilterMatchType.EXACT,
+            value="1000",
         )
 
         # Approved Payment
@@ -247,88 +248,6 @@ class TestAllianceManager(TaxSystemTestCase):
             tax_account.name,
         )
 
-    @patch(f"{MODULE_PATH}.logger")
-    def test_update_tax_accounts_automatic_payments(self, mock_logger):
-        """
-        Test should approve payments with the given automatic payment filters.
-
-        # Test Scenarios:
-            1. Payments containing filters marked as approved automatically.
-            2. Payments not matching filters marked as needs approval.
-        """
-        # Test Data
-        tax_account = create_tax_account(
-            name=self.user_character.character.character_name,
-            owner=self.audit,
-            user=self.user,
-            status=AccountStatus.ACTIVE,
-            deposit=0,
-            last_paid=(timezone.now() - timezone.timedelta(days=30)),
-        )
-
-        create_filter(
-            filter_set=self.filter_set,
-            filter_type=AllianceFilter.FilterType.REASON,
-            match_type=FilterMatchType.CONTAINS,
-            value="Payments",
-        )
-
-        create_filter(
-            filter_set=self.filter_set,
-            filter_type=AllianceFilter.FilterType.REASON,
-            match_type=FilterMatchType.EXACT,
-            value="Other",
-        )
-
-        create_payment(
-            name=self.user_character.character.character_name,
-            account=tax_account,
-            owner=self.audit,
-            journal=None,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
-            reason="Approved Payments",
-            request_status=PaymentRequestStatus.PENDING,
-            reviser="",
-        )
-
-        create_payment(
-            name=self.user_character.character.character_name,
-            account=tax_account,
-            owner=self.audit,
-            journal=None,
-            amount=2000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
-            reason="Other Reason",
-            request_status=PaymentRequestStatus.PENDING,
-            reviser="",
-        )
-
-        create_payment(
-            name=self.user_character.character.character_name,
-            account=tax_account,
-            owner=self.audit,
-            journal=None,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
-            reason="Other",
-            request_status=PaymentRequestStatus.PENDING,
-            reviser="",
-        )
-
-        # Test Action
-        self.audit.update_tax_accounts(force_refresh=False)
-
-        # Expected Results
-        tax_account = AlliancePaymentAccount.objects.get(user=self.user)
-        contains_payment = AlliancePayments.objects.get(reason="Approved Payments")
-        payment = AlliancePayments.objects.get(reason="Other Reason")
-        exact_payment = AlliancePayments.objects.get(reason="Other")
-        self.assertEqual(contains_payment.request_status, PaymentRequestStatus.APPROVED)
-        self.assertEqual(exact_payment.request_status, PaymentRequestStatus.APPROVED)
-        self.assertEqual(tax_account.deposit, 2000)
-        self.assertEqual(payment.request_status, PaymentRequestStatus.NEEDS_APPROVAL)
-
     def test_payment_deadlines(self):
         """
         Test payment deadlines processing for alliance tax accounts.
@@ -371,3 +290,171 @@ class TestAllianceManager(TaxSystemTestCase):
         self.assertEqual(tax_account.deposit, 0)
         tax_account_2 = AlliancePaymentAccount.objects.get(user=self.new_user)
         self.assertEqual(tax_account_2.deposit, 0)
+
+    def test_update_tax_accounts_approve_with_1_filter_sets(self):
+        """
+        Test should approve payments with the given automatic payment filters.
+
+        # Test Scenarios:
+            1. First Payment match in Filter Set and will be approved.
+            2. Second Payment does not match Filter Set and will be marked as needs approval.
+        """
+        # Test Data
+        tax_account = create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
+            user=self.user,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
+        )
+
+        create_filter(
+            filter_set=self.filter_set,
+            filter_type=AllianceFilter.FilterType.REASON,
+            match_type=FilterMatchType.CONTAINS,
+            value="Payments",
+        )
+
+        create_filter(
+            filter_set=self.filter_set,
+            filter_type=AllianceFilter.FilterType.AMOUNT,
+            match_type=FilterMatchType.EXACT,
+            value=1000,
+        )
+
+        create_payment(
+            name=self.user_character.character.character_name,
+            account=tax_account,
+            owner=self.audit,
+            journal=None,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            reason="Approved Payments",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        create_payment(
+            name=self.user_character.character.character_name,
+            account=tax_account,
+            owner=self.audit,
+            journal=None,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
+            reason="Other Reason",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
+
+        # Expected Results
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user)
+        approved_payment = AlliancePayments.objects.get(reason="Approved Payments")
+        needs_approval = AlliancePayments.objects.get(reason="Other Reason")
+        self.assertEqual(approved_payment.request_status, PaymentRequestStatus.APPROVED)
+        self.assertEqual(tax_account.deposit, 1000)
+        self.assertEqual(
+            needs_approval.request_status, PaymentRequestStatus.NEEDS_APPROVAL
+        )
+
+    def test_update_tax_accounts_approve_with_2_filter_sets(self):
+        """
+        Test should approve payments with the given automatic payment filters.
+
+        # Test Scenarios:
+            1. First Payment match in Filter Set 1 and will be approved.
+            2. Second Payment match in Filter Set 2 and will be approved.
+            3. Third Payment does not match any filter set filters and will be marked as needs approval.
+        """
+        # Test Data
+        tax_account = create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
+            user=self.user,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
+        )
+
+        filter_set2 = create_filterset(
+            owner=self.audit,
+            name="Test Filter Set 2",
+            description="Second Filter Set for Testing Alliance Manager",
+        )
+
+        create_filter(
+            filter_set=self.filter_set,
+            filter_type=AllianceFilter.FilterType.REASON,
+            match_type=FilterMatchType.CONTAINS,
+            value="Payments",
+        )
+
+        create_filter(
+            filter_set=self.filter_set,
+            filter_type=AllianceFilter.FilterType.AMOUNT,
+            match_type=FilterMatchType.EXACT,
+            value=1000,
+        )
+
+        create_filter(
+            filter_set=filter_set2,
+            filter_type=AllianceFilter.FilterType.REASON,
+            match_type=FilterMatchType.CONTAINS,
+            value="Reason",
+        )
+
+        create_payment(
+            name=self.user_character.character.character_name,
+            account=tax_account,
+            owner=self.audit,
+            journal=None,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            reason="Approved Payments",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        create_payment(
+            name=self.user_character.character.character_name,
+            account=tax_account,
+            owner=self.audit,
+            journal=None,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
+            reason="Other Reason",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        create_payment(
+            name=self.user_character.character.character_name,
+            account=tax_account,
+            owner=self.audit,
+            journal=None,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
+            reason="2025",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
+
+        # Expected Results
+        tax_account = AlliancePaymentAccount.objects.get(user=self.user)
+        approved_payment = AlliancePayments.objects.get(reason="Approved Payments")
+        approved_payment2 = AlliancePayments.objects.get(reason="Other Reason")
+        needs_approval = AlliancePayments.objects.get(reason="2025")
+        self.assertEqual(approved_payment.request_status, PaymentRequestStatus.APPROVED)
+        self.assertEqual(
+            approved_payment2.request_status, PaymentRequestStatus.APPROVED
+        )
+        self.assertEqual(
+            needs_approval.request_status, PaymentRequestStatus.NEEDS_APPROVAL
+        )
+        self.assertEqual(tax_account.deposit, 2000)
