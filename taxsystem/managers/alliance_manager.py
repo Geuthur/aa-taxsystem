@@ -69,7 +69,10 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
 
         payments = AlliancePayments.objects.filter(
             account__owner=owner,
-            request_status=PaymentRequestStatus.PENDING,
+            request_status__in=[
+                PaymentRequestStatus.PENDING,
+                PaymentRequestStatus.NEEDS_APPROVAL,
+            ],
         )
 
         _current_payment_ids = set(payments.values_list("id", flat=True))
@@ -85,7 +88,11 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
                 # Apply filter to pending payments
                 payments = filter_obj.filter(payments)
                 for payment in payments:
-                    if payment.request_status == PaymentRequestStatus.PENDING:
+                    # Process only pending or needs approval payments
+                    if payment.request_status in [
+                        PaymentRequestStatus.PENDING,
+                        PaymentRequestStatus.NEEDS_APPROVAL,
+                    ]:
                         # Ensure all transfers are processed in a single transaction
                         with transaction.atomic():
                             payment.request_status = PaymentRequestStatus.APPROVED

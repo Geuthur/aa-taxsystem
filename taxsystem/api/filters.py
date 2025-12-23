@@ -88,6 +88,7 @@ class FilterApiEndpoints:
                         enabled=filter_obj.filter_set.enabled,
                     ),
                     filter_type=filter_obj.get_filter_type_display(),
+                    match_type=filter_obj.get_match_type_display(),
                     value=DataTableSchema(
                         raw=filter_obj.value,
                         display=display,

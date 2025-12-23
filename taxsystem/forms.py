@@ -15,6 +15,7 @@ from taxsystem.models.corporation import (
     CorporationFilter,
     CorporationPaymentHistory,
 )
+from taxsystem.models.helpers.textchoices import FilterMatchType
 
 
 def get_mandatory_form_label_text(text: str) -> str:
@@ -338,6 +339,11 @@ class AddJournalFilterForm(forms.Form):
     filter_type = forms.ChoiceField(
         choices=CorporationFilter.FilterType.choices,
         label=_("Filter Type"),
+        required=True,
+    )
+    match_type = forms.ChoiceField(
+        choices=FilterMatchType.choices,
+        label=_("Match Type"),
         required=True,
     )
     value = forms.CharField(

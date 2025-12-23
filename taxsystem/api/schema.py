@@ -133,5 +133,6 @@ class FilterSetModelSchema(Schema):
 class FilterModelSchema(Schema):
     filter_set: FilterSetModelSchema
     filter_type: str
+    match_type: str
     value: str | DataTableSchema
     actions: str | None = None

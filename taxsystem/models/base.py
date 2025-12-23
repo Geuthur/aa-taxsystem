@@ -18,6 +18,7 @@ from allianceauth.services.hooks import get_extension_logger
 from taxsystem import __title__, app_settings
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
+    FilterMatchType,
     PaymentActions,
     PaymentRequestStatus,
     PaymentStatus,
@@ -331,20 +332,15 @@ class FilterBaseModel(models.Model):
         AMOUNT = "amount", _("Amount")
 
     filter_type = models.CharField(max_length=20, choices=FilterType.choices)
+    match_type = models.CharField(
+        max_length=20,
+        choices=FilterMatchType.choices,
+        default=FilterMatchType.EXACT,
+    )
     value = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return f"{self.filter_type}: {self.value}"
-
-    def apply_filter(
-        self, qs: models.QuerySet  # pylint: disable=unused-argument
-    ) -> models.QuerySet:
-        raise NotImplementedError("Create apply_filter method")
-
-    def apply_contains(
-        self, qs: models.QuerySet  # pylint: disable=unused-argument
-    ) -> models.QuerySet:
-        raise NotImplementedError("Create apply_contains method")
 
 
 class FilterSetBaseModel(models.Model):
@@ -373,11 +369,6 @@ class FilterSetBaseModel(models.Model):
         self, payments: models.QuerySet  # pylint: disable=unused-argument
     ) -> models.QuerySet:
         raise NotImplementedError("Create filter method")
-
-    def filter_contains(
-        self, payments: models.QuerySet  # pylint: disable=unused-argument
-    ) -> models.QuerySet:  # not implemented yet
-        raise NotImplementedError("Create filter_contains method")
 
 
 class HistoryBaseModel(models.Model):
