@@ -339,8 +339,19 @@ class FilterBaseModel(models.Model):
     )
     value = models.CharField(max_length=255, unique=True)
 
-    def __str__(self):
-        return f"{self.filter_type}: {self.value}"
+    def get_match_type_filter(self) -> models.Q:
+        """
+        Generate a Q object based on the filter type and match type.
+
+        Returns:
+            models.Q: The generated Q object for filtering.
+        """
+        if self.match_type == FilterMatchType.CONTAINS:
+            return models.Q(**{f"{self.filter_type}__icontains": self.value})
+        return models.Q(**{self.filter_type: self.value})
+
+    def __str__(self) -> str:
+        return f"Filter: {self.filter_type}({self.match_type}) = {self.value}"
 
 
 class FilterSetBaseModel(models.Model):
