@@ -87,7 +87,7 @@ class TestPaymentSystemModel(TaxSystemTestCase):
             tax_account.has_paid_icon(badge=True, text=True),
         )
         self.assertIn(
-            "Paid",
+            "paid",
             tax_account.has_paid_icon(badge=True, text=True),
         )
         self.assertNotIn(
@@ -104,7 +104,7 @@ class TestPaymentSystemModel(TaxSystemTestCase):
         )
 
         self.assertIn(
-            "Active",
+            "active",
             AccountStatus(tax_account.status).html(text=True),
         )
 
