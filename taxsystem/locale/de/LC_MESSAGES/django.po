@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-23 02:25+0100\n"
+"POT-Creation-Date: 2025-12-23 02:43+0100\n"
 "PO-Revision-Date: 2025-12-23 01:38+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.geuthur.de>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -173,7 +173,6 @@ msgid "Active"
 msgstr "Aktiv"
 
 #: taxsystem/api/helpers/icons.py:310
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
 msgid "Inactive"
 msgstr "Inaktiv"
 
@@ -609,6 +608,7 @@ msgid "Updates completed successfully"
 msgstr "Aktualisierungen erfolgreich abgeschlossen"
 
 #: taxsystem/models/helpers/textchoices.py:84
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
 msgid "inactive"
 msgstr "inaktiv"
 
