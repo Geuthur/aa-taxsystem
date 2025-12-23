@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-21 15:56+0100\n"
+"POT-Creation-Date: 2025-12-23 02:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,19 +47,18 @@ msgid ""
 "background."
 msgstr ""
 
-#: taxsystem/api/admin.py:81 taxsystem/api/admin.py:217
-#: taxsystem/api/admin.py:279 taxsystem/api/admin.py:339
-#: taxsystem/api/admin.py:399 taxsystem/api/corporation.py:63
-#: taxsystem/api/corporation.py:128 taxsystem/api/filters.py:67
-#: taxsystem/api/filters.py:126 taxsystem/api/filters.py:189
-#: taxsystem/api/filters.py:242 taxsystem/api/filters.py:311
-#: taxsystem/api/logs.py:54 taxsystem/api/logs.py:98
-#: taxsystem/api/payments.py:228 taxsystem/api/payments.py:380
-#: taxsystem/api/payments.py:459 taxsystem/api/payments.py:545
-#: taxsystem/api/payments.py:628 taxsystem/api/payments.py:718
-#: taxsystem/views.py:219 taxsystem/views.py:249 taxsystem/views.py:277
-#: taxsystem/views.py:321 taxsystem/views.py:386
-#: taxsystem/api/admin.py:142
+#: taxsystem/api/admin.py:81 taxsystem/api/admin.py:142
+#: taxsystem/api/admin.py:217 taxsystem/api/admin.py:279
+#: taxsystem/api/admin.py:339 taxsystem/api/admin.py:399
+#: taxsystem/api/corporation.py:63 taxsystem/api/corporation.py:128
+#: taxsystem/api/filters.py:67 taxsystem/api/filters.py:126
+#: taxsystem/api/filters.py:189 taxsystem/api/filters.py:242
+#: taxsystem/api/filters.py:311 taxsystem/api/logs.py:54
+#: taxsystem/api/logs.py:98 taxsystem/api/payments.py:228
+#: taxsystem/api/payments.py:380 taxsystem/api/payments.py:459
+#: taxsystem/api/payments.py:545 taxsystem/api/payments.py:628
+#: taxsystem/api/payments.py:718 taxsystem/views.py:219 taxsystem/views.py:249
+#: taxsystem/views.py:277 taxsystem/views.py:321 taxsystem/views.py:386
 msgid "Owner not Found."
 msgstr ""
 
@@ -200,7 +199,6 @@ msgid "View Tax Account"
 msgstr ""
 
 #: taxsystem/api/helpers/icons.py:531
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:17
 msgid "Approve Payment"
 msgstr ""
 
@@ -217,8 +215,6 @@ msgid "Delete Payment"
 msgstr ""
 
 #: taxsystem/api/helpers/icons.py:727
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:24
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:31
 msgid "Reject Payment"
 msgstr ""
 
@@ -307,7 +303,7 @@ msgstr ""
 msgid "Delete Reason"
 msgstr ""
 
-#: taxsystem/forms.py:209 taxsystem/models/base.py:332
+#: taxsystem/forms.py:209 taxsystem/models/base.py:331
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:14
 msgid "Amount"
 msgstr ""
@@ -425,13 +421,13 @@ msgstr ""
 msgid "Owner that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:385 taxsystem/models/base.py:409
+#: taxsystem/models/alliance.py:385 taxsystem/models/base.py:408
 #: taxsystem/models/corporation.py:532
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:86
 msgid "Action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:386 taxsystem/models/base.py:410
+#: taxsystem/models/alliance.py:386 taxsystem/models/base.py:409
 #: taxsystem/models/corporation.py:533
 msgid "Action performed"
 msgstr ""
@@ -444,32 +440,32 @@ msgstr ""
 msgid "Reviser that approved or rejected the payment"
 msgstr ""
 
-#: taxsystem/models/base.py:125
+#: taxsystem/models/base.py:124
 msgid "No date"
 msgstr ""
 
-#: taxsystem/models/base.py:154
+#: taxsystem/models/base.py:153
 msgid "Deposit Pool in ISK. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/base.py:331
+#: taxsystem/models/base.py:330
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:22
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:14
 msgid "Reason"
 msgstr ""
 
-#: taxsystem/models/base.py:395
+#: taxsystem/models/base.py:394
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:4
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:40
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:84
 msgid "User"
 msgstr ""
 
-#: taxsystem/models/base.py:396
+#: taxsystem/models/base.py:395
 msgid "User that performed the action"
 msgstr ""
 
-#: taxsystem/models/base.py:401
+#: taxsystem/models/base.py:400
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:85
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:11
 #: taxsystem/templates/taxsystem/partials/view-my-payments/my-payments.html:8
@@ -477,16 +473,16 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: taxsystem/models/base.py:402
+#: taxsystem/models/base.py:401
 msgid "Date of the action"
 msgstr ""
 
-#: taxsystem/models/base.py:416
+#: taxsystem/models/base.py:415
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:87
 msgid "Comment"
 msgstr ""
 
-#: taxsystem/models/base.py:417
+#: taxsystem/models/base.py:416
 msgid "Comment of the action"
 msgstr ""
 
@@ -607,20 +603,20 @@ msgid "Deactivated"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:120
-msgid "Approved"
+msgid "approved"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:121
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
-msgid "Pending"
+msgid "pending"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:122
-msgid "Rejected"
+msgid "rejected"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:123
-msgid "Requires Auditor"
+msgid "requires auditor"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:149
@@ -1058,7 +1054,6 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
 msgid "All"
 msgstr ""
 
@@ -1082,7 +1077,6 @@ msgid "Deposit"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:8
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:8
 msgid "selected"
 msgstr ""
 
@@ -1096,8 +1090,6 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:29
 #: taxsystem/templates/taxsystem/partials/view-manage/bulk_actions.html:31
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:36
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:38
 msgid "Clear Selection"
 msgstr ""
 
@@ -1267,13 +1259,8 @@ msgstr ""
 msgid "Edited by"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:12
-msgid "Approve selected payments"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:19
-#: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:26
-msgid "Reject selected payments"
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
+msgid "all"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:8
