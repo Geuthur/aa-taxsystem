@@ -1,8 +1,5 @@
 """Models for Tax System."""
 
-# Standard Library
-from typing import Optional
-
 # Django
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -34,7 +31,6 @@ from taxsystem.models.general import UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
     AdminActions,
     AllianceUpdateSection,
-    FilterMatchType,
     PaymentRequestStatus,
     UpdateStatus,
 )
@@ -301,14 +297,20 @@ class AllianceFilterSet(FilterSetBaseModel):
         if self.is_active:
             queries = []
             for f in self.ts_alliance_filters.all():
-                q = f.get_query()
+                f: AllianceFilter
+                # Generate Q object for each filter
+                q = f.get_match_type_filter()
                 if q is not None:
                     queries.append(q)
+
+            # If no queries were generated, return empty queryset
             if not queries:
                 return AlliancePayments.objects.none()
+
+            # Combine all queries using AND operation
             combined = queries.pop()
             for q in queries:
-                combined |= q
+                combined &= q
             return payments.filter(combined)
         return AlliancePayments.objects.none()
 
@@ -325,29 +327,6 @@ class AllianceFilter(FilterBaseModel):
         on_delete=models.CASCADE,
         related_name="ts_alliance_filters",
     )
-
-    # pylint: disable=duplicate-code
-    def get_query(self) -> "Optional[models.Q]":
-        """Return a `models.Q` representing this filter, or None if no valid filter.
-
-        This helper lets callers compose multiple filters using OR semantics.
-        """
-        queries = []
-        if self.match_type == FilterMatchType.EXACT:
-            queries.append(models.Q(**{self.filter_type: self.value}))
-        if self.match_type == FilterMatchType.CONTAINS:
-            queries.append(models.Q(**{f"{self.filter_type}__icontains": self.value}))
-
-        if not queries:
-            return None
-
-        q = queries.pop()
-        for other in queries:
-            q |= other
-        return q
-
-    def __str__(self) -> str:
-        return f"Filter: {self.filter_type}({self.match_type}) = {self.value}"
 
 
 class AlliancePaymentHistory(HistoryBaseModel):

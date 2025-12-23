@@ -1,8 +1,5 @@
 """Models for Tax System."""
 
-# Standard Library
-from typing import Optional
-
 # Django
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -41,7 +38,6 @@ from taxsystem.models.general import (
 from taxsystem.models.helpers.textchoices import (
     AdminActions,
     CorporationUpdateSection,
-    FilterMatchType,
     PaymentRequestStatus,
     UpdateStatus,
 )
@@ -438,14 +434,20 @@ class CorporationFilterSet(FilterSetBaseModel):
         if self.is_active:
             queries = []
             for f in self.ts_corporation_filters.all():
-                q = f.get_query()
+                f: CorporationFilter
+                # Generate Q object for each filter
+                q = f.get_match_type_filter()
                 if q is not None:
                     queries.append(q)
+
+            # If no queries were generated, return empty queryset
             if not queries:
                 return CorporationPayments.objects.none()
+
+            # Combine all queries using AND operation
             combined = queries.pop()
             for q in queries:
-                combined |= q
+                combined &= q
             return payments.filter(combined)
         return CorporationPayments.objects.none()
 
@@ -462,28 +464,6 @@ class CorporationFilter(FilterBaseModel):
         on_delete=models.CASCADE,
         related_name="ts_corporation_filters",
     )
-
-    def get_query(self) -> "Optional[models.Q]":
-        """Return a `models.Q` representing this filter, or None if no valid filter.
-
-        This helper lets callers compose multiple filters using OR semantics.
-        """
-        queries = []
-        if self.match_type == FilterMatchType.EXACT:
-            queries.append(models.Q(**{self.filter_type: self.value}))
-        if self.match_type == FilterMatchType.CONTAINS:
-            queries.append(models.Q(**{f"{self.filter_type}__icontains": self.value}))
-
-        if not queries:
-            return None
-
-        q = queries.pop()
-        for other in queries:
-            q |= other
-        return q
-
-    def __str__(self) -> str:
-        return f"Filter: {self.filter_type}({self.match_type}) = {self.value}"
 
 
 class CorporationPaymentHistory(HistoryBaseModel):
