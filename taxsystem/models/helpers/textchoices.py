@@ -117,10 +117,10 @@ class AccountStatus(models.TextChoices):
 
 
 class PaymentRequestStatus(models.TextChoices):
-    APPROVED = "approved", _("Approved")
-    PENDING = "pending", _("Pending")
-    REJECTED = "rejected", _("Rejected")
-    NEEDS_APPROVAL = "needs_approval", _("Requires Auditor")
+    APPROVED = "approved", _("approved")
+    PENDING = "pending", _("pending")
+    REJECTED = "rejected", _("rejected")
+    NEEDS_APPROVAL = "needs_approval", _("requires auditor")
 
     def color(self) -> str:
         """Return bootstrap corresponding icon class."""
