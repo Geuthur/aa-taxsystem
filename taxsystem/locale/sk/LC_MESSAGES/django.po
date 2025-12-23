@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-23 02:05+0100\n"
+"POT-Creation-Date: 2025-12-23 02:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -697,15 +697,15 @@ msgid "Deadlines"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:207
-msgid "Added"
+msgid "added"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:208
-msgid "Changed"
+msgid "changed"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:209
-msgid "Deleted"
+msgid "deleted"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/admin.html:5

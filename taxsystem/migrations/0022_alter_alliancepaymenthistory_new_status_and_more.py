@@ -74,4 +74,36 @@ class Migration(migrations.Migration):
                 verbose_name="Request Status",
             ),
         ),
+        migrations.AlterField(
+            model_name="allianceadminhistory",
+            name="action",
+            field=models.CharField(
+                choices=[
+                    ("", ""),
+                    ("Added", "added"),
+                    ("Changed", "changed"),
+                    ("Deleted", "deleted"),
+                ],
+                default="",
+                help_text="Action performed",
+                max_length=20,
+                verbose_name="Action",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="corporationadminhistory",
+            name="action",
+            field=models.CharField(
+                choices=[
+                    ("", ""),
+                    ("Added", "added"),
+                    ("Changed", "changed"),
+                    ("Deleted", "deleted"),
+                ],
+                default="",
+                help_text="Action performed",
+                max_length=20,
+                verbose_name="Action",
+            ),
+        ),
     ]

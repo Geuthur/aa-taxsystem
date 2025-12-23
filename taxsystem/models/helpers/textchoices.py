@@ -204,6 +204,6 @@ class AllianceUpdateSection(UpdateSection):
 
 class AdminActions(models.TextChoices):
     DEFAULT = "", ""
-    ADD = "Added", _("Added")
-    CHANGE = "Changed", _("Changed")
-    DELETE = "Deleted", _("Deleted")
+    ADD = "Added", _("added")
+    CHANGE = "Changed", _("changed")
+    DELETE = "Deleted", _("deleted")
