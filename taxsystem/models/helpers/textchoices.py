@@ -157,8 +157,8 @@ class PaymentStatus(models.TextChoices):
     This indicates whether a payment has been made or not.
     """
 
-    PAID = "paid", _("Paid")
-    UNPAID = "unpaid", _("Unpaid")
+    PAID = "paid", _("paid")
+    UNPAID = "unpaid", _("unpaid")
 
     def color(self) -> str:
         """Return bootstrap corresponding icon class."""

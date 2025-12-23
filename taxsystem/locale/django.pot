@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-23 02:22+0100\n"
+"POT-Creation-Date: 2025-12-23 02:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -639,12 +639,12 @@ msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:160
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
-msgid "Paid"
+msgid "paid"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:161
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
-msgid "Unpaid"
+msgid "unpaid"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:178
@@ -1055,7 +1055,9 @@ msgid "Filter by Payment Status"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
-msgid "All"
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
+msgid "all"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:30
@@ -1240,11 +1242,6 @@ msgstr ""
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:9
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:11
 msgid "Filter by Member Status"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
-msgid "all"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8

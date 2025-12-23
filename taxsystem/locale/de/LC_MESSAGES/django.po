@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-23 02:22+0100\n"
+"POT-Creation-Date: 2025-12-23 02:25+0100\n"
 "PO-Revision-Date: 2025-12-23 01:13+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.geuthur.de>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -661,12 +661,16 @@ msgstr "Prüfer Kommentar"
 
 #: taxsystem/models/helpers/textchoices.py:160
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
-msgid "Paid"
-msgstr "Gezahlt"
+#, fuzzy
+#| msgid "Unpaid"
+msgid "paid"
+msgstr "Nicht Gezahlt"
 
 #: taxsystem/models/helpers/textchoices.py:161
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
-msgid "Unpaid"
+#, fuzzy
+#| msgid "Unpaid"
+msgid "unpaid"
 msgstr "Nicht Gezahlt"
 
 #: taxsystem/models/helpers/textchoices.py:178
@@ -1083,7 +1087,9 @@ msgid "Filter by Payment Status"
 msgstr "Nach Zahlungsstatus filtern"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
-msgid "All"
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
+msgid "all"
 msgstr "Alle"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:30
@@ -1270,11 +1276,6 @@ msgstr "Kontoname"
 msgid "Filter by Member Status"
 msgstr "Nach Mitgliedsstatus filtern"
 
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
-msgid "all"
-msgstr "Alle"
-
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8
 msgid "Payment Information"
 msgstr "Zahlungsinformation"
@@ -1458,6 +1459,12 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+
+#~ msgid "Paid"
+#~ msgstr "Gezahlt"
+
+#~ msgid "All"
+#~ msgstr "Alle"
 
 #~ msgid "Is Alt"
 #~ msgstr "Ist Alt"
