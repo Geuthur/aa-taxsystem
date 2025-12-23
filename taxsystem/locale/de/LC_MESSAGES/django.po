@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System \n"
+"Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-12-23 02:25+0100\n"
-"PO-Revision-Date: 2025-12-23 01:13+0000\n"
+"PO-Revision-Date: 2025-12-23 01:38+0000\n"
 "Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.geuthur.de>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
@@ -506,29 +506,23 @@ msgstr ""
 
 #: taxsystem/models/corporation.py:307
 #: taxsystem/models/helpers/textchoices.py:83
-#, fuzzy
-#| msgid "Inactive"
 msgid "active"
-msgstr "Inaktiv"
+msgstr "aktiv"
 
 #: taxsystem/models/corporation.py:308
 #: taxsystem/models/helpers/textchoices.py:86
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
-#, fuzzy
-#| msgid "Missing"
 msgid "missing"
 msgstr "Vermisst"
 
 #: taxsystem/models/corporation.py:309
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
-#, fuzzy
-#| msgid "Unregistered"
 msgid "unregistered"
-msgstr "Nicht Registriert"
+msgstr "nicht Registriert"
 
 #: taxsystem/models/corporation.py:310
 msgid "is alt"
-msgstr ""
+msgstr "ist alt"
 
 #: taxsystem/models/corporation.py:321
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:32
@@ -576,7 +570,7 @@ msgstr "token Fehler"
 
 #: taxsystem/models/helpers/textchoices.py:31
 msgid "error"
-msgstr "Fehler"
+msgstr "fehler"
 
 #: taxsystem/models/helpers/textchoices.py:32
 msgid "ok"
@@ -615,14 +609,10 @@ msgid "Updates completed successfully"
 msgstr "Aktualisierungen erfolgreich abgeschlossen"
 
 #: taxsystem/models/helpers/textchoices.py:84
-#, fuzzy
-#| msgid "Inactive"
 msgid "inactive"
-msgstr "Inaktiv"
+msgstr "inaktiv"
 
 #: taxsystem/models/helpers/textchoices.py:85
-#, fuzzy
-#| msgid "Deactivated"
 msgid "deactivated"
 msgstr "Deaktiviert"
 
@@ -661,15 +651,11 @@ msgstr "Prüfer Kommentar"
 
 #: taxsystem/models/helpers/textchoices.py:160
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
-#, fuzzy
-#| msgid "Unpaid"
 msgid "paid"
-msgstr "Nicht Gezahlt"
+msgstr "Gezahlt"
 
 #: taxsystem/models/helpers/textchoices.py:161
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
-#, fuzzy
-#| msgid "Unpaid"
 msgid "unpaid"
 msgstr "Nicht Gezahlt"
 
@@ -1090,7 +1076,7 @@ msgstr "Nach Zahlungsstatus filtern"
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
 msgid "all"
-msgstr "Alle"
+msgstr "alle"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:30
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:11
@@ -1401,7 +1387,7 @@ msgstr "Steuersystem-Superuser-Verwaltung"
 
 #: taxsystem/views.py:159
 msgid "Corporation"
-msgstr "Corporation"
+msgstr ""
 
 #: taxsystem/views.py:182
 msgid "Alliance"
