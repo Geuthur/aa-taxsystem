@@ -207,3 +207,8 @@ class AdminActions(models.TextChoices):
     ADD = "Added", _("added")
     CHANGE = "Changed", _("changed")
     DELETE = "Deleted", _("deleted")
+
+
+class FilterMatchType(models.TextChoices):
+    EXACT = "exact", _("Exact Match")
+    CONTAINS = "contains", _("Contains")

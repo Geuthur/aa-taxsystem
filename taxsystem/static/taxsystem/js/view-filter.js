@@ -147,6 +147,7 @@ $(document).ready(() => {
         order: [[0, 'desc']],
         columns: [
             { data: 'filter_type' },
+            { data: 'match_type' },
             {
                 data: {
                     display: (data) => data.value.display,
@@ -158,7 +159,7 @@ $(document).ready(() => {
         ],
         columnDefs: [
             {
-                targets: [2],
+                targets: [3],
                 orderable: false,
                 columnControl: [
                     {target: 0, content: []},

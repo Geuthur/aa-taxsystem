@@ -465,11 +465,13 @@ def manage_filter(request: WSGIRequest, owner_id: int):
         if form_add.is_valid():
             queryset = form_add.cleaned_data["filter_set"]
             filter_type = form_add.cleaned_data["filter_type"]
+            match_type = form_add.cleaned_data["match_type"]
             value = form_add.cleaned_data["value"]
             try:
                 owner.filter_model.objects.create(
                     filter_set=queryset,
                     filter_type=filter_type,
+                    match_type=match_type,
                     value=value,
                 )
             except IntegrityError:

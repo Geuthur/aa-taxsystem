@@ -1,5 +1,8 @@
 """Models for Tax System."""
 
+# Standard Library
+from typing import Optional
+
 # Django
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -38,6 +41,7 @@ from taxsystem.models.general import (
 from taxsystem.models.helpers.textchoices import (
     AdminActions,
     CorporationUpdateSection,
+    FilterMatchType,
     PaymentRequestStatus,
     UpdateStatus,
 )
@@ -428,21 +432,21 @@ class CorporationFilterSet(FilterSetBaseModel):
     )
 
     def filter(
-        self, payments: CorporationPayments
+        self, payments: models.QuerySet[CorporationPayments]
     ) -> models.QuerySet[CorporationPayments]:
+        """Apply filters to the given payments queryset."""
         if self.is_active:
+            queries = []
             for f in self.ts_corporation_filters.all():
-                payments = f.apply_filter(payments)
-            return payments
-        return CorporationPayments.objects.none()
-
-    def filter_contains(
-        self, payments: CorporationPayments
-    ) -> models.QuerySet[CorporationPayments]:  # not implemented yet
-        if self.is_active:
-            for f in self.ts_corporation_filters.all():
-                payments = f.apply_contains(payments)
-            return payments
+                q = f.get_query()
+                if q is not None:
+                    queries.append(q)
+            if not queries:
+                return CorporationPayments.objects.none()
+            combined = queries.pop()
+            for q in queries:
+                combined |= q
+            return payments.filter(combined)
         return CorporationPayments.objects.none()
 
     def __str__(self) -> str:
@@ -459,28 +463,27 @@ class CorporationFilter(FilterBaseModel):
         related_name="ts_corporation_filters",
     )
 
-    def apply_filter(
-        self, qs: models.QuerySet[CorporationWalletJournalEntry]
-    ) -> models.QuerySet[CorporationWalletJournalEntry]:
-        if self.filter_type == CorporationFilter.FilterType.REASON:
-            return qs.filter(reason=self.value)
-        if self.filter_type == CorporationFilter.FilterType.AMOUNT:
-            return qs.filter(amount=self.value)
-        # weitere Felder
-        return qs
+    def get_query(self) -> "Optional[models.Q]":
+        """Return a `models.Q` representing this filter, or None if no valid filter.
 
-    def apply_contains(
-        self, qs: models.QuerySet[CorporationWalletJournalEntry]
-    ) -> models.QuerySet[CorporationWalletJournalEntry]:
-        if self.filter_type == CorporationFilter.FilterType.REASON:
-            return qs.filter(reason__icontains=self.value)
-        if self.filter_type == CorporationFilter.FilterType.AMOUNT:
-            return qs.filter(amount__gte=self.value)
-        # weitere Felder
-        return qs
+        This helper lets callers compose multiple filters using OR semantics.
+        """
+        queries = []
+        if self.match_type == FilterMatchType.EXACT:
+            queries.append(models.Q(**{self.filter_type: self.value}))
+        if self.match_type == FilterMatchType.CONTAINS:
+            queries.append(models.Q(**{f"{self.filter_type}__icontains": self.value}))
+
+        if not queries:
+            return None
+
+        q = queries.pop()
+        for other in queries:
+            q |= other
+        return q
 
     def __str__(self) -> str:
-        return f"Filter: {self.filter_type} = {self.value}"
+        return f"Filter: {self.filter_type}({self.match_type}) = {self.value}"
 
 
 class CorporationPaymentHistory(HistoryBaseModel):

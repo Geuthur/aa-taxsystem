@@ -629,7 +629,10 @@ def create_filterset(
 
 
 def create_filter(
-    filter_set: CorporationFilterSet | AllianceFilterSet, filter_type: str, value: str
+    filter_set: CorporationFilterSet | AllianceFilterSet,
+    filter_type: str,
+    value: str,
+    **kwargs,
 ) -> CorporationFilter | AllianceFilter:
     """
     Create a Filter for a Corporation or Alliance
@@ -646,6 +649,7 @@ def create_filter(
         "filter_type": filter_type,
         "value": value,
     }
+    params.update(kwargs)
     if isinstance(filter_set, AllianceFilterSet):
         journal_filter = AllianceFilter(**params)
     else:
