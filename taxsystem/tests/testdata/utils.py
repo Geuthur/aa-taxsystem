@@ -343,7 +343,7 @@ def create_owner_from_user(
 
 
 def create_owner_from_evecharacter(
-    character_id: int, tax_type="Corporation", **kwargs
+    character_id: int, tax_type="corporation", **kwargs
 ) -> CorporationOwner | AllianceOwner:
     """
     Create a CorporationOwner or AllianceOwner from an existing EveCharacter.
@@ -351,7 +351,7 @@ def create_owner_from_evecharacter(
 
     Args:
         character_id (int): ID of the EveCharacter to create the owner from.
-        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+        tax_type (str): Type of tax owner, either "corporation" or "Alliance
     Returns:
         CorporationOwner | AllianceOwner: The created tax owner.
     """
@@ -416,7 +416,7 @@ def add_owner_to_user(
     user: User,
     character_id: int,
     disconnect_signals: bool = True,
-    tax_type="Corporation",
+    tax_type="corporation",
     **kwargs,
 ) -> CorporationOwner | AllianceOwner:
     """
@@ -427,7 +427,7 @@ def add_owner_to_user(
         user (User): Alliance Auth User
         character_id (int): ID of eve character
         disconnect_signals (bool, optional): Whether to disconnect signals during addition. Defaults to True.
-        tax_type (str): Type of tax owner, either "Corporation" or "Alliance
+        tax_type (str): Type of tax owner, either "corporation" or "Alliance
     Returns:
         CorporationOwner | AllianceOwner: The created tax owner.
     """

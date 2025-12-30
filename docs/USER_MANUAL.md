@@ -53,7 +53,6 @@ ______________________________________________________________________
 ### Adding a Corporation
 
 1. Navigate to **Tax System** in the main menu
-1. Click **Owner Overview**
 1. Click **Add Corporation** button
 1. Authenticate with ESI (requires corporation director or CEO)
 1. System will automatically:
@@ -65,7 +64,6 @@ ______________________________________________________________________
 ### Adding an Alliance
 
 1. Navigate to **Tax System** in the main menu
-1. Click **Owner Overview**
 1. Click **Add Alliance** button
 1. Authenticate with ESI (requires alliance executor role)
 1. Select the primary corporation for financial tracking
@@ -176,6 +174,7 @@ Filters are organized into **Filter Sets** - logical groups of related filters t
 1. **Add Filters to the Set**:
    - Select the filter set
    - Choose filter type (Amount or Reason)
+   - Choose match type (Exact or Contains)
    - Enter value:
      - **Amount**: `100000000` (100 million ISK)
      - **Reason**: `Monthly Tax` or `Corp Tax`
