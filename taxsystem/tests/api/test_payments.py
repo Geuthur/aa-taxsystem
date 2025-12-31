@@ -120,7 +120,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             description="Test Description",
         )
 
-        # Approved Payment
+        # Pending Payment
         payment = create_payment(
             name=self.user_character.character.character_name,
             account=self.tax_account,
@@ -167,7 +167,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             description="Test Description",
         )
 
-        # Approved Payment
+        # Pending Payment
         payment = create_payment(
             name=self.user_character.character.character_name,
             account=self.tax_account,
@@ -253,7 +253,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             description="Test Description",
         )
 
-        # Approved Payment
+        # Pending Payment
         payment = create_payment(
             name=self.user_character.character.character_name,
             account=self.tax_account,
@@ -519,8 +519,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         self.assertEqual(tax_account.deposit, 0)
 
         # Test Data for Approved Payment
-        # Approved Payment
-        payment = create_payment(
+        approved_payment = create_payment(
             name=self.user_character.character.character_name,
             account=self.tax_account,
             owner=self.audit,
@@ -534,7 +533,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
 
         url = reverse(
             f"{API_URL}:undo_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+            kwargs={"owner_id": corporation_id, "payment_pk": approved_payment.pk},
         )
         self.client.force_login(self.manage_own_user)
 
@@ -549,9 +548,9 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
 
         # Expected Result
         result = "Payment ID: {pid} - Amount: {amount} - Name: {name} undone".format(
-            pid=payment.pk,
-            amount=intcomma(payment.amount),
-            name=payment.name,
+            pid=approved_payment.pk,
+            amount=intcomma(approved_payment.amount),
+            name=approved_payment.name,
         )
         tax_account = CorporationPaymentAccount.objects.get(pk=self.tax_account.pk)
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -561,7 +560,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Data for Permission Denied
         url = reverse(
             f"{API_URL}:undo_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+            kwargs={"owner_id": corporation_id, "payment_pk": approved_payment.pk},
         )
         self.client.force_login(self.user)
 
@@ -599,8 +598,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             description="Test Description",
         )
 
-        # Pending Payment
-        payment = create_payment(
+        pending_payment = create_payment(
             name="Pending Payment",
             account=self.tax_account,
             owner=self.audit,
@@ -653,7 +651,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Data for Permission Denied
         url = reverse(
             f"{API_URL}:delete_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+            kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.user)
 
@@ -670,7 +668,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Data for Payments that cannot be deleted
         url = reverse(
             f"{API_URL}:delete_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+            kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.manage_own_user)
 
@@ -711,8 +709,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             description="Test Description",
         )
 
-        # Pending Payment
-        payment = create_payment(
+        pending_payment = create_payment(
             name="Pending Payment",
             account=self.tax_account,
             owner=self.audit,
@@ -726,7 +723,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
 
         url = reverse(
             f"{API_URL}:reject_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+            kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.manage_own_user)
 
@@ -741,9 +738,9 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
 
         # Expected Result
         result = "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected - {reason}".format(
-            pid=payment.pk,
-            amount=intcomma(payment.amount),
-            name=payment.name,
+            pid=pending_payment.pk,
+            amount=intcomma(pending_payment.amount),
+            name=pending_payment.name,
             reason=data["comment"],
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -752,7 +749,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Data for Permission Denied
         url = reverse(
             f"{API_URL}:reject_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+            kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.user)
 
