@@ -78,6 +78,7 @@ def get_taxsystem_manage_payments_action_icons(
 
     This function creates a set of action icons for managing tax system payments.
     The Buttons include Approve, Reject, Undo, Delete and View Details, each represented by an icon depending on User's permissions.
+    optionally includes a checkbox for bulk actions.
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
@@ -113,18 +114,53 @@ def get_taxsystem_manage_payments_action_icons(
 
 
 def get_taxsystem_payments_action_icons(
+    request: WSGIRequest,
     payment: CorporationPayments | AlliancePayments,
+    checkbox: bool = False,
 ) -> str | HttpResponse:
     """
     Generate HTML Action Icons for the Tax System Payments view.
 
+    This function creates a set of action icons for viewing tax system payments.
+    The Buttons include View Details, each represented by an icon.
+    With additional buttons for users with manage permissions.
+    optionally includes a checkbox for bulk actions.
+
     Args:
+        request (WSGIRequest): The HTTP request object containing user information.
         payment (CorporationPayments | AlliancePayments): The payment object.
+        checkbox (bool): Whether to include a checkbox for bulk actions.
     Returns:
         SafeString: HTML string containing the action icons.
     """
+    manage_permission = [
+        "taxsystem.manage_own_corp",
+        "taxsystem.manage_corps",
+        "taxsystem.manage_own_alliance",
+        "taxsystem.manage_alliances",
+    ]
+
     taxsystem_request_icons = "<div class='d-flex justify-content-end'>"
     taxsystem_request_icons += get_payments_info_button(payment=payment)
+    if request.user.get_user_permissions().intersection(set(manage_permission)):
+        # Only show approve/reject buttons for pending or needs approval payments
+        if payment.request_status in [
+            PaymentRequestStatus.PENDING,
+            PaymentRequestStatus.NEEDS_APPROVAL,
+        ]:
+            taxsystem_request_icons += get_payments_approve_button(payment=payment)
+            taxsystem_request_icons += get_payments_reject_button(payment=payment)
+        # Only show undo button for approved/rejected payments
+        if payment.request_status in [
+            PaymentRequestStatus.APPROVED,
+            PaymentRequestStatus.REJECTED,
+        ]:
+            taxsystem_request_icons += get_payments_undo_button(payment=payment)
+        # Only show delete button for custom payments (not linked to an Wallet Entry)
+        if payment.journal is None:
+            taxsystem_request_icons += get_payments_delete_button(payment=payment)
+    if checkbox:
+        taxsystem_request_icons += f'<input type="checkbox" class="tax-row-select form-check-input me-2" data-payment-pk="{payment.pk}" />'
     taxsystem_request_icons += "</div>"
     return taxsystem_request_icons
 

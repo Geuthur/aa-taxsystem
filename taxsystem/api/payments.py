@@ -121,7 +121,11 @@ class PaymentsApiEndpoints:
                     payment.character_id, size=32, as_html=True
                 )
                 # Create the action buttons
-                actions_html = str(get_taxsystem_payments_action_icons(payment=payment))
+                actions_html = str(
+                    get_taxsystem_payments_action_icons(
+                        request=request, payment=payment, checkbox=True
+                    )
+                )
 
                 # Create the request status
                 response_request_status = RequestStatusSchema(
@@ -771,3 +775,106 @@ class PaymentsApiEndpoints:
             except IntegrityError:
                 msg = _("Transaction failed. Please try again.")
                 return 400, {"success": False, "message": msg}
+
+        @api.post(
+            "owner/{owner_id}/payment/manage/bulk-actions/",
+            response={200: dict, 403: dict, 404: dict},
+            tags=self.tags,
+        )
+        def perform_bulk_actions_payments(request: WSGIRequest, owner_id: int):
+            """
+            Handle an Request to Bulk Actions
+
+            This Endpoint performs bulk actions for an associated owner.
+            It validates the request, checks permissions, and performs the bulk actions accordingly.
+
+            Args:
+                request (WSGIRequest): The HTTP request object.
+                owner_id (int): The ID of the owner whose filter set is to be retrieved.
+            Returns:
+                dict: A dictionary containing the success status and message.
+            """
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # Check if owner exists
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # Check permissions
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            pks_ids = json.loads(request.body).get("pks", [])
+            action = json.loads(request.body).get("action", "")
+
+            if len(pks_ids) == 0:
+                msg = _("Please select at least one payment to perform bulk actions.")
+                return 400, {"success": False, "message": msg}
+
+            if action == "accept":
+                status = PaymentRequestStatus.APPROVED
+                payments = owner.payment_model.objects.filter(
+                    owner=owner,
+                    pk__in=pks_ids,
+                    request_status__in=[
+                        PaymentRequestStatus.PENDING,
+                        PaymentRequestStatus.NEEDS_APPROVAL,
+                    ],
+                )
+                with transaction.atomic():
+                    runs = 0
+                    for payment in payments:
+                        # Approve Payment
+                        payment.request_status = PaymentRequestStatus.APPROVED
+                        payment.reviser = (
+                            request.user.profile.main_character.character_name
+                        )
+                        payment.save()
+
+                        # Update Account Deposit
+                        payment.account.deposit += payment.amount
+                        payment.account.save()
+
+                        # Log the Payment Action
+                        payment.transaction_log(
+                            user=request.user,
+                            action=PaymentActions.STATUS_CHANGE,
+                            comment=_("Bulk Approved"),
+                            new_status=PaymentRequestStatus.APPROVED,
+                        ).save()
+                        runs += 1
+            elif action == "decline":
+                status = PaymentRequestStatus.REJECTED
+                with transaction.atomic():
+                    runs = owner.payment_model.objects.filter(
+                        owner=owner,
+                        pk__in=pks_ids,
+                        request_status__in=[
+                            PaymentRequestStatus.PENDING,
+                            PaymentRequestStatus.NEEDS_APPROVAL,
+                        ],
+                    ).update(request_status=PaymentRequestStatus.REJECTED)
+            else:
+                msg = _("Please select a valid action")
+                return 400, {"success": False, "message": msg}
+
+            # Create log message
+            msg = format_lazy(
+                _("Bulk '{status}' performed for {runs} payments ({pks}) for {owner}"),
+                runs=runs,
+                status=status,
+                owner=owner,
+                pks=pks_ids,
+            )
+
+            # Log Action in Admin History
+            owner.admin_log_model(
+                user=request.user,
+                owner=owner,
+                action=AdminActions.CHANGE,
+                comment=msg,
+            ).save()
+
+            # Return success response
+            return 200, {"success": True, "message": msg}

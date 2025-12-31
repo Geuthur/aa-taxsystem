@@ -13,16 +13,17 @@
 {% endblock page_topic %}
 
 {% block taxsystem_block %}
-<div class="mb-4">
-    <div class="card">
-        <div class="card-header bg-primary rounded-top d-flex align-items-center">
-            <h3 class="me-3">{% translate "Payments" %}</h3>
-        </div>
-        <div class="card-body">
-            {% include 'taxsystem/partials/view-payments/payments.html' %}
+    <div class="mb-4">
+        <div class="card">
+            <div class="card-header bg-primary rounded-top d-flex align-items-center">
+                <h3 class="me-3">{% translate "Payments" %}</h3>
+            </div>
+            <div class="card-body">
+                {% include 'taxsystem/partials/view-payments/payments.html' %}
+            </div>
         </div>
     </div>
-</div>
+    {% include 'taxsystem/partials/view-payments/bulk_actions.html' %}
 {% endblock %}
 
 {% block extra_css %}
@@ -39,11 +40,17 @@
             url: {
             // URLs
                 Payments: '{% url "taxsystem:api:get_payments" owner_id=owner.eve_id %}',
+                BulkActions: '{% url "taxsystem:api:perform_bulk_actions_payments" owner_id=owner.eve_id %}',
             },
         };
     </script>
     <!-- load modals -->
     {% include 'taxsystem/modals/request-view-payment-details.html' %}
+    {% include 'taxsystem/modals/request-accept-approve-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-reject-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-undo-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-delete-payment.html' %}
+    {% include 'taxsystem/modals/request-accept-bulk-actions.html' %}
     {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
     {% include 'taxsystem/bundles/datatables-2-js.html' with extColumnControl=True %}
     {% include 'taxsystem/bundles/view-payments-js.html' %}

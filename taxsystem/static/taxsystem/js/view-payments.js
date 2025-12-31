@@ -9,6 +9,11 @@ $(document).ready(() => {
     const paymentHistoryTable = $('#payment-history-table');
     // Modal :: Payments Details
     const modalRequestViewPaymentsDetails = $('#taxsystem-view-payment-details');
+    const modalRequestApprovePayment = $('#taxsystem-accept-approve-payment');
+    const modalRequestRejectPayment = $('#taxsystem-accept-reject-payment');
+    const modalRequestUndoPayment = $('#taxsystem-accept-undo-payment');
+    const modalRequestDeletePayment = $('#taxsystem-accept-delete-payment');
+    const modalRequestAcceptBulkActions = $('#taxsystem-accept-bulk-actions');
 
     fetchGet({
         url: aaTaxSystemSettings.url.Payments
@@ -92,14 +97,24 @@ $(document).ready(() => {
                         });
 
                         $('#request-filter-pending').on('change click', () => {
-                            applyPaymentFilter(rowData => !!(rowData.request_status && rowData.request_status.color === 'info'));
+                            applyPaymentFilter(rowData => !!(rowData.request_status && (rowData.request_status.color === 'info' || rowData.request_status.color === 'warning')));
+                        });
+
+                        // per-row checkbox change handler
+                        $(paymentsTable).on('change', '.tax-row-select', function () {
+                            _updateBulkState();
+                        });
+
+                        // clear on next page
+                        paymentsTable.on('page.dt', () => {
+                            _resetBulkState();
                         });
                     },
                     drawCallback: function () {
                         _bootstrapTooltip({selector: '#payments'});
                     },
                     rowCallback: function(row, data) {
-                        if (data.request_status.color === 'info') {
+                        if (data.request_status && (data.request_status.color === 'info' || data.request_status.color === 'warning')) {
                             $(row).addClass('tax-warning tax-hover');
                         }
                     },
@@ -234,5 +249,300 @@ $(document).ready(() => {
     })
         .on('hide.bs.modal', () => {
             _clearPaymentAccountModalDataTable();
+        });
+
+
+    /**
+     * Table :: Payments :: Helper Function :: Reload DataTable
+     * Handle reloading of Payments DataTable with new data
+     * @param {Array} newData
+     * @private
+     */
+    function _reloadPaymentsDataTable() {
+        fetchGet({
+            url: aaTaxSystemSettings.url.Payments
+        })
+            .then((data) => {
+                if (data) {
+                    const dtPayments = paymentsTable.DataTable();
+                    dtPayments.clear().rows.add(data).draw();
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching Payments DataTable:', error);
+            });
+    }
+
+    /**
+     * Table :: Payments :: Approve Button Click Handler
+     * Open Approve Payment Modal
+     * On Confirmation send a request to the API Endpoint, reload the Payments DataTable, close the modal
+     * and reopen the previous Payments Modal
+     */
+    modalRequestApprovePayment.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestApprovePayment.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestApprovePayment.find('#modal-button-confirm-accept-request').on('click', () => {
+            const approveInfo = form.find('textarea[name="comment"]');
+            const approveInfoValue = approveInfo.val();
+
+            fetchPost({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {
+                    comment: approveInfoValue
+                }
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        _reloadPaymentsDataTable();
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting approve request: ${error.message}`);
+                });
+            modalRequestApprovePayment.modal('hide');
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestApprovePayment.find('textarea[name="comment"]').val('');
+            modalRequestApprovePayment.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+
+
+
+    /**
+     * Table :: Payments :: Reject Button Click Handler
+     * Open Reject Payment Modal
+     * On Confirmation send a request to the API Endpoint, reload the Payments DataTable, close the modal
+     * and reopen the previous Payments Modal
+     */
+    const modalRequestRejectDeclineError = modalRequestRejectPayment.find('#request-required-field');
+    modalRequestRejectPayment.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestRejectPayment.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestRejectPayment.find('#modal-button-confirm-accept-request').on('click', () => {
+            const rejectInfo = form.find('textarea[name="comment"]');
+            const rejectInfoValue = rejectInfo.val();
+            if (rejectInfoValue === '') {
+                modalRequestRejectDeclineError.removeClass('d-none');
+                rejectInfo.addClass('is-invalid');
+
+                // Add shake class to the error field
+                rejectInfo.addClass('ts-shake');
+
+                // Remove the shake class after 3 seconds
+                setTimeout(() => {
+                    rejectInfo.removeClass('ts-shake');
+                    rejectInfo.removeClass('is-invalid');
+                }, 1500);
+            } else {
+                fetchPost({
+                    url: url,
+                    csrfToken: csrfMiddlewareToken,
+                    payload: {
+                        comment: rejectInfoValue
+
+                    }
+                })
+                    .then((data) => {
+                        if (data.success === true) {
+                            modalRequestRejectPayment.modal('hide');
+                            _reloadPaymentsDataTable();
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(`Error posting delete request: ${error.message}`);
+                    });
+            }
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestRejectPayment.find('textarea[name="comment"]').val('');
+            modalRequestRejectDeclineError.addClass('d-none');
+            modalRequestRejectPayment.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+
+    /**
+     * Table :: Payments :: Undo Button Click Handler
+     * Open Undo Payment Modal
+     * On Confirmation send a request to the API Endpoint, reload the Payments DataTable, close the modal
+     * and reopen the previous Payments Modal
+     */
+    const modalRequestUndoDeclineError = modalRequestUndoPayment.find('#request-required-field');
+    modalRequestUndoPayment.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestUndoPayment.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestUndoPayment.find('#modal-button-confirm-accept-request').on('click', () => {
+            const undoInfo = form.find('textarea[name="comment"]');
+            const undoInfoValue = undoInfo.val();
+            if (undoInfoValue === '') {
+                modalRequestUndoDeclineError.removeClass('d-none');
+                undoInfo.addClass('is-invalid');
+                // Add shake class to the error field
+                undoInfo.addClass('ts-shake');
+
+                // Remove the shake class after 3 seconds
+                setTimeout(() => {
+                    undoInfo.removeClass('ts-shake');
+                    undoInfo.removeClass('is-invalid');
+                }, 1500);
+            } else {
+                fetchPost({
+                    url: url,
+                    csrfToken: csrfMiddlewareToken,
+                    payload: {
+                        comment: undoInfoValue
+
+                    }
+                })
+                    .then((data) => {
+                        if (data.success === true) {
+                            modalRequestUndoPayment.modal('hide');
+                            _reloadPaymentsDataTable();
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(`Error posting delete request: ${error.message}`);
+                    });
+            }
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestUndoPayment.find('textarea[name="comment"]').val('');
+            modalRequestUndoDeclineError.addClass('d-none');
+            modalRequestUndoPayment.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+
+    /**
+     * Table :: Payments :: Delete Button Click Handler
+     * Open Delete Payment Modal
+     * On Confirmation send a request to the API Endpoint, reload the Payments DataTable, close the modal
+     * and reopen the previous Payments Modal
+     */
+    const modalRequestDeleteDeclineError = modalRequestDeletePayment.find('#request-required-field');
+    modalRequestDeletePayment.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestDeletePayment.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestDeletePayment.find('#modal-button-confirm-accept-request').on('click', () => {
+            const deleteInfo = form.find('textarea[name="comment"]');
+            const deleteInfoValue = deleteInfo.val();
+            if (deleteInfoValue === '') {
+                modalRequestDeleteDeclineError.removeClass('d-none');
+                deleteInfo.addClass('is-invalid');
+                // Add shake class to the error field
+                deleteInfo.addClass('ts-shake');
+
+                // Remove the shake class after 3 seconds
+                setTimeout(() => {
+                    deleteInfo.removeClass('ts-shake');
+                    deleteInfo.removeClass('is-invalid');
+                }, 1500);
+            } else {
+                fetchPost({
+                    url: url,
+                    csrfToken: csrfMiddlewareToken,
+                    payload: {
+                        comment: deleteInfoValue
+
+                    }
+                })
+                    .then((data) => {
+                        if (data.success === true) {
+                            modalRequestDeletePayment.modal('hide');
+                            _reloadPaymentsDataTable();
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(`Error posting delete request: ${error.message}`);
+                    });
+            }
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestDeletePayment.find('textarea[name="comment"]').val('');
+            modalRequestDeleteDeclineError.addClass('d-none');
+            modalRequestDeletePayment.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+
+
+    /**
+     * Table :: Payments :: Bulk Actions :: Update Bulk State
+     * Updates the bulk action panel based on the number of selected checkboxes
+     */
+    const _updateBulkState = () => {
+        const count = $(paymentsTable).find('.tax-row-select:checked').length;
+        $('#tax-bulk-count').text(count);
+        if (count > 0) {
+            $('#tax-bulk-panel').removeClass('d-none').addClass('show');
+        } else {
+            $('#tax-bulk-panel').removeClass('show').addClass('d-none');
+        }
+    };
+    /**
+     * Table :: Payments :: Bulk Actions :: Reset States
+     * Resets the bulk action panel and unchecks all selected checkboxes
+     */
+    const _resetBulkState = () => {
+        $(paymentsTable).find('.tax-row-select').prop('checked', false);
+        $('#tax-bulk-panel').addClass('d-none').removeClass('show');
+    };
+
+    /**
+     * Table :: Payments :: Bulk Actions :: Clear Selection Button Click Handler
+     * Resets the bulk action panel and unchecks all selected checkboxes
+     */
+    $('#tax-bulk-action-clear-selection').on('click', () => {
+        _resetBulkState();
+    });
+
+    /**
+     * Table :: Payments :: Bulk Actions :: Approve Button Click Handler
+     * Open Approve Bulk Action Modal
+     * On Confirmation send a request to the API Endpoint, reload the Payments DataTable, close the modal
+     */
+    modalRequestAcceptBulkActions.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const action = button.data('bulk-action');
+        const selectedRows = $(paymentsTable).find('.tax-row-select:checked').closest('tr');
+        const pks = selectedRows.map(function () {
+            return $(this).find('.tax-row-select').data('payment-pk');
+        }).get().filter(Boolean);
+
+        modalRequestAcceptBulkActions.find('#modal-button-confirm-accept-request').on('click', () => {
+            fetchPost({
+                url: aaTaxSystemSettings.url.BulkActions,
+                csrfToken: aaTaxSystemSettings.csrfToken,
+                payload: {
+                    pks: pks,
+                    action: action
+                }
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        _resetBulkState();
+                        _reloadPaymentsDataTable();
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting approve request: ${error.message}`);
+                });
+            modalRequestAcceptBulkActions.modal('hide');
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestAcceptBulkActions.find('#modal-button-confirm-accept-request').unbind('click');
         });
 });
