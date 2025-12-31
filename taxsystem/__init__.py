@@ -1,11 +1,11 @@
 """Initialize the app"""
 
-__version__ = "2.0.0-beta.6"
+__version__ = "2.0.0"
 __title__ = "Tax System"
 
 __package_name__ = "aa-taxsystem"
 __app_name__ = "taxsystem"
-__esi_compatibility_date__ = "2025-11-06"
+__esi_compatibility_date__ = "2025-12-16"
 __app_name_useragent__ = "AA-TaxSystem"
 
 __github_url__ = f"https://github.com/Geuthur/{__package_name__}"
