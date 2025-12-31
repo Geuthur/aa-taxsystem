@@ -763,3 +763,122 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
 
         # Expected Result
         result = "Permission Denied."
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        self.assertEqual(response.json().get("error"), result)
+
+    def test_bulk_actions(self):
+        """
+        Test bulk actions endpoint.
+
+        # Test Szenarios:
+            1. Payments are approved successfully in bulk.
+            2. Payments are rejected successfully in bulk.
+            3. Permission Denied for users without manage access.
+        """
+        # Test Data
+        corporation_id = self.user_character.character.corporation_id
+
+        # Pending Payment 1
+        payment1 = create_payment(
+            name="Pending Payment 1",
+            account=self.tax_account,
+            owner=self.audit,
+            journal=None,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            reason="Tax Payment",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        # Pending Payment 2
+        payment2 = create_payment(
+            name="Pending Payment 2",
+            account=self.tax_account,
+            owner=self.audit,
+            journal=None,
+            amount=2000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            reason="Tax Payment",
+            request_status=PaymentRequestStatus.PENDING,
+            reviser="",
+        )
+
+        url = reverse(
+            f"{API_URL}:perform_bulk_actions_payments",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.manage_own_user)
+
+        data = {
+            "pks": [payment1.pk, payment2.pk],
+            "action": "approve",
+        }
+
+        # Test Action
+        response = self.client.post(
+            path=url, data=json.dumps(data), content_type="application/json"
+        )
+
+        # Expected Result (match API: list-format pks and no trailing period)
+        result = (
+            "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}".format(
+                status=PaymentRequestStatus.APPROVED,
+                runs=len(data["pks"]),
+                pks=str(data["pks"]),
+                owner=self.audit.name,
+            )
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.json().get("message"), result)
+
+        # Test Data for Reject Action
+        payment1.request_status = PaymentRequestStatus.PENDING
+        payment1.save()
+        payment2.request_status = PaymentRequestStatus.PENDING
+        payment2.save()
+
+        url = reverse(
+            f"{API_URL}:perform_bulk_actions_payments",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.manage_own_user)
+        data = {
+            "pks": [payment1.pk, payment2.pk],
+            "action": "reject",
+        }
+
+        # Test Action
+        response = self.client.post(
+            path=url, data=json.dumps(data), content_type="application/json"
+        )
+        # Expected Result (match API: list-format pks and no trailing period)
+        result = (
+            "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}".format(
+                status=PaymentRequestStatus.REJECTED,
+                runs=len(data["pks"]),
+                pks=str(data["pks"]),
+                owner=self.audit.name,
+            )
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.json().get("message"), result)
+
+        # Test Data for Permission Denied
+        url = reverse(
+            f"{API_URL}:perform_bulk_actions_payments",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.user)
+        data = {
+            "pks": [payment1.pk, payment2.pk],
+            "action": "approve",
+        }
+        # Test Action
+        response = self.client.post(
+            path=url, data=json.dumps(data), content_type="application/json"
+        )
+        # Expected Result
+        result = "Permission Denied."
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        self.assertEqual(response.json().get("error"), result)
