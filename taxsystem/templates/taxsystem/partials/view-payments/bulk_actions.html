@@ -9,19 +9,19 @@
     </div>
     <div id="tax-bulk-buttons" class="btn-group">
       <button type="button" class="btn btn-sm btn-success"
-        title="{% translate 'Accept selected Payments' %}"
-        data-bulk-action="accept"
+        title="{% translate 'Approve selected Payments' %}"
+        data-bulk-action="approve"
         data-bs-toggle="modal"
         data-bs-tooltip="aa-taxsystem"
         data-bs-target="#taxsystem-accept-bulk-actions"
-      >{% translate "Accept Payment" %}</button>
+      >{% translate "Approve Payment" %}</button>
       <button type="button" class="btn btn-sm btn-warning"
-        title="{% translate 'Decline selected Payments' %}"
-        data-bulk-action="decline"
+        title="{% translate 'Reject selected Payments' %}"
+        data-bulk-action="reject"
         data-bs-toggle="modal"
         data-bs-tooltip="aa-taxsystem"
         data-bs-target="#taxsystem-accept-bulk-actions"
-      >{% translate "Decline Payment" %}</button>
+      >{% translate "Reject Payment" %}</button>
     </div>
     <button type="button" class="btn btn-danger btn-sm ms-2"
       id="tax-bulk-action-clear-selection"

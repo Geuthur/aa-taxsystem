@@ -812,7 +812,7 @@ class PaymentsApiEndpoints:
                 msg = _("Please select at least one payment to perform bulk actions.")
                 return 400, {"success": False, "message": msg}
 
-            if action == "accept":
+            if action == "approve":
                 status = PaymentRequestStatus.APPROVED
                 payments = owner.payment_model.objects.filter(
                     owner=owner,
@@ -844,7 +844,7 @@ class PaymentsApiEndpoints:
                             new_status=PaymentRequestStatus.APPROVED,
                         ).save()
                         runs += 1
-            elif action == "decline":
+            elif action == "reject":
                 status = PaymentRequestStatus.REJECTED
                 with transaction.atomic():
                     runs = owner.payment_model.objects.filter(
