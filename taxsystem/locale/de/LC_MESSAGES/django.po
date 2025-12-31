@@ -5,11 +5,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System \n"
+"Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2025-12-31 04:06+0100\n"
-"PO-Revision-Date: 2025-12-23 01:46+0000\n"
-"Last-Translator: Weblate Admin <geuthur@users.noreply.weblate.geuthur.de>\n"
+"PO-Revision-Date: 2025-12-31 03:22+0000\n"
+"Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
 "Language: de\n"
@@ -100,10 +100,9 @@ msgid "Tax Period from {owner} changed to {value}"
 msgstr "Steuer Periode von {owner} aktualisiert auf {value}"
 
 #: taxsystem/api/admin.py:409
-#, fuzzy
-#| msgid "Please select at least one account"
 msgid "Please select at least one account to perform bulk actions."
-msgstr "Bitte wählen Sie mindestens ein Konto aus"
+msgstr ""
+"Bitte wählen Sie mindestens ein Konto aus, um Massenaktionen durchzuführen."
 
 #: taxsystem/api/admin.py:425 taxsystem/api/payments.py:859
 msgid "Please select a valid action"
@@ -113,7 +112,7 @@ msgstr "Bitte wählen Sie eine gültige Aktion aus"
 #, python-brace-format
 msgid "Bulk '{status}' performed for {items} accounts({pks}) for {owner}"
 msgstr ""
-"Massenbefehl „{status}“ für {items} Konten({pks}) für {owner} ausgeführt"
+"Massenaktion „{status}“ für {items} Konten({pks}) für {owner} ausgeführt"
 
 #: taxsystem/api/corporation.py:137 taxsystem/api/filters.py:140
 #: taxsystem/api/filters.py:256 taxsystem/api/payments.py:393
@@ -277,23 +276,20 @@ msgstr ""
 "Zahlungs-ID: {pid} – Betrag: {amount} – Name: {name} abgelehnt – {reason}"
 
 #: taxsystem/api/payments.py:812
-#, fuzzy
-#| msgid "Please select at least one account"
 msgid "Please select at least one payment to perform bulk actions."
-msgstr "Bitte wählen Sie mindestens ein Konto aus"
+msgstr ""
+"Bitte wählen Sie mindestens eine Zahlung aus, um Massenaktionen "
+"durchzuführen."
 
 #: taxsystem/api/payments.py:843
-#, fuzzy
-#| msgid "approved"
 msgid "Bulk Approved"
-msgstr "Genehmigt"
+msgstr "Sammel Genehmigung"
 
 #: taxsystem/api/payments.py:864
-#, fuzzy, python-brace-format
-#| msgid "Bulk '{status}' performed for {items} accounts({pks}) for {owner}"
+#, python-brace-format
 msgid "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}"
 msgstr ""
-"Massenbefehl „{status}“ für {items} Konten({pks}) für {owner} ausgeführt"
+"Massenaktion „{status}“ für {runs} Zahlungen ({pks}) für {owner} ausgeführt"
 
 #: taxsystem/forms.py:38 taxsystem/forms.py:59
 msgid "Reason for accepting the payment"
@@ -370,7 +366,7 @@ msgstr "Filter Typ"
 #: taxsystem/forms.py:346
 #: taxsystem/templates/taxsystem/partials/view-filter-set/filter.html:8
 msgid "Match Type"
-msgstr ""
+msgstr "Match-Typ"
 
 #: taxsystem/forms.py:350
 #: taxsystem/templates/taxsystem/partials/view-filter-set/filter.html:9
@@ -755,13 +751,11 @@ msgstr "Gelöscht"
 
 #: taxsystem/models/helpers/textchoices.py:213
 msgid "Exact Match"
-msgstr ""
+msgstr "Exakte Übereinstimmung"
 
 #: taxsystem/models/helpers/textchoices.py:214
-#, fuzzy
-#| msgid "Mains"
 msgid "Contains"
-msgstr "Hauptcharaktere"
+msgstr "Enthält"
 
 #: taxsystem/templates/taxsystem/admin.html:5
 #: taxsystem/templates/taxsystem/base.html:9
@@ -1021,16 +1015,12 @@ msgid "Account Status"
 msgstr "Account Status"
 
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:31
-#, fuzzy
-#| msgid "Balance Due"
 msgid "Balance"
-msgstr "Fälliger Saldo"
+msgstr "Kontostand"
 
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:36
-#, fuzzy
-#| msgid "Tax Amount:"
 msgid "Tax Amount"
-msgstr "Steuer Betrag:"
+msgstr "Steuer Betrag"
 
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:41
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:65
@@ -1335,14 +1325,10 @@ msgid "Edited by"
 msgstr "Bearbeitet von"
 
 #: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:12
-#, fuzzy
-#| msgid "Approve selected payments"
 msgid "Approve selected Payments"
 msgstr "Ausgewählte Zahlungen genehmigen"
 
 #: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:19
-#, fuzzy
-#| msgid "Reject selected payments"
 msgid "Reject selected Payments"
 msgstr "Ausgewählte Zahlungen ablehnen"
 
