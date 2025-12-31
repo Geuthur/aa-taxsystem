@@ -61,9 +61,7 @@ ______________________________________________________________________
 ## Upcoming<a name="upcoming"></a>
 
 - Notify via Discord
-- Enhanced notification system
 - Data export functionality
-- More Filter option (constains, division, etc.)
 
 ## Screenshots<a name="screenshots"></a>
 

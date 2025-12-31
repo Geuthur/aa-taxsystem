@@ -11,6 +11,106 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.0] - 2025-12-31
+
+> [!WARNING]
+> We changed the Payments Information, please use the following django command to migrate old Payments
+> You need to execute the following commands in order to avoid issues
+
+```bash
+python manage.py taxsystem_cleanup_payments
+python manage.py taxsystem_migrate_payments
+python manage.py migrate
+```
+
+> [!NOTE]
+> `entry_id` entry_id from Corporation/Alliance Payments Model is deprecated and will be deleted with version 2.1, a Migration is necessary to avoid data loss!
+
+### Added
+
+- Implement Bulk Actions for payments management, including modals and checkbox selection
+- Implement UpdateManager Class for Tasks
+- Implement Bulk Actions in Managment View
+- Implement AppLogger and retry_task_on_esi_error for enhanced logging and error handling
+- Implement Icon Backend Creation
+- Implement Alliance Tax System
+- Implement Filter Match Type
+- Test Enviroment with NoSocket Function and OpenAPI ESI Stub Class for ESI Tests
+- Added DataTable v2 [Version 2.3.5](https://cdn.datatables.net/2.3.5/)
+  - `ColumnControl` Extensions [Docs](https://datatables.net/extensions/columncontrol/)
+  - `FixedHeader` Extensions [Docs](https://datatables.net/extensions/fixedheader/)
+  - Translation for DataTable
+- API
+  - Payments API Endpoint
+  - Logs API Endpoint
+  - Filter API Endpoint
+  - Corporation API Endpoint
+- Enhance payment modals with reset functionality and reload logic
+- Django Backend Administration
+  - `AllianceOwnerAdmin` class with:
+    - List display showing alliance info, corporation link, and last update timestamp
+    - Force update action for manual data refresh
+    - Read-only permissions (no add/change capabilities)
+    - Optimized queryset with `select_related` for corporation data
+  - `CorporationOwnerAdmin` enhanced with:
+    - Force update action for manual data refresh
+    - Last update timestamp display with humanized time
+- Documentation
+  - Comprehensive User Manual (`docs/USER_MANUAL.md`)
+    - Getting Started Guide
+    - Adding Corporations and Alliances
+    - Payment System explanation (automatic vs manual approval)
+    - Filter System tutorial with examples
+    - Account Management guide
+    - Administration features
+    - FAQ and troubleshooting
+  - README.md updated with:
+    - New permissions documentation (Alliance permissions)
+    - Documentation section with link to User Manual
+    - Updated features list (Multi-Owner Support, Alliance Tax System)
+- and many more...
+
+### Fixed
+
+- Balance named as Balance Due
+- AttributeError: 'NoneType' object has no attribute 'character_id' in Payments Situations
+- CSS Issues with Standard AA Theme
+- missing get_visible for Alliance Payments
+
+### Changed
+
+-
+- Reset `deposit` and Update Status in Task `update_corp_tax_accounts`, `update_ally_tax_accounts`
+- Payments with Status `pending` or `needs_approval` highlighted in yellow
+- Use AA `numberFomatter` for Currency in JavaScript
+- Refactored Doc Strings for greater clarity
+- Payments are now only displayed depending on the user's permission.
+- Moved Manage Post Requests from Views to API
+- Refactored JS Structure
+  - Optimized Modal System
+  - Optimized DataTable Structure
+  - Unified Modal Structure
+  - Unified Settings Structure
+  - Unified DataTable Structure
+- Optimized Settings System
+  - Added Locale
+  - Added DataTable Settings
+- Refactored Template Structure
+- All views are now accessible with or without specifying corporation_id/alliance_id. If not provided, the user's main character's corporation/alliance is used by default.
+- Renamed `Manage Tax System` to `Manage Corporation` or `Manage Alliance`
+- Index page (`/`) now redirects to Owner Overview instead of payment list
+- Task Queue Order
+
+### Removed
+
+- CSS Arrows for Editable Popup
+- `taxsystem_static` templatetag
+- `allianceauth-app-utils` dependency
+- unused ESI-related functions and imports from decorators.py
+- unused EVE Online and Fuzzwork API settings from app_settings
+- unused add_info_to_context function
+- unused custom exception classes from errors.py
+
 ## [2.0.0-beta.6] - 2025-12-22
 
 ### Fixed
@@ -626,9 +726,12 @@ python manage.py taxsystem_migrate_payments
 [1.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.0-beta.1 "1.0.0-beta.1"
 [1.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.1 "1.0.1"
 [1.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.1...v1.0.2 "1.0.2"
+[2.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0 "2.0.0"
 [2.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.1 "2.0.0-beta.1"
 [2.0.0-beta.2]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.2 "2.0.0-beta.2"
 [2.0.0-beta.3]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.3 "2.0.0-beta.3"
 [2.0.0-beta.4]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.4 "2.0.0-beta.4"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...HEAD "In Development"
+[2.0.0-beta.5]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.5 "2.0.0-beta.5"
+[2.0.0-beta.6]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.6 "2.0.0-beta.6"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
