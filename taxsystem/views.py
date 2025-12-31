@@ -226,6 +226,28 @@ def payments(request: WSGIRequest, owner_id: int):
     context = {
         "owner": owner,
         "title": _("Payments"),
+        "forms": {
+            "accept_payment_request": (
+                forms.AcceptCorporationPaymentForm()
+                if isinstance(owner, CorporationOwner)
+                else forms.AcceptAlliancePaymentForm()
+            ),
+            "accept_reject_payment_request": (
+                forms.RejectCorporationPaymentForm()
+                if isinstance(owner, CorporationOwner)
+                else forms.RejectAlliancePaymentForm()
+            ),
+            "accept_undo_payment_request": (
+                forms.UndoCorporationPaymentForm()
+                if isinstance(owner, CorporationOwner)
+                else forms.UndoAlliancePaymentForm()
+            ),
+            "accept_delete_payment_request": (
+                forms.DeleteCorporationPaymentForm()
+                if isinstance(owner, CorporationOwner)
+                else forms.DeleteAlliancePaymentForm()
+            ),
+        },
     }
 
     return render(request, "taxsystem/view-payments.html", context=context)

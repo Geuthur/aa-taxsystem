@@ -406,7 +406,7 @@ class AdminApiEndpoints:
             action = json.loads(request.body).get("action", "")
 
             if len(pks_ids) == 0:
-                msg = _("Please select at least one account")
+                msg = _("Please select at least one account to perform bulk actions.")
                 return 400, {"success": False, "message": msg}
 
             if action == "activate":
