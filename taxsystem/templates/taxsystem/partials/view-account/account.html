@@ -12,34 +12,34 @@
             <div class="col-md-8 w-auto" id="info-panel">
                 <dl class="dl-horizontal">
                     <dt>{% trans "Account" %}:</dt>
-                    <dd class="nowrap" id="account_name">{{ account.name }}</dd>
+                    <dd class="nowrap" id="account_name">{{ account.name|default:"N/A" }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Owner" %}:</dt>
-                    <dd class="nowrap" id="owner_name">{{ account.owner.name }}</dd>
+                    <dd class="nowrap" id="owner_name">{{ account.owner.name|default:"N/A" }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Account Status" %}:</dt>
-                    <dd class="nowrap" id="account_status">{{ account.status }}</dd>
+                    <dd class="nowrap" id="account_status">{{ account.status|default:"N/A" }}</dd>
                 </dl>
             </div>
             <!-- Costs Info -->
             <div class="col-md-8 w-auto" id="info-amounts-panel">
                 <dl class="dl-horizontal">
                     <dt>{% trans "Balance" %}:</dt>
-                    <dd class="nowrap" id="deposit_amount">{{ account.deposit|floatformat:0|intcomma|safe }} ISK</dd>
+                    <dd class="nowrap" id="deposit_amount">{{ account.deposit|floatformat:0|intcomma|safe|default:"0" }} ISK</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Tax Amount" %}:</dt>
-                    <dd class="nowrap" id="deposit_amount">{{ account.owner.tax_amount|floatformat:0|intcomma|safe }} ISK</dd>
+                    <dd class="nowrap" id="deposit_amount">{{ account.owner.tax_amount|floatformat:0|intcomma|safe|default:"0" }} ISK</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
                     <dt>{% trans "Payment Status" %}:</dt>
-                    <dd class="nowrap" id="payment_status">{{ account.has_paid|safe }}</dd>
+                    <dd class="nowrap" id="payment_status">{{ account.has_paid|safe|default:"N/A" }}</dd>
                 </dl>
 
                 <dl class="dl-horizontal">
