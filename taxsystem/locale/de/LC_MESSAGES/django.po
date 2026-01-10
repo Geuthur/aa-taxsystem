@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-01-10 14:34+0100\n"
+"POT-Creation-Date: 2026-01-10 14:50+0100\n"
 "PO-Revision-Date: 2026-01-10 13:43+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -170,11 +170,13 @@ msgid "Delete Filter Set"
 msgstr "Lösche Filtersatz"
 
 #: taxsystem/api/helpers/icons.py:342
+#: taxsystem/models/helpers/textchoices.py:83
 #: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:9
 msgid "Active"
 msgstr "Aktiv"
 
 #: taxsystem/api/helpers/icons.py:346
+#: taxsystem/models/helpers/textchoices.py:84
 msgid "Inactive"
 msgstr "Inaktiv"
 
@@ -520,7 +522,8 @@ msgstr "Gibt an, ob dieser Corporation Inhaber aktiv ist."
 
 #: taxsystem/models/corporation.py:98
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr "Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+msgstr ""
+"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
 
 #: taxsystem/models/corporation.py:105
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
@@ -528,12 +531,10 @@ msgstr ""
 "Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
 
 #: taxsystem/models/corporation.py:307
-#: taxsystem/models/helpers/textchoices.py:83
 msgid "active"
 msgstr "aktiv"
 
 #: taxsystem/models/corporation.py:308
-#: taxsystem/models/helpers/textchoices.py:86
 msgid "missing"
 msgstr "Vermisst"
 
@@ -629,29 +630,38 @@ msgstr "Ein Fehler trat während des Update auf"
 msgid "Updates completed successfully"
 msgstr "Aktualisierungen erfolgreich abgeschlossen"
 
-#: taxsystem/models/helpers/textchoices.py:84
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
-msgid "inactive"
-msgstr "inaktiv"
-
 #: taxsystem/models/helpers/textchoices.py:85
-msgid "deactivated"
-msgstr "Deaktiviert"
+#, fuzzy
+#| msgid "Deactivate"
+msgid "Deactivated"
+msgstr "Deaktiviere"
+
+#: taxsystem/models/helpers/textchoices.py:86
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
+msgid "Missing"
+msgstr "Vermisst"
 
 #: taxsystem/models/helpers/textchoices.py:120
-msgid "approved"
+#, fuzzy
+#| msgid "approved"
+msgid "Approved"
 msgstr "Genehmigt"
 
 #: taxsystem/models/helpers/textchoices.py:121
-msgid "pending"
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
+msgid "Pending"
 msgstr "Ausstehend"
 
 #: taxsystem/models/helpers/textchoices.py:122
-msgid "rejected"
+#, fuzzy
+#| msgid "rejected"
+msgid "Rejected"
 msgstr "Abgewiesen"
 
 #: taxsystem/models/helpers/textchoices.py:123
-msgid "requires auditor"
+#, fuzzy
+#| msgid "requires auditor"
+msgid "Requires Auditor"
 msgstr "Benötigt Prüfer"
 
 #: taxsystem/models/helpers/textchoices.py:149
@@ -671,11 +681,13 @@ msgid "Reviser Comment"
 msgstr "Prüfer Kommentar"
 
 #: taxsystem/models/helpers/textchoices.py:160
-msgid "paid"
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
+msgid "Paid"
 msgstr "Gezahlt"
 
 #: taxsystem/models/helpers/textchoices.py:161
-msgid "unpaid"
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
+msgid "Unpaid"
 msgstr "Nicht Gezahlt"
 
 #: taxsystem/models/helpers/textchoices.py:178
@@ -732,15 +744,21 @@ msgid "Deadlines"
 msgstr "Fristen"
 
 #: taxsystem/models/helpers/textchoices.py:207
-msgid "added"
+#, fuzzy
+#| msgid "added"
+msgid "Added"
 msgstr "Hinzugefügt"
 
 #: taxsystem/models/helpers/textchoices.py:208
-msgid "changed"
+#, fuzzy
+#| msgid "changed"
+msgid "Changed"
 msgstr "Geändert"
 
 #: taxsystem/models/helpers/textchoices.py:209
-msgid "deleted"
+#, fuzzy
+#| msgid "deleted"
+msgid "Deleted"
 msgstr "Gelöscht"
 
 #: taxsystem/models/helpers/textchoices.py:213
@@ -1109,14 +1127,6 @@ msgstr "Nach Zahlungsstatus filtern"
 msgid "All"
 msgstr "Alle"
 
-#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
-msgid "Paid"
-msgstr "Gezahlt"
-
-#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
-msgid "Unpaid"
-msgstr "Nicht Gezahlt"
-
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:30
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:11
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:21
@@ -1305,10 +1315,6 @@ msgstr "Kontoname"
 msgid "Filter by Member Status"
 msgstr "Nach Mitgliedsstatus filtern"
 
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
-msgid "Missing"
-msgstr "Vermisst"
-
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8
 msgid "Payment Information"
 msgstr "Zahlungsinformation"
@@ -1339,13 +1345,13 @@ msgstr "Ausgewählte Zahlungen genehmigen"
 msgid "Reject selected Payments"
 msgstr "Ausgewählte Zahlungen ablehnen"
 
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
-msgid "Pending"
-msgstr "Ausstehend"
-
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:8
 msgid "Type"
 msgstr "Typ"
+
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
+msgid "inactive"
+msgstr "inaktiv"
 
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:41
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:43
@@ -1423,7 +1429,8 @@ msgstr "Corporation mit ID %s nicht gefunden"
 
 #: taxsystem/views.py:81
 msgid "Queued Update All Taxsystem Corporations"
-msgstr "In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
+msgstr ""
+"In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
 
 #: taxsystem/views.py:98
 #, python-format
@@ -1504,6 +1511,18 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
+#~ msgid "deactivated"
+#~ msgstr "Deaktiviert"
+
+#~ msgid "pending"
+#~ msgstr "Ausstehend"
+
+#~ msgid "paid"
+#~ msgstr "Gezahlt"
+
+#~ msgid "unpaid"
+#~ msgstr "Nicht Gezahlt"
+
 #~ msgid "all"
 #~ msgstr "alle"
 
@@ -1533,9 +1552,6 @@ msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
 #~ msgid "View Payments"
 #~ msgstr "Zeige Zahlungen"
-
-#~ msgid "Deactivate"
-#~ msgstr "Deaktiviere"
 
 #~ msgid "Deactivate User"
 #~ msgstr "Deaktiviere Benutzer"
