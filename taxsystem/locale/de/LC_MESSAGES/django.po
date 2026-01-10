@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-01-10 15:45+0100\n"
+"POT-Creation-Date: 2026-01-10 16:22+0100\n"
 "PO-Revision-Date: 2026-01-10 14:21+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -583,27 +583,37 @@ msgid "Can manage all Alliances"
 msgstr "Kann alle Allianzen verwalten"
 
 #: taxsystem/models/helpers/textchoices.py:29
-msgid "disabled"
+#, fuzzy
+#| msgid "disabled"
+msgid "Disabled"
 msgstr "deaktiviert"
 
 #: taxsystem/models/helpers/textchoices.py:30
-msgid "token error"
+#, fuzzy
+#| msgid "token error"
+msgid "Token Error"
 msgstr "token Fehler"
 
 #: taxsystem/models/helpers/textchoices.py:31
-msgid "error"
+#, fuzzy
+#| msgid "error"
+msgid "Error"
 msgstr "fehler"
 
 #: taxsystem/models/helpers/textchoices.py:32
-msgid "ok"
-msgstr "Ok"
+msgid "OK"
+msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:33
-msgid "incomplete"
+#, fuzzy
+#| msgid "incomplete"
+msgid "Incomplete"
 msgstr "unvollständig"
 
 #: taxsystem/models/helpers/textchoices.py:34
-msgid "in progress"
+#, fuzzy
+#| msgid "in progress"
+msgid "In Progress"
 msgstr "in Arbeit"
 
 #: taxsystem/models/helpers/textchoices.py:68
@@ -1486,6 +1496,9 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+
+#~ msgid "ok"
+#~ msgstr "Ok"
 
 #~ msgid "active"
 #~ msgstr "aktiv"
