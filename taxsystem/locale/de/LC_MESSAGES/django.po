@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System \n"
+"Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2026-01-10 16:22+0100\n"
-"PO-Revision-Date: 2026-01-10 14:21+0000\n"
+"PO-Revision-Date: 2026-01-10 20:22+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
@@ -522,8 +522,7 @@ msgstr "Gibt an, ob dieser Corporation Inhaber aktiv ist."
 
 #: taxsystem/models/corporation.py:98
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr ""
-"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+msgstr "Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
 
 #: taxsystem/models/corporation.py:105
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
@@ -583,36 +582,26 @@ msgid "Can manage all Alliances"
 msgstr "Kann alle Allianzen verwalten"
 
 #: taxsystem/models/helpers/textchoices.py:29
-#, fuzzy
-#| msgid "disabled"
 msgid "Disabled"
 msgstr "deaktiviert"
 
 #: taxsystem/models/helpers/textchoices.py:30
-#, fuzzy
-#| msgid "token error"
 msgid "Token Error"
 msgstr "token Fehler"
 
 #: taxsystem/models/helpers/textchoices.py:31
-#, fuzzy
-#| msgid "error"
 msgid "Error"
-msgstr "fehler"
+msgstr "Fehler"
 
 #: taxsystem/models/helpers/textchoices.py:32
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: taxsystem/models/helpers/textchoices.py:33
-#, fuzzy
-#| msgid "incomplete"
 msgid "Incomplete"
 msgstr "unvollständig"
 
 #: taxsystem/models/helpers/textchoices.py:34
-#, fuzzy
-#| msgid "in progress"
 msgid "In Progress"
 msgstr "in Arbeit"
 
@@ -1415,8 +1404,7 @@ msgstr "Corporation mit ID %s nicht gefunden"
 
 #: taxsystem/views.py:81
 msgid "Queued Update All Taxsystem Corporations"
-msgstr ""
-"In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
+msgstr "In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
 
 #: taxsystem/views.py:98
 #, python-format
