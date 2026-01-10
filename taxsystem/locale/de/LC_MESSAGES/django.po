@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-31 04:06+0100\n"
+"POT-Creation-Date: 2026-01-10 14:34+0100\n"
 "PO-Revision-Date: 2025-12-31 03:22+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -535,12 +535,10 @@ msgstr "aktiv"
 
 #: taxsystem/models/corporation.py:308
 #: taxsystem/models/helpers/textchoices.py:86
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
 msgid "missing"
 msgstr "Vermisst"
 
 #: taxsystem/models/corporation.py:309
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
 msgid "unregistered"
 msgstr "nicht Registriert"
 
@@ -646,7 +644,6 @@ msgid "approved"
 msgstr "Genehmigt"
 
 #: taxsystem/models/helpers/textchoices.py:121
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
 msgid "pending"
 msgstr "Ausstehend"
 
@@ -675,12 +672,10 @@ msgid "Reviser Comment"
 msgstr "Prüfer Kommentar"
 
 #: taxsystem/models/helpers/textchoices.py:160
-#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
 msgid "paid"
 msgstr "Gezahlt"
 
 #: taxsystem/models/helpers/textchoices.py:161
-#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
 msgid "unpaid"
 msgstr "Nicht Gezahlt"
 
@@ -1112,8 +1107,18 @@ msgstr "Nach Zahlungsstatus filtern"
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
-msgid "all"
-msgstr "alle"
+msgid "All"
+msgstr "Alle"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
+msgid "Paid"
+msgstr "Gezahlt"
+
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
+#, fuzzy
+#| msgid "unpaid"
+msgid "Unpaid"
+msgstr "Nicht Gezahlt"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:30
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:11
@@ -1265,6 +1270,7 @@ msgid "Alts"
 msgstr "Sekundärcharaktere"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
 msgid "Unregistered"
 msgstr "Nicht Registriert"
 
@@ -1302,6 +1308,12 @@ msgstr "Kontoname"
 msgid "Filter by Member Status"
 msgstr "Nach Mitgliedsstatus filtern"
 
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
+#, fuzzy
+#| msgid "missing"
+msgid "Missing"
+msgstr "Vermisst"
+
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8
 msgid "Payment Information"
 msgstr "Zahlungsinformation"
@@ -1331,6 +1343,12 @@ msgstr "Ausgewählte Zahlungen genehmigen"
 #: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:19
 msgid "Reject selected Payments"
 msgstr "Ausgewählte Zahlungen ablehnen"
+
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
+#, fuzzy
+#| msgid "pending"
+msgid "Pending"
+msgstr "Ausstehend"
 
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:8
 msgid "Type"
@@ -1494,11 +1512,8 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
-#~ msgid "Paid"
-#~ msgstr "Gezahlt"
-
-#~ msgid "All"
-#~ msgstr "Alle"
+#~ msgid "all"
+#~ msgstr "alle"
 
 #~ msgid "Is Alt"
 #~ msgstr "Ist Alt"
