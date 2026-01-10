@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2025-12-31 04:06+0100\n"
+"POT-Creation-Date: 2026-01-10 14:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -523,12 +523,10 @@ msgstr ""
 
 #: taxsystem/models/corporation.py:308
 #: taxsystem/models/helpers/textchoices.py:86
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
 msgid "missing"
 msgstr ""
 
 #: taxsystem/models/corporation.py:309
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
 msgid "unregistered"
 msgstr ""
 
@@ -634,7 +632,6 @@ msgid "approved"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:121
-#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
 msgid "pending"
 msgstr ""
 
@@ -663,12 +660,10 @@ msgid "Reviser Comment"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:160
-#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
 msgid "paid"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:161
-#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
 msgid "unpaid"
 msgstr ""
 
@@ -1094,7 +1089,15 @@ msgstr ""
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:14
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:14
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:9
-msgid "all"
+msgid "All"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:18
+msgid "Paid"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
+msgid "Unpaid"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:30
@@ -1247,6 +1250,7 @@ msgid "Alts"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
 msgid "Unregistered"
 msgstr ""
 
@@ -1284,6 +1288,10 @@ msgstr ""
 msgid "Filter by Member Status"
 msgstr ""
 
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
+msgid "Missing"
+msgstr ""
+
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:8
 msgid "Payment Information"
 msgstr ""
@@ -1312,6 +1320,10 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:19
 msgid "Reject selected Payments"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
+msgid "Pending"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:8
