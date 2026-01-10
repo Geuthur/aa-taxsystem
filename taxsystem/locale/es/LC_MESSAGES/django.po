@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System \n"
+"Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2026-01-10 16:22+0100\n"
-"PO-Revision-Date: 2026-01-10 13:41+0000\n"
+"PO-Revision-Date: 2026-01-10 15:39+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: Spanish <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/es/>\n"
