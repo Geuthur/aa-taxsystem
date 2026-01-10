@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System \n"
+"Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2026-01-10 14:34+0100\n"
-"PO-Revision-Date: 2025-12-31 03:22+0000\n"
+"PO-Revision-Date: 2026-01-10 13:43+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
@@ -520,8 +520,7 @@ msgstr "Gibt an, ob dieser Corporation Inhaber aktiv ist."
 
 #: taxsystem/models/corporation.py:98
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr ""
-"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+msgstr "Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
 
 #: taxsystem/models/corporation.py:105
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
@@ -1115,8 +1114,6 @@ msgid "Paid"
 msgstr "Gezahlt"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:22
-#, fuzzy
-#| msgid "unpaid"
 msgid "Unpaid"
 msgstr "Nicht Gezahlt"
 
@@ -1309,8 +1306,6 @@ msgid "Filter by Member Status"
 msgstr "Nach Mitgliedsstatus filtern"
 
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
-#, fuzzy
-#| msgid "missing"
 msgid "Missing"
 msgstr "Vermisst"
 
@@ -1345,8 +1340,6 @@ msgid "Reject selected Payments"
 msgstr "Ausgewählte Zahlungen ablehnen"
 
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:13
-#, fuzzy
-#| msgid "pending"
 msgid "Pending"
 msgstr "Ausstehend"
 
@@ -1430,8 +1423,7 @@ msgstr "Corporation mit ID %s nicht gefunden"
 
 #: taxsystem/views.py:81
 msgid "Queued Update All Taxsystem Corporations"
-msgstr ""
-"In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
+msgstr "In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
 
 #: taxsystem/views.py:98
 #, python-format
