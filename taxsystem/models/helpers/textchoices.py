@@ -80,10 +80,10 @@ class AccountStatus(models.TextChoices):
     This indicates the current status of a tax account.
     """
 
-    ACTIVE = "active", _("active")
-    INACTIVE = "inactive", _("inactive")
-    DEACTIVATED = "deactivated", _("deactivated")
-    MISSING = "missing", _("missing")
+    ACTIVE = "active", _("Active")
+    INACTIVE = "inactive", _("Inactive")
+    DEACTIVATED = "deactivated", _("Deactivated")
+    MISSING = "missing", _("Missing")
 
     def html(self, text=False) -> mark_safe:
         """Return the HTML for the status."""
@@ -117,10 +117,10 @@ class AccountStatus(models.TextChoices):
 
 
 class PaymentRequestStatus(models.TextChoices):
-    APPROVED = "approved", _("approved")
-    PENDING = "pending", _("pending")
-    REJECTED = "rejected", _("rejected")
-    NEEDS_APPROVAL = "needs_approval", _("requires auditor")
+    APPROVED = "approved", _("Approved")
+    PENDING = "pending", _("Pending")
+    REJECTED = "rejected", _("Rejected")
+    NEEDS_APPROVAL = "needs_approval", _("Requires Auditor")
 
     def color(self) -> str:
         """Return bootstrap corresponding icon class."""
@@ -157,8 +157,8 @@ class PaymentStatus(models.TextChoices):
     This indicates whether a payment has been made or not.
     """
 
-    PAID = "paid", _("paid")
-    UNPAID = "unpaid", _("unpaid")
+    PAID = "paid", _("Paid")
+    UNPAID = "unpaid", _("Unpaid")
 
     def color(self) -> str:
         """Return bootstrap corresponding icon class."""
@@ -204,9 +204,9 @@ class AllianceUpdateSection(UpdateSection):
 
 class AdminActions(models.TextChoices):
     DEFAULT = "", ""
-    ADD = "Added", _("added")
-    CHANGE = "Changed", _("changed")
-    DELETE = "Deleted", _("deleted")
+    ADD = "Added", _("Added")
+    CHANGE = "Changed", _("Changed")
+    DELETE = "Deleted", _("Deleted")
 
 
 class FilterMatchType(models.TextChoices):
