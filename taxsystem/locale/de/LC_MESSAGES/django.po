@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-01-10 14:50+0100\n"
+"POT-Creation-Date: 2026-01-10 15:45+0100\n"
 "PO-Revision-Date: 2026-01-10 14:21+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -169,7 +169,7 @@ msgstr "Filterset aktivieren"
 msgid "Delete Filter Set"
 msgstr "Lösche Filtersatz"
 
-#: taxsystem/api/helpers/icons.py:342
+#: taxsystem/api/helpers/icons.py:342 taxsystem/models/corporation.py:307
 #: taxsystem/models/helpers/textchoices.py:83
 #: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:9
 msgid "Active"
@@ -530,17 +530,17 @@ msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 "Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
 
-#: taxsystem/models/corporation.py:307
-msgid "active"
-msgstr "aktiv"
-
 #: taxsystem/models/corporation.py:308
-msgid "missing"
+#: taxsystem/models/helpers/textchoices.py:86
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
+msgid "Missing"
 msgstr "Vermisst"
 
 #: taxsystem/models/corporation.py:309
-msgid "unregistered"
-msgstr "nicht Registriert"
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
+#: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
+msgid "Unregistered"
+msgstr "Nicht Registriert"
 
 #: taxsystem/models/corporation.py:310
 msgid "is alt"
@@ -633,11 +633,6 @@ msgstr "Aktualisierungen erfolgreich abgeschlossen"
 #: taxsystem/models/helpers/textchoices.py:85
 msgid "Deactivated"
 msgstr "Deaktiviert"
-
-#: taxsystem/models/helpers/textchoices.py:86
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
-msgid "Missing"
-msgstr "Vermisst"
 
 #: taxsystem/models/helpers/textchoices.py:120
 msgid "Approved"
@@ -1262,11 +1257,6 @@ msgstr "Hauptcharaktere"
 msgid "Alts"
 msgstr "Sekundärcharaktere"
 
-#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
-#: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
-msgid "Unregistered"
-msgstr "Nicht Registriert"
-
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:207
 msgid "Active Accounts"
 msgstr "Aktive Accounts"
@@ -1496,6 +1486,15 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+
+#~ msgid "active"
+#~ msgstr "aktiv"
+
+#~ msgid "missing"
+#~ msgstr "Vermisst"
+
+#~ msgid "unregistered"
+#~ msgstr "nicht Registriert"
 
 #~ msgid "deactivated"
 #~ msgstr "Deaktiviert"
