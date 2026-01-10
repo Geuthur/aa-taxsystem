@@ -26,12 +26,12 @@ class UpdateStatus(models.TextChoices):
     Used to indicate the overall status of an Owner.
     """
 
-    DISABLED = "disabled", _("disabled")
-    TOKEN_ERROR = "token_error", _("token error")
-    ERROR = "error", _("error")
-    OK = "ok", _("ok")
-    INCOMPLETE = "incomplete", _("incomplete")
-    IN_PROGRESS = "in_progress", _("in progress")
+    DISABLED = "disabled", _("Disabled")
+    TOKEN_ERROR = "token_error", _("Token Error")
+    ERROR = "error", _("Error")
+    OK = "ok", _("OK")
+    INCOMPLETE = "incomplete", _("Incomplete")
+    IN_PROGRESS = "in_progress", _("In Progress")
 
     def bootstrap_icon(self) -> str:
         """Return bootstrap corresponding icon class."""
