@@ -3,6 +3,9 @@
 # Standard Library
 from unittest.mock import MagicMock, patch
 
+# Third Party
+from aiopenapi3 import RequestError
+
 # Django
 from django.test import override_settings
 
@@ -141,6 +144,34 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         # Test Data
         mock_random.return_value = 2.0  # Fixed jitter for testing
         exc = HTTPServerError(504, {}, b"Gateway Timeout")
+
+        # Test Action
+        with self.assertRaises(Exception) as context:
+            with retry_task_on_esi_error(self.task):
+                raise exc
+
+        # Expected Result
+        self.assertEqual(str(context.exception), "Retry called")
+        self.task.retry.assert_called_once()
+        call_kwargs = self.task.retry.call_args[1]
+        self.assertEqual(call_kwargs["countdown"], 62)
+
+    @patch("taxsystem.providers.random.uniform")
+    def test_should_retry_on_request_error(self, mock_random):
+        """
+        Test should retry task on Request Error.
+
+        Results:
+        - The task.retry method is called with appropriate countdown.
+        """
+        # Test Data
+        mock_random.return_value = 2.0  # Fixed jitter for testing
+        exc = RequestError(
+            operation=None,
+            request=None,
+            data="Test Data",
+            parameters={},
+        )
 
         # Test Action
         with self.assertRaises(Exception) as context:
