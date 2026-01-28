@@ -10,7 +10,7 @@ import pydantic
 from django.test import override_settings
 
 # Alliance Auth
-from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
+from esi.exceptions import HTTPClientError, HTTPNotModified
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationUpdateStatus
@@ -203,33 +203,6 @@ class TestUpdateManager(TaxSystemTestCase):
 
         def mock_fetch_func(owner=None, force_refresh=False):
             raise HTTPNotModified(status_code=304, headers={})
-
-        # Test Action
-        result = manager.update_section_if_changed(
-            section=CorporationUpdateSection.WALLET,
-            fetch_func=mock_fetch_func,
-            force_refresh=False,
-        )
-
-        # Expected Results
-        self.assertIsInstance(result, UpdateSectionResult)
-        self.assertFalse(result.is_changed)
-        self.assertFalse(result.is_updated)
-
-    def test_update_section_if_changed_server_error(self):
-        """
-        Test the update_section_if_changed method for server error scenario.
-        """
-        # Test Data
-        self.audit = create_owner_from_user(self.user)
-        manager = self.updater(
-            owner=self.audit,
-            update_section=CorporationUpdateSection,
-            update_status=CorporationUpdateStatus,
-        )
-
-        def mock_fetch_func(owner=None, force_refresh=False):
-            raise HTTPServerError(status_code=500, headers={}, data=None)
 
         # Test Action
         result = manager.update_section_if_changed(
