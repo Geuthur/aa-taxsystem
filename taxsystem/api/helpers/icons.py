@@ -212,7 +212,7 @@ def get_filter_set_info_button(
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the delete Request
+    # Generate the URL for the Info Request
     button_request_info_url = reverse(
         "taxsystem:api:get_filters",
         kwargs={
@@ -221,12 +221,12 @@ def get_filter_set_info_button(
         },
     )
 
-    # Define the icon and tooltip for the delete button
+    # Define the icon and tooltip for the info button
     icon = '<i class="fa-solid fa-info"></i>'
     title = _("View Filter Set")
     color = "primary"
 
-    # Create the HTML for the delete icon button
+    # Create the HTML for the info icon button
     filter_set_info_button = (
         f'<button data-action="{button_request_info_url}" '
         f'class="btn btn-{color} btn-sm btn-square me-2" '
@@ -253,7 +253,7 @@ def get_filter_set_switch_button(
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the delete Request
+    # Generate the URL for the Filter Set Switch Request
     button_request_switch_url = reverse(
         "taxsystem:api:switch_filter_set",
         kwargs={
@@ -262,7 +262,7 @@ def get_filter_set_switch_button(
         },
     )
 
-    # Define the icon, color and tooltip for the delete button
+    # Define the icon, color and tooltip for the switch button
     color = "warning"
     if filter_set.enabled:
         icon = '<i class="fa-solid fa-eye-low-vision"></i>'
@@ -271,15 +271,15 @@ def get_filter_set_switch_button(
         icon = '<i class="fa-solid fa-eye"></i>'
         title = _("Activate Filter Set")
 
-    # Create the HTML for the delete icon button
-    filter_set_info_button = (
+    # Create the HTML for the switch icon button
+    filter_set_switch_button = (
         '<button id="taxsystem-switch-filter-set-button" '
         f'data-action="{button_request_switch_url}" '
         f'class="btn btn-{color} btn-sm btn-square me-2" '
         'data-bs-tooltip="aa-taxsystem" '
         f'title="{title}">{icon}</button>'
     )
-    return filter_set_info_button
+    return filter_set_switch_button
 
 
 def get_filter_set_delete_button(
@@ -332,9 +332,9 @@ def get_filter_set_active_icon(
     This function creates a HTML active icon button for showing active status of a given Filter Set object
 
     Args:
-        filter_set (CorporationFilterSet | AllianceFilterSet): The filter set object to be deleted.
+        filter_set (CorporationFilterSet | AllianceFilterSet): The filter set object to be viewed.
     Returns:
-        String: HTML string containing the delete button.
+        String: HTML string containing the active icon button.
     """
     # Define the icon, color and tooltip for the active icon
     if filter_set.enabled:
@@ -345,7 +345,7 @@ def get_filter_set_active_icon(
         icon = '<i class="fa-solid fa-xmark"></i>'
         title = _("Inactive")
         color = "danger"
-    # Create the HTML for the delete icon button
+    # Create the HTML for the active icon button
     filter_set_active_button = (
         f"<button "
         f'class="btn btn-{color} btn-sm btn-square me-2" '
@@ -426,7 +426,7 @@ def get_tax_account_switch_button(
         },
     )
 
-    # Define the icon, color and tooltip for the delete button
+    # Define the icon, color and tooltip for the switch button
     color = "warning"
     if account.status == AccountStatus.ACTIVE:
         icon = '<i class="fa-solid fa-eye-low-vision"></i>'
@@ -472,7 +472,7 @@ def get_tax_account_add_button(
         },
     )
 
-    # Define the icon, color and tooltip for the delete button
+    # Define the icon, color and tooltip for the add payment button
     color = "success"
     icon = '<i class="fa-solid fa-dollar-sign"></i>'
     title = _("Add Payment")
@@ -505,7 +505,7 @@ def get_tax_account_info_button(
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the delete Request
+    # Generate the URL for the info Request
     button_request_info_url = reverse(
         "taxsystem:api:get_member_payments",
         kwargs={
@@ -544,7 +544,7 @@ def get_payments_approve_button(payment: CorporationPayments | AlliancePayments)
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the add payment Request
+    # Generate the URL for the approve payment Request
     button_request_approve_url = reverse(
         "taxsystem:api:approve_payment",
         kwargs={
@@ -561,7 +561,7 @@ def get_payments_approve_button(payment: CorporationPayments | AlliancePayments)
         },
     )
 
-    # Define the icon, color and tooltip for the delete button
+    # Define the icon, color and tooltip for the approve button
     color = "success"
     icon = '<i class="fa-solid fa-check"></i>'
     title = _("Approve Payment")
@@ -593,7 +593,7 @@ def get_payments_undo_button(payment: CorporationPayments | AlliancePayments) ->
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the add payment Request
+    # Generate the URL for the undo payment Request
     button_request_undo_url = reverse(
         "taxsystem:api:undo_payment",
         kwargs={
@@ -610,12 +610,12 @@ def get_payments_undo_button(payment: CorporationPayments | AlliancePayments) ->
         },
     )
 
-    # Define the icon, color and tooltip for the delete button
+    # Define the icon, color and tooltip for the undo button
     color = "warning"
     icon = '<i class="fa-solid fa-undo"></i>'
     title = _("Undo Payment")
 
-    # Create the HTML for the add payment icon button
+    # Create the HTML for the undo payment icon button
     payments_undo_button = (
         "<button "
         f'data-action="{button_request_undo_url}" '
@@ -642,7 +642,7 @@ def get_payments_info_button(payment: CorporationPayments | AlliancePayments) ->
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the add payment Request
+    # Generate the URL for the info payment Request
     button_request_info_url = reverse(
         "taxsystem:api:get_payment_details",
         kwargs={
@@ -691,7 +691,7 @@ def get_payments_delete_button(payment: CorporationPayments | AlliancePayments) 
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the add payment Request
+    # Generate the URL for the delete payment Request
     button_request_delete_url = reverse(
         "taxsystem:api:delete_payment",
         kwargs={
@@ -757,7 +757,7 @@ def get_payments_reject_button(payment: CorporationPayments | AlliancePayments) 
         },
     )
 
-    # Define the icon, color and tooltip for the delete button
+    # Define the icon, color and tooltip for the reject button
     color = "danger"
     icon = '<i class="fa-solid fa-xmark"></i>'
     title = _("Reject Payment")
@@ -784,12 +784,12 @@ def get_members_delete_button(member: Members) -> str:
     When clicked, it triggers a modal to confirm the deletion of the according member.
 
     Args:
-        member (Members): The payment object to be viewed.
+        member (Members): The member object to be viewed.
     Returns:
         String: HTML string containing the info button.
     """
 
-    # Generate the URL for the add payment Request
+    # Generate the URL for the info member Request
     button_request_delete_url = reverse(
         "taxsystem:api:delete_member",
         kwargs={
@@ -801,7 +801,7 @@ def get_members_delete_button(member: Members) -> str:
     # Define the icon, color and tooltip for the delete button
     color = "danger"
     icon = '<i class="fa-solid fa-trash"></i>'
-    title = _("Delete Payment")
+    title = _("Delete Member")
 
     # Create the HTML for the delete member icon button
     members_delete_button = (
