@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-01-10 16:22+0100\n"
+"POT-Creation-Date: 2026-02-10 07:19+0100\n"
 "PO-Revision-Date: 2026-02-09 12:26+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -215,7 +215,7 @@ msgstr "Zahlung Rückgängig machen"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#: taxsystem/api/helpers/icons.py:714 taxsystem/api/helpers/icons.py:804
+#: taxsystem/api/helpers/icons.py:714
 msgid "Delete Payment"
 msgstr "Zahlung löschen"
 
@@ -223,6 +223,10 @@ msgstr "Zahlung löschen"
 #: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:24
 msgid "Reject Payment"
 msgstr "Zahlung ablehnen"
+
+#: taxsystem/api/helpers/icons.py:804
+msgid "Delete Member"
+msgstr "Lösche Mitglied"
 
 #: taxsystem/api/payments.py:252
 msgid "System"
@@ -522,7 +526,8 @@ msgstr "Gibt an, ob dieser Corporation Inhaber aktiv ist."
 
 #: taxsystem/models/corporation.py:98
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr "Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+msgstr ""
+"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
 
 #: taxsystem/models/corporation.py:105
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
@@ -828,7 +833,9 @@ msgstr "Steuer Gezahlt"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:38
-msgid "Accept Add Payment request"
+#, fuzzy
+#| msgid "Accept Add Payment request"
+msgid "Accept Add Payment"
 msgstr "Zahlung hinzufügen akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:13
@@ -880,20 +887,21 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:10
-msgid "Accept Payment request"
-msgstr "Zahlunganfrage akzeptieren"
+#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:35
+#, fuzzy
+#| msgid "Accept Approve Payment request"
+msgid "Accept Approve Payment"
+msgstr "Zahlungsanfrage akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:18
 msgid "Are you sure you want to approve this payment?"
 msgstr "Sind Sie sicher, dass Sie diese Zahlung genehmigen möchten?"
 
-#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:35
-msgid "Accept Approve Payment request"
-msgstr "Zahlungsanfrage akzeptieren"
-
 #: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:30
-msgid "Accept Bulk Action request"
+#, fuzzy
+#| msgid "Accept Bulk Action request"
+msgid "Accept Bulk Action"
 msgstr "Massen Aktion akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:18
@@ -901,44 +909,54 @@ msgid "Are you sure you want to perform this bulk action?"
 msgstr "Sind Sie sicher, dass Sie diese Massenaktion durchführen möchten?"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:10
-msgid "Accept Delete request"
-msgstr "Löschen akzeptieren"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:38
+#, fuzzy
+#| msgid "Accept Delete Filter-Set request"
+msgid "Accept Delete Filter-Set"
+msgstr "Löschen des Filtersatzes akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:18
 msgid "Are you sure you want to delete this filter set?"
 msgstr "Möchten Sie diesen Filtersatz wirklich löschen?"
 
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:38
-msgid "Accept Delete Filter-Set request"
-msgstr "Löschen des Filtersatzes akzeptieren"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:38
+#, fuzzy
+#| msgid "Accept Delete Filter request"
+msgid "Accept Delete Filter"
+msgstr "Löschen des Filters akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:18
 msgid "Are you sure you want to delete this filter?"
 msgstr "Möchten Sie diesen Filter wirklich löschen?"
 
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:38
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:38
-msgid "Accept Delete Filter request"
-msgstr "Löschen des Filters akzeptieren"
+#, fuzzy
+#| msgid "Delete Member"
+msgid "Accept Delete Member"
+msgstr "Lösche Mitglied"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:18
 msgid "Are you sure you want to delete this member?"
 msgstr "Sind Sie sicher, dass Sie dieses Mitglied löschen möchten?"
 
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:38
+#, fuzzy
+#| msgid "Accept Delete Payment request"
+msgid "Accept Delete Payment"
+msgstr "Löschen der Zahlung akzeptieren"
+
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:18
 msgid "Are you sure you want to delete this payment?"
 msgstr "Möchten Sie diese Zahlung wirklich löschen?"
 
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:38
-msgid "Accept Delete Payment request"
-msgstr "Löschen der Zahlung akzeptieren"
-
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:37
-msgid "Accept Reject Payment request"
+#, fuzzy
+#| msgid "Accept Reject Payment request"
+msgid "Accept Reject Payment"
 msgstr "Zahlung ablehnen akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:18
@@ -947,7 +965,9 @@ msgstr "Sind Sie sicher, dass Sie diese Zahlung ablehnen möchten?"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:30
-msgid "Accept Switch Account request"
+#, fuzzy
+#| msgid "Accept Switch Account request"
+msgid "Accept Switch Account"
 msgstr "Konto Umschalten akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:18
@@ -956,7 +976,9 @@ msgstr "Möchten Sie dieses Konto wirklich wechseln?"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:37
-msgid "Accept Undo Payment request"
+#, fuzzy
+#| msgid "Accept Undo Payment request"
+msgid "Accept Undo Payment"
 msgstr "Zahlungsanfrage zurücksetzen akzeptieren"
 
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:18
@@ -1404,7 +1426,8 @@ msgstr "Corporation mit ID %s nicht gefunden"
 
 #: taxsystem/views.py:81
 msgid "Queued Update All Taxsystem Corporations"
-msgstr "In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
+msgstr ""
+"In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
 
 #: taxsystem/views.py:98
 #, python-format
@@ -1485,6 +1508,12 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
+#~ msgid "Accept Payment request"
+#~ msgstr "Zahlunganfrage akzeptieren"
+
+#~ msgid "Accept Delete request"
+#~ msgstr "Löschen akzeptieren"
+
 #~ msgid "ok"
 #~ msgstr "Ok"
 
@@ -1529,9 +1558,6 @@ msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
 #~ msgid "Are you sure to Confirm"
 #~ msgstr "Sind Sie sicher, dass Sie bestätigen möchten"
-
-#~ msgid "Delete Member"
-#~ msgstr "Lösche Mitglied"
 
 #~ msgid "from"
 #~ msgstr "von"
