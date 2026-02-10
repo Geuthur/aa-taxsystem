@@ -114,7 +114,6 @@ class UpdateManager:
             UpdateSectionResult: The result of the update operation.
         Raises:
             HTTPClientError: If there is a client error during the fetch.
-            HTTPServerError: If there is a server error during the fetch.
             HTTPNotModified: If the data has not been modified.
         """
         section = self.update_section(section)
@@ -193,6 +192,7 @@ class UpdateManager:
         Returns:
             Any: The result of the method call.
         Raises:
+            HTTPServerError: If there is a server error during the fetch.
             Exception: Reraises any exception encountered during the method call.
         """
         try:
