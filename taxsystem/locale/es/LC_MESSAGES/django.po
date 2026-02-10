@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Tax System\n"
+"Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-01-10 16:22+0100\n"
+"POT-Creation-Date: 2026-02-10 07:19+0100\n"
 "PO-Revision-Date: 2026-01-10 15:39+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: Spanish <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -209,13 +209,17 @@ msgstr ""
 msgid "Show Details"
 msgstr ""
 
-#: taxsystem/api/helpers/icons.py:714 taxsystem/api/helpers/icons.py:804
+#: taxsystem/api/helpers/icons.py:714
 msgid "Delete Payment"
 msgstr ""
 
 #: taxsystem/api/helpers/icons.py:763
 #: taxsystem/templates/taxsystem/partials/view-payments/bulk_actions.html:24
 msgid "Reject Payment"
+msgstr ""
+
+#: taxsystem/api/helpers/icons.py:804
+msgid "Delete Member"
 msgstr ""
 
 #: taxsystem/api/payments.py:252
@@ -815,7 +819,7 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:38
-msgid "Accept Add Payment request"
+msgid "Accept Add Payment"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:13
@@ -866,20 +870,17 @@ msgid "Cancel"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:10
-msgid "Accept Payment request"
+#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:35
+msgid "Accept Approve Payment"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:18
 msgid "Are you sure you want to approve this payment?"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:35
-msgid "Accept Approve Payment request"
-msgstr ""
-
 #: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:30
-msgid "Accept Bulk Action request"
+msgid "Accept Bulk Action"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:18
@@ -887,44 +888,44 @@ msgid "Are you sure you want to perform this bulk action?"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:10
-msgid "Accept Delete request"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:38
+msgid "Accept Delete Filter-Set"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:18
 msgid "Are you sure you want to delete this filter set?"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:38
-msgid "Accept Delete Filter-Set request"
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:38
+msgid "Accept Delete Filter"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:18
 msgid "Are you sure you want to delete this filter?"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:38
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:38
-msgid "Accept Delete Filter request"
+msgid "Accept Delete Member"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:18
 msgid "Are you sure you want to delete this member?"
 msgstr ""
 
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:10
+#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:38
+msgid "Accept Delete Payment"
+msgstr ""
+
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:18
 msgid "Are you sure you want to delete this payment?"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:38
-msgid "Accept Delete Payment request"
-msgstr ""
-
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:37
-msgid "Accept Reject Payment request"
+msgid "Accept Reject Payment"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:18
@@ -933,7 +934,7 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:30
-msgid "Accept Switch Account request"
+msgid "Accept Switch Account"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:18
@@ -942,7 +943,7 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:10
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:37
-msgid "Accept Undo Payment request"
+msgid "Accept Undo Payment"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:18
