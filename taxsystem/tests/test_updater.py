@@ -10,7 +10,7 @@ import pydantic
 from django.test import override_settings
 
 # Alliance Auth
-from esi.exceptions import HTTPClientError, HTTPNotModified
+from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationUpdateStatus
@@ -358,3 +358,39 @@ class TestUpdateManager(TaxSystemTestCase):
         self.assertFalse(status_obj.is_success)
         self.assertFalse(status_obj.has_token_error)
         self.assertIn("ValueError: Token error occurred.", status_obj.error_message)
+
+    def test_perform_update_Status_httpserver_error(self):
+        """
+        Test the perform_update_status method for HTTPServerError scenario.
+        """
+        # Test Data
+        self.audit = create_owner_from_user(self.user)
+        manager = self.updater(
+            owner=self.audit,
+            update_section=CorporationUpdateSection,
+            update_status=CorporationUpdateStatus,
+        )
+        status_obj = create_update_status(
+            owner=self.audit,
+            section=CorporationUpdateSection.WALLET,
+        )
+
+        def mock_update_method(owner, force_refresh=False):
+            raise HTTPServerError(status_code=500, headers={}, data=None)
+
+        # Test Action: perform_update_status should persist an error and re-raise
+        with self.assertRaises(HTTPServerError):
+            manager.perform_update_status(
+                section=CorporationUpdateSection.WALLET,
+                method=mock_update_method,
+                owner=self.audit,
+                force_refresh=False,
+            )
+
+        # Expected Results: status object updated due to the exception
+        status_obj = CorporationUpdateStatus.objects.get(
+            owner=self.audit,
+            section=CorporationUpdateSection.WALLET,
+        )
+        self.assertFalse(status_obj.is_success)
+        self.assertFalse(status_obj.has_token_error)
