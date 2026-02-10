@@ -11,6 +11,24 @@ Section Order:
 ### Removed
 -->
 
+## [2.0.1] - 2026-02-10
+
+### Changed
+
+- Updated Translation
+- Simplified German Translation for Requests
+
+### Fixed
+
+- Improved naming consistency in hints and modal text
+- ESI Retry Manager for `HTTPServer` Errors
+- Missing Migration
+- Handle RequestError in `retry_task_on_esi_error`
+
+### Removed
+
+- HTTPServer Catch in `update_section_if_changed`
+
 ## [2.0.0] - 2025-12-31
 
 > [!WARNING]
@@ -733,5 +751,6 @@ python manage.py taxsystem_migrate_payments
 [2.0.0-beta.4]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.4 "2.0.0-beta.4"
 [2.0.0-beta.5]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.5 "2.0.0-beta.5"
 [2.0.0-beta.6]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.6 "2.0.0-beta.6"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.0...HEAD "In Development"
+[2.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.0...v2.0.1 "2.0.1"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.1...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
