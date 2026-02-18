@@ -408,6 +408,18 @@ class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
+    def open_invoices(self, owner: "OwnerContext") -> int | None:
+        """
+        Get open invoices for the given owner.
+        """
+        return self.filter(
+            owner=owner,
+            request_status__in=[
+                PaymentRequestStatus.PENDING,
+                PaymentRequestStatus.NEEDS_APPROVAL,
+            ],
+        ).count()
+
 
 class AlliancePaymentManager(models.Manager["PaymentsContext"]):
     def get_queryset(self):
@@ -415,6 +427,14 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
 
     def get_visible(self, user: User, owner: "OwnerContext"):
         return self.get_queryset().visible_to(user=user, owner=owner)
+
+    def get_open_invoices(self, user: User, owner: "OwnerContext"):
+        """Get the count of open invoices for the given user."""
+        if user.has_perm("taxsystem.manage_own_alliance") or user.has_perm(
+            "taxsystem.manage_alliances"
+        ):
+            return self.get_queryset().open_invoices(owner=owner)
+        return None
 
     @log_timing(logger)
     def update_or_create_payments(

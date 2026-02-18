@@ -414,6 +414,30 @@ class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
+    def visible_to_invoices(self, owners: "OwnerContext") -> int | None:
+        """
+        Get the count of visible invoices for the given owners.
+        """
+        return self.filter(
+            owner__in=owners,
+            request_status__in=[
+                PaymentRequestStatus.PENDING,
+                PaymentRequestStatus.NEEDS_APPROVAL,
+            ],
+        ).count()
+
+    def open_invoices(self, owner: "OwnerContext") -> int | None:
+        """
+        Get open invoices for the given owner.
+        """
+        return self.filter(
+            owner=owner,
+            request_status__in=[
+                PaymentRequestStatus.PENDING,
+                PaymentRequestStatus.NEEDS_APPROVAL,
+            ],
+        ).count()
+
 
 class PaymentsManager(models.Manager["PaymentsContext"]):
     def get_queryset(self):
@@ -421,6 +445,18 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
 
     def get_visible(self, user: User, owner: "OwnerContext"):
         return self.get_queryset().visible_to(user=user, owner=owner)
+
+    def get_visible_invoices(self, owners: "OwnerContext"):
+        """Get the count of visible invoices for the given owners."""
+        return self.get_queryset().visible_to_invoices(owners=owners)
+
+    def get_open_invoices(self, user: User, owner: "OwnerContext"):
+        """Get the count of open invoices for the given user."""
+        if user.has_perm("taxsystem.manage_own_corp") or user.has_perm(
+            "taxsystem.manage_corps"
+        ):
+            return self.get_queryset().open_invoices(owner=owner)
+        return None
 
     @log_timing(logger)
     def update_or_create_payments(
@@ -435,7 +471,7 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
 
     @transaction.atomic()
     # pylint: disable=too-many-locals, unused-argument
-    def _update_or_create_objs(
+    def _updae_or_create_objs(
         self, owner: "OwnerContext", force_refresh: bool = False
     ) -> None:
         """Update or Create payment for Corporation."""

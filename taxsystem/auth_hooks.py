@@ -1,21 +1,23 @@
 """Hook into Alliance Auth"""
 
-# Standard Library
-import logging
-
 # Django
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth import hooks
-from allianceauth.services.hooks import MenuItemHook, UrlHook
+from allianceauth.authentication.models import UserProfile
+from allianceauth.services.hooks import MenuItemHook, UrlHook, get_extension_logger
 
 # AA TaxSystem
-from taxsystem.models.corporation import CorporationPaymentAccount
+from taxsystem import __title__, app_settings, urls
+from taxsystem.models.corporation import (
+    CorporationOwner,
+    CorporationPaymentAccount,
+    CorporationPayments,
+)
+from taxsystem.providers import AppLogger
 
-from . import app_settings, urls
-
-logger = logging.getLogger(__name__)
+logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class TaxSystemMenuItem(MenuItemHook):
@@ -29,13 +31,22 @@ class TaxSystemMenuItem(MenuItemHook):
             navactive=["taxsystem:"],
         )
 
-    def render(self, request):
+    def render(self, request: UserProfile):
         if request.user.has_perm("taxsystem.basic_access"):
+            # Check if the User has Paid for the current period and set count to 1 if not paid, otherwise 0
             try:
                 payment_user = CorporationPaymentAccount.objects.get(user=request.user)
                 self.count = 1 if not payment_user.has_paid else 0
             except CorporationPaymentAccount.DoesNotExist:
                 self.count = 0
+
+            if request.user.has_perm(
+                "taxsystem.manage_own_corp"
+            ) or request.user.has_perm("taxsystem.manage_corps"):
+                # Get the count of open invoices for the Managing user
+                owners = CorporationOwner.objects.visible_to(request.user)
+                invoices = CorporationPayments.objects.get_visible_invoices(owners)
+                self.count = invoices if invoices and invoices > 0 else self.count
             return MenuItemHook.render(self, request)
         return ""
 

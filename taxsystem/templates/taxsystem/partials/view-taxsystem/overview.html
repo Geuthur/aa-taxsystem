@@ -6,6 +6,7 @@
                 <th>{% translate "Portrait" %}</th>
                 <th>{% translate "Name" %}</th>
                 <th>{% translate "Type" %}</th>
+                <th>{% translate "Open Invoices" %}</th>
                 <th>{% translate "Actions" %}</th>
             </tr>
         </thead>
@@ -25,6 +26,16 @@
                     <span class="badge bg-{% if owner.type  == 'corporation' %}primary{% else %}info{% endif %}">
                         {{ owner.type_display }}
                     </span>
+                </td>
+                <td>
+                    {% if owner.open_invoices %}
+                        <span class="badge bg-danger">
+                            {{ owner.open_invoices }}
+                            {% translate "Open Invoices" %}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">{% translate "No Open Invoices" %}</span>
+                    {% endif %}
                 </td>
                 <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
