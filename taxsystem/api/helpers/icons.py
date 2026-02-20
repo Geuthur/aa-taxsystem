@@ -159,8 +159,8 @@ def get_taxsystem_payments_action_icons(
         # Only show delete button for custom payments (not linked to an Wallet Entry)
         if payment.journal is None:
             taxsystem_request_icons += get_payments_delete_button(payment=payment)
-    if checkbox:
-        taxsystem_request_icons += f'<input type="checkbox" class="tax-row-select form-check-input me-2" data-payment-pk="{payment.pk}" />'
+        if checkbox:
+            taxsystem_request_icons += f'<input type="checkbox" class="tax-row-select form-check-input me-2" data-payment-pk="{payment.pk}" />'
     taxsystem_request_icons += "</div>"
     return taxsystem_request_icons
 
