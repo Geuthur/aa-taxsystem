@@ -101,7 +101,7 @@ class PaymentsApiEndpoints:
 
             # Get Payments
             payments = (
-                owner.payment_model.objects.get_visible(user=request.user, owner=owner)
+                owner.payment_model.objects.get_visible(user=request.user)
                 .select_related(
                     "account",
                     "account__user",

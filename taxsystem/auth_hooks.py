@@ -11,7 +11,6 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook, get_extension_log
 # AA TaxSystem
 from taxsystem import __title__, app_settings, urls
 from taxsystem.models.corporation import (
-    CorporationOwner,
     CorporationPaymentAccount,
     CorporationPayments,
 )
@@ -44,8 +43,9 @@ class TaxSystemMenuItem(MenuItemHook):
                 "taxsystem.manage_own_corp"
             ) or request.user.has_perm("taxsystem.manage_corps"):
                 # Get the count of open invoices for the Managing user
-                owners = CorporationOwner.objects.visible_to(request.user)
-                invoices = CorporationPayments.objects.get_visible_invoices(owners)
+                invoices = CorporationPayments.objects.get_visible_invoices(
+                    request.user
+                )
                 self.count = invoices if invoices and invoices > 0 else self.count
             return MenuItemHook.render(self, request)
         return ""

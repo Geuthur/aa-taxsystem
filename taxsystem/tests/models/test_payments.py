@@ -2,6 +2,9 @@
 from django.test import TestCase
 from django.utils import timezone
 
+# Alliance Auth
+from allianceauth.tests.auth_utils import AuthUtils
+
 # Alliance Auth (External Libs)
 from eveuniverse.models import EveEntity
 
@@ -115,3 +118,64 @@ class TestPaymentsModel(TaxSystemTestCase):
         """Test if the division is correct."""
         payments = CorporationPayments.objects.get(account=self.tax_account)
         self.assertEqual(payments.division_name, "Main Division")
+
+    def test_access_no_perms(self):
+        """Test should return only own corporation if basic_access is set."""
+        corporation = CorporationPayments.objects.get_visible(user=self.user2)
+        self.assertNotIn(self.payments, corporation)
+
+    def test_access_perms_own_corp(self):
+        """Test should return only own corporation if manage_own_corp is set."""
+        self.user = AuthUtils.add_permission_to_user_by_name(
+            "taxsystem.manage_own_corp", self.user
+        )
+        self.user.refresh_from_db()
+        corporation = CorporationPayments.objects.get_visible(user=self.user)
+        self.assertIn(self.payments, corporation)
+
+    def test_access_perms_manage_corps(self):
+        """Test should return all corporations if manage_corps is set."""
+        self.user = AuthUtils.add_permission_to_user_by_name(
+            "taxsystem.manage_corps", self.user
+        )
+        self.user.refresh_from_db()
+        corporation = CorporationPayments.objects.get_visible(user=self.user)
+        self.assertIn(self.payments, corporation)
+
+    def test_open_invoices_count(self):
+        """Test the count of open invoices."""
+        self.payments.request_status = PaymentRequestStatus.PENDING
+        self.payments.save()
+
+        open_invoices = CorporationPayments.objects.get_owner_open_invoices(
+            user=self.superuser, owner=self.audit
+        )
+        self.assertEqual(open_invoices, 1)
+
+    def test_open_invoices_count_is_none(self):
+        """Test the count of open invoices."""
+        self.payments.request_status = PaymentRequestStatus.PENDING
+        self.payments.save()
+
+        open_invoices = CorporationPayments.objects.get_owner_open_invoices(
+            user=self.user, owner=self.audit
+        )
+        self.assertEqual(open_invoices, 0)
+
+    def test_get_visible_invoices(self):
+        """Test the count of open invoices."""
+        self.payments.request_status = PaymentRequestStatus.PENDING
+        self.payments.save()
+
+        open_invoices = CorporationPayments.objects.get_visible_invoices(
+            user=self.manage_own_user
+        )
+        self.assertEqual(open_invoices, 1)
+
+    def test_get_visible_invoices_is_none(self):
+        """Test the count of open invoices."""
+        self.payments.request_status = PaymentRequestStatus.PENDING
+        self.payments.save()
+
+        open_invoices = CorporationPayments.objects.get_visible_invoices(user=self.user)
+        self.assertEqual(open_invoices, 0)

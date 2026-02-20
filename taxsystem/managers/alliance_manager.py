@@ -375,7 +375,7 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
 
 class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
     # pylint: disable=duplicate-code
-    def visible_to(self, user: User, owner: "OwnerContext"):
+    def visible_to(self, user: User):
         """Return visible payments for the user depending on their permissions."""
         # superusers get all visible
         if user.is_superuser:
@@ -383,22 +383,29 @@ class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
                 "Returning all payments for superuser %s.",
                 user,
             )
-            return self.filter(owner=owner)
+            return self
 
         if user.has_perm("taxsystem.manage_alliances"):
             logger.debug(
                 "Returning all alliance payments for Tax Audit Manager %s.", user
             )
-            return self.filter(owner=owner)
+            return self
         try:
             char = user.profile.main_character
             assert char
-            queries = [models.Q(owner=owner, account__user=user)]
+            queries = [models.Q(account__user=user)]
 
             if user.has_perm("taxsystem.manage_own_alliance"):
-                logger.debug("Returning own alliance payments for %s.", user)
-                queries.append(models.Q(owner=owner))
+                alliance_ids = user.character_ownerships.all().values_list(
+                    "character__alliance_id", flat=True
+                )
+                queries.append(
+                    models.Q(owner__eve_alliance__alliance_id__in=alliance_ids)
+                )
             logger.debug("%s queries for user %s visible alliance.", len(queries), user)
+
+            if len(queries) == 0:
+                return self.none()
 
             query = queries.pop()
             for q in queries:
@@ -407,6 +414,18 @@ class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
         except AssertionError:
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
+
+    def visible_to_invoices(self, user: User) -> int | None:
+        """
+        Get the count of visible invoices for the given user.
+        """
+        owners = self.visible_to(user=user)
+        return owners.filter(
+            request_status__in=[
+                PaymentRequestStatus.PENDING,
+                PaymentRequestStatus.NEEDS_APPROVAL,
+            ],
+        ).count()
 
     def open_invoices(self, owner: "OwnerContext") -> int | None:
         """
@@ -425,16 +444,20 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
     def get_queryset(self):
         return AlliancePaymentsQuerySet(self.model, using=self._db)
 
-    def get_visible(self, user: User, owner: "OwnerContext"):
-        return self.get_queryset().visible_to(user=user, owner=owner)
+    def get_visible(self, user: User):
+        return self.get_queryset().visible_to(user=user)
 
-    def get_open_invoices(self, user: User, owner: "OwnerContext"):
-        """Get the count of open invoices for the given user."""
+    def get_visible_invoices(self, user: User):
+        """Get the count of visible invoices for the given user."""
+        return self.get_queryset().visible_to_invoices(user=user)
+
+    def get_owner_open_invoices(self, user: User, owner: "OwnerContext"):
+        """Get the count of open invoices for the given user and owner."""
         if user.has_perm("taxsystem.manage_own_alliance") or user.has_perm(
             "taxsystem.manage_alliances"
         ):
             return self.get_queryset().open_invoices(owner=owner)
-        return None
+        return 0
 
     @log_timing(logger)
     def update_or_create_payments(

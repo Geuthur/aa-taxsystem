@@ -166,7 +166,7 @@ def index(request: WSGIRequest):  # pylint: disable=unused-argument
                     as_html=True,
                 ),
                 "active": corporation.active,
-                "open_invoices": corporation.payment_model.objects.get_open_invoices(
+                "open_invoices": corporation.payment_model.objects.get_owner_open_invoices(
                     user=request.user, owner=corporation
                 ),
                 "actions": "",
@@ -192,7 +192,7 @@ def index(request: WSGIRequest):  # pylint: disable=unused-argument
                     as_html=True,
                 ),
                 "active": alliance.active,
-                "open_invoices": alliance.payment_model.objects.get_open_invoices(
+                "open_invoices": alliance.payment_model.objects.get_owner_open_invoices(
                     user=request.user, owner=alliance
                 ),
                 "actions": "",
