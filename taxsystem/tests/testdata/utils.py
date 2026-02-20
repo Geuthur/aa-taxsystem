@@ -529,7 +529,6 @@ def create_tax_account(
     }
     params.update(kwargs)
     if isinstance(owner, AllianceOwner):
-        print("Creating AlliancePaymentAccount")
         tax_account = AlliancePaymentAccount(**params)
     else:
         tax_account = CorporationPaymentAccount(**params)
