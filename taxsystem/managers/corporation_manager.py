@@ -421,7 +421,7 @@ class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
-    def visible_to_invoices(self, user: User) -> int | None:
+    def visible_open_invoices(self, user: User) -> int | None:
         """
         Get the count of visible invoices for the given user.
         """
@@ -453,9 +453,9 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
     def get_visible(self, user: User):
         return self.get_queryset().visible_to(user=user)
 
-    def get_visible_invoices(self, user: User):
-        """Get the count of visible invoices for the given user."""
-        return self.get_queryset().visible_to_invoices(user=user)
+    def get_visible_open_invoices(self, user: User):
+        """Get the count of visible open invoices for the given user."""
+        return self.get_queryset().visible_open_invoices(user=user)
 
     def get_owner_open_invoices(self, user: User, owner: "OwnerContext"):
         """Get the count of open invoices for the given user and owner."""

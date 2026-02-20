@@ -43,7 +43,7 @@ class TaxSystemMenuItem(MenuItemHook):
                 "taxsystem.manage_own_corp"
             ) or request.user.has_perm("taxsystem.manage_corps"):
                 # Get the count of open invoices for the Managing user
-                invoices = CorporationPayments.objects.get_visible_invoices(
+                invoices = CorporationPayments.objects.get_visible_open_invoices(
                     request.user
                 )
                 self.count = invoices if invoices and invoices > 0 else self.count
