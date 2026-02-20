@@ -168,7 +168,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
-        open_invoices = CorporationPayments.objects.get_visible_invoices(
+        open_invoices = CorporationPayments.objects.get_visible_open_invoices(
             user=self.manage_own_user
         )
         self.assertEqual(open_invoices, 1)
@@ -178,7 +178,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
-        open_invoices = CorporationPayments.objects.get_visible_invoices(
+        open_invoices = CorporationPayments.objects.get_visible_open_invoices(
             user=self.user2
         )
         self.assertEqual(open_invoices, 0)
@@ -327,7 +327,7 @@ class TestAlliancePaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
-        open_invoices = AlliancePayments.objects.get_visible_invoices(
+        open_invoices = AlliancePayments.objects.get_visible_open_invoices(
             user=self.manage_own_user
         )
         self.assertEqual(open_invoices, 1)
@@ -337,5 +337,7 @@ class TestAlliancePaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
-        open_invoices = AlliancePayments.objects.get_visible_invoices(user=self.user2)
+        open_invoices = AlliancePayments.objects.get_visible_open_invoices(
+            user=self.user2
+        )
         self.assertEqual(open_invoices, 0)
