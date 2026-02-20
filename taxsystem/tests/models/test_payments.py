@@ -177,5 +177,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.payments.request_status = PaymentRequestStatus.PENDING
         self.payments.save()
 
-        open_invoices = CorporationPayments.objects.get_visible_invoices(user=self.user)
+        open_invoices = CorporationPayments.objects.get_visible_invoices(
+            user=self.user2
+        )
         self.assertEqual(open_invoices, 0)
