@@ -4,10 +4,8 @@ from unittest.mock import MagicMock, patch
 # Django
 from django.test import override_settings
 
-# Alliance Auth (External Libs)
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
+from taxsystem.models.general import EveEntity
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,

@@ -9,14 +9,12 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
-# Alliance Auth (External Libs)
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
+from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import CorporationUpdateSection
 from taxsystem.providers import AppLogger, esi
 
@@ -161,10 +159,12 @@ class CorporationWalletManager(models.Manager["CorporationWalletJournalEntry"]):
                     date=item.date,
                     description=item.description,
                     first_party_id=item.first_party_id,
+                    first_party_new_id=item.first_party_id,
                     entry_id=item.id,
                     reason=item.reason,
                     ref_type=item.ref_type,
                     second_party_id=item.second_party_id,
+                    second_party_new_id=item.second_party_id,
                     tax=item.tax,
                     tax_receiver_id=item.tax_receiver_id,
                 )
@@ -172,14 +172,16 @@ class CorporationWalletManager(models.Manager["CorporationWalletJournalEntry"]):
                 items.append(wallet_item)
 
         # Create Entities
-        EveEntity.objects.bulk_resolve_ids(_new_names)
+        EveEntity.objects.bulk_resolve_names(_new_names)
         # Check if created
         all_exist = EveEntity.objects.filter(id__in=_new_names).count() == len(
             _new_names
         )
 
         if all_exist:
-            self.bulk_create(items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE)
+            self.bulk_create(
+                items, batch_size=TAXSYSTEM_BULK_BATCH_SIZE, ignore_conflicts=True
+            )
         else:
             raise DatabaseError("DB Fail")
 

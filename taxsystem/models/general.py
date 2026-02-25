@@ -8,6 +8,9 @@ from typing import Any, NamedTuple
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+# AA TaxSystem
+from taxsystem.managers.eveonline_manager import EveEntityManager
+
 
 class General(models.Model):
     """General model for app permissions"""
@@ -62,3 +65,17 @@ class _NeedsUpdate:
     def for_section(self, section: str) -> bool:
         """Check if an update is needed for a specific section."""
         return self.section_map.get(section, False)
+
+
+class EveEntity(models.Model):
+    """Model representing an EVE Online entity, such as a character, corporation, or alliance."""
+
+    id = models.BigIntegerField(primary_key=True)
+    name = models.CharField(max_length=255)
+    category = models.CharField(max_length=50)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        default_permissions = ()
+
+    objects: EveEntityManager = EveEntityManager()
