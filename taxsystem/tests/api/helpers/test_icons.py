@@ -2,9 +2,12 @@
 from django.urls import reverse
 from django.utils import timezone
 
+# Alliance Auth (External Libs)
+# deprecated with v3
+from eveuniverse.models import EveEntity
+
 # AA TaxSystem
 from taxsystem.api.helpers.icons import get_taxsystem_payments_action_icons
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.utils import (

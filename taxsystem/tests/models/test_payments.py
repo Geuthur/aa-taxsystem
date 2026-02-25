@@ -5,10 +5,13 @@ from django.utils import timezone
 # Alliance Auth
 from allianceauth.tests.auth_utils import AuthUtils
 
+# Alliance Auth (External Libs)
+# deprecated with v3
+from eveuniverse.models import EveEntity
+
 # AA TaxSystem
 from taxsystem.models.alliance import AlliancePayments
 from taxsystem.models.corporation import CorporationPayments
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
 )

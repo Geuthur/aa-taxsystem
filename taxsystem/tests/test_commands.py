@@ -5,8 +5,11 @@ from io import StringIO
 from django.core.management import call_command
 from django.utils import timezone
 
+# Alliance Auth (External Libs)
+# deprecated with v3
+from eveuniverse.models import EveEntity
+
 # AA TaxSystem
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 # AA Tax System

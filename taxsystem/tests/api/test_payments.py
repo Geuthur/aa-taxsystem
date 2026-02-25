@@ -7,9 +7,12 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.urls import reverse
 from django.utils import timezone
 
+# Alliance Auth (External Libs)
+# deprecated with v3
+from eveuniverse.models import EveEntity
+
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import PaymentActions, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.utils import (

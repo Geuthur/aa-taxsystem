@@ -5,13 +5,16 @@ from unittest.mock import patch
 from django.test import override_settings
 from django.utils import timezone
 
+# Alliance Auth (External Libs)
+# deprecated with v3
+from eveuniverse.models import EveEntity
+
 # AA TaxSystem
 from taxsystem.models.corporation import (
     CorporationFilter,
     CorporationPaymentAccount,
     Members,
 )
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.esi_stub_openapi import (
