@@ -127,6 +127,18 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name="EveEntity",
+            fields=[
+                ("id", models.BigIntegerField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=255)),
+                ("category", models.CharField(max_length=50)),
+                ("last_updated", models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                "default_permissions": (),
+            },
+        ),
+        migrations.CreateModel(
             name="PaymentSystem",
             fields=[
                 (
@@ -2164,42 +2176,6 @@ class Migration(migrations.Migration):
                 default="active",
                 max_length=10,
                 verbose_name="Status",
-            ),
-        ),
-        migrations.CreateModel(
-            name="EveEntity",
-            fields=[
-                ("id", models.BigIntegerField(primary_key=True, serialize=False)),
-                ("name", models.CharField(max_length=255)),
-                ("category", models.CharField(max_length=50)),
-                ("last_updated", models.DateTimeField(auto_now=True)),
-            ],
-            options={
-                "default_permissions": (),
-            },
-        ),
-        migrations.AddField(
-            model_name="corporationwalletjournalentry",
-            name="first_party_new",
-            field=models.ForeignKey(
-                blank=True,
-                default=None,
-                null=True,
-                on_delete=django.db.models.deletion.SET_DEFAULT,
-                related_name="+",
-                to="taxsystem.eveentity",
-            ),
-        ),
-        migrations.AddField(
-            model_name="corporationwalletjournalentry",
-            name="second_party_new",
-            field=models.ForeignKey(
-                blank=True,
-                default=None,
-                null=True,
-                on_delete=django.db.models.deletion.SET_DEFAULT,
-                related_name="+",
-                to="taxsystem.eveentity",
             ),
         ),
         migrations.RemoveIndex(
