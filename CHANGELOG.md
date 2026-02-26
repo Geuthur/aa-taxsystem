@@ -11,11 +11,12 @@ Section Order:
 ### Removed
 -->
 
-## [2.0.2] - 2026-02-26
+## [2.0.2] - [2.0.2.1] - 2026-02-26
 
 ### Changed
 
 - Operational code has been refactored and the dependency `django-eveuniverse` will be removed with the v3.
+- Enhance bulk_resolve_names to handle existing IDs and new entity creation ([#172](https://github.com/Geuthur/aa-taxsystem/issues/172))
 
 > [!IMPORTANT]
 >
@@ -769,5 +770,6 @@ python manage.py taxsystem_migrate_payments
 [2.0.0-beta.6]: https://github.com/Geuthur/aa-taxsystem/compare/v1.0.2...v2.0.0-beta.6 "2.0.0-beta.6"
 [2.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.0...v2.0.1 "2.0.1"
 [2.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.1...v2.0.2 "2.0.2"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.2...HEAD "In Development"
+[2.0.2.1]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.2...v2.0.2.1 "2.0.2.1"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.2.1...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
