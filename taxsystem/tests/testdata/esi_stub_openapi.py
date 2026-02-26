@@ -7,6 +7,7 @@ in tests to return predefined test data without making actual API calls.
 
 # Standard Library
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,19 @@ def _to_pydantic_model_instance(name: str, data: Any) -> Any:
     if isinstance(data, list):
         return [_to_pydantic_model_instance(name + "Item", v) for v in data]
 
+    # Helper: try to parse ISO datetime strings into datetime objects
+    def _try_parse_datetime(value: Any) -> Any:
+        if not isinstance(value, str):
+            return value
+        try:
+            v = value
+            # Accept trailing Z as UTC
+            if v.endswith("Z"):
+                v = v[:-1] + "+00:00"
+            return datetime.fromisoformat(v)
+        except Exception:
+            return value
+
     # Dicts -> create a transient pydantic model class and instantiate it
     if isinstance(data, dict):
         fields: dict[str, tuple[type, Any]] = {}
@@ -29,7 +43,12 @@ def _to_pydantic_model_instance(name: str, data: Any) -> Any:
         for k, v in data.items():
             # Use Any for field type; instantiate nested models recursively
             fields[k] = (Any, ...)
-            values[k] = _to_pydantic_model_instance(name + k.capitalize(), v)
+            # Recursively convert nested structures
+            val = _to_pydantic_model_instance(name + k.capitalize(), v)
+            # Try to convert ISO datetime-like strings to datetime objects
+            if isinstance(val, str):
+                val = _try_parse_datetime(val)
+            values[k] = val
 
         Model = create_model(name, **fields, __base__=BaseModel)
         return Model(**values)
@@ -49,23 +68,46 @@ def _select_method_data(method_data: Any, kwargs: dict, endpoint=None):
     if not endpoint or not isinstance(method_data, dict):
         return method_data
 
-    # Try to match provided kwargs by param names
+    # Drill down through param names in order, attempting to match kwargs
+    current = method_data
+    matched_any = False
     for param_name in endpoint.param_names:
+        if not isinstance(current, dict):
+            break
         if param_name in kwargs and kwargs[param_name] is not None:
             key = str(kwargs[param_name])
-            if key in method_data:
-                return method_data[key]
+            # direct string key
+            if key in current:
+                current = current[key]
+                matched_any = True
+                continue
             # try integer key match
             try:
                 int_key = int(kwargs[param_name])
             except Exception:
                 int_key = None
-            if int_key is not None:
-                if int_key in method_data:
-                    return method_data[int_key]
+            if int_key is not None and int_key in current:
+                current = current[int_key]
+                matched_any = True
+                continue
+        # if we couldn't match this param, stop drilling
+        break
+
+    if matched_any:
+        return current
+
+    # Fallback for POST-style methods where the body contains ids (common key 'body')
+    if (
+        "body" in kwargs
+        and kwargs["body"] is not None
+        and isinstance(kwargs["body"], (list, tuple))
+    ):
+        key = str(kwargs["body"])
+        if key in method_data:
+            return method_data[key]
 
     # Fallback: if single-entry dict, return its value
-    if len(method_data) == 1:
+    if isinstance(method_data, dict) and len(method_data) == 1:
         return list(method_data.values())[0]
 
     return method_data
@@ -117,10 +159,20 @@ class EsiEndpoint:
         """
         self.category = category
         self.method = method
-        self.param_names = (
-            param_names if isinstance(param_names, tuple) else (param_names,)
-        )
-        self.side_effect = side_effect
+        # Allow tests to pass multiple param names as two positional strings
+        if isinstance(param_names, tuple):
+            params = list(param_names)
+        else:
+            params = [param_names]
+
+        # If side_effect is a string, tests likely passed a second param name
+        if isinstance(side_effect, str):
+            params.append(side_effect)
+            self.side_effect = None
+        else:
+            self.side_effect = side_effect
+
+        self.param_names = tuple(params)
 
     def __repr__(self):
         return f"EsiEndpoint({self.category}.{self.method})"

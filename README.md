@@ -88,7 +88,7 @@ ______________________________________________________________________
 ## Installation<a name="installation"></a>
 
 > [!NOTE]
-> AA Tax System needs at least Alliance Auth v4.6.0
+> AA Tax System needs at least Alliance Auth v4.12.0
 > Please make sure to update your Alliance Auth before you install this APP
 
 ### Step 1 - Install the Package<a name="step1"></a>

@@ -22,7 +22,7 @@ Section Order:
 
 ```shell
 python manage.py migrate
-python manage.py taxsytem_migrate_eveentity
+python manage.py taxsystem_migrate_eveentity
 ```
 
 ## [2.0.1] - 2026-02-10
