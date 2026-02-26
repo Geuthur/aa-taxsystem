@@ -159,12 +159,10 @@ class CorporationWalletManager(models.Manager["CorporationWalletJournalEntry"]):
                     date=item.date,
                     description=item.description,
                     first_party_id=item.first_party_id,
-                    first_party_new_id=item.first_party_id,
                     entry_id=item.id,
                     reason=item.reason,
                     ref_type=item.ref_type,
                     second_party_id=item.second_party_id,
-                    second_party_new_id=item.second_party_id,
                     tax=item.tax,
                     tax_receiver_id=item.tax_receiver_id,
                 )
