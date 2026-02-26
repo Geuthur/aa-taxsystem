@@ -638,17 +638,6 @@ class MembersManager(models.Manager["MembersContext"]):
         _new_members = []
 
         characters = EveEntity.objects.bulk_resolve_names(ids=_esi_members_ids)
-
-        if not characters:
-            logger.warning(
-                "Failed to resolve character names for corporation members of: %s",
-                owner.name,
-            )
-            return (
-                "Failed to resolve character names for corporation members of: %s",
-                owner.name,
-            )
-
         for member in objs:
             character_id = member.character_id
             joined = member.start_date
