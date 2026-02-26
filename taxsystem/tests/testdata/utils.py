@@ -14,9 +14,6 @@ from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
 from esi.models import Scope, Token
 
-# Alliance Auth (External Libs)
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
 from taxsystem.models.alliance import (
     AllianceFilter,
@@ -37,6 +34,7 @@ from taxsystem.models.corporation import (
     CorporationUpdateStatus,
     Members,
 )
+from taxsystem.models.general import EveEntity
 from taxsystem.models.general import EveEntity as EveEntityV2
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
@@ -570,8 +568,6 @@ def create_wallet_journal_entry(
     second_party: EveEntity,
     entry_id: int,
     ref_type: str,
-    first_party_new: EveEntityV2 = None,
-    second_party_new: EveEntityV2 = None,
     **kwargs,
 ) -> CorporationWalletJournalEntry:
     """
@@ -582,9 +578,7 @@ def create_wallet_journal_entry(
         date (str): The date of the journal entry.
         description (str): The description of the journal entry.
         first_party (EveEntity): The first party entity.
-        first_party_new (EveEntityV2): The new first party entity.
         second_party (EveEntity): The second party entity.
-        second_party_new (EveEntityV2): The new second party entity.
         entry_id (int): The entry ID.
         ref_type (str): The reference type.
         **kwargs: Fields for the CorporationWalletJournalEntry
@@ -596,9 +590,7 @@ def create_wallet_journal_entry(
         "date": date,
         "description": description,
         "first_party": first_party,
-        "first_party_new": first_party_new,
         "second_party": second_party,
-        "second_party_new": second_party_new,
         "entry_id": entry_id,
         "ref_type": ref_type,
     }

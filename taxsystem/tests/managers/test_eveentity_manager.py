@@ -4,11 +4,8 @@ from unittest.mock import patch
 # Django
 from django.test import override_settings
 
-# Alliance Auth (External Libs)
-# deprecated with v3
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
+from taxsystem.models.general import EveEntity
 from taxsystem.models.general import EveEntity as EveEntityV2
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.esi_stub_openapi import (

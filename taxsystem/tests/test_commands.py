@@ -5,11 +5,8 @@ from io import StringIO
 from django.core.management import call_command
 from django.utils import timezone
 
-# Alliance Auth (External Libs)
-# deprecated with v3
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
+from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 # AA Tax System
@@ -88,17 +85,3 @@ class TestMigratePayments(TaxSystemTestCase):
             "Migration report for Hell RiderZ: 1 entries migrated.",
             output,
         )
-
-    def test_should_migrate_eveentityv2(self):
-        # Test Data
-        out = StringIO()
-
-        # Test Action
-        call_command("taxsystem_migrate_eveentity", stdout=out)
-        output = out.getvalue()
-        # Expected Result
-        self.assertIn(
-            "Migration completed successfully!",
-            output,
-        )
-        self.assertIn("Updated 1 journal entries, 0 errors.", output)

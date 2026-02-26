@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Removed
+
+- `django-eveuniverse` dependency
+
 ## [2.0.2] - [2.0.2.1] - 2026-02-26
 
 ### Changed
