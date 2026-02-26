@@ -10,13 +10,13 @@ __app_name_useragent__ = "AA-TaxSystem"
 
 __github_url__ = f"https://github.com/Geuthur/{__package_name__}"
 
-__corporation_operations__ = [
+__operations__ = [
     "GetCorporationsCorporationIdWallets",
     "GetCorporationsCorporationIdWalletsDivisionJournal",
     "GetCorporationsCorporationIdDivisions",
     "GetCorporationsCorporationIdMembertracking",
-]
-
-__character_operations__ = [
+    # Character operations
     "GetCharactersCharacterIdRoles",
+    # Universe operations
+    "PostUniverseNames",
 ]

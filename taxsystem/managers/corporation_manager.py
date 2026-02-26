@@ -9,14 +9,11 @@ from django.utils import timezone
 from allianceauth.authentication.models import User, UserProfile
 from allianceauth.services.hooks import get_extension_logger
 
-# Alliance Auth (External Libs)
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
-from taxsystem.models.general import UpdateSectionResult
+from taxsystem.models.general import EveEntity, UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     CorporationUpdateSection,
@@ -640,7 +637,18 @@ class MembersManager(models.Manager["MembersContext"]):
         _old_members = []
         _new_members = []
 
-        characters = EveEntity.objects.bulk_resolve_names(_esi_members_ids)
+        characters = EveEntity.objects.bulk_resolve_names(ids=_esi_members_ids)
+
+        if not characters:
+            logger.warning(
+                "Failed to resolve character names for corporation members of: %s",
+                owner.name,
+            )
+            return (
+                "Failed to resolve character names for corporation members of: %s",
+                owner.name,
+            )
+
         for member in objs:
             character_id = member.character_id
             joined = member.start_date

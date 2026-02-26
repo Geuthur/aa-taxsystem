@@ -5,20 +5,15 @@ from http import HTTPStatus
 # Django
 from django.urls import reverse
 
-# Alliance Auth (External Libs)
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
+from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.utils import (
     create_division,
     create_owner_from_user,
-    create_payment,
-    create_payment_history,
     create_tax_account,
-    create_wallet_journal_entry,
 )
 
 MODULE_PATH = "taxsystem.api.helpers."

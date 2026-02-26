@@ -11,6 +11,9 @@ from allianceauth.eveonline.models import (
     EveCorporationInfo,
 )
 
+# AA TaxSystem
+from taxsystem.models.general import EveEntity
+
 
 def _load_allianceauth_data():
     with open(Path(__file__).parent / "allianceauth.json", encoding="utf-8") as fp:
@@ -61,4 +64,11 @@ def load_allianceauth():
             alliance_id=alliance.alliance_id if alliance else None,
             alliance_name=alliance.alliance_name if alliance else "",
             alliance_ticker=alliance.alliance_ticker if alliance else "",
+        )
+
+    for item_type in _entities_data.get("EveEntity"):
+        EveEntity.objects.create(
+            id=item_type.get("id"),
+            name=item_type.get("name"),
+            category=item_type.get("category"),
         )

@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
+# deprecated with v3
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem

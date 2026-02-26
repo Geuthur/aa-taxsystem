@@ -5,9 +5,11 @@ from unittest.mock import MagicMock, patch
 from django.test import override_settings
 
 # Alliance Auth (External Libs)
+# deprecated with v3
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
+from taxsystem.models.general import EveEntity as EveEntityV2
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
@@ -41,7 +43,7 @@ TAXSYSTEM_WALLET_JOURNAL_ENDPOINTS = [
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".esi")
-@patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_ids")
+@patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
 @patch(MODULE_PATH + ".EveEntity.objects.filter")
 class TestWalletManager(TaxSystemTestCase):
     """Test Wallet Managers for Corporation."""
@@ -79,12 +81,18 @@ class TestWalletManager(TaxSystemTestCase):
         filter_mock.count.return_value = 0
 
         mock_entity_bulk.side_effect = [
-            EveEntity.objects.create(
+            EveEntityV2.objects.create(
                 id=9998,
                 name="Test Character",
                 category="character",
             ),
         ]
+
+        EveEntity.objects.create(
+            id=9998,
+            name="Test Character",
+            category="character",
+        ),
 
         # Test Action
 

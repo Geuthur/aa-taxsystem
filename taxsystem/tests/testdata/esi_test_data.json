@@ -296,5 +296,21 @@
             }
          ]
       }
+   },
+   "Universe": {
+      "PostUniverseNames": {
+         "[9997, 9998]": [
+            {
+               "id": 9997,
+               "name": "Bulk Character",
+               "category": "character"
+            },
+            {
+               "id": 9998,
+               "name": "Bulk Character 2",
+               "category": "character"
+            }
+         ]
+      }
    }
 }

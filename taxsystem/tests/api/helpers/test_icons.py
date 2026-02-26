@@ -1,25 +1,19 @@
-# Standard Library
-import json
-from http import HTTPStatus
-
 # Django
-from django.contrib.humanize.templatetags.humanize import intcomma
 from django.urls import reverse
 from django.utils import timezone
 
 # Alliance Auth (External Libs)
+# deprecated with v3
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem
 from taxsystem.api.helpers.icons import get_taxsystem_payments_action_icons
-from taxsystem.models.corporation import CorporationPaymentAccount
-from taxsystem.models.helpers.textchoices import PaymentActions, PaymentRequestStatus
+from taxsystem.models.helpers.textchoices import PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.utils import (
     create_division,
     create_owner_from_user,
     create_payment,
-    create_payment_history,
     create_tax_account,
     create_wallet_journal_entry,
 )

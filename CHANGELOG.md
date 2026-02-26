@@ -11,6 +11,20 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- Operational code has been refactored and the dependency `django-eveuniverse` will be removed with the v3.
+
+> [!IMPORTANT]
+>
+> Please note that this release involves structural dependency changes.
+> To avoid any service disruptions, it is essential to read the update manual prior to performing the upgrade.
+
+```shell
+python manage.py migrate
+python manage.py taxsystem_migrate_eveentity
+```
+
 ## [2.0.1] - 2026-02-10
 
 ### Changed

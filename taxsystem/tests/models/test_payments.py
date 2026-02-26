@@ -6,6 +6,7 @@ from django.utils import timezone
 from allianceauth.tests.auth_utils import AuthUtils
 
 # Alliance Auth (External Libs)
+# deprecated with v3
 from eveuniverse.models import EveEntity
 
 # AA TaxSystem

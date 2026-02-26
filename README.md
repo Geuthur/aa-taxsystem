@@ -88,7 +88,7 @@ ______________________________________________________________________
 ## Installation<a name="installation"></a>
 
 > [!NOTE]
-> AA Tax System needs at least Alliance Auth v4.6.0
+> AA Tax System needs at least Alliance Auth v4.12.0
 > Please make sure to update your Alliance Auth before you install this APP
 
 ### Step 1 - Install the Package<a name="step1"></a>
@@ -103,7 +103,6 @@ pip install aa-taxsystem
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
-- Add `'eveuniverse',` to `INSTALLED_APPS`
 - Add `'taxsystem',` to `INSTALLED_APPS`
 
 ### Step 3 - Add the Scheduled Tasks<a name="step3"></a>

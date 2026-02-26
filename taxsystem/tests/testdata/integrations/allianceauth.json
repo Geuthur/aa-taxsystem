@@ -77,5 +77,77 @@
             "alliance_name": "Voices of War",
             "alliance_ticker": "VOW"
         }
+    ],
+    "EveEntity": [
+        {
+            "id": 1000,
+            "name": "CONCORD",
+            "category": "character"
+        },
+        {
+            "id": 1001,
+            "name": "Gneuten",
+            "category": "character"
+        },
+        {
+            "id": 1002,
+            "name": "rotze Rotineque",
+            "category": "character"
+        },
+        {
+            "id": 1003,
+            "name": "Hector Fieramosca",
+            "category": "character"
+        },
+        {
+            "id": 1004,
+            "name": "Garthd",
+            "category": "character"
+        },
+        {
+            "id": 1005,
+            "name": "Gerthd",
+            "category": "character"
+        },
+        {
+            "id": 1006,
+            "name": "Gorthd",
+            "category": "character"
+        },
+        {
+            "id": 2001,
+            "name": "Hell RiderZ",
+            "category": "corporation"
+        },
+        {
+            "id": 2002,
+            "name": "Eulenclub",
+            "category": "corporation"
+        },
+        {
+            "id": 2003,
+            "name": "Schweinshausen",
+            "category": "corporation"
+        },
+        {
+            "id": 1000125,
+            "name": "CONCORD",
+            "category": "corporation"
+        },
+        {
+            "id": 3001,
+            "name": "Voices of War",
+            "category": "alliance"
+        },
+        {
+            "id": 3002,
+            "name": "Voices of War Inc.",
+            "category": "alliance"
+        },
+        {
+            "id": 3003,
+            "name": "CCP Industries",
+            "category": "alliance"
+        }
     ]
 }
