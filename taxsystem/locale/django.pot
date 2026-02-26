@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-02-10 08:44+0100\n"
+"POT-Creation-Date: 2026-02-26 08:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,8 +54,8 @@ msgstr ""
 #: taxsystem/api/payments.py:384 taxsystem/api/payments.py:463
 #: taxsystem/api/payments.py:549 taxsystem/api/payments.py:632
 #: taxsystem/api/payments.py:722 taxsystem/api/payments.py:802
-#: taxsystem/views.py:219 taxsystem/views.py:271 taxsystem/views.py:299
-#: taxsystem/views.py:343 taxsystem/views.py:408
+#: taxsystem/views.py:225 taxsystem/views.py:277 taxsystem/views.py:305
+#: taxsystem/views.py:349 taxsystem/views.py:414
 msgid "Owner not Found."
 msgstr ""
 
@@ -70,8 +70,8 @@ msgstr ""
 #: taxsystem/api/payments.py:321 taxsystem/api/payments.py:388
 #: taxsystem/api/payments.py:467 taxsystem/api/payments.py:553
 #: taxsystem/api/payments.py:636 taxsystem/api/payments.py:726
-#: taxsystem/api/payments.py:806 taxsystem/views.py:223 taxsystem/views.py:275
-#: taxsystem/views.py:303 taxsystem/views.py:347 taxsystem/views.py:412
+#: taxsystem/api/payments.py:806 taxsystem/views.py:229 taxsystem/views.py:281
+#: taxsystem/views.py:309 taxsystem/views.py:353 taxsystem/views.py:418
 msgid "Permission Denied."
 msgstr ""
 
@@ -386,12 +386,12 @@ msgstr ""
 msgid "Enter filter set description"
 msgstr ""
 
-#: taxsystem/managers/wallet_manager.py:266
+#: taxsystem/managers/wallet_manager.py:268
 msgid "Master Wallet"
 msgstr ""
 
-#: taxsystem/managers/wallet_manager.py:268
-#: taxsystem/managers/wallet_manager.py:295
+#: taxsystem/managers/wallet_manager.py:270
+#: taxsystem/managers/wallet_manager.py:297
 msgid "Unknown"
 msgstr ""
 
@@ -546,27 +546,27 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: taxsystem/models/general.py:18
+#: taxsystem/models/general.py:21
 msgid "Can access the Tax System"
 msgstr ""
 
-#: taxsystem/models/general.py:19
+#: taxsystem/models/general.py:22
 msgid "Can add Corporation/Alliance"
 msgstr ""
 
-#: taxsystem/models/general.py:20
+#: taxsystem/models/general.py:23
 msgid "Can manage own Corporation"
 msgstr ""
 
-#: taxsystem/models/general.py:21
+#: taxsystem/models/general.py:24
 msgid "Can manage all Corporations"
 msgstr ""
 
-#: taxsystem/models/general.py:22
+#: taxsystem/models/general.py:25
 msgid "Can manage own Alliance"
 msgstr ""
 
-#: taxsystem/models/general.py:23
+#: taxsystem/models/general.py:26
 msgid "Can manage all Alliances"
 msgstr ""
 
@@ -707,9 +707,9 @@ msgstr ""
 #: taxsystem/templates/taxsystem/partials/navigation/navigation.html:5
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:156
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:4
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:33
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:35
-#: taxsystem/templates/taxsystem/view-payments.html:19 taxsystem/views.py:228
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:44
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:46
+#: taxsystem/templates/taxsystem/view-payments.html:19 taxsystem/views.py:234
 msgid "Payments"
 msgstr ""
 
@@ -966,7 +966,7 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/navigation/administration.html:20
 #: taxsystem/templates/taxsystem/partials/navigation/navigation.html:12
-#: taxsystem/views.py:417
+#: taxsystem/views.py:423
 msgid "Manage Tax System"
 msgstr ""
 
@@ -976,13 +976,13 @@ msgid "Own Payments"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/navigation/navigation.html:7
-#: taxsystem/views.py:308
+#: taxsystem/views.py:314
 msgid "FAQ"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/navigation/navigation.html:8
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:14
-#: taxsystem/views.py:366
+#: taxsystem/views.py:372
 msgid "Account"
 msgstr ""
 
@@ -1065,7 +1065,7 @@ msgstr ""
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:34
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:16
 #: taxsystem/templates/taxsystem/partials/view-payments/payments.html:26
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:9
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:10
 msgid "Actions"
 msgstr ""
 
@@ -1156,7 +1156,7 @@ msgid "Automatic Payments Filters"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:39
-#: taxsystem/views.py:463
+#: taxsystem/views.py:469
 msgid "Manage Filters"
 msgstr ""
 
@@ -1304,14 +1304,23 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:21
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:9
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:34
+msgid "Open Invoices"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:22
 msgid "inactive"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:41
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:43
-#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:50
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:37
+msgid "No Open Invoices"
+msgstr ""
+
 #: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:52
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:54
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:61
+#: taxsystem/templates/taxsystem/partials/view-taxsystem/overview.html:63
 msgid "Manage"
 msgstr ""
 
@@ -1408,58 +1417,58 @@ msgstr ""
 msgid "Corporation"
 msgstr ""
 
-#: taxsystem/views.py:182
+#: taxsystem/views.py:185
 msgid "Alliance"
 msgstr ""
 
-#: taxsystem/views.py:198
+#: taxsystem/views.py:204
 msgid "TaxSystem Overview"
 msgstr ""
 
-#: taxsystem/views.py:280
+#: taxsystem/views.py:286
 msgid "My Payments"
 msgstr ""
 
-#: taxsystem/views.py:335
+#: taxsystem/views.py:341
 msgid "No User found."
 msgstr ""
 
-#: taxsystem/views.py:356
+#: taxsystem/views.py:362
 msgid "No Tax Account found."
 msgstr ""
 
-#: taxsystem/views.py:455
+#: taxsystem/views.py:461
 msgid "You do not have permission to manage this owner."
 msgstr ""
 
-#: taxsystem/views.py:503
+#: taxsystem/views.py:509
 #, python-brace-format
 msgid "A Filter with {filter} already exists."
 msgstr ""
 
-#: taxsystem/views.py:509 taxsystem/views.py:530
+#: taxsystem/views.py:515 taxsystem/views.py:536
 msgid "Something went wrong, please try again later."
 msgstr ""
 
-#: taxsystem/views.py:525
+#: taxsystem/views.py:531
 msgid "A filter set with this name already exists."
 msgstr ""
 
-#: taxsystem/views.py:565
+#: taxsystem/views.py:571
 msgid "Added to Tax System"
 msgstr ""
 
-#: taxsystem/views.py:571
+#: taxsystem/views.py:577
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
 msgstr ""
 
-#: taxsystem/views.py:611
+#: taxsystem/views.py:617
 #, python-brace-format
 msgid "Added Alliance to Tax System with Corporation {corp}"
 msgstr ""
 
-#: taxsystem/views.py:619
+#: taxsystem/views.py:625
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr ""
