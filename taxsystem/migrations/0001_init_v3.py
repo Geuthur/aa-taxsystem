@@ -217,7 +217,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("name", models.CharField(max_length=100)),
-                ("entry_id", models.BigIntegerField()),
+                ("entry_id", models.BigIntegerField(blank=True, null=True)),
                 ("amount", models.DecimalField(decimal_places=0, max_digits=12)),
                 ("date", models.DateTimeField(blank=True, null=True)),
                 ("reason", models.TextField(blank=True, null=True)),
@@ -1010,7 +1010,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("name", models.CharField(max_length=100)),
-                ("entry_id", models.BigIntegerField()),
+                ("entry_id", models.BigIntegerField(blank=True, null=True)),
                 ("amount", models.DecimalField(decimal_places=0, max_digits=12)),
                 ("date", models.DateTimeField(blank=True, null=True)),
                 ("reason", models.TextField(blank=True, null=True)),
@@ -1533,16 +1533,6 @@ class Migration(migrations.Migration):
                 to="taxsystem.corporationowner",
             ),
         ),
-        migrations.AlterField(
-            model_name="alliancepayments",
-            name="entry_id",
-            field=models.BigIntegerField(blank=True, null=True, unique=True),
-        ),
-        migrations.AlterField(
-            model_name="corporationpayments",
-            name="entry_id",
-            field=models.BigIntegerField(blank=True, null=True, unique=True),
-        ),
         migrations.AlterModelOptions(
             name="general",
             options={
@@ -1836,11 +1826,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name="alliancepayments",
-            name="entry_id",
-            field=models.BigIntegerField(blank=True, null=True),
-        ),
-        migrations.AlterField(
             model_name="allianceupdatestatus",
             name="section",
             field=models.CharField(
@@ -1861,11 +1846,6 @@ class Migration(migrations.Migration):
                 related_name="+",
                 to="taxsystem.corporationpaymentaccount",
             ),
-        ),
-        migrations.AlterField(
-            model_name="corporationpayments",
-            name="entry_id",
-            field=models.BigIntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name="corporationupdatestatus",
@@ -2176,44 +2156,6 @@ class Migration(migrations.Migration):
                 default="active",
                 max_length=10,
                 verbose_name="Status",
-            ),
-        ),
-        migrations.RemoveIndex(
-            model_name="corporationwalletjournalentry",
-            name="taxsystem_c_first_p_d83db8_idx",
-        ),
-        migrations.RemoveIndex(
-            model_name="corporationwalletjournalentry",
-            name="taxsystem_c_second__2a759e_idx",
-        ),
-        migrations.RemoveField(
-            model_name="corporationwalletjournalentry",
-            name="first_party",
-        ),
-        migrations.RemoveField(
-            model_name="corporationwalletjournalentry",
-            name="second_party",
-        ),
-        migrations.RenameField(
-            model_name="corporationwalletjournalentry",
-            old_name="first_party_new",
-            new_name="first_party",
-        ),
-        migrations.RenameField(
-            model_name="corporationwalletjournalentry",
-            old_name="second_party_new",
-            new_name="second_party",
-        ),
-        migrations.AddIndex(
-            model_name="corporationwalletjournalentry",
-            index=models.Index(
-                fields=["first_party"], name="taxsystem_c_first_p_d83db8_idx"
-            ),
-        ),
-        migrations.AddIndex(
-            model_name="corporationwalletjournalentry",
-            index=models.Index(
-                fields=["second_party"], name="taxsystem_c_second__2a759e_idx"
             ),
         ),
     ]
