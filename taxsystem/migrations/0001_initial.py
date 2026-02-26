@@ -16,7 +16,6 @@ class Migration(migrations.Migration):
         ("eveonline", "0017_alliance_and_corp_names_are_not_unique"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("contenttypes", "0002_remove_content_type_name"),
-        ("eveuniverse", "0010_alter_eveindustryactivityduration_eve_type_and_more"),
     ]
 
     operations = [
