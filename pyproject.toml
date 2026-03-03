@@ -46,10 +46,8 @@ urls.Homepage = "https://github.com/Geuthur/aa-taxsystem"
 urls.Source = "https://github.com/Geuthur/aa-taxsystem"
 urls.Tracker = "https://github.com/Geuthur/aa-taxsystem/issues"
 
-[tool.hatch.build]
-include = [
+[tool.hatch]
+build.include = [
     "/taxsystem",
 ]
-
-[tool.hatch.version]
-path = "taxsystem/__init__.py"
+version.path = "taxsystem/__init__.py"
