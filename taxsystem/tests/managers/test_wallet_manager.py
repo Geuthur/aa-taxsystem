@@ -4,12 +4,8 @@ from unittest.mock import MagicMock, patch
 # Django
 from django.test import override_settings
 
-# Alliance Auth (External Libs)
-# deprecated with v3
-from eveuniverse.models import EveEntity
-
 # AA TaxSystem
-from taxsystem.models.general import EveEntity as EveEntityV2
+from taxsystem.models.general import EveEntity
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.esi_stub_openapi import (
     EsiEndpoint,
@@ -81,18 +77,12 @@ class TestWalletManager(TaxSystemTestCase):
         filter_mock.count.return_value = 0
 
         mock_entity_bulk.side_effect = [
-            EveEntityV2.objects.create(
+            EveEntity.objects.create(
                 id=9998,
                 name="Test Character",
                 category="character",
             ),
         ]
-
-        EveEntity.objects.create(
-            id=9998,
-            name="Test Character",
-            category="character",
-        ),
 
         # Test Action
 
