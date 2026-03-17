@@ -6,7 +6,6 @@ from django.test import RequestFactory, TestCase
 
 # AA TaxSystem
 from taxsystem.tests.testdata.integrations.allianceauth import load_allianceauth
-from taxsystem.tests.testdata.integrations.eveuniverse import load_eveuniverse
 from taxsystem.tests.testdata.utils import create_user_from_evecharacter
 
 
@@ -48,7 +47,6 @@ class TaxSystemTestCase(NoSocketsTestCase):
 
     Pre-Load:
         * Alliance Auth Characters, Corporation, Alliance Data
-        * Eve Universe Data
         * Taken User IDs: 1001, 1002, 1003, 1004, 1005
 
     Available Request Factory:
@@ -94,7 +92,6 @@ class TaxSystemTestCase(NoSocketsTestCase):
         super().setUpClass()
         # Initialize Alliance Auth test data
         load_allianceauth()
-        load_eveuniverse()
 
         # Request Factory
         cls.factory = RequestFactory()
