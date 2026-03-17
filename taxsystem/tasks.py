@@ -5,7 +5,7 @@ import inspect
 from collections.abc import Callable
 
 # Third Party
-from celery import chain, shared_task
+from celery import Task, chain, shared_task
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -19,7 +19,7 @@ from taxsystem.models.helpers.textchoices import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
-from taxsystem.providers import AppLogger
+from taxsystem.providers import AppLogger, retry_task_on_esi_error
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
@@ -31,12 +31,15 @@ TASK_DEFAULTS = {
     "max_retries": MAX_RETRIES_DEFAULT,
 }
 
+# Default params for tasks that need bind=True and run once only.
+TASK_DEFAULTS_BIND_ONCE = {**TASK_DEFAULTS, **{"bind": True, "base": QueueOnce}}
+
 # Default params for tasks that need run once only.
 TASK_DEFAULTS_ONCE = {**TASK_DEFAULTS, **{"base": QueueOnce}}
 
-_update_taxsystem_params = {
-    **TASK_DEFAULTS_ONCE,
-    **{"once": {"keys": ["owner_pk", "force_refresh"], "graceful": True}},
+TASK_DEFAULTS_BIND_ONCE_OWNER = {
+    **TASK_DEFAULTS_BIND_ONCE,
+    **{"once": {"keys": ["owner_eve_id"], "graceful": True}},
 }
 
 
@@ -53,24 +56,28 @@ def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
     # Queue tasks for all corporations
     for corporation in corporations:
         update_corporation.apply_async(
-            args=[corporation.pk], kwargs={"force_refresh": force_refresh}
+            args=[corporation.eve_id], kwargs={"force_refresh": force_refresh}
         )
         runs = runs + 1
     # Queue tasks for all alliances
     for alliance in alliances:
         update_alliance.apply_async(
-            args=[alliance.pk], kwargs={"force_refresh": force_refresh}
+            args=[alliance.eve_id], kwargs={"force_refresh": force_refresh}
         )
         runs = runs + 1
     logger.info("Queued %s Owner Tasks", runs)
 
 
-@shared_task(**TASK_DEFAULTS_ONCE)
-def update_corporation(owner_pk, force_refresh=False):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corporation(
+    self: Task,  # pylint: disable=unused-argument
+    owner_eve_id: int,
+    force_refresh: bool = False,
+) -> bool:
     """Update a corporation"""
     owner: CorporationOwner = CorporationOwner.objects.prefetch_related(
         "ts_corporation_update_status"
-    ).get(pk=owner_pk)
+    ).get(eve_corporation__corporation_id=owner_eve_id)
 
     que = []
     priority = 7
@@ -88,7 +95,7 @@ def update_corporation(owner_pk, force_refresh=False):
 
     if not needs_update and not force_refresh:
         logger.info("No updates needed for %s", owner.name)
-        return
+        return False
 
     sections = CorporationUpdateSection.get_sections()
 
@@ -105,7 +112,7 @@ def update_corporation(owner_pk, force_refresh=False):
         task_name = f"update_corp_{section}"
         task = globals().get(task_name)
         que.append(
-            task.si(owner.pk, force_refresh=force_refresh).set(priority=priority)
+            task.si(owner.eve_id, force_refresh=force_refresh).set(priority=priority)
         )
 
     chain(que).apply_async()
@@ -114,75 +121,85 @@ def update_corporation(owner_pk, force_refresh=False):
         len(que),
         owner.name,
     )
+    return True
 
 
-@shared_task(**_update_taxsystem_params)
-def update_corp_division_names(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_division_names(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_corp_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=CorporationUpdateSection.DIVISION_NAMES,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_corp_divisions(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_divisions(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_corp_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=CorporationUpdateSection.DIVISIONS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_corp_wallet(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_wallet(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_corp_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=CorporationUpdateSection.WALLET,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_corp_members(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_members(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_corp_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=CorporationUpdateSection.MEMBERS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_corp_payments(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_payments(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_corp_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=CorporationUpdateSection.PAYMENTS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_corp_tax_accounts(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_tax_accounts(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_corp_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=CorporationUpdateSection.TAX_ACCOUNTS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_corp_deadlines(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_deadlines(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_corp_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=CorporationUpdateSection.DEADLINES,
         force_refresh=force_refresh,
     )
 
 
-def _update_corp_section(owner_pk: int, section: str, force_refresh: bool):
+def _update_corp_section(
+    task: Task, owner_eve_id: int, section: str, force_refresh: bool
+):
     """Update a specific section of the corporation."""
     section = CorporationUpdateSection(section)
-    owner = CorporationOwner.objects.get(pk=owner_pk)
+    owner = CorporationOwner.objects.get(eve_corporation__corporation_id=owner_eve_id)
     logger.debug("Updating %s for %s", section.label, owner.name)
 
     owner.update_manager.reset_update_status(section)
@@ -195,19 +212,25 @@ def _update_corp_section(owner_pk: int, section: str, force_refresh: bool):
     else:
         kwargs = {}
 
-    result = owner.update_manager.perform_update_status(section, method, **kwargs)
+    # Perform the update with the retry context manager
+    with retry_task_on_esi_error(task):
+        result = owner.update_manager.perform_update_status(section, method, **kwargs)
     owner.update_manager.update_section_log(section, result)
 
 
 # Alliance Tasks
 
 
-@shared_task(**TASK_DEFAULTS_ONCE)
-def update_alliance(owner_pk, force_refresh=False):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_alliance(
+    self: Task,  # pylint: disable=unused-argument
+    owner_eve_id: int,
+    force_refresh: bool = False,
+) -> bool:
     """Update an alliance"""
     owner: AllianceOwner = AllianceOwner.objects.prefetch_related(
         "ts_alliance_update_status"
-    ).get(pk=owner_pk)
+    ).get(eve_alliance__alliance_id=owner_eve_id)
 
     que = []
     priority = 7
@@ -225,7 +248,7 @@ def update_alliance(owner_pk, force_refresh=False):
 
     if not needs_update and not force_refresh:
         logger.info("No updates needed for %s", owner.name)
-        return
+        return False
 
     sections = AllianceUpdateSection.get_sections()
 
@@ -242,7 +265,7 @@ def update_alliance(owner_pk, force_refresh=False):
         task_name = f"update_ally_{section}"
         task = globals().get(task_name)
         que.append(
-            task.si(owner.pk, force_refresh=force_refresh).set(priority=priority)
+            task.si(owner.eve_id, force_refresh=force_refresh).set(priority=priority)
         )
 
     chain(que).apply_async()
@@ -251,39 +274,45 @@ def update_alliance(owner_pk, force_refresh=False):
         len(que),
         owner.name,
     )
+    return True
 
 
-@shared_task(**_update_taxsystem_params)
-def update_ally_payments(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_ally_payments(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_ally_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=AllianceUpdateSection.PAYMENTS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_ally_tax_accounts(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_ally_tax_accounts(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_ally_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=AllianceUpdateSection.TAX_ACCOUNTS,
         force_refresh=force_refresh,
     )
 
 
-@shared_task(**_update_taxsystem_params)
-def update_ally_deadlines(owner_pk: int, force_refresh: bool):
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_ally_deadlines(self: Task, owner_eve_id: int, force_refresh: bool):
     return _update_ally_section(
-        owner_pk,
+        task=self,
+        owner_eve_id=owner_eve_id,
         section=AllianceUpdateSection.DEADLINES,
         force_refresh=force_refresh,
     )
 
 
-def _update_ally_section(owner_pk: int, section: str, force_refresh: bool):
+def _update_ally_section(
+    task: Task, owner_eve_id: int, section: str, force_refresh: bool
+):
     """Update a specific section of the alliance."""
     section = AllianceUpdateSection(section)
-    alliance = AllianceOwner.objects.get(pk=owner_pk)
+    alliance = AllianceOwner.objects.get(eve_alliance__alliance_id=owner_eve_id)
     logger.debug("Updating %s for %s", section.label, alliance.name)
     alliance.update_manager.reset_update_status(section)
 
@@ -295,5 +324,9 @@ def _update_ally_section(owner_pk: int, section: str, force_refresh: bool):
     else:
         kwargs = {}
 
-    result = alliance.update_manager.perform_update_status(section, method, **kwargs)
+    # Perform the update with the retry context manager
+    with retry_task_on_esi_error(task):
+        result = alliance.update_manager.perform_update_status(
+            section, method, **kwargs
+        )
     alliance.update_manager.update_section_log(section, result)
