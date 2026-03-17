@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-02-26 10:36+0100\n"
+"POT-Creation-Date: 2026-03-17 06:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -386,12 +386,12 @@ msgstr ""
 msgid "Enter filter set description"
 msgstr ""
 
-#: taxsystem/managers/wallet_manager.py:268
+#: taxsystem/managers/wallet_manager.py:266
 msgid "Master Wallet"
 msgstr ""
 
-#: taxsystem/managers/wallet_manager.py:270
-#: taxsystem/managers/wallet_manager.py:297
+#: taxsystem/managers/wallet_manager.py:268
+#: taxsystem/managers/wallet_manager.py:295
 msgid "Unknown"
 msgstr ""
 
