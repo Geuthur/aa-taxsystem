@@ -1,7 +1,7 @@
 """Tests for the providers module."""
 
 # Standard Library
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
 # Django
 from django.test import override_settings
@@ -75,7 +75,7 @@ class TestTasks(TaxSystemTestCase):
         owner = create_owner_from_user(user=self.user)
 
         # Test Action
-        update_corporation(owner_pk=owner.pk, force_refresh=False)
+        update_corporation(owner_eve_id=owner.eve_id, force_refresh=False)
 
         # Expected Result
         mock_logger.debug.assert_called_with(
@@ -95,7 +95,7 @@ class TestTasks(TaxSystemTestCase):
         )
 
         # Test Action
-        update_corporation(owner_pk=owner.pk, force_refresh=False)
+        update_corporation(owner_eve_id=owner.eve_id, force_refresh=False)
 
         # Expected Result
         mock_logger.info.assert_called_with("No updates needed for %s", owner.name)
@@ -103,8 +103,11 @@ class TestTasks(TaxSystemTestCase):
         # Ensure update manager reports no update needed
         self.assertFalse(owner.update_manager.calc_update_needed())
 
+    @patch(MODELS_PATH + ".CorporationOwner.update_manager", new_callable=PropertyMock)
     @patch(MODELS_PATH + ".CorporationOwner.objects.get")
-    def test_update_corp_section(self, mock_corp_owner_get):
+    def test_update_corp_section(
+        self, mock_corp_owner_get, mock_update_manager_property
+    ):
         """
         Test update of a corporation section.
 
@@ -125,13 +128,29 @@ class TestTasks(TaxSystemTestCase):
         ).first()
 
         mock_corp_owner_get.return_value = owner
-        mock_corp_owner_get.update_manager = MagicMock()
-        mock_update_manager = mock_corp_owner_get.update_manager
-        mock_update_manager.perform_update_status.return_value = MagicMock()
-        mock_update_manager.update_section_log.return_value = dummy_result
+        mock_update_manager = MagicMock()
+        mock_update_manager_property.return_value = mock_update_manager
+        mock_update_manager.perform_update_status.return_value = dummy_result
+
+        def _mock_update_section_log(section, result):
+            create_update_status(
+                owner=owner,
+                tax_type="corporation",
+                section=section,
+                has_token_error=result.has_token_error,
+                is_success=not result.has_token_error,
+                error_message=result.error_message,
+            )
+
+        mock_update_manager.update_section_log.side_effect = _mock_update_section_log
 
         # Test Action
-        _update_corp_section(owner_pk=owner.pk, section="wallet", force_refresh=False)
+        _update_corp_section(
+            task=MagicMock(),
+            owner_eve_id=owner.eve_id,
+            section="wallet",
+            force_refresh=False,
+        )
 
         # Expected Results
         new_update_status = CorporationUpdateStatus.objects.get(
@@ -161,7 +180,7 @@ class TestTasks(TaxSystemTestCase):
         owner = create_owner_from_user(user=self.user, tax_type="alliance")
 
         # Test Action
-        update_alliance(owner_pk=owner.pk, force_refresh=False)
+        update_alliance(owner_eve_id=owner.eve_id, force_refresh=False)
 
         # Expected Result
         mock_logger.debug.assert_called_with(
@@ -182,7 +201,7 @@ class TestTasks(TaxSystemTestCase):
         )
 
         # Test Action
-        update_alliance(owner_pk=owner.pk, force_refresh=False)
+        update_alliance(owner_eve_id=owner.eve_id, force_refresh=False)
 
         # Expected Result
         mock_logger.info.assert_called_with("No updates needed for %s", owner.name)
@@ -190,8 +209,11 @@ class TestTasks(TaxSystemTestCase):
         # Ensure update manager reports no update needed
         self.assertFalse(owner.update_manager.calc_update_needed())
 
+    @patch(MODELS_PATH + ".AllianceOwner.update_manager", new_callable=PropertyMock)
     @patch(MODELS_PATH + ".AllianceOwner.objects.get")
-    def test_update_alliance_section(self, mock_owner_get):
+    def test_update_alliance_section(
+        self, mock_owner_get, mock_update_manager_property
+    ):
         """
         Test update of a alliance section.
 
@@ -200,6 +222,8 @@ class TestTasks(TaxSystemTestCase):
         """
         # Test Data
         owner = create_owner_from_user(user=self.user, tax_type="alliance")
+        token = self.user.token_set.first()
+        owner.get_token = MagicMock(return_value=token)
         dummy_result = UpdateSectionResult(
             is_changed=True,
             is_updated=True,
@@ -212,14 +236,27 @@ class TestTasks(TaxSystemTestCase):
         ).first()
 
         mock_owner_get.return_value = owner
-        mock_owner_get.update_manager = MagicMock()
-        mock_update_manager = mock_owner_get.update_manager
-        mock_update_manager.perform_update_status.return_value = MagicMock()
-        mock_update_manager.update_section_log.return_value = dummy_result
+        mock_update_manager = MagicMock()
+        mock_update_manager_property.return_value = mock_update_manager
+        mock_update_manager.perform_update_status.return_value = dummy_result
 
+        def _mock_update_section_log(section, result):
+            create_update_status(
+                owner=owner,
+                tax_type="alliance",
+                section=section,
+                has_token_error=result.has_token_error,
+                is_success=not result.has_token_error,
+                error_message=result.error_message,
+            )
+
+        mock_update_manager.update_section_log.side_effect = _mock_update_section_log
         # Test Action
         _update_ally_section(
-            owner_pk=owner.pk, section="deadlines", force_refresh=False
+            task=MagicMock(),
+            owner_eve_id=owner.eve_id,
+            section="deadlines",
+            force_refresh=False,
         )
 
         # Expected Results
