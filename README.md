@@ -110,7 +110,7 @@ Configure your Alliance Auth settings (`local.py`) as follows:
 To set up the Scheduled Tasks add following code to your `local.py`
 
 ```python
-CELERYBEAT_SCHEDULE["taxsystem_update_all_taxsytem"] = {
+CELERYBEAT_SCHEDULE["AA Taxsystem :: Update All Tax System"] = {
     "task": "taxsystem.tasks.update_all_taxsytem",
     "schedule": 1800,
 }
