@@ -36,6 +36,7 @@ SITE_NAME = "testauth"
 # Change this to enable/disable debug mode, which displays
 # useful error messages but can leak sensitive data.
 DEBUG = False
+LOGGING = None
 
 NOTIFICATIONS_REFRESH_TIME = 30
 NOTIFICATIONS_MAX_PER_USER = 50
