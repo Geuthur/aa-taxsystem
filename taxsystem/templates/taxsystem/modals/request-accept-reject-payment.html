@@ -1,4 +1,4 @@
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load i18n %}
 
 <!-- accept delete filter modal -->
@@ -20,7 +20,7 @@
                 <form method="post">
                     {% csrf_token %}
 
-                    {{ forms.accept_reject_payment_request|bootstrap }}
+                    {% bootstrap_form forms.accept_reject_payment_request %}
                     <!-- Required reason -->
                     <div class="d-none badge bg-danger" id="request-required-field">{% translate "This field is required" %}.</div>
                 </form>

@@ -1,4 +1,4 @@
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load i18n %}
 
 <!-- accept delete filter modal -->
@@ -20,7 +20,7 @@
                 <form method="post">
                     {% csrf_token %}
 
-                    {{ forms.accept_payment_request|bootstrap }}
+                    {% bootstrap_form forms.accept_payment_request %}
                 </form>
             </div>
 
