@@ -111,8 +111,3 @@ DEFAULT_FROM_EMAIL = ""
 #######################################
 # Add any custom settings below here. #
 #######################################
-
-# workarounds to suppress warnings
-LOGGING = None
-STATICFILES_DIRS = []
-ANALYTICS_DISABLED = True
