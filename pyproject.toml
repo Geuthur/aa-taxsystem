@@ -32,9 +32,14 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth>=4.12,<5",
-    "django-esi>=8,<9",
+    "allianceauth>=4.12,<6",
+    "django-esi>=8,<9.1",
     "django-ninja>=1.5,<2",
+]
+optional-dependencies.tests-allianceauth-development = [
+    "allianceauth @ git+https://gitlab.com/allianceauth/allianceauth#egg=master",
+    "coverage",
+    "factory-boy",
 ]
 optional-dependencies.tests-allianceauth-latest = [
     "coverage",
@@ -50,3 +55,4 @@ build.include = [
     "/taxsystem",
 ]
 version.path = "taxsystem/__init__.py"
+metadata.allow-direct-references = true

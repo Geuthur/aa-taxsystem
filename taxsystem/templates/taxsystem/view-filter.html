@@ -1,6 +1,7 @@
 {% extends 'taxsystem/base.html' %}
 {% load i18n %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
+
 
 {% block page_title %}
     {{ title }}
@@ -34,7 +35,7 @@
                         <form method="post">
                             {% csrf_token %}
                             <fieldset class="tax-filter-form">
-                                {{ forms.filter|bootstrap }}
+                                {% bootstrap_form forms.filter %}
                             </fieldset>
                             <button type="submit" class="btn btn-success mt-3">
                                 <i class="fa-solid fa-plus"></i> {% translate "Add Filter" %}
@@ -47,7 +48,7 @@
                         <form method="post">
                             {% csrf_token %}
                             <fieldset class="tax-filter-form">
-                                {{ forms.filter_set|bootstrap }}
+                                {% bootstrap_form forms.filter_set %}
                             </fieldset>
                             <button type="submit" class="btn btn-success mt-3">
                                 <i class="fa-solid fa-plus"></i> {% translate "Add Filter Set" %}
@@ -60,7 +61,7 @@
                         <form method="post">
                             {% csrf_token %}
                             <fieldset class="tax-filter-form">
-                                {{ forms.edit_filter_set|bootstrap }}
+                                {% bootstrap_form forms.edit_filter_set %}
                             </fieldset>
                             <button type="submit" class="btn btn-success mt-3">
                                 <i class="fa-solid fa-plus"></i> {% translate "Edit Filter Set" %}

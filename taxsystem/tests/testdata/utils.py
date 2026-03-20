@@ -90,7 +90,7 @@ def _generate_token(
         dict: The generated token dict
     """
     if timestamp_dt is None:
-        timestamp_dt = dt.datetime.utcnow()
+        timestamp_dt = dt.datetime.now()
     if scopes is None:
         scopes = [
             "esi-mail.read_mail.v1",

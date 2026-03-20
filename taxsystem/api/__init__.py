@@ -11,8 +11,6 @@ from django.conf import settings
 # AA TaxSystem
 from taxsystem.api import admin, corporation, filters, logs, payments
 
-logger = logging.getLogger(__name__)
-
 api = NinjaAPI(
     title="TaxSystem API",
     version="0.5.0",
