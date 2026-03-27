@@ -509,7 +509,8 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
             users[account] = alts
 
         journal_qs = CorporationWalletJournalEntry.objects.filter(
-            division__corporation=owner, ref_type__in=["player_donation"]
+            division__corporation=owner,
+            ref_type__in=["player_donation"],
         ).order_by("-date")
 
         _current_entry_ids = set(
@@ -524,7 +525,19 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
                 # Skip if already processed
                 if journal.entry_id in _current_entry_ids:
                     continue
+
+                # Ensure first party is not null to avoid issues with journal entries without a first party
+                try:
+                    assert journal.first_party
+                except AssertionError:
+                    logger.warning(
+                        "Journal entry %s has no first party. Skipping.",
+                        journal.entry_id,
+                    )
+                    continue
+
                 for account, alts in users.items():
+                    # Check if entry belongs to user's characters
                     if journal.first_party.id in alts:
                         payment_item = CorporationPayments(
                             owner=owner,
