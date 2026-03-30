@@ -11,6 +11,22 @@ Section Order:
 ### Removed
 -->
 
+> [!WARNING]
+>
+> If you are not having already follow all instructions for v2.0.2 you need to do that now, otherwise this version will not work!
+
+You can install the previous version with
+
+```shell
+pip install aa-taxsystem==2.0.2
+```
+
+Follow the [Instructions](https://github.com/Geuthur/aa-taxsystem/blob/master/CHANGELOG.md#202---2026-02-26) and then upgrade to v3
+
+### Fixed
+
+- Update corporation and alliance update tasks to use eve_id for processing
+
 ## [3.0.1] - 2026-03-30
 
 > [!WARNING]

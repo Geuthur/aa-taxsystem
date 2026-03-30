@@ -112,5 +112,5 @@ class TestCorporationOwnerAdmin(TaxSystemTestCase):
         self.admin.force_update(request, queryset)
         # then
         mock_update.delay.assert_called_once_with(
-            owner_pk=self.corporation_owner.pk, force_refresh=True
+            owner_pk=self.corporation_owner.eve_id, force_refresh=True
         )
