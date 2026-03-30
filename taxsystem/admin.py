@@ -93,7 +93,7 @@ class CorporationOwnerAdmin(admin.ModelAdmin):
         count = 0
         for corporation_audit in queryset:
             update_corporation.delay(
-                owner_pk=corporation_audit.eve_id, force_refresh=True
+                owner_eve_id=corporation_audit.eve_id, force_refresh=True
             )
             count += 1
 
@@ -177,7 +177,9 @@ class AllianceOwnerAdmin(admin.ModelAdmin):
         """Force update of selected alliances."""
         count = 0
         for alliance_audit in queryset:
-            update_alliance.delay(owner_pk=alliance_audit.eve_id, force_refresh=True)
+            update_alliance.delay(
+                owner_eve_id=alliance_audit.eve_id, force_refresh=True
+            )
             count += 1
 
         messages.success(
