@@ -9,6 +9,7 @@ from django.utils import timezone
 from taxsystem.models.corporation import (
     CorporationFilter,
     CorporationPaymentAccount,
+    CorporationPayments,
     Members,
 )
 from taxsystem.models.general import EveEntity
@@ -363,7 +364,6 @@ class TestCorporationManager(TaxSystemTestCase):
         Results:
             1. Existing payment is updated.
             2. New payments are created based on wallet journal entries.
-            3. Payments with missing parties are skipped.
         """
         # Test Data
         create_tax_account(
@@ -388,6 +388,16 @@ class TestCorporationManager(TaxSystemTestCase):
             description="Test Description",
         )
 
+        create_wallet_journal_entry(
+            division=self.division,
+            entry_id=2,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
+            reason="Tax Payment",
+            ref_type="player_donation",
+            second_party=self.eve_character_second_party,
+            description="Test Description",
+        )
         # Test Action
         self.audit.update_payments(force_refresh=False)
 
@@ -395,3 +405,7 @@ class TestCorporationManager(TaxSystemTestCase):
         obj = self.audit.ts_corporation_payments.get(journal__entry_id=1)
         self.assertEqual(obj.amount, 1000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.PENDING)
+
+        # The second journal entry should not create a payment because it doesn't have a first_party
+        with self.assertRaises(CorporationPayments.DoesNotExist):
+            self.audit.ts_corporation_payments.get(journal__entry_id=2)

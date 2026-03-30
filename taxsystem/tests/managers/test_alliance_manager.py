@@ -456,3 +456,58 @@ class TestAllianceManager(TaxSystemTestCase):
             needs_approval.request_status, PaymentRequestStatus.NEEDS_APPROVAL
         )
         self.assertEqual(tax_account.deposit, 2000)
+
+    def test_update_payments(self):
+        """
+        Test update corporation payments.
+        This test should update or create corporation payments based on wallet journal entries.
+
+        Results:
+            1. Existing payment is updated.
+            2. New payments are created based on wallet journal entries.
+            3. Payments with missing parties are skipped.
+        """
+        # Test Data
+        create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
+            user=self.user2,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
+        )
+        self.audit2 = create_owner_from_user(user=self.user2, tax_type="alliance")
+
+        create_wallet_journal_entry(
+            division=self.division,
+            entry_id=1,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
+            reason="Tax Payment",
+            ref_type="player_donation",
+            first_party=self.eve_character_first_party,
+            second_party=self.eve_character_second_party,
+            description="Test Description",
+        )
+
+        create_wallet_journal_entry(
+            division=self.division,
+            entry_id=2,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
+            reason="Tax Payment",
+            ref_type="player_donation",
+            second_party=self.eve_character_second_party,
+            description="Test Description",
+        )
+        # Test Action
+        self.audit.update_payments(force_refresh=False)
+
+        # Expected Results
+        obj = self.audit.ts_alliance_payments.get(journal__entry_id=1)
+        self.assertEqual(obj.amount, 1000)
+        self.assertEqual(obj.request_status, PaymentRequestStatus.PENDING)
+
+        # The second journal entry should not create a payment because it doesn't have a first_party
+        with self.assertRaises(AlliancePayments.DoesNotExist):
+            self.audit.ts_alliance_payments.get(journal__entry_id=2)
