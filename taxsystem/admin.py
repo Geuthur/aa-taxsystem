@@ -3,7 +3,7 @@
 # Django
 from django.contrib import admin, messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.db.models import Max, Q
+from django.db.models import Max, Q, QuerySet
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -88,11 +88,13 @@ class CorporationOwnerAdmin(admin.ModelAdmin):
         return False
 
     @admin.action(description=_("Force update selected corporations"))
-    def force_update(self, request, queryset):
+    def force_update(self, request, queryset: "QuerySet[CorporationOwner]"):
         """Force update of selected corporations."""
         count = 0
         for corporation_audit in queryset:
-            update_corporation.delay(owner_pk=corporation_audit.pk, force_refresh=True)
+            update_corporation.delay(
+                owner_pk=corporation_audit.eve_id, force_refresh=True
+            )
             count += 1
 
         messages.success(
@@ -171,11 +173,11 @@ class AllianceOwnerAdmin(admin.ModelAdmin):
         return False
 
     @admin.action(description=_("Force update selected alliances"))
-    def force_update(self, request, queryset):
+    def force_update(self, request, queryset: "QuerySet[AllianceOwner]"):
         """Force update of selected alliances."""
         count = 0
         for alliance_audit in queryset:
-            update_alliance.delay(owner_pk=alliance_audit.pk, force_refresh=True)
+            update_alliance.delay(owner_pk=alliance_audit.eve_id, force_refresh=True)
             count += 1
 
         messages.success(

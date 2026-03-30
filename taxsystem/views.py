@@ -68,7 +68,7 @@ def admin(request: WSGIRequest):
                     _("Queued Update for Corporation: %s") % corporation.name,
                 )
                 tasks.update_corporation.apply_async(
-                    args=[corporation.pk],
+                    args=[corporation.eve_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
@@ -82,7 +82,7 @@ def admin(request: WSGIRequest):
             corporations = CorporationOwner.objects.filter(active=True)
             for corporation in corporations:
                 tasks.update_corporation.apply_async(
-                    args=[corporation.pk],
+                    args=[corporation.eve_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
@@ -98,7 +98,7 @@ def admin(request: WSGIRequest):
                     _("Queued Update for Alliance: %s") % alliance.name,
                 )
                 tasks.update_alliance.apply_async(
-                    args=[alliance.pk],
+                    args=[alliance.eve_alliance.alliance_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
@@ -112,7 +112,7 @@ def admin(request: WSGIRequest):
             alliances = AllianceOwner.objects.filter(active=True)
             for alliance in alliances:
                 tasks.update_alliance.apply_async(
-                    args=[alliance.pk],
+                    args=[alliance.eve_alliance.alliance_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
@@ -572,7 +572,7 @@ def add_corp(request: WSGIRequest, token):
         ).save()
 
     tasks.update_corporation.apply_async(
-        args=[owner.pk], kwargs={"force_refresh": True}, priority=6
+        args=[owner.eve_id], kwargs={"force_refresh": True}, priority=6
     )
     msg = _("{corporation_name} successfully added/updated to Tax System").format(
         corporation_name=char.corporation_name,
@@ -620,7 +620,7 @@ def add_alliance(request: WSGIRequest, token):
         ).save()
 
     tasks.update_alliance.apply_async(
-        args=[owner_alliance.pk], kwargs={"force_refresh": True}, priority=6
+        args=[owner_alliance.eve_id], kwargs={"force_refresh": True}, priority=6
     )
     msg = _("{alliance_name} successfully added/updated to Tax System").format(
         alliance_name=char.alliance_name,
