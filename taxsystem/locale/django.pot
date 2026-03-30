@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-03-17 06:45+0100\n"
+"POT-Creation-Date: 2026-03-30 07:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -822,13 +822,13 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:13
 #: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:13
-#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:12
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:13
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:13
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:13
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:13
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:13
-#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:13
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:12
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:13
 #: taxsystem/templates/taxsystem/modals/request-view-filter-set.html:13
 #: taxsystem/templates/taxsystem/modals/request-view-filter-set.html:22
@@ -856,13 +856,13 @@ msgstr ""
 
 #: taxsystem/templates/taxsystem/modals/request-accept-add-payment.html:33
 #: taxsystem/templates/taxsystem/modals/request-accept-approve-payment.html:30
-#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:25
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:24
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter-set.html:33
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-filter.html:33
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-member.html:33
 #: taxsystem/templates/taxsystem/modals/request-accept-delete-payment.html:33
 #: taxsystem/templates/taxsystem/modals/request-accept-reject-payment.html:32
-#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:25
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:24
 #: taxsystem/templates/taxsystem/modals/request-accept-undo-payment.html:32
 msgid "Cancel"
 msgstr ""
@@ -876,12 +876,12 @@ msgstr ""
 msgid "Are you sure you want to approve this payment?"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:30
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:9
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:29
 msgid "Accept Bulk Action"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:18
+#: taxsystem/templates/taxsystem/modals/request-accept-bulk-actions.html:17
 msgid "Are you sure you want to perform this bulk action?"
 msgstr ""
 
@@ -930,12 +930,12 @@ msgstr ""
 msgid "Are you sure you want to reject this payment?"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:10
-#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:30
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:9
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:29
 msgid "Accept Switch Account"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:18
+#: taxsystem/templates/taxsystem/modals/request-accept-switch-tax-account.html:17
 msgid "Are you sure you want to switch this account?"
 msgstr ""
 
@@ -1333,23 +1333,23 @@ msgstr ""
 msgid "Frequently Asked Questions"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/view-filter.html:18
+#: taxsystem/templates/taxsystem/view-filter.html:19
 msgid "Filter Sets"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/view-filter.html:27
+#: taxsystem/templates/taxsystem/view-filter.html:28
 msgid "Filter Setup"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/view-filter.html:40
+#: taxsystem/templates/taxsystem/view-filter.html:41
 msgid "Add Filter"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/view-filter.html:53
+#: taxsystem/templates/taxsystem/view-filter.html:54
 msgid "Add Filter Set"
 msgstr ""
 
-#: taxsystem/templates/taxsystem/view-filter.html:66
+#: taxsystem/templates/taxsystem/view-filter.html:67
 msgid "Edit Filter Set"
 msgstr ""
 

@@ -11,13 +11,36 @@ Section Order:
 ### Removed
 -->
 
+## [3.0.1] - 2026-03-30
+
+> [!WARNING]
+>
+> If you are not having already follow all instructions for v2.0.2 you need to do that now, otherwise this version will not work!
+
+You can install the previous version with
+
+```shell
+pip install aa-taxsystem==2.0.2
+```
+
+Follow the [Instructions](https://github.com/Geuthur/aa-taxsystem/blob/master/CHANGELOG.md#202---2026-02-26) and then upgrade to v3
+
+### Added
+
+- Test Preperation for AAv5 Release
+
+### Fixed
+
+- Add null check for first party in journal
+- Task Tests
+
+### Changed
+
+- refactor task parameters and add retry manager for corporation and alliance updates
+
 ## Description
 
 ## [3.0.0] - 2026-03-17
-
-### Removed
-
-- `django-eveuniverse` dependency
 
 > [!WARNING]
 >
@@ -796,5 +819,5 @@ python manage.py taxsystem_migrate_payments
 [2.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.1...v2.0.2 "2.0.2"
 [2.0.2.1]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.2...v2.0.2.1 "2.0.2.1"
 [3.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v2.0.2.1...v3.0.0 "3.0.0"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.0...HEAD "In Development"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.1...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
