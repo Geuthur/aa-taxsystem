@@ -564,10 +564,10 @@ def create_wallet_journal_entry(
     division: CorporationWalletDivision,
     date: str,
     description: str,
-    first_party: EveEntity,
-    second_party: EveEntity,
     entry_id: int,
     ref_type: str,
+    first_party: EveEntity = None,
+    second_party: EveEntity = None,
     **kwargs,
 ) -> CorporationWalletJournalEntry:
     """

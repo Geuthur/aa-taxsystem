@@ -9,6 +9,7 @@ from django.utils import timezone
 from taxsystem.models.corporation import (
     CorporationFilter,
     CorporationPaymentAccount,
+    CorporationPayments,
     Members,
 )
 from taxsystem.models.general import EveEntity
@@ -354,3 +355,57 @@ class TestCorporationManager(TaxSystemTestCase):
             2,
             1,
         )
+
+    def test_update_payments(self):
+        """
+        Test update corporation payments.
+        This test should update or create corporation payments based on wallet journal entries.
+
+        Results:
+            1. Existing payment is updated.
+            2. New payments are created based on wallet journal entries.
+        """
+        # Test Data
+        create_tax_account(
+            name=self.user_character.character.character_name,
+            owner=self.audit,
+            user=self.user2,
+            status=AccountStatus.ACTIVE,
+            deposit=0,
+            last_paid=(timezone.now() - timezone.timedelta(days=30)),
+        )
+        self.audit2 = create_owner_from_user(self.user2)
+
+        create_wallet_journal_entry(
+            division=self.division,
+            entry_id=1,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
+            reason="Tax Payment",
+            ref_type="player_donation",
+            first_party=self.eve_character_first_party,
+            second_party=self.eve_character_second_party,
+            description="Test Description",
+        )
+
+        create_wallet_journal_entry(
+            division=self.division,
+            entry_id=2,
+            amount=1000,
+            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
+            reason="Tax Payment",
+            ref_type="player_donation",
+            second_party=self.eve_character_second_party,
+            description="Test Description",
+        )
+        # Test Action
+        self.audit.update_payments(force_refresh=False)
+
+        # Expected Results
+        obj = self.audit.ts_corporation_payments.get(journal__entry_id=1)
+        self.assertEqual(obj.amount, 1000)
+        self.assertEqual(obj.request_status, PaymentRequestStatus.PENDING)
+
+        # The second journal entry should not create a payment because it doesn't have a first_party
+        with self.assertRaises(CorporationPayments.DoesNotExist):
+            self.audit.ts_corporation_payments.get(journal__entry_id=2)

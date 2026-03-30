@@ -519,6 +519,17 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
                 # Skip if already processed
                 if journal.entry_id in _current_entry_ids:
                     continue
+
+                # Ensure first party is not null to avoid issues with journal entries without a first party
+                try:
+                    assert journal.first_party
+                except AssertionError:
+                    logger.warning(
+                        "Journal entry %s has no first party. Skipping.",
+                        journal.entry_id,
+                    )
+                    continue
+
                 for account, alts in users.items():
                     # Check if entry belongs to user's characters
                     if journal.first_party.id in alts:
