@@ -682,7 +682,7 @@ $(document).ready(function() {
                     addInfo.removeClass('ts-shake');
                     addInfo.removeClass('is-invalid');
                 }, 1500);
-            } else if (addAmountValue === '' || isNaN(addAmountValue) || Number(addAmountValue) <= 0) {
+            } else if (addAmountValue === '' || isNaN(addAmountValue)) {
                 modalRequestAddPaymentDecline.removeClass('d-none');
                 addAmount.addClass('is-invalid');
 

@@ -11,6 +11,26 @@ Section Order:
 ### Removed
 -->
 
+## [3.0.3] - 2026-04-14
+
+> [!WARNING]
+>
+> If you are not having already follow all instructions for v2.0.2 you need to do that now, otherwise this version will not work!
+
+You can install the previous version with
+
+```shell
+pip install aa-taxsystem==2.0.2
+```
+
+### Added
+
+- Python 3.13 Support
+
+### Changed
+
+- Allow Negative Numbers in adjustment payments
+
 ## [3.0.2] - 2026-03-30
 
 > [!WARNING]

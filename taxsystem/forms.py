@@ -209,7 +209,7 @@ class PaymentAddForm(forms.Form):
         required=True,
         label=get_mandatory_form_label_text(text=_("Amount")),
         help_text=_("Amount to be added"),
-        widget=forms.NumberInput(attrs={"min": "0"}),
+        widget=forms.NumberInput(),
     )
 
     comment = forms.CharField(
