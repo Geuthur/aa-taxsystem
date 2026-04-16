@@ -167,6 +167,8 @@ The Following Settings can be setting up in the `local.py`
 
 - TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "divisions": 60, "division_names": 60, "members": 60, "payments": 60, "tax_accounts":60, "deadlines": 1440 }` - Defines the stale status duration (in minutes) for each section.
 
+- TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS = `1` - The maximum number of days after which a notification expires and the system resends it.
+
 ## Documentation<a name="documentation"></a>
 
 For detailed information on how to use the Tax System, please refer to our comprehensive [User Manual](https://github.com/Geuthur/aa-taxsystem/blob/master/docs/USER_MANUAL.md).

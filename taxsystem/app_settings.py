@@ -29,3 +29,8 @@ TAXSYSTEM_STALE_TYPES = getattr(
 
 # Controls how many database records are inserted in a single batch operation.
 TAXSYSTEM_BULK_BATCH_SIZE = getattr(settings, "TAXSYSTEM_BULK_BATCH_SIZE", 500)
+
+# Set Days when a notification is expired in days
+TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS = getattr(
+    settings, "TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS", 1
+)

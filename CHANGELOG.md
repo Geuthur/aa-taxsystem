@@ -11,6 +11,20 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Discord Notification System, Automated alerts for outstanding payments at both the Alliance and Corporation levels.
+- `tax_message` field for Owner to specify custom First Message.
+
+Configuration
+The frequency of these alerts can be managed through the following setting:
+
+```shell
+TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS = "1"
+```
+
+Defines the timeframe (in days) before a notification expires. The system will only trigger a new Discord alert for the outstanding balance once this period has elapsed. This prevents notification fatigue while ensuring consistent follow-up on unpaid dues.
+
 ## [3.0.3] - 2026-04-14
 
 > [!WARNING]

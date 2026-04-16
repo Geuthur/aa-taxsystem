@@ -108,6 +108,15 @@ class CorporationOwner(models.Model):
         validators=[MaxValueValidator(365)],
     )
 
+    # Not Implemented yet, but will be used to send notifications to members when a tax payment is due.
+    tax_message = models.TextField(
+        help_text=_(
+            "Message that is sent to corporation members when a tax payment is due."
+        ),
+        blank=True,
+        default="Your deposit has fallen to a negative balance. Please settle the outstanding amount immediately to avoid any penalties.",
+    )
+
     def __str__(self):
         return f"{self.name}"
 

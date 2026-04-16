@@ -3,9 +3,16 @@
 # Standard Library
 import inspect
 from collections.abc import Callable
+from urllib.parse import urljoin
 
 # Third Party
 from celery import Task, chain, shared_task
+
+# Django
+from django.conf import settings
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.html import format_html
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -13,9 +20,11 @@ from allianceauth.services.tasks import QueueOnce
 
 # AA TaxSystem
 from taxsystem import __title__, app_settings
-from taxsystem.models.alliance import AllianceOwner
-from taxsystem.models.corporation import CorporationOwner
+from taxsystem.helpers.discord import send_user_notification
+from taxsystem.models.alliance import AllianceOwner, AlliancePaymentAccount
+from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
 from taxsystem.models.helpers.textchoices import (
+    AccountStatus,
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
@@ -330,3 +339,117 @@ def _update_ally_section(
             section, method, **kwargs
         )
     alliance.update_manager.update_section_log(section, result)
+
+
+@shared_task(**TASK_DEFAULTS_ONCE)
+def check_account_deposit(runs: int = 0):
+    """Check if any accounts have not paid and send notifications if needed."""
+    alliances = AllianceOwner.objects.filter(active=1)
+    corporations = CorporationOwner.objects.filter(active=1)
+
+    # Check alliance users
+    for alliance in alliances:
+        _send_alliance_notification.apply_async(
+            kwargs={"owner_eve_id": alliance.eve_alliance.alliance_id}
+        )
+        runs = runs + 1
+
+    # Check corporation users
+    for corporation in corporations:
+        _send_corporation_notification.apply_async(
+            kwargs={"owner_eve_id": corporation.eve_corporation.corporation_id}
+        )
+        runs = runs + 1
+    logger.info("Queued %s notification tasks for overdue payments", runs)
+
+
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def _send_alliance_notification(
+    self: Task, owner_eve_id: int, runs: int = 0
+):  # pylint: disable=unused-argument
+    """Send a notification to an alliance."""
+    accounts = AlliancePaymentAccount.objects.filter(
+        owner__eve_alliance__alliance_id=owner_eve_id, status=AccountStatus.ACTIVE
+    ).select_related("owner")
+
+    owner_name = None
+    for account in accounts:
+        # Get the owner name from the first account, if not already set
+        if owner_name is None:
+            owner_name = account.owner.name
+        # Only send a notification if the user has not been notified and has not paid
+        if account.has_notified is False:
+            if account.has_paid is False:
+                url = urljoin(
+                    settings.SITE_URL,
+                    reverse(
+                        "taxsystem:account",
+                        args=[account.owner.eve_alliance.alliance_id],
+                    ),
+                )
+                msg = account.owner.tax_message
+                msg += f"\n__**`{account.owner.name}`**__: __**`{account.deposit}`**__ ISK.\n\n"
+                msg += f"Account Overview: {url}"
+                send_user_notification(
+                    user_id=account.user_id,
+                    title="Outstanding Payment Notification",
+                    message=format_html(msg),
+                    embed_message=True,
+                    level="warning",
+                )
+            account.last_notification = timezone.now()
+            account.save()
+            runs = runs + 1
+            logger.debug(
+                "Sent notification to user %s for alliance %s",
+                account.name,
+                account.owner.name,
+            )
+    logger.info("Sent %s notifications for alliance %s", runs, owner_name)
+
+
+# TODO Make this more efficient by only checking accounts that are overdue instead of all active accounts.
+# This would require adding a next_notification field to the account model and indexing it for efficient querying.
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def _send_corporation_notification(
+    self: Task, owner_eve_id: int, runs: int = 0
+):  # pylint: disable=unused-argument
+    """Send a notification to a corporation."""
+    accounts = CorporationPaymentAccount.objects.filter(
+        owner__eve_corporation__corporation_id=owner_eve_id, status=AccountStatus.ACTIVE
+    ).select_related("owner")
+
+    owner_name = None
+    for account in accounts:
+        # Get the owner name from the first account, if not already set
+        if owner_name is None:
+            owner_name = account.owner.name
+        # Only send a notification if the user has not been notified and has not paid
+        if account.has_notified is False:
+            if account.has_paid is False:
+                url = urljoin(
+                    settings.SITE_URL,
+                    reverse(
+                        "taxsystem:account",
+                        args=[account.owner.eve_corporation.corporation_id],
+                    ),
+                )
+                msg = account.owner.tax_message
+                msg += f"\n__**`{account.owner.name}`**__: __**`{account.deposit}`**__ ISK.\n\n"
+                msg += f"Account Overview: {url}"
+                send_user_notification(
+                    user_id=account.user_id,
+                    title="Outstanding Payment Notification",
+                    message=format_html(msg),
+                    embed_message=True,
+                    level="warning",
+                )
+                account.last_notification = timezone.now()
+                account.save()
+                runs = runs + 1
+                logger.debug(
+                    "Sent notification to user %s for corporation %s",
+                    account.name,
+                    account.owner.name,
+                )
+    logger.info("Sent %s notifications for corporation %s", runs, owner_name)
