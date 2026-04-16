@@ -114,6 +114,10 @@ CELERYBEAT_SCHEDULE["AA Taxsystem :: Update All Tax System"] = {
     "task": "taxsystem.tasks.update_all_taxsytem",
     "schedule": 1800,
 }
+CELERYBEAT_SCHEDULE["AA Taxsystem :: Sent out Notification"] = {
+    "task": "taxsystem.tasks.check_account_deposit",
+    "schedule": crontab(minute="0", hour="12"),
+}
 ```
 
 ### Step 3.1 - (Optional) Add own Logger File
