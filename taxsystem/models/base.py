@@ -236,19 +236,6 @@ class PaymentAccountBaseModel(models.Model):
         return None
 
     @property
-    def is_(self) -> bool:
-        """
-        Return True if payment is overdue.
-
-        Returns:
-            bool: True if overdue, False otherwise.
-        """
-        next_due = self.next_due
-        if next_due and timezone.now() > next_due:
-            return True
-        return False
-
-    @property
     def has_notified(self) -> bool:
         """
         Return True if user has been notified about upcoming payment deadline.
