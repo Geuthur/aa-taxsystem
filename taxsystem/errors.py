@@ -2,4 +2,8 @@
 
 
 class DatabaseError(Exception):
-    pass
+    """Custom exception to indicate a database error."""
+
+
+class DownTimeError(Exception):
+    """Custom exception to indicate ESI is in daily downtime."""
