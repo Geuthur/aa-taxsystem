@@ -1,23 +1,5 @@
-from .alliance import (
-    AllianceAdminHistory,
-    AllianceFilter,
-    AllianceFilterSet,
-    AllianceOwner,
-    AlliancePaymentAccount,
-    AlliancePaymentHistory,
-    AlliancePayments,
-    AllianceUpdateStatus,
-)
-from .corporation import (
-    CorporationAdminHistory,
-    CorporationFilter,
-    CorporationFilterSet,
-    CorporationOwner,
-    CorporationPaymentAccount,
-    CorporationPaymentHistory,
-    CorporationPayments,
-    CorporationUpdateStatus,
-    Members,
-)
-from .general import General
-from .wallet import CorporationWalletDivision, CorporationWalletJournalEntry
+# flake8: noqa
+from .alliance import *
+from .corporation import *
+from .general import *
+from .wallet import *

@@ -114,6 +114,10 @@ CELERYBEAT_SCHEDULE["AA Taxsystem :: Update All Tax System"] = {
     "task": "taxsystem.tasks.update_all_taxsytem",
     "schedule": 1800,
 }
+CELERYBEAT_SCHEDULE["AA Taxsystem :: Sent out Notification"] = {
+    "task": "taxsystem.tasks.check_account_deposit",
+    "schedule": crontab(minute="0", hour="12"),
+}
 ```
 
 ### Step 3.1 - (Optional) Add own Logger File
@@ -166,6 +170,8 @@ The Following Settings can be setting up in the `local.py`
   Advanced Settings: Stale Status for Each Section
 
 - TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "divisions": 60, "division_names": 60, "members": 60, "payments": 60, "tax_accounts":60, "deadlines": 1440 }` - Defines the stale status duration (in minutes) for each section.
+
+- TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS = `1` - The maximum number of days after which a notification expires and the system resends it.
 
 ## Documentation<a name="documentation"></a>
 
