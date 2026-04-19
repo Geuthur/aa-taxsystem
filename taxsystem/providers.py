@@ -10,6 +10,9 @@ from http import HTTPStatus
 from aiopenapi3 import RequestError
 from celery import Task
 
+# Django
+from django.utils import timezone
+
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import (
@@ -28,6 +31,7 @@ from taxsystem import (
     __title__,
     __version__,
 )
+from taxsystem.errors import DownTimeError
 
 esi = ESIClientProvider(
     compatibility_date=__esi_compatibility_date__,
@@ -36,6 +40,8 @@ esi = ESIClientProvider(
     ua_url=__github_url__,
     operations=__operations__,
 )
+
+DOWNTIME_TIMER = 60 * 10  # 10 minutes
 
 
 class AppLogger(logging.LoggerAdapter):
@@ -88,7 +94,8 @@ def retry_task_on_esi_error(task: Task):
     - Error limits reached (ESIErrorLimitException)
     - Rate limit errors (ESIBucketLimitException)
     - HTTPError with status codes 502, 503, 504 (server errors)
-    - RequestError
+    - RequestError (network issues, timeouts, etc.)
+    - DownTimeError (ESI's daily downtime)
 
     :param task: Celery Task instance
     :return: Context manager that retries the task on ESI errors.
@@ -106,7 +113,20 @@ def retry_task_on_esi_error(task: Task):
         )
         raise task.retry(countdown=countdown, exc=exc)
 
+    def daily_downtime():
+        """Checks if the current time is within ESI's daily downtime window (11:00 - 11:15 UTC)."""
+        is_downtime = (
+            timezone.now().time() >= timezone.datetime.strptime("11:00", "%H:%M").time()
+            and timezone.now().time()
+            <= timezone.datetime.strptime("11:15", "%H:%M").time()
+        )
+        if not is_downtime:
+            return False
+        return True
+
     try:
+        if daily_downtime():
+            raise DownTimeError("ESI is in daily downtime")
         yield
     except ESIErrorLimitException as exc:
         retry(exc, exc.reset, "ESI Error Limit Reached")
@@ -118,7 +138,9 @@ def retry_task_on_esi_error(task: Task):
             HTTPStatus.SERVICE_UNAVAILABLE,
             HTTPStatus.GATEWAY_TIMEOUT,
         ]:
-            retry(exc, 60, f"ESI seems to be down (HTTP {exc.status_code})")
+            retry(exc, DOWNTIME_TIMER, f"ESI seems to be down (HTTP {exc.status_code})")
         raise exc
     except RequestError as exc:
-        retry(exc, 60, "Request Error")
+        retry(exc, DOWNTIME_TIMER, "Request Error")
+    except DownTimeError as exc:
+        retry(exc, DOWNTIME_TIMER, "Downtime Error")
