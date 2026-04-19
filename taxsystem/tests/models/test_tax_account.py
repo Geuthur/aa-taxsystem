@@ -127,7 +127,7 @@ class TestPaymentSystemModel(TaxSystemTestCase):
         tax_account = CorporationPaymentAccount.objects.get(owner=self.audit)
         self.assertFalse(tax_account.has_notified)
 
-        tax_account.notified = timezone.now()
+        tax_account.last_notification = timezone.now()
         tax_account.save()
 
         tax_account.refresh_from_db()
