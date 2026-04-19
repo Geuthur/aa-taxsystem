@@ -121,3 +121,14 @@ class TestPaymentSystemModel(TaxSystemTestCase):
             AccountStatus(tax_account.status).icon(),
             "<i class='fas fa-check'></i>",
         )
+
+    def test_has_notified(self):
+        """Test if the tax account has notified."""
+        tax_account = CorporationPaymentAccount.objects.get(owner=self.audit)
+        self.assertFalse(tax_account.has_notified)
+
+        tax_account.notified = timezone.now()
+        tax_account.save()
+
+        tax_account.refresh_from_db()
+        self.assertTrue(tax_account.has_notified)
