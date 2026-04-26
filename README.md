@@ -57,10 +57,11 @@ ______________________________________________________________________
   - Log System
     - Logs Actions from Administration Section
     - Payment history tracking
+  - Notification
+    - Discord Notification
 
 ## Upcoming<a name="upcoming"></a>
 
-- Notify via Discord
 - Data export functionality
 
 ## Screenshots<a name="screenshots"></a>
@@ -88,7 +89,7 @@ ______________________________________________________________________
 ## Installation<a name="installation"></a>
 
 > [!NOTE]
-> AA Tax System needs at least Alliance Auth v4.12.0
+> AA Tax System needs at least Alliance Auth v4.13.0
 > Please make sure to update your Alliance Auth before you install this APP
 
 ### Step 1 - Install the Package<a name="step1"></a>
