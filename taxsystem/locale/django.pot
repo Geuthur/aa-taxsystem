@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-04-14 13:56+0200\n"
+"POT-Creation-Date: 2026-05-03 21:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -161,7 +161,7 @@ msgstr ""
 msgid "Delete Filter Set"
 msgstr ""
 
-#: taxsystem/api/helpers/icons.py:342 taxsystem/models/corporation.py:307
+#: taxsystem/api/helpers/icons.py:342 taxsystem/models/corporation.py:316
 #: taxsystem/models/helpers/textchoices.py:83
 #: taxsystem/templates/taxsystem/partials/view-manage/filter-set.html:9
 msgid "Active"
@@ -318,7 +318,7 @@ msgstr ""
 msgid "Delete Reason"
 msgstr ""
 
-#: taxsystem/forms.py:210 taxsystem/models/base.py:332
+#: taxsystem/forms.py:210 taxsystem/models/base.py:363
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:14
 msgid "Amount"
 msgstr ""
@@ -411,44 +411,50 @@ msgstr ""
 msgid "Tax Period in days for the alliance. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/alliance.py:256 taxsystem/models/corporation.py:389
+#: taxsystem/models/alliance.py:113
+msgid ""
+"Message that is sent to alliance members when a tax payment is overdue or "
+"the deposit has fallen below zero."
+msgstr ""
+
+#: taxsystem/models/alliance.py:265 taxsystem/models/corporation.py:398
 msgid "Owner of this payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:343 taxsystem/models/corporation.py:480
+#: taxsystem/models/alliance.py:352 taxsystem/models/corporation.py:489
 msgid "Payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:344 taxsystem/models/corporation.py:481
+#: taxsystem/models/alliance.py:353 taxsystem/models/corporation.py:490
 msgid "Payment that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:350 taxsystem/models/corporation.py:488
+#: taxsystem/models/alliance.py:359 taxsystem/models/corporation.py:497
 msgid "New Status"
 msgstr ""
 
-#: taxsystem/models/alliance.py:351 taxsystem/models/corporation.py:489
+#: taxsystem/models/alliance.py:360 taxsystem/models/corporation.py:498
 msgid "New Status of the action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:365 taxsystem/models/corporation.py:504
+#: taxsystem/models/alliance.py:374 taxsystem/models/corporation.py:513
 #: taxsystem/templates/taxsystem/partials/view-account/account.html:19
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:52
 msgid "Owner"
 msgstr ""
 
-#: taxsystem/models/alliance.py:366 taxsystem/models/corporation.py:505
+#: taxsystem/models/alliance.py:375 taxsystem/models/corporation.py:514
 msgid "Owner that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:375 taxsystem/models/base.py:410
-#: taxsystem/models/corporation.py:515
+#: taxsystem/models/alliance.py:384 taxsystem/models/base.py:441
+#: taxsystem/models/corporation.py:524
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:86
 msgid "Action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:376 taxsystem/models/base.py:411
-#: taxsystem/models/corporation.py:516
+#: taxsystem/models/alliance.py:385 taxsystem/models/base.py:442
+#: taxsystem/models/corporation.py:525
 msgid "Action performed"
 msgstr ""
 
@@ -468,24 +474,24 @@ msgstr ""
 msgid "Deposit Pool in ISK. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/base.py:331
+#: taxsystem/models/base.py:362
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:22
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:14
 msgid "Reason"
 msgstr ""
 
-#: taxsystem/models/base.py:396
+#: taxsystem/models/base.py:427
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:4
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:40
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:84
 msgid "User"
 msgstr ""
 
-#: taxsystem/models/base.py:397
+#: taxsystem/models/base.py:428
 msgid "User that performed the action"
 msgstr ""
 
-#: taxsystem/models/base.py:402
+#: taxsystem/models/base.py:433
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:85
 #: taxsystem/templates/taxsystem/partials/view-manage/payments.html:11
 #: taxsystem/templates/taxsystem/partials/view-my-payments/my-payments.html:8
@@ -493,16 +499,16 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: taxsystem/models/base.py:403
+#: taxsystem/models/base.py:434
 msgid "Date of the action"
 msgstr ""
 
-#: taxsystem/models/base.py:417
+#: taxsystem/models/base.py:448
 #: taxsystem/templates/taxsystem/partials/view-manage/payments-details.html:87
 msgid "Comment"
 msgstr ""
 
-#: taxsystem/models/base.py:418
+#: taxsystem/models/base.py:449
 msgid "Comment of the action"
 msgstr ""
 
@@ -518,23 +524,29 @@ msgstr ""
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/corporation.py:308
+#: taxsystem/models/corporation.py:114
+msgid ""
+"Message that is sent to corporation members when a tax payment is overdue or "
+"the deposit has fallen below zero."
+msgstr ""
+
+#: taxsystem/models/corporation.py:317
 #: taxsystem/models/helpers/textchoices.py:86
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:22
 msgid "Missing"
 msgstr ""
 
-#: taxsystem/models/corporation.py:309
+#: taxsystem/models/corporation.py:318
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:184
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:18
 msgid "Unregistered"
 msgstr ""
 
-#: taxsystem/models/corporation.py:310
+#: taxsystem/models/corporation.py:319
 msgid "is alt"
 msgstr ""
 
-#: taxsystem/models/corporation.py:321
+#: taxsystem/models/corporation.py:330
 #: taxsystem/templates/taxsystem/partials/view-manage/accounts.html:32
 #: taxsystem/templates/taxsystem/partials/view-manage/manage-user.html:13
 #: taxsystem/templates/taxsystem/partials/view-manage/members.html:32
