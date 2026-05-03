@@ -57,10 +57,11 @@ ______________________________________________________________________
   - Log System
     - Logs Actions from Administration Section
     - Payment history tracking
+  - Notification
+    - Discord Notification
 
 ## Upcoming<a name="upcoming"></a>
 
-- Notify via Discord
 - Data export functionality
 
 ## Screenshots<a name="screenshots"></a>
@@ -88,7 +89,7 @@ ______________________________________________________________________
 ## Installation<a name="installation"></a>
 
 > [!NOTE]
-> AA Tax System needs at least Alliance Auth v4.12.0
+> AA Tax System needs at least Alliance Auth v4.13.0
 > Please make sure to update your Alliance Auth before you install this APP
 
 ### Step 1 - Install the Package<a name="step1"></a>
@@ -113,6 +114,10 @@ To set up the Scheduled Tasks add following code to your `local.py`
 CELERYBEAT_SCHEDULE["AA Taxsystem :: Update All Tax System"] = {
     "task": "taxsystem.tasks.update_all_taxsytem",
     "schedule": 1800,
+}
+CELERYBEAT_SCHEDULE["AA Taxsystem :: Sent out Notification"] = {
+    "task": "taxsystem.tasks.check_account_deposit",
+    "schedule": crontab(minute="0", hour="12"),
 }
 ```
 
@@ -166,6 +171,8 @@ The Following Settings can be setting up in the `local.py`
   Advanced Settings: Stale Status for Each Section
 
 - TAXSYSTEM_STALE_TYPES = `{ "wallet": 60, "divisions": 60, "division_names": 60, "members": 60, "payments": 60, "tax_accounts":60, "deadlines": 1440 }` - Defines the stale status duration (in minutes) for each section.
+
+- TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS = `1` - The maximum number of days after which a notification expires and the system resends it.
 
 ## Documentation<a name="documentation"></a>
 

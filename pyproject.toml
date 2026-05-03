@@ -38,12 +38,18 @@ dependencies = [
     "django-ninja>=1.5,<2",
 ]
 optional-dependencies.tests-allianceauth-development = [
+    "aa-discordnotify",
     "allianceauth==5.0.0b2",
+    "allianceauth-discordbot",
     "coverage",
+    "discordproxy",
     "factory-boy",
 ]
 optional-dependencies.tests-allianceauth-latest = [
+    "aa-discordnotify",
+    "allianceauth-discordbot",
     "coverage",
+    "discordproxy",
     "factory-boy",
 ]
 urls.Changelog = "https://github.com/Geuthur/aa-taxsystem/blob/master/CHANGELOG.md"

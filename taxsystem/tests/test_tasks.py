@@ -12,14 +12,21 @@ from taxsystem.models.alliance import AllianceUpdateStatus
 from taxsystem.models.corporation import CorporationUpdateStatus
 from taxsystem.models.general import UpdateSectionResult
 from taxsystem.tasks import (
+    _send_alliance_notification,
+    _send_corporation_notification,
     _update_ally_section,
     _update_corp_section,
+    check_account_deposit,
     update_all_taxsytem,
     update_alliance,
     update_corporation,
 )
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import create_owner_from_user, create_update_status
+from taxsystem.tests.testdata.utils import (
+    create_owner_from_user,
+    create_tax_account,
+    create_update_status,
+)
 
 TASKS_PATH = "taxsystem.tasks"
 MANAGERS_PATH = "taxsystem.managers"
@@ -266,3 +273,74 @@ class TestTasks(TaxSystemTestCase):
         self.assertEqual(update_status, None)
         self.assertEqual(new_update_status.has_token_error, False)
         self.assertEqual(new_update_status.is_success, True)
+
+    @patch(TASKS_PATH + "._send_corporation_notification", return_value=None)
+    @patch(TASKS_PATH + "._send_alliance_notification", return_value=None)
+    @patch(TASKS_PATH + ".logger")
+    def test_check_accounts_deposit(
+        self,
+        mock_logger,
+        mock_send_alliance_notification,
+        mock_send_corporation_notification,
+    ):
+        """
+        Test the deposit check for tax accounts.
+
+        Results:
+            - Sent notifications for accounts with insufficient deposit.
+        """
+        # Test Data
+        audit = create_owner_from_user(user=self.user)
+
+        create_tax_account(
+            owner=audit, name="Test Account", user=self.user, deposit=-1000
+        )
+        # Test Action
+        check_account_deposit()
+
+        # Expected Result
+        mock_logger.info.assert_called_with(
+            "Queued %s notification tasks for overdue payments", 1
+        )
+
+    @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_corporation_notification(self, mock_send):
+        """
+        Test sending corporation notification.
+
+        Results:
+            - Corporation notification is sent correctly.
+        """
+        # Test Data
+        audit = create_owner_from_user(user=self.user)
+        create_tax_account(
+            owner=audit, name="Test Account", user=self.user, deposit=-1000
+        )
+
+        # Test Action
+        _send_corporation_notification(
+            owner_eve_id=audit.eve_corporation.corporation_id
+        )
+
+        # Expected Result
+        mock_send.assert_called()
+
+    @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_alliance_notification(self, mock_send):
+        """
+        Test sending alliance notification.
+
+        Results:
+            - Alliance notification is sent correctly.
+        """
+        # Test Data
+        audit = create_owner_from_user(user=self.user, tax_type="alliance")
+        create_tax_account(
+            owner=audit, name="Test Account", user=self.user, deposit=-1000
+        )
+
+        # Test Action
+        _send_alliance_notification(owner_eve_id=audit.eve_alliance.alliance_id)
+
+        # Expected Result
+        mock_send.assert_called()

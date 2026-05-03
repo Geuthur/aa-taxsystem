@@ -160,6 +160,8 @@ class PaymentAccountBaseModel(models.Model):
 
     last_paid = models.DateTimeField(null=True, blank=True)
 
+    last_notification = models.DateTimeField(null=True, blank=True)
+
     notice = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -232,6 +234,35 @@ class PaymentAccountBaseModel(models.Model):
         if self.last_paid:
             return self.last_paid + timezone.timedelta(days=self.owner.tax_period)
         return None
+
+    @property
+    def has_notified(self) -> bool:
+        """
+        Return True if user has been notified about upcoming payment deadline.
+
+        Returns:
+            bool: True if notified, False otherwise.
+        """
+        subclass = getattr(self, "owner", None)
+        if not subclass:
+            raise NotImplementedError(
+                "has_notified property must be implemented in subclass"
+            )
+
+        # If the user has never been notified, return False
+        if self.last_notification is None:
+            return False
+
+        # If the last notification was sent more than 1 day ago, consider it as not notified
+        if (
+            self.last_notification is None
+            or timezone.now() - self.last_notification
+            >= timezone.timedelta(
+                days=app_settings.TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS
+            )
+        ):
+            return False
+        return True
 
     def has_paid_icon(self, badge=False, text=False) -> str:
         """

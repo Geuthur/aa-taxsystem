@@ -11,6 +11,27 @@ Section Order:
 ### Removed
 -->
 
+## [3.0.4] - 2026-05-03
+
+### Added
+
+- Discord Notification System, Automated alerts for outstanding payments at both the Alliance and Corporation levels.
+- `tax_message` field for Owner to specify custom First Message.
+
+Configuration
+The frequency of these alerts can be managed through the following setting:
+
+```shell
+TAXSYSTEM_NOTIFICATION_EXPIRATION_DAYS = "1"
+```
+
+Defines the timeframe (in days) before a notification expires. The system will only trigger a new Discord alert for the outstanding balance once this period has elapsed. This prevents notification fatigue while ensuring consistent follow-up on unpaid dues.
+
+### Changed
+
+- Enhance error handling for ESI downtime and update retry logic in providers
+- Update Translation
+
 ## [3.0.3] - 2026-04-14
 
 > [!WARNING]
@@ -863,5 +884,6 @@ python manage.py taxsystem_migrate_payments
 [3.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.0...v3.0.1 "3.0.1"
 [3.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.1...v3.0.2 "3.0.2"
 [3.0.3]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.2...v3.0.3 "3.0.3"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.3...HEAD "In Development"
+[3.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.3...v3.0.4 "3.0.4"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.4...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
