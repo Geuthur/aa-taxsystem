@@ -11,6 +11,21 @@ Section Order:
 ### Removed
 -->
 
+## [4.0.0] - 2026-05-09
+
+> [!IMPORTANT]
+>
+> This Release needs at least Alliance Auth v5
+> Please make sure to update your Alliance Auth before you install this APP
+
+### Added
+
+- Compatibility to Alliance Auth v5
+
+### Removed
+
+- Compatibility to Alliance Auth v4
+
 ## [3.0.4] - 2026-05-03
 
 ### Added
@@ -885,5 +900,6 @@ python manage.py taxsystem_migrate_payments
 [3.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.1...v3.0.2 "3.0.2"
 [3.0.3]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.2...v3.0.3 "3.0.3"
 [3.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.3...v3.0.4 "3.0.4"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.4...HEAD "In Development"
+[4.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.4...v4.0.0 "4.0.0"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
