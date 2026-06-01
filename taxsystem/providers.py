@@ -95,7 +95,7 @@ def retry_task_on_esi_error(task: Task):
     - Rate limit errors (ESIBucketLimitException)
     - HTTPError with status codes 502, 503, 504 (server errors)
     - RequestError (network issues, timeouts, etc.)
-    - DownTimeError (ESI's daily downtime)
+    - DownTimeError (ESI's daily downtime from 11:00 to 11:15 UTC)
 
     :param task: Celery Task instance
     :return: Context manager that retries the task on ESI errors.
@@ -105,12 +105,13 @@ def retry_task_on_esi_error(task: Task):
     def retry(exc: Exception, retry_after: float, issue: str):
         backoff_jitter = int(random.uniform(2, 5) ** task.request.retries)
         countdown = retry_after + backoff_jitter
-        logger.warning(
-            "ESI Error encountered: %s. Retrying after %.2f seconds. Issue: %s",
-            str(exc),
-            countdown,
-            issue,
-        )
+        if not isinstance(exc, DownTimeError):
+            logger.warning(
+                "ESI Error encountered: %s. Retrying after %.2f seconds. Issue: %s",
+                str(exc),
+                countdown,
+                issue,
+            )
         raise task.retry(countdown=countdown, exc=exc)
 
     def daily_downtime():
