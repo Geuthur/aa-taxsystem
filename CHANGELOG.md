@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- `DownTimeError` Will no longer send out warning logs
+
 ## [4.0.0] - 2026-05-09
 
 > [!IMPORTANT]
