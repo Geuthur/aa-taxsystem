@@ -33,7 +33,7 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth>=5",
+    "allianceauth>=5.2",
     "django-esi>=9",
     "django-ninja>=1.5,<2",
 ]
