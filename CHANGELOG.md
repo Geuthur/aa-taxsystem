@@ -14,6 +14,8 @@ Section Order:
 ### Changed
 
 - `DownTimeError` Will no longer send out warning logs
+- pin `allianceauth` to `>=5.2`
+- Update Authentication Foreign from AA v5.2
 
 ## [4.0.0] - 2026-05-09
 
