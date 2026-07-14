@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [4.0.1] - 2026-07-14
+
 ### Changed
 
 - `DownTimeError` Will no longer send out warning logs
@@ -907,5 +909,6 @@ python manage.py taxsystem_migrate_payments
 [3.0.3]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.2...v3.0.3 "3.0.3"
 [3.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.3...v3.0.4 "3.0.4"
 [4.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.4...v4.0.0 "4.0.0"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.0...HEAD "In Development"
+[4.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.0...v4.0.1 "4.0.1"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.1...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
