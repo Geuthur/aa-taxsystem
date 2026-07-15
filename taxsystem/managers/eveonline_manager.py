@@ -52,7 +52,7 @@ class EveEntityManager(models.Manager["EveEntity"]):
         if new_ids:
             response = esi.client.Universe.PostUniverseNames(
                 body=list(new_ids)
-            ).results()
+            ).results(use_etag=False)
             new_entities = []
 
             for entity_data in response:

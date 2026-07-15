@@ -1,5 +1,9 @@
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import patch
+
+# Third Party
+import pook
 
 # Django
 from django.test import override_settings
@@ -15,10 +19,6 @@ from taxsystem.models.corporation import (
 from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.esi_stub_openapi import (
-    EsiEndpoint,
-    create_esi_client_stub,
-)
 from taxsystem.tests.testdata.utils import (
     create_division,
     create_filter,
@@ -32,12 +32,6 @@ from taxsystem.tests.testdata.utils import (
 )
 
 MODULE_PATH = "taxsystem.managers.corporation_manager"
-
-TEST_CORPORATION_MANAGER_ENDPOINTS = [
-    EsiEndpoint(
-        "Corporation", "GetCorporationsCorporationIdMembertracking", "corporation_id"
-    ),
-]
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
@@ -297,10 +291,10 @@ class TestCorporationManager(TaxSystemTestCase):
         tax_account_2 = CorporationPaymentAccount.objects.get(user=new_user)
         self.assertEqual(tax_account_2.deposit, 0)
 
-    @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
     @patch(MODULE_PATH + ".logger")
-    def test_update_members(self, mock_logger, mock_bulk_resolve, mock_esi):
+    @pook.on
+    def test_update_members(self, mock_logger, mock_bulk_resolve):
         """
         Test update corporation members.
         This test should update or create corporation members based on ESI data.
@@ -327,8 +321,50 @@ class TestCorporationManager(TaxSystemTestCase):
             status=Members.States.ACTIVE,
         )
 
-        mock_esi.client = create_esi_client_stub(
-            endpoints=TEST_CORPORATION_MANAGER_ENDPOINTS
+        # Mock ESI response for roles
+        pook.get(
+            url=f"https://esi.evetech.net/characters/{self.user_character.character.character_id}/roles",
+            reply=HTTPStatus.OK,
+            response_json={
+                "character_id": 1001,
+                "roles": ["Director", "Accountant"],
+                "grantable_roles": ["Director", "Accountant"],
+            },
+        )
+
+        # Mock ESI response for corporation members
+        pook.get(
+            url=f"https://esi.evetech.net/corporations/{self.audit.eve_corporation.corporation_id}/membertracking",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {
+                    "base_id": 1001,
+                    "character_id": 1001,
+                    "location_id": 30004783,
+                    "logoff_date": "2025-05-21T21:42:41Z",
+                    "logon_date": "2025-05-21T17:46:43Z",
+                    "ship_type_id": 603,
+                    "start_date": "2017-10-28T12:45:00Z",
+                },
+                {
+                    "base_id": 1002,
+                    "character_id": 1002,
+                    "location_id": 30004783,
+                    "logoff_date": "2025-04-16T21:09:26Z",
+                    "logon_date": "2025-04-16T21:08:43Z",
+                    "ship_type_id": 670,
+                    "start_date": "2019-07-14T19:39:00Z",
+                },
+                {
+                    "base_id": 1003,
+                    "character_id": 1003,
+                    "location_id": 30004783,
+                    "logoff_date": "2025-04-16T21:12:51Z",
+                    "logon_date": "2025-04-16T21:11:46Z",
+                    "ship_type_id": 670,
+                    "start_date": "2019-07-25T14:27:00Z",
+                },
+            ],
         )
 
         mock_bulk_resolve.return_value.to_name.side_effect = (

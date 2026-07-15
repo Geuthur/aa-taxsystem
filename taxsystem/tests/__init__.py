@@ -5,6 +5,7 @@ import socket
 from django.test import RequestFactory, TestCase
 
 # AA TaxSystem
+from taxsystem.models.corporation import CorporationOwner
 from taxsystem.tests.testdata.integrations.allianceauth import load_allianceauth
 from taxsystem.tests.testdata.utils import create_user_from_evecharacter
 
@@ -100,16 +101,19 @@ class TaxSystemTestCase(NoSocketsTestCase):
         cls.user, cls.user_character = create_user_from_evecharacter(
             character_id=1001,
             permissions=["taxsystem.basic_access"],
+            scopes=CorporationOwner.get_esi_scopes(),
         )
         # User with Standard Access - Corporation 2002
         cls.user2, cls.user2_character = create_user_from_evecharacter(
             character_id=1002,
             permissions=["taxsystem.basic_access"],
+            scopes=CorporationOwner.get_esi_scopes(),
         )
         # User with Superuser Access - Corporation 2003
         cls.superuser, cls.superuser_character = create_user_from_evecharacter(
             character_id=1003,
             permissions=[],
+            scopes=CorporationOwner.get_esi_scopes(),
         )
         cls.superuser.is_superuser = True
         cls.superuser.save()
@@ -121,6 +125,7 @@ class TaxSystemTestCase(NoSocketsTestCase):
                 "taxsystem.manage_own_corp",
                 "taxsystem.manage_own_alliance",
             ],
+            scopes=CorporationOwner.get_esi_scopes(),
         )
         # User with Manage Corporations Access - Corporation 2001
         cls.manage_user, cls.manage_character = create_user_from_evecharacter(
@@ -130,4 +135,5 @@ class TaxSystemTestCase(NoSocketsTestCase):
                 "taxsystem.manage_corps",
                 "taxsystem.manage_alliances",
             ],
+            scopes=CorporationOwner.get_esi_scopes(),
         )

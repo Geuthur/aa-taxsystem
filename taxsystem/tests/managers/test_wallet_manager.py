@@ -1,5 +1,9 @@
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import MagicMock, patch
+
+# Third Party
+import pook
 
 # Django
 from django.test import override_settings
@@ -7,10 +11,6 @@ from django.test import override_settings
 # AA TaxSystem
 from taxsystem.models.general import EveEntity
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.esi_stub_openapi import (
-    EsiEndpoint,
-    create_esi_client_stub,
-)
 from taxsystem.tests.testdata.utils import (
     create_division,
     create_owner_from_user,
@@ -18,27 +18,8 @@ from taxsystem.tests.testdata.utils import (
 
 MODULE_PATH = "taxsystem.managers.wallet_manager"
 
-TAXSYSTEM_WALLET_JOURNAL_ENDPOINTS = [
-    EsiEndpoint(
-        category="Wallet",
-        method="GetCorporationsCorporationIdWalletsDivisionJournal",
-        param_names=("corporation_id", "division"),
-    ),
-    EsiEndpoint(
-        category="Corporation",
-        method="GetCorporationsCorporationIdDivisions",
-        param_names="corporation_id",
-    ),
-    EsiEndpoint(
-        category="Wallet",
-        method="GetCorporationsCorporationIdWallets",
-        param_names="corporation_id",
-    ),
-]
-
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-@patch(MODULE_PATH + ".esi")
 @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
 @patch(MODULE_PATH + ".EveEntity.objects.filter")
 class TestWalletManager(TaxSystemTestCase):
@@ -59,7 +40,8 @@ class TestWalletManager(TaxSystemTestCase):
         cls.token = cls.user_character.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
-    def test_update_wallet_journal(self, mock_filter, mock_entity_bulk, mock_esi):
+    @pook.on
+    def test_update_wallet_journal(self, mock_filter, mock_entity_bulk):
         """
         Test updating wallet journal entries from ESI data.
         This test should verify that wallet journal entries are correctly fetched and stored.
@@ -70,8 +52,57 @@ class TestWalletManager(TaxSystemTestCase):
             3. Amounts and context IDs are stored accurately.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(
-            endpoints=TAXSYSTEM_WALLET_JOURNAL_ENDPOINTS
+        pook.get(
+            url=f"https://esi.evetech.net/corporations/{self.audit.eve_corporation.corporation_id}/wallets/1/journal",
+            reply=HTTPStatus.OK,
+            response_headers={"X-Pages": "1"},
+            response_json=[
+                {
+                    "amount": 1000,
+                    "balance": 2000,
+                    "context_id": 1,
+                    "context_id_type": "character_id",
+                    "date": "2016-10-29T14:00:00Z",
+                    "description": "Test Journal",
+                    "first_party_id": 2001,
+                    "id": 10,
+                    "reason": "Test Reason",
+                    "ref_type": "player_donation",
+                    "second_party_id": 1001,
+                    "tax": 0,
+                    "tax_receiver_id": 0,
+                },
+                {
+                    "amount": 5000,
+                    "balance": 10000,
+                    "context_id": 2,
+                    "context_id_type": "system_id",
+                    "date": "2016-12-01T14:00:00Z",
+                    "description": "Bounty Tax",
+                    "first_party_id": 1001,
+                    "id": 13,
+                    "reason": "Bounty",
+                    "ref_type": "bounty_prizes",
+                    "second_party_id": 2001,
+                    "tax": 0,
+                    "tax_receiver_id": 0,
+                },
+                {
+                    "amount": 10000,
+                    "balance": 20000,
+                    "context_id": 4,
+                    "context_id_type": "system_id",
+                    "date": "2016-12-01T14:00:00Z",
+                    "description": "Unknown Second Party",
+                    "first_party_id": 1001,
+                    "id": 16,
+                    "reason": "Bounty",
+                    "ref_type": "bounty_prizes",
+                    "second_party_id": 9998,
+                    "tax": 0,
+                    "tax_receiver_id": 0,
+                },
+            ],
         )
         filter_mock = mock_filter.return_value
         filter_mock.count.return_value = 0
@@ -105,7 +136,8 @@ class TestWalletManager(TaxSystemTestCase):
         obj = self.division.ts_corporation_wallet.get(entry_id=16)
         self.assertEqual(obj.amount, 10000)
 
-    def test_update_division_names(self, mock_filter, mock_entity_bulk, mock_esi):
+    @pook.on
+    def test_update_division_names(self, mock_filter, mock_entity_bulk):
         """
         Test updating division names from ESI data.
         This test should verify that division names are correctly fetched and updated.
@@ -114,8 +146,30 @@ class TestWalletManager(TaxSystemTestCase):
             1. Division names are updated correctly based on ESI data.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(
-            endpoints=TAXSYSTEM_WALLET_JOURNAL_ENDPOINTS
+        # Mock ESI response for corporation divisions names
+        pook.get(
+            url=f"https://esi.evetech.net/corporations/{self.audit.eve_corporation.corporation_id}/divisions",
+            reply=HTTPStatus.OK,
+            response_json={
+                "hangar": [
+                    {"division": 1, "name": "Test Hangar"},
+                    {"division": 2, "name": "Officer Hangar"},
+                    {"division": 3, "name": "Schiffe"},
+                    {"division": 4, "name": "Lager"},
+                    {"division": 5, "name": "Wertvoll"},
+                    {"division": 6, "name": "Produktion"},
+                    {"division": 7, "name": "Blueprints"},
+                ],
+                "wallet": [
+                    {"division": 1, "name": None},
+                    {"division": 2, "name": "Rechnungen"},
+                    {"division": 3, "name": "Event's"},
+                    {"division": 4, "name": "Ship Replacment Abteilung"},
+                    {"division": 5, "name": "Roaming"},
+                    {"division": 6, "name": "Partner"},
+                    {"division": 7, "name": "Backup"},
+                ],
+            },
         )
 
         # Test Action
@@ -137,7 +191,8 @@ class TestWalletManager(TaxSystemTestCase):
         )
         self.assertEqual(obj.name, "Partner")
 
-    def test_update_divisions(self, mock_filter, mock_entity_bulk, mock_esi):
+    @pook.on
+    def test_update_divisions(self, mock_filter, mock_entity_bulk):
         """
         Test updating division balances from ESI data.
         This test should verify that division balances are correctly fetched and updated.
@@ -146,8 +201,20 @@ class TestWalletManager(TaxSystemTestCase):
             1. Division balances are updated correctly based on ESI data.
         """
         # Test Data
-        mock_esi.client = create_esi_client_stub(
-            endpoints=TAXSYSTEM_WALLET_JOURNAL_ENDPOINTS
+        # Mock ESI response for corporation divisions
+        pook.get(
+            url=f"https://esi.evetech.net/corporations/{self.audit.eve_corporation.corporation_id}/wallets",
+            reply=HTTPStatus.OK,
+            response_headers={"X-Pages": "1"},
+            response_json=[
+                {"balance": 0, "division": 1},
+                {"balance": 0, "division": 2},
+                {"balance": 0, "division": 3},
+                {"balance": 500000, "division": 4},
+                {"balance": 0, "division": 5},
+                {"balance": 250000, "division": 6},
+                {"balance": 0, "division": 7},
+            ],
         )
 
         # Test Action
