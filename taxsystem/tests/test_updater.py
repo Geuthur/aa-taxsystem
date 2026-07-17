@@ -376,7 +376,8 @@ class TestUpdateManager(TaxSystemTestCase):
         CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
-            has_token_error=False,
+            has_token_error=False,  # State should not change after error
+            is_success=False,  # State should not change after error
         )
 
         def mock_update_method(owner, force_refresh=False):
