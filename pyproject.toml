@@ -43,6 +43,7 @@ optional-dependencies.tests-allianceauth-latest = [
     "coverage",
     "discordproxy",
     "factory-boy",
+    "pook",
 ]
 urls.Changelog = "https://github.com/Geuthur/aa-taxsystem/blob/master/CHANGELOG.md"
 urls.Homepage = "https://github.com/Geuthur/aa-taxsystem"

@@ -20,7 +20,10 @@ from taxsystem.models.helpers.textchoices import (
 )
 from taxsystem.models.helpers.updater import UpdateManager
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import create_owner_from_user, create_update_status
+from taxsystem.tests.testdata.factory import (
+    CorporationOwnerFactory,
+    CorporationUpdateStatusFactory,
+)
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
@@ -61,7 +64,7 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the calc_update_needed method.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
@@ -83,7 +86,7 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the reset_update_status method.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
@@ -107,13 +110,13 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the reset_has_token_error method.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
-        create_update_status(
+        CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
             has_token_error=True,
@@ -134,7 +137,7 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the update_section_if_changed method for a successful update.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
@@ -162,7 +165,7 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the update_section_if_changed method for a token error scenario.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
@@ -194,7 +197,7 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the update_section_if_changed method for no change scenario.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
@@ -221,7 +224,7 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the update_section_log method for an updated section.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
@@ -255,7 +258,7 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the update_section_log method for a section with token error.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
@@ -290,13 +293,13 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the perform_update_status method.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
-        create_update_status(
+        CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
         )
@@ -327,13 +330,13 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the perform_update_status method for token error scenario.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
-        status_obj = create_update_status(
+        status_obj = CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
         )
@@ -364,15 +367,16 @@ class TestUpdateManager(TaxSystemTestCase):
         Test the perform_update_status method for HTTPServerError scenario.
         """
         # Test Data
-        self.audit = create_owner_from_user(self.user)
+        self.audit = CorporationOwnerFactory(user=self.user)
         manager = self.updater(
             owner=self.audit,
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
-        status_obj = create_update_status(
+        CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
+            has_token_error=False,
         )
 
         def mock_update_method(owner, force_refresh=False):

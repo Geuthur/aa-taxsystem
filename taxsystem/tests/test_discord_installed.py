@@ -16,6 +16,8 @@ from taxsystem.helpers.discord import (
     send_user_notification,
 )
 
+MODULE_PATH = "taxsystem.helpers.discord"
+
 
 class TestModulesInstalled(TestCase):
     @modify_settings(INSTALLED_APPS={"remove": "aadiscordbot"})
@@ -131,9 +133,9 @@ class TestSendDiscordMessage(TestCase):
 
 
 class TestSendUserNotification(TestCase):
-    @patch("taxsystem.helpers.discord.notify")
-    @patch("taxsystem.helpers.discord.logger.warning")
-    @patch("taxsystem.helpers.discord.User.objects.get")
+    @patch(MODULE_PATH + ".notify")
+    @patch(MODULE_PATH + ".logger.warning")
+    @patch(MODULE_PATH + ".User.objects.get")
     def test_send_user_notification_should_return_if_user_not_exists(
         self, mock_get_user, mock_logger_warning, mock_notify
     ):
@@ -152,10 +154,10 @@ class TestSendUserNotification(TestCase):
         )
         mock_notify.info.assert_not_called()
 
-    @patch("taxsystem.helpers.discord._discordproxy_send_direct_message")
-    @patch("taxsystem.helpers.discord._discordbot_send_direct_message")
-    @patch("taxsystem.helpers.discord.notify")
-    @patch("taxsystem.helpers.discord.User.objects.get")
+    @patch(MODULE_PATH + "._discordproxy_send_direct_message")
+    @patch(MODULE_PATH + "._discordbot_send_direct_message")
+    @patch(MODULE_PATH + ".notify")
+    @patch(MODULE_PATH + ".User.objects.get")
     def test_send_user_notification_should_only_notify_if_user_has_no_discord(
         self,
         mock_get_user,
@@ -180,11 +182,11 @@ class TestSendUserNotification(TestCase):
         mock_send_discordbot.assert_not_called()
         mock_send_discordproxy.assert_not_called()
 
-    @patch("taxsystem.helpers.discord._discordproxy_send_direct_message")
-    @patch("taxsystem.helpers.discord._discordbot_send_direct_message")
-    @patch("taxsystem.helpers.discord.allianceauth_discordbot_installed")
-    @patch("taxsystem.helpers.discord.notify")
-    @patch("taxsystem.helpers.discord.User.objects.get")
+    @patch(MODULE_PATH + "._discordproxy_send_direct_message")
+    @patch(MODULE_PATH + "._discordbot_send_direct_message")
+    @patch(MODULE_PATH + ".allianceauth_discordbot_installed")
+    @patch(MODULE_PATH + ".notify")
+    @patch(MODULE_PATH + ".User.objects.get")
     def test_send_user_notification_should_use_discordbot_if_installed(
         self,
         mock_get_user,
@@ -219,13 +221,13 @@ class TestSendUserNotification(TestCase):
         )
         mock_send_discordproxy.assert_not_called()
 
-    @patch("taxsystem.helpers.discord._discordproxy_send_direct_message")
-    @patch("taxsystem.helpers.discord._discordbot_send_direct_message")
-    @patch("taxsystem.helpers.discord.discordproxy_installed")
-    @patch("taxsystem.helpers.discord.discordnotify_installed")
-    @patch("taxsystem.helpers.discord.allianceauth_discordbot_installed")
-    @patch("taxsystem.helpers.discord.notify")
-    @patch("taxsystem.helpers.discord.User.objects.get")
+    @patch(MODULE_PATH + "._discordproxy_send_direct_message")
+    @patch(MODULE_PATH + "._discordbot_send_direct_message")
+    @patch(MODULE_PATH + ".discordproxy_installed")
+    @patch(MODULE_PATH + ".discordnotify_installed")
+    @patch(MODULE_PATH + ".allianceauth_discordbot_installed")
+    @patch(MODULE_PATH + ".notify")
+    @patch(MODULE_PATH + ".User.objects.get")
     def test_send_user_notification_should_use_discordproxy_if_available(
         self,
         mock_get_user,
@@ -264,13 +266,13 @@ class TestSendUserNotification(TestCase):
         )
         mock_send_discordbot.assert_not_called()
 
-    @patch("taxsystem.helpers.discord._discordproxy_send_direct_message")
-    @patch("taxsystem.helpers.discord._discordbot_send_direct_message")
-    @patch("taxsystem.helpers.discord.discordproxy_installed")
-    @patch("taxsystem.helpers.discord.discordnotify_installed")
-    @patch("taxsystem.helpers.discord.allianceauth_discordbot_installed")
-    @patch("taxsystem.helpers.discord.notify")
-    @patch("taxsystem.helpers.discord.User.objects.get")
+    @patch(MODULE_PATH + "._discordproxy_send_direct_message")
+    @patch(MODULE_PATH + "._discordbot_send_direct_message")
+    @patch(MODULE_PATH + ".discordproxy_installed")
+    @patch(MODULE_PATH + ".discordnotify_installed")
+    @patch(MODULE_PATH + ".allianceauth_discordbot_installed")
+    @patch(MODULE_PATH + ".notify")
+    @patch(MODULE_PATH + ".User.objects.get")
     def test_send_user_notification_should_not_send_discord_message_when_discordproxy_unavailable(
         self,
         mock_get_user,
@@ -303,12 +305,12 @@ class TestSendUserNotification(TestCase):
         mock_send_discordbot.assert_not_called()
         mock_send_discordproxy.assert_not_called()
 
-    @patch("taxsystem.helpers.discord._discordproxy_send_direct_message")
-    @patch("taxsystem.helpers.discord._discordbot_send_direct_message")
-    @patch("taxsystem.helpers.discord.discordnotify_installed")
-    @patch("taxsystem.helpers.discord.allianceauth_discordbot_installed")
-    @patch("taxsystem.helpers.discord.notify")
-    @patch("taxsystem.helpers.discord.User.objects.get")
+    @patch(MODULE_PATH + "._discordproxy_send_direct_message")
+    @patch(MODULE_PATH + "._discordbot_send_direct_message")
+    @patch(MODULE_PATH + ".discordnotify_installed")
+    @patch(MODULE_PATH + ".allianceauth_discordbot_installed")
+    @patch(MODULE_PATH + ".notify")
+    @patch(MODULE_PATH + ".User.objects.get")
     def test_send_user_notification_should_not_send_direct_message_if_no_sender_available(
         self,
         mock_get_user,

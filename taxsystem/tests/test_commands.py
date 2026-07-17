@@ -6,17 +6,16 @@ from django.core.management import call_command
 from django.utils import timezone
 
 # AA TaxSystem
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 # AA Tax System
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_owner_from_user,
-    create_payment,
-    create_tax_account,
-    create_wallet_journal_entry,
+from taxsystem.tests.testdata.factory import (
+    CorporationJournalFactory,
+    CorporationOwnerFactory,
+    CorporationPaymentsFactory,
+    CorporationTaxAccountFactory,
+    DivisionFactory,
 )
 
 COMMAND_PATH = "taxsystem.management.commands.taxsystem_migrate_payments"
@@ -28,32 +27,11 @@ class TestMigratePayments(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user)
-
-        cls.eve_character_first_party = EveEntity.objects.get(id=2001)
-        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
-
-        cls.division = create_division(
-            corporation=cls.audit,
-            division_id=1,
-            name="Main Division",
-            balance=1000000,
-        )
-
-        cls.journal_entry = create_wallet_journal_entry(
-            division=cls.division,
-            entry_id=1,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Test Journal Entry",
-            ref_type="tax_payment",
-            first_party=cls.eve_character_first_party,
-            second_party=cls.eve_character_second_party,
-            description="Test Description",
-        )
-
-        cls.tax_account = create_tax_account(
-            name=cls.user_character.character.character_name,
+        cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.division = DivisionFactory(corporation=cls.audit)
+        cls.journal_entry = CorporationJournalFactory(division=cls.division)
+        cls.tax_account = CorporationTaxAccountFactory(
+            name=cls.user_character.character_name,
             owner=cls.audit,
             user=cls.user,
             status=AccountStatus.ACTIVE,
@@ -61,16 +39,13 @@ class TestMigratePayments(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        cls.payments = create_payment(
-            name=cls.user_character.character.character_name,
+        cls.payments = CorporationPaymentsFactory(
+            name=cls.user_character.character_name,
+            owner=None,  # This is the key part of the test, we are creating a payment with no owner to simulate the migration scenario.
+            entry_id=cls.journal_entry.entry_id,  # This is the key part of the test, we are creating a payment with the same entry_id as the journal entry to simulate the migration scenario.
             account=cls.tax_account,
-            entry_id=1,
             journal=cls.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
     def test_should_migrate(self):
@@ -82,6 +57,6 @@ class TestMigratePayments(TaxSystemTestCase):
         output = out.getvalue()
         # Expected Result
         self.assertIn(
-            "Migration report for Hell RiderZ: 1 entries migrated.",
+            f"Migration report for {self.audit.eve_corporation.corporation_name}: 1 entries migrated.",
             output,
         )

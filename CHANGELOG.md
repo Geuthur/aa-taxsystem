@@ -11,6 +11,18 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- `Pook` package that provides a more efficient approach to handling ESI calls at the http level.
+
+### Changed
+
+- Modernized Test Enviroment
+
+### Removed
+
+- ESI Test Stub
+
 ## [4.0.1] - 2026-07-14
 
 ### Changed

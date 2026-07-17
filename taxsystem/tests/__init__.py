@@ -1,13 +1,17 @@
 # Standard Library
 import socket
+from unittest.mock import Mock
 
 # Django
+from django.contrib.messages.middleware import MessageMiddleware
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.handlers.wsgi import WSGIRequest
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 
 # AA TaxSystem
-from taxsystem.models.corporation import CorporationOwner
-from taxsystem.tests.testdata.integrations.allianceauth import load_allianceauth
-from taxsystem.tests.testdata.utils import create_user_from_evecharacter
+from taxsystem.tests.testdata.factory import EveCorporationInfoFactory, UserMainFactory
+from taxsystem.views import add_alliance, add_corp
 
 
 class SocketAccessError(Exception):
@@ -48,7 +52,6 @@ class TaxSystemTestCase(NoSocketsTestCase):
 
     Pre-Load:
         * Alliance Auth Characters, Corporation, Alliance Data
-        * Taken User IDs: 1001, 1002, 1003, 1004, 1005
 
     Available Request Factory:
         `self.factory`
@@ -56,29 +59,8 @@ class TaxSystemTestCase(NoSocketsTestCase):
     Available test users:
         * `user` User with standard TaxSystem access.
             * 'taxsystem.basic_access' Permission
-            * Character ID 1001
-            * Corporation ID 2001
-        * `user2` Second user with standard TaxSystem access.
-            * 'taxsystem.basic_access' Permission
-            * Character ID 1002
-            * Corporation ID 2002
         * `superuser` Superuser.
             * Access to whole Application
-            * Character ID 1003
-        * `manage_own_user` User with manage own corporation access.
-            * 'taxsystem.basic_access' Permission
-            * 'taxsystem.manage_own_corp' Permission
-            * 'taxsystem.manage_own_alliances' Permission
-            * Character ID 1004
-            * Corporation ID 2001
-            * Alliance ID 3001
-        * `manage_user` User with manage corporations access.
-            * 'taxsystem.basic_access' Permission
-            * 'taxsystem.manage_corps' Permission
-            * 'taxsystem.manage_alliances' Permission
-            * Character ID 1005
-            * Corporation ID 2001
-            * Alliance ID 3001
 
     Example:
         .. code-block:: python
@@ -91,49 +73,44 @@ class TaxSystemTestCase(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # Initialize Alliance Auth test data
-        load_allianceauth()
+        cls.corp = EveCorporationInfoFactory(
+            corporation_id=98_000_000, corporation_name="Test Corporation"
+        )
 
         # Request Factory
         cls.factory = RequestFactory()
 
-        # User with Standard Access - Corporation 2001
-        cls.user, cls.user_character = create_user_from_evecharacter(
-            character_id=1001,
-            permissions=["taxsystem.basic_access"],
-            scopes=CorporationOwner.get_esi_scopes(),
-        )
-        # User with Standard Access - Corporation 2002
-        cls.user2, cls.user2_character = create_user_from_evecharacter(
-            character_id=1002,
-            permissions=["taxsystem.basic_access"],
-            scopes=CorporationOwner.get_esi_scopes(),
-        )
-        # User with Superuser Access - Corporation 2003
-        cls.superuser, cls.superuser_character = create_user_from_evecharacter(
-            character_id=1003,
-            permissions=[],
-            scopes=CorporationOwner.get_esi_scopes(),
-        )
+        # User with Standard Access
+        cls.user = UserMainFactory(main_character__corporation=cls.corp)
+        cls.user_character = cls.user.profile.main_character
+
+        # User with Superuser Access
+        cls.superuser = UserMainFactory()
         cls.superuser.is_superuser = True
         cls.superuser.save()
-        # User with Manage Own Corporation Access - Corporation 2001
-        cls.manage_own_user, cls.manage_own_character = create_user_from_evecharacter(
-            character_id=1004,
-            permissions=[
-                "taxsystem.basic_access",
-                "taxsystem.manage_own_corp",
-                "taxsystem.manage_own_alliance",
-            ],
-            scopes=CorporationOwner.get_esi_scopes(),
-        )
-        # User with Manage Corporations Access - Corporation 2001
-        cls.manage_user, cls.manage_character = create_user_from_evecharacter(
-            character_id=1005,
-            permissions=[
-                "taxsystem.basic_access",
-                "taxsystem.manage_corps",
-                "taxsystem.manage_alliances",
-            ],
-            scopes=CorporationOwner.get_esi_scopes(),
-        )
+        cls.superuser_character = cls.superuser.profile.main_character
+
+    def _add_corporation(self, user, token):
+        request = self.factory.get(reverse("taxsystem:add_corp"))
+        request.user = user
+        request.token = token
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        orig_view = add_corp.__wrapped__.__wrapped__.__wrapped__
+        return orig_view(request, token)
+
+    def _add_alliance(self, user, token):
+        request = self.factory.get(reverse("taxsystem:add_alliance"))
+        request.user = user
+        request.token = token
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        orig_view = add_alliance.__wrapped__.__wrapped__.__wrapped__
+        return orig_view(request, token)
+
+    def _middleware_process_request(self, request: WSGIRequest):
+        """Helper method to process middleware for a request."""
+        session_middleware = SessionMiddleware(Mock())
+        session_middleware.process_request(request)
+        message_middleware = MessageMiddleware(Mock())
+        message_middleware.process_request(request)

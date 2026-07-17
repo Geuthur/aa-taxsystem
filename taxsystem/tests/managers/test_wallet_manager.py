@@ -5,21 +5,21 @@ from unittest.mock import MagicMock, patch
 # Third Party
 import pook
 
-# Django
-from django.test import override_settings
+# Alliance Auth
+from allianceauth.eveonline.models import EveCorporationInfo
 
 # AA TaxSystem
 from taxsystem.models.general import EveEntity
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_owner_from_user,
+from taxsystem.tests.testdata.factory import (
+    CorporationOwnerFactory,
+    DivisionFactory,
+    EveEntityFactory,
 )
 
 MODULE_PATH = "taxsystem.managers.wallet_manager"
 
 
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
 @patch(MODULE_PATH + ".EveEntity.objects.filter")
 class TestWalletManager(TaxSystemTestCase):
@@ -29,15 +29,15 @@ class TestWalletManager(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(cls.user)
-
-        cls.eve_character_first_party = EveEntity.objects.get(id=1002)
-        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
-
-        cls.division = create_division(
+        corp = EveCorporationInfo.objects.get(
+            corporation_id=cls.user_character.corporation_id
+        )
+        cls.audit = CorporationOwnerFactory(eve_corporation=corp)
+        cls.division = DivisionFactory(
             corporation=cls.audit, name="MEGA KONTO", balance=1000000, division_id=1
         )
-        cls.token = cls.user_character.user.token_set.first()
+
+        cls.token = cls.user.token_set.first()
         cls.audit.get_token = MagicMock(return_value=cls.token)
 
     @pook.on
@@ -52,6 +52,8 @@ class TestWalletManager(TaxSystemTestCase):
             3. Amounts and context IDs are stored accurately.
         """
         # Test Data
+        entity_2001 = EveEntityFactory(id=2001)
+        entity_1001 = EveEntityFactory(id=1001)
         pook.get(
             url=f"https://esi.evetech.net/corporations/{self.audit.eve_corporation.corporation_id}/wallets/1/journal",
             reply=HTTPStatus.OK,
@@ -64,7 +66,7 @@ class TestWalletManager(TaxSystemTestCase):
                     "context_id_type": "character_id",
                     "date": "2016-10-29T14:00:00Z",
                     "description": "Test Journal",
-                    "first_party_id": 2001,
+                    "first_party_id": entity_2001.id,
                     "id": 10,
                     "reason": "Test Reason",
                     "ref_type": "player_donation",
@@ -79,11 +81,11 @@ class TestWalletManager(TaxSystemTestCase):
                     "context_id_type": "system_id",
                     "date": "2016-12-01T14:00:00Z",
                     "description": "Bounty Tax",
-                    "first_party_id": 1001,
+                    "first_party_id": entity_1001.id,
                     "id": 13,
                     "reason": "Bounty",
                     "ref_type": "bounty_prizes",
-                    "second_party_id": 2001,
+                    "second_party_id": entity_2001.id,
                     "tax": 0,
                     "tax_receiver_id": 0,
                 },
@@ -94,7 +96,7 @@ class TestWalletManager(TaxSystemTestCase):
                     "context_id_type": "system_id",
                     "date": "2016-12-01T14:00:00Z",
                     "description": "Unknown Second Party",
-                    "first_party_id": 1001,
+                    "first_party_id": entity_1001.id,
                     "id": 16,
                     "reason": "Bounty",
                     "ref_type": "bounty_prizes",
@@ -177,17 +179,20 @@ class TestWalletManager(TaxSystemTestCase):
 
         # Expected Results
         obj = self.audit.ts_corporation_division.get(
-            corporation__eve_corporation__corporation_id=2001, division_id=2
+            corporation__eve_corporation__corporation_id=self.audit.eve_corporation.corporation_id,
+            division_id=2,
         )
         self.assertEqual(obj.name, "Rechnungen")
 
         obj = self.audit.ts_corporation_division.get(
-            corporation__eve_corporation__corporation_id=2001, division_id=4
+            corporation__eve_corporation__corporation_id=self.audit.eve_corporation.corporation_id,
+            division_id=4,
         )
         self.assertEqual(obj.name, "Ship Replacment Abteilung")
 
         obj = self.audit.ts_corporation_division.get(
-            corporation__eve_corporation__corporation_id=2001, division_id=6
+            corporation__eve_corporation__corporation_id=self.audit.eve_corporation.corporation_id,
+            division_id=6,
         )
         self.assertEqual(obj.name, "Partner")
 
@@ -222,16 +227,19 @@ class TestWalletManager(TaxSystemTestCase):
 
         # Expected Results
         obj = self.audit.ts_corporation_division.get(
-            corporation__eve_corporation__corporation_id=2001, division_id=2
+            corporation__eve_corporation__corporation_id=self.audit.eve_corporation.corporation_id,
+            division_id=2,
         )
         self.assertEqual(obj.balance, 0)
 
         obj = self.audit.ts_corporation_division.get(
-            corporation__eve_corporation__corporation_id=2001, division_id=4
+            corporation__eve_corporation__corporation_id=self.audit.eve_corporation.corporation_id,
+            division_id=4,
         )
         self.assertEqual(obj.balance, 500000)
 
         obj = self.audit.ts_corporation_division.get(
-            corporation__eve_corporation__corporation_id=2001, division_id=6
+            corporation__eve_corporation__corporation_id=self.audit.eve_corporation.corporation_id,
+            division_id=6,
         )
         self.assertEqual(obj.balance, 250000)

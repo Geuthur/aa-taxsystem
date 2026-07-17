@@ -10,9 +10,7 @@ from django.contrib.admin.sites import AdminSite
 from taxsystem.admin import CorporationOwnerAdmin
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_owner_from_user,
-)
+from taxsystem.tests.testdata.factory import CorporationOwnerFactory
 
 
 class TestCorporationOwnerAdmin(TaxSystemTestCase):
@@ -25,7 +23,7 @@ class TestCorporationOwnerAdmin(TaxSystemTestCase):
         cls.user.is_superuser = True
         cls.user.save()
 
-        cls.corporation_owner = create_owner_from_user(cls.user)
+        cls.corporation_owner = CorporationOwnerFactory()
         cls.site = AdminSite()
         cls.admin = CorporationOwnerAdmin(CorporationOwner, cls.site)
 
