@@ -626,10 +626,7 @@ class MembersManager(models.Manager["MembersContext"]):
             token=token,
         )
 
-        members_items, response = members_ob.results(
-            return_response=True, force_refresh=force_refresh
-        )
-        logger.debug("ESI response Status: %s", response.status_code)
+        members_items = members_ob.results(force_refresh=force_refresh)
 
         self._update_or_create_objs(owner=owner, objs=members_items)
 

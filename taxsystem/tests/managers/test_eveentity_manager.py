@@ -1,31 +1,17 @@
 # Standard Library
-from unittest.mock import patch
+from http import HTTPStatus
 
-# Django
-from django.test import override_settings
+# Third Party
+import pook
 
 # AA TaxSystem
-from taxsystem.models.general import EveEntity
 from taxsystem.models.general import EveEntity as EveEntityV2
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.esi_stub_openapi import (
-    EsiEndpoint,
-    create_esi_client_stub,
-)
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_filterset,
-    create_owner_from_user,
-)
+from taxsystem.tests.testdata.factory import AllianceOwnerFactory, EveEntityFactory
 
 MODULE_PATH = "taxsystem.managers.eveonline_manager"
 
-TAXSYSTEM_UNIVERSE_ENDPOINTS = [
-    EsiEndpoint("Universe", "PostUniverseNames", "ids"),
-]
 
-
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestEveEntityManager(TaxSystemTestCase):
     """Test Eve Entity Managers."""
 
@@ -33,30 +19,22 @@ class TestEveEntityManager(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(cls.user, tax_type="alliance")
+        cls.audit = AllianceOwnerFactory(user=cls.user)
 
-        cls.filter_set = create_filterset(
-            owner=cls.audit,
-            name="Test Filter Set",
-            description="Filter Set for Testing Alliance Manager",
-        )
-
-        cls.division = create_division(
-            corporation=cls.audit.corporation,
-            division_id=1,
-            name="Main Division",
-            balance=1000000,
-        )
-
-        cls.eve_character_first_party = EveEntity.objects.get(id=1002)
-        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
-
-    @patch(MODULE_PATH + ".esi")
-    def test_bulk_resolve_names(self, mock_esi):
+    @pook.on
+    def test_bulk_resolve_names(self):
         """
         Test bulk_resolve_names method of EveEntityManager with mocked ESI response.
         """
-        mock_esi.client = create_esi_client_stub(endpoints=TAXSYSTEM_UNIVERSE_ENDPOINTS)
+        pook.post(
+            url="https://esi.evetech.net/universe/names",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {"id": 9997, "name": "Bulk Character", "category": "character"},
+                {"id": 9998, "name": "Bulk Character 2", "category": "character"},
+            ],
+        )
+
         manager = EveEntityV2.objects
         # Mock ESI response for universe names
         ids_to_resolve = [9997, 9998]  # Include an ID that doesn't exist
@@ -67,24 +45,41 @@ class TestEveEntityManager(TaxSystemTestCase):
         # Assert that the resolver returns an empty string for unknown ID
         self.assertEqual(resolver.to_name(9998), "Bulk Character 2")
 
-    @patch(MODULE_PATH + ".esi")
-    def test_bulk_resolve_names_with_existing_ids_only(self, mock_esi):
+    @pook.on
+    def test_bulk_resolve_names_with_existing_ids_only(self):
         """Should resolve names from existing DB entities when no new IDs are needed."""
+        pook.post(
+            url="https://esi.evetech.net/universe/names",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {"id": 9997, "name": "Bulk Character", "category": "character"},
+            ],
+        )
+
         manager = EveEntityV2.objects
+
+        entity_1001 = EveEntityFactory(id=1001, name="Existing Character 1")
+        entity_1002 = EveEntityFactory(id=1002, name="Existing Character 2")
 
         resolver = manager.bulk_resolve_names([1001, 1002])
 
-        self.assertEqual(resolver.to_name(1001), self.eve_character_second_party.name)
-        self.assertEqual(resolver.to_name(1002), self.eve_character_first_party.name)
-        mock_esi.client.Universe.PostUniverseNames.assert_not_called()
+        self.assertEqual(resolver.to_name(1001), entity_1001.name)
+        self.assertEqual(resolver.to_name(1002), entity_1002.name)
 
-    @patch(MODULE_PATH + ".esi")
-    def test_bulk_resolve_names_with_mixed_existing_and_new_ids(self, mock_esi):
+    @pook.on
+    def test_bulk_resolve_names_with_mixed_existing_and_new_ids(self):
         """Should resolve both existing and newly fetched entities in one resolver."""
-        mock_esi.client = create_esi_client_stub(endpoints=TAXSYSTEM_UNIVERSE_ENDPOINTS)
+        pook.post(
+            url="https://esi.evetech.net/universe/names",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {"id": 9997, "name": "Bulk Character", "category": "character"},
+            ],
+        )
         manager = EveEntityV2.objects
 
+        entity_1001 = EveEntityFactory(id=1001, name="Existing Character 1")
         resolver = manager.bulk_resolve_names([1001, 9997])
 
-        self.assertEqual(resolver.to_name(1001), self.eve_character_second_party.name)
+        self.assertEqual(resolver.to_name(1001), entity_1001.name)
         self.assertEqual(resolver.to_name(9997), "Bulk Character")

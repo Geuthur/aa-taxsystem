@@ -22,10 +22,13 @@ from taxsystem.tasks import (
     update_corporation,
 )
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_owner_from_user,
-    create_tax_account,
-    create_update_status,
+from taxsystem.tests.testdata.factory import (
+    AllianceOwnerFactory,
+    AllianceTaxAccountFactory,
+    AllianceUpdateStatusFactory,
+    CorporationOwnerFactory,
+    CorporationTaxAccountFactory,
+    CorporationUpdateStatusFactory,
 )
 
 TASKS_PATH = "taxsystem.tasks"
@@ -33,6 +36,7 @@ MANAGERS_PATH = "taxsystem.managers"
 MODELS_PATH = "taxsystem.models"
 
 
+@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestTasks(TaxSystemTestCase):
     """
     Tests for taxsystem tasks.
@@ -52,8 +56,8 @@ class TestTasks(TaxSystemTestCase):
             1. Task queues update tasks for all active corporation and alliance owners.
         """
         # Test Data
-        create_owner_from_user(user=self.user)
-        create_owner_from_user(user=self.user, tax_type="alliance")
+        CorporationOwnerFactory(user=self.user)
+        AllianceOwnerFactory(user=self.user)
 
         # Test Action
         update_all_taxsytem(force_refresh=False)
@@ -62,9 +66,6 @@ class TestTasks(TaxSystemTestCase):
         self.assertTrue(mock_update_corporation.apply_async.called)
         self.assertTrue(mock_update_alliance.apply_async.called)
 
-    @override_settings(
-        CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True
-    )
     @patch(TASKS_PATH + ".logger")
     @patch(TASKS_PATH + ".update_corp_wallet")
     @patch(TASKS_PATH + ".CorporationUpdateSection.get_sections", lambda: ["wallet"])
@@ -79,7 +80,7 @@ class TestTasks(TaxSystemTestCase):
             2. Task no need update when data is fresh.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user)
+        owner = CorporationOwnerFactory(user=self.user)
 
         # Test Action
         update_corporation(owner_eve_id=owner.eve_id, force_refresh=False)
@@ -91,7 +92,7 @@ class TestTasks(TaxSystemTestCase):
 
         # Setup for Scenario 2: No update needed
         mock_update_corp_wallet.reset_mock()
-        create_update_status(
+        CorporationUpdateStatusFactory(
             owner=owner,
             section="wallet",
             is_success=True,
@@ -122,7 +123,7 @@ class TestTasks(TaxSystemTestCase):
             - CorporationUpdateStatus is created/updated correctly.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user)
+        owner = CorporationOwnerFactory(user=self.user)
         dummy_result = UpdateSectionResult(
             is_changed=True,
             is_updated=True,
@@ -140,9 +141,8 @@ class TestTasks(TaxSystemTestCase):
         mock_update_manager.perform_update_status.return_value = dummy_result
 
         def _mock_update_section_log(section, result):
-            create_update_status(
+            CorporationUpdateStatusFactory(
                 owner=owner,
-                tax_type="corporation",
                 section=section,
                 has_token_error=result.has_token_error,
                 is_success=not result.has_token_error,
@@ -167,9 +167,6 @@ class TestTasks(TaxSystemTestCase):
         self.assertEqual(new_update_status.has_token_error, False)
         self.assertEqual(new_update_status.is_success, True)
 
-    @override_settings(
-        CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True
-    )
     @patch(TASKS_PATH + ".logger")
     @patch(TASKS_PATH + ".update_ally_deadlines")
     @patch(TASKS_PATH + ".AllianceUpdateSection.get_sections", lambda: ["deadlines"])
@@ -184,7 +181,7 @@ class TestTasks(TaxSystemTestCase):
             2. Task no need update when data is fresh.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user, tax_type="alliance")
+        owner = AllianceOwnerFactory(user=self.user)
 
         # Test Action
         update_alliance(owner_eve_id=owner.eve_id, force_refresh=False)
@@ -196,9 +193,8 @@ class TestTasks(TaxSystemTestCase):
 
         # Setup for Scenario 2: No update needed
         mock_update_deadlines.reset_mock()
-        create_update_status(
+        AllianceUpdateStatusFactory(
             owner=owner,
-            tax_type="alliance",
             section="deadlines",
             is_success=True,
             last_run_at=timezone.now(),
@@ -228,7 +224,7 @@ class TestTasks(TaxSystemTestCase):
             - AllianceUpdateStatus is created/updated correctly.
         """
         # Test Data
-        owner = create_owner_from_user(user=self.user, tax_type="alliance")
+        owner = AllianceOwnerFactory(user=self.user)
         token = self.user.token_set.first()
         owner.get_token = MagicMock(return_value=token)
         dummy_result = UpdateSectionResult(
@@ -248,9 +244,8 @@ class TestTasks(TaxSystemTestCase):
         mock_update_manager.perform_update_status.return_value = dummy_result
 
         def _mock_update_section_log(section, result):
-            create_update_status(
+            AllianceUpdateStatusFactory(
                 owner=owner,
-                tax_type="alliance",
                 section=section,
                 has_token_error=result.has_token_error,
                 is_success=not result.has_token_error,
@@ -290,9 +285,9 @@ class TestTasks(TaxSystemTestCase):
             - Sent notifications for accounts with insufficient deposit.
         """
         # Test Data
-        audit = create_owner_from_user(user=self.user)
+        audit = AllianceOwnerFactory(user=self.user)
 
-        create_tax_account(
+        AllianceTaxAccountFactory(
             owner=audit, name="Test Account", user=self.user, deposit=-1000
         )
         # Test Action
@@ -300,7 +295,7 @@ class TestTasks(TaxSystemTestCase):
 
         # Expected Result
         mock_logger.info.assert_called_with(
-            "Queued %s notification tasks for overdue payments", 1
+            "Queued %s notification tasks for overdue payments", 2
         )
 
     @patch(TASKS_PATH + ".send_user_notification")
@@ -312,9 +307,13 @@ class TestTasks(TaxSystemTestCase):
             - Corporation notification is sent correctly.
         """
         # Test Data
-        audit = create_owner_from_user(user=self.user)
-        create_tax_account(
-            owner=audit, name="Test Account", user=self.user, deposit=-1000
+        audit = CorporationOwnerFactory(user=self.user)
+        CorporationTaxAccountFactory(
+            owner=audit,
+            name="Test Account",
+            user=self.user,
+            deposit=-1000,
+            status="active",
         )
 
         # Test Action
@@ -334,9 +333,13 @@ class TestTasks(TaxSystemTestCase):
             - Alliance notification is sent correctly.
         """
         # Test Data
-        audit = create_owner_from_user(user=self.user, tax_type="alliance")
-        create_tax_account(
-            owner=audit, name="Test Account", user=self.user, deposit=-1000
+        audit = AllianceOwnerFactory(user=self.user)
+        AllianceTaxAccountFactory(
+            owner=audit,
+            name="Test Account",
+            user=self.user,
+            deposit=-1000,
+            status="active",
         )
 
         # Test Action

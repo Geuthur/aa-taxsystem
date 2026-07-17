@@ -7,7 +7,7 @@ from django.urls import reverse
 
 # AA TaxSystem
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import create_member, create_owner_from_user
+from taxsystem.tests.testdata.factory import CorporationOwnerFactory, MembersFactory
 
 MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
@@ -20,14 +20,14 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(user=cls.user)
+        cls.audit = CorporationOwnerFactory(user=cls.user)
 
     def test_get_members_should_403(self):
         """
         Test should return 403 Forbidden when user lacks permissions.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
         url = reverse(f"{API_URL}:get_members", kwargs={"owner_id": corporation_id})
         self.client.force_login(self.user)
 
@@ -60,19 +60,15 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         - Contains Missing Character
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
-        create_member(
+        corporation_id = self.user_character.corporation_id
+        MembersFactory(
             owner=self.audit,
-            character_id=9999,
             character_name="Test Character",
-            joined="2023-01-01",
             status="active",
         )
-        create_member(
+        MembersFactory(
             owner=self.audit,
-            character_id=10000,
             character_name="Missing Character",
-            joined="2022-01-01",
             status="missing",
         )
 
@@ -92,12 +88,8 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         Test should return 403 Forbidden when user lacks permissions.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
-        member = create_member(
-            owner=self.audit,
-            character_id=9999,
-            character_name="Test Character",
-        )
+        corporation_id = self.user_character.corporation_id
+        member = MembersFactory(owner=self.audit)
         url = reverse(
             f"{API_URL}:delete_member",
             kwargs={"owner_id": corporation_id, "member_pk": member.pk},
@@ -119,11 +111,9 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         - Member is deleted
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
-        member = create_member(
+        corporation_id = self.user_character.corporation_id
+        member = MembersFactory(
             owner=self.audit,
-            character_id=9999,
-            character_name="Test Character",
             status="missing",
         )
         url = reverse(

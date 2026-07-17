@@ -7,13 +7,13 @@ from django.urls import reverse
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_owner_from_user,
-    create_tax_account,
+from taxsystem.tests.testdata.factory import (
+    CorporationOwnerFactory,
+    CorporationTaxAccountFactory,
+    DivisionFactory,
+    EveEntityFactory,
 )
 
 MODULE_PATH = "taxsystem.api.helpers."
@@ -27,17 +27,14 @@ class TestAdminApiEndpoints(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(user=cls.user)
+        cls.audit = CorporationOwnerFactory(user=cls.user)
 
-        cls.division = create_division(
+        cls.division = DivisionFactory(
             corporation=cls.audit, balance=0, division_id=1, name="Main Division"
         )
 
-        cls.first_party = EveEntity.objects.get(id=1002)
-        cls.second_party = EveEntity.objects.get(id=1001)
-
-        cls.tax_account = create_tax_account(
-            name=cls.user_character.character.character_name,
+        cls.tax_account = CorporationTaxAccountFactory(
+            name=cls.user_character.character_name,
             owner=cls.audit,
             user=cls.user,
             status="active",

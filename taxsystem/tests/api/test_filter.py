@@ -8,10 +8,10 @@ from django.urls import reverse
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationFilter, CorporationFilterSet
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_filter,
-    create_filterset,
-    create_owner_from_user,
+from taxsystem.tests.testdata.factory import (
+    CorporationFilterFactory,
+    CorporationFilterSetFactory,
+    CorporationOwnerFactory,
 )
 
 MODULE_PATH = "taxsystem.api.helpers."
@@ -25,9 +25,10 @@ class TestFilterApiEndpoints(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(user=cls.user)
-
-        cls.filterset = create_filterset(owner=cls.audit, name="Test FilterSet")
+        cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.filterset = CorporationFilterSetFactory(
+            owner=cls.audit, name="Test FilterSet", enabled=True
+        )
 
     def test_get_filters(self):
         """
@@ -38,7 +39,7 @@ class TestFilterApiEndpoints(TaxSystemTestCase):
             2. Permission Denied for users without access.
         """
         # Test Data
-        create_filter(
+        CorporationFilterFactory(
             filter_set=self.filterset,
             filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
@@ -81,7 +82,7 @@ class TestFilterApiEndpoints(TaxSystemTestCase):
             2. Permission Denied for users without access.
         """
         # Test Data
-        filter_instance = create_filter(
+        filter_instance = CorporationFilterFactory(
             filter_set=self.filterset,
             filter_type=CorporationFilter.FilterType.AMOUNT,
             value=500,

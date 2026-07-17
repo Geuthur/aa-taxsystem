@@ -4,16 +4,9 @@ from django.utils import timezone
 
 # AA TaxSystem
 from taxsystem.api.helpers.icons import get_taxsystem_payments_action_icons
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_owner_from_user,
-    create_payment,
-    create_tax_account,
-    create_wallet_journal_entry,
-)
+from taxsystem.tests.testdata.factory import CorporationPaymentsFactory
 
 MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
@@ -25,23 +18,6 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-        cls.audit = create_owner_from_user(user=cls.user)
-
-        cls.division = create_division(
-            corporation=cls.audit, balance=0, division_id=1, name="Main Division"
-        )
-
-        cls.first_party = EveEntity.objects.get(id=1002)
-        cls.second_party = EveEntity.objects.get(id=1001)
-
-        cls.tax_account = create_tax_account(
-            name=cls.user_character.character.character_name,
-            owner=cls.audit,
-            user=cls.user,
-            status="active",
-            deposit=0,
-        )
 
     def test_get_taxsystem_payments_action_icons(self):
         """
@@ -56,43 +32,18 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         """
         # Test Data
         request = self.factory.get(reverse("taxsystem:index"))
-        request.user = self.manage_user
-
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
-        )
+        request.user = self.superuser  # Superuser for testing all actions
 
         # Pending Payment
-        payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
-            owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
+        payment = CorporationPaymentsFactory(
             date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
-        payment2 = create_payment(
-            name="Second Payment",
-            account=self.tax_account,
-            owner=self.audit,
+        payment2 = CorporationPaymentsFactory(
             journal=None,
-            amount=500,
             date=timezone.datetime(2025, 1, 2, 12, 0, 0),
-            reason="Tax Payment 2",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         # Test Action

@@ -7,9 +7,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_owner_from_user,
-)
+from taxsystem.tests.testdata.factory import CorporationOwnerFactory
 
 MODULE_PATH = "taxsystem.models.owneraudit"
 
@@ -18,8 +16,8 @@ class TestOwnerAuditModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user)
-        cls.audit2 = create_owner_from_user(cls.superuser)
+        cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.audit2 = CorporationOwnerFactory(user=cls.superuser)
 
     def test_str(self):
         expected_str = CorporationOwner.objects.get(id=self.audit.pk)

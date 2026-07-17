@@ -1,8 +1,11 @@
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import patch
 
+# Third Party
+import pook
+
 # Django
-from django.test import override_settings
 from django.utils import timezone
 
 # AA TaxSystem
@@ -12,35 +15,23 @@ from taxsystem.models.corporation import (
     CorporationPayments,
     Members,
 )
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.esi_stub_openapi import (
-    EsiEndpoint,
-    create_esi_client_stub,
-)
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_filter,
-    create_filterset,
-    create_member,
-    create_owner_from_user,
-    create_payment,
-    create_tax_account,
-    create_user_from_evecharacter,
-    create_wallet_journal_entry,
+from taxsystem.tests.testdata.factory import (
+    CorporationFilterFactory,
+    CorporationFilterSetFactory,
+    CorporationJournalFactory,
+    CorporationOwnerFactory,
+    CorporationPaymentsFactory,
+    CorporationTaxAccountFactory,
+    DivisionFactory,
+    MembersFactory,
+    UserMainFactory,
 )
 
 MODULE_PATH = "taxsystem.managers.corporation_manager"
 
-TEST_CORPORATION_MANAGER_ENDPOINTS = [
-    EsiEndpoint(
-        "Corporation", "GetCorporationsCorporationIdMembertracking", "corporation_id"
-    ),
-]
 
-
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestCorporationManager(TaxSystemTestCase):
     """Test Corporation Managers."""
 
@@ -48,29 +39,27 @@ class TestCorporationManager(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(cls.user)
+        cls.audit = CorporationOwnerFactory(user=cls.user)
 
-        cls.filter_set = create_filterset(
+        cls.filter_set = CorporationFilterSetFactory(
             owner=cls.audit,
             name="100m",
             description="Filter for payments over 100m",
+            enabled=True,
         )
 
-        cls.filter_amount = create_filter(
+        cls.filter_amount = CorporationFilterFactory(
             filter_set=cls.filter_set,
             filter_type=CorporationFilter.FilterType.AMOUNT,
             value=1000,
         )
 
-        cls.division = create_division(
+        cls.division = DivisionFactory(
             corporation=cls.audit,
             division_id=1,
             name="Main Division",
             balance=1000000,
         )
-
-        cls.eve_character_first_party = EveEntity.objects.get(id=1002)
-        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
 
     def test_update_tax_account(self):
         """
@@ -82,8 +71,8 @@ class TestCorporationManager(TaxSystemTestCase):
             2. Mark a payment as NEEDS_APPROVAL.
         """
         # Test Data
-        tax_account = create_tax_account(
-            name=self.user_character.character.character_name,
+        tax_account = CorporationTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.ACTIVE,
@@ -91,54 +80,36 @@ class TestCorporationManager(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        journal_entry = create_wallet_journal_entry(
+        journal_entry = CorporationJournalFactory(
             division=self.division,
-            entry_id=1,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.eve_character_first_party,
-            second_party=self.eve_character_second_party,
-            description="Test Description",
         )
 
-        journal_entry2 = create_wallet_journal_entry(
+        journal_entry2 = CorporationJournalFactory(
             division=self.division,
-            entry_id=2,
             amount=6000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0),
-            reason="Mining Stuff",
-            ref_type="tax_payment",
-            first_party=self.eve_character_first_party,
-            second_party=self.eve_character_second_party,
-            description="Test Description 2",
         )
 
         # Approved Payment
-        create_payment(
-            name=self.user_character.character.character_name,
+        CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=journal_entry,
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         # Needs Approval Payment
-        create_payment(
-            name=self.user_character.character.character_name,
+        CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=journal_entry2,
             amount=6000,
             date=timezone.datetime(2025, 1, 1, 14, 0, 0),
-            reason="Mining Stuff",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
         print("before: %s", self.audit.ts_corporation_payments)
         # Test Action
@@ -151,13 +122,17 @@ class TestCorporationManager(TaxSystemTestCase):
                     "journal__entry_id", flat=True
                 )
             ),
-            {1, 2},
+            {journal_entry.entry_id, journal_entry2.entry_id},
         )
-        obj = self.audit.ts_corporation_payments.get(journal__entry_id=1)
+        obj = self.audit.ts_corporation_payments.get(
+            journal__entry_id=journal_entry.entry_id
+        )
         self.assertEqual(obj.amount, 1000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.APPROVED)
 
-        obj = self.audit.ts_corporation_payments.get(journal__entry_id=2)
+        obj = self.audit.ts_corporation_payments.get(
+            journal__entry_id=journal_entry2.entry_id
+        )
         self.assertEqual(obj.amount, 6000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.NEEDS_APPROVAL)
 
@@ -169,10 +144,12 @@ class TestCorporationManager(TaxSystemTestCase):
             1. Mark a tax account as MISSING when the user is no longer in the corporation.
         """
         # Test Data
-        tax_account = create_tax_account(
-            name=self.user2_character.character.character_name,
+        missing_user = UserMainFactory()
+        missing_user_character = missing_user.profile.main_character
+        tax_account = CorporationTaxAccountFactory(
+            name=missing_user_character.character_name,
             owner=self.audit,
-            user=self.user2,
+            user=missing_user,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -182,7 +159,7 @@ class TestCorporationManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = CorporationPaymentAccount.objects.get(user=self.user2)
+        tax_account = CorporationPaymentAccount.objects.get(user=missing_user)
         self.assertEqual(tax_account.status, AccountStatus.MISSING)
         mock_logger.info.assert_any_call(
             "Marked Tax Account %s as MISSING",
@@ -200,11 +177,13 @@ class TestCorporationManager(TaxSystemTestCase):
             1. Move a tax account to a new corporation when the user has changed corporation.
         """
         # Test Data
-        audit_2 = create_owner_from_user(self.user2)
-        tax_account = create_tax_account(
-            name=self.user2_character.character.character_name,
+        missing_user = UserMainFactory()
+        missing_user_character = missing_user.profile.main_character
+        audit_2 = CorporationOwnerFactory(user=missing_user)
+        tax_account = CorporationTaxAccountFactory(
+            name=missing_user_character.character_name,
             owner=self.audit,
-            user=self.user2,
+            user=missing_user,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -214,7 +193,7 @@ class TestCorporationManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = CorporationPaymentAccount.objects.get(user=self.user2)
+        tax_account = CorporationPaymentAccount.objects.get(user=missing_user)
         self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
         self.assertEqual(tax_account.owner, audit_2)
         mock_logger.info.assert_any_call(
@@ -232,8 +211,8 @@ class TestCorporationManager(TaxSystemTestCase):
             1. Reset a tax account when the user was missing and has returned to the previous corporation.
         """
         # Test Data
-        tax_account = create_tax_account(
-            name=self.user_character.character.character_name,
+        tax_account = CorporationTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.MISSING,
@@ -265,22 +244,19 @@ class TestCorporationManager(TaxSystemTestCase):
         """
         # Test Data
         self.audit.tax_amount = 1000
-        tax_account = create_tax_account(
-            name=self.user_character.character.character_name,
+        tax_account = CorporationTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.ACTIVE,
             deposit=1000,
             last_paid=(timezone.now() - timezone.timedelta(days=60)),
         )
-        new_user, new_user_character = create_user_from_evecharacter(
-            character_id=1006,
-            permissions=["taxsystem.basic_access"],
-        )
+        new_user = UserMainFactory()
 
         # 1 Month is free for new users
-        tax_account_2 = create_tax_account(
-            name=new_user_character.character.character_name,
+        tax_account_2 = CorporationTaxAccountFactory(
+            name=new_user.profile.main_character.character_name,
             owner=self.audit,
             user=new_user,
             status=AccountStatus.ACTIVE,
@@ -297,10 +273,10 @@ class TestCorporationManager(TaxSystemTestCase):
         tax_account_2 = CorporationPaymentAccount.objects.get(user=new_user)
         self.assertEqual(tax_account_2.deposit, 0)
 
-    @patch(MODULE_PATH + ".esi")
     @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
     @patch(MODULE_PATH + ".logger")
-    def test_update_members(self, mock_logger, mock_bulk_resolve, mock_esi):
+    @pook.on
+    def test_update_members(self, mock_logger, mock_bulk_resolve):
         """
         Test update corporation members.
         This test should update or create corporation members based on ESI data.
@@ -313,22 +289,64 @@ class TestCorporationManager(TaxSystemTestCase):
             2 New Members created, 1 Existing updated, 1 Missing
         """
         # Test Data
-        self.member = create_member(
+        MembersFactory(
             owner=self.audit,
             character_id=1001,
             character_name="Member 1",
             status=Members.States.ACTIVE,
         )
 
-        self.missing_member = create_member(
+        MembersFactory(
             owner=self.audit,
             character_id=1004,
             character_name="Member 4",
             status=Members.States.ACTIVE,
         )
 
-        mock_esi.client = create_esi_client_stub(
-            endpoints=TEST_CORPORATION_MANAGER_ENDPOINTS
+        # Mock ESI response for roles
+        pook.get(
+            url=f"https://esi.evetech.net/characters/{self.user_character.character_id}/roles",
+            reply=HTTPStatus.OK,
+            response_json={
+                "character_id": 1001,
+                "roles": ["Director", "Accountant"],
+                "grantable_roles": ["Director", "Accountant"],
+            },
+        )
+
+        # Mock ESI response for corporation members
+        pook.get(
+            url=f"https://esi.evetech.net/corporations/{self.audit.eve_corporation.corporation_id}/membertracking",
+            reply=HTTPStatus.OK,
+            response_json=[
+                {
+                    "base_id": 1001,
+                    "character_id": 1001,
+                    "location_id": 30004783,
+                    "logoff_date": "2025-05-21T21:42:41Z",
+                    "logon_date": "2025-05-21T17:46:43Z",
+                    "ship_type_id": 603,
+                    "start_date": "2017-10-28T12:45:00Z",
+                },
+                {
+                    "base_id": 1002,
+                    "character_id": 1002,
+                    "location_id": 30004783,
+                    "logoff_date": "2025-04-16T21:09:26Z",
+                    "logon_date": "2025-04-16T21:08:43Z",
+                    "ship_type_id": 670,
+                    "start_date": "2019-07-14T19:39:00Z",
+                },
+                {
+                    "base_id": 1003,
+                    "character_id": 1003,
+                    "location_id": 30004783,
+                    "logoff_date": "2025-04-16T21:12:51Z",
+                    "logon_date": "2025-04-16T21:11:46Z",
+                    "ship_type_id": 670,
+                    "start_date": "2019-07-25T14:27:00Z",
+                },
+            ],
         )
 
         mock_bulk_resolve.return_value.to_name.side_effect = (
@@ -366,46 +384,37 @@ class TestCorporationManager(TaxSystemTestCase):
             2. New payments are created based on wallet journal entries.
         """
         # Test Data
-        create_tax_account(
-            name=self.user_character.character.character_name,
+        CorporationTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            user=self.user2,
+            user=self.user,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
-        self.audit2 = create_owner_from_user(self.user2)
-
-        create_wallet_journal_entry(
+        journal_entry = CorporationJournalFactory(
             division=self.division,
-            entry_id=1,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             ref_type="player_donation",
-            first_party=self.eve_character_first_party,
-            second_party=self.eve_character_second_party,
-            description="Test Description",
         )
 
-        create_wallet_journal_entry(
+        journal_entry2 = CorporationJournalFactory(
             division=self.division,
-            entry_id=2,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             ref_type="player_donation",
-            second_party=self.eve_character_second_party,
-            description="Test Description",
         )
         # Test Action
         self.audit.update_payments(force_refresh=False)
 
         # Expected Results
-        obj = self.audit.ts_corporation_payments.get(journal__entry_id=1)
+        obj = self.audit.ts_corporation_payments.get(
+            journal__entry_id=journal_entry.entry_id
+        )
         self.assertEqual(obj.amount, 1000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.PENDING)
 
         # The second journal entry should not create a payment because it doesn't have a first_party
         with self.assertRaises(CorporationPayments.DoesNotExist):
-            self.audit.ts_corporation_payments.get(journal__entry_id=2)
+            self.audit.ts_corporation_payments.get(
+                journal__entry_id=journal_entry2.entry_id
+            )

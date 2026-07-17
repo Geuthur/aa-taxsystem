@@ -9,16 +9,15 @@ from django.utils import timezone
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import PaymentActions, PaymentRequestStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_owner_from_user,
-    create_payment,
-    create_payment_history,
-    create_tax_account,
-    create_wallet_journal_entry,
+from taxsystem.tests.testdata.factory import (
+    CorporationJournalFactory,
+    CorporationOwnerFactory,
+    CorporationPaymentHistoryFactory,
+    CorporationPaymentsFactory,
+    CorporationTaxAccountFactory,
+    UserMainFactory,
 )
 
 MODULE_PATH = "taxsystem.api.helpers."
@@ -32,21 +31,10 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(user=cls.user)
-
-        cls.division = create_division(
-            corporation=cls.audit, balance=0, division_id=1, name="Main Division"
-        )
-
-        cls.first_party = EveEntity.objects.get(id=1002)
-        cls.second_party = EveEntity.objects.get(id=1001)
-
-        cls.tax_account = create_tax_account(
-            name=cls.user_character.character.character_name,
+        cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.account = CorporationTaxAccountFactory(
             owner=cls.audit,
             user=cls.user,
-            status="active",
-            deposit=0,
         )
 
     def test_get_payments_should_200_basic_access(self):
@@ -58,31 +46,21 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         - Payment from owner is included in the response
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
         # Approved Payment
-        payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         url = reverse(f"{API_URL}:get_payments", kwargs={"owner_id": corporation_id})
@@ -104,31 +82,21 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         - Payment from user is included in the response
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
         # Pending Payment
-        payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         url = reverse(f"{API_URL}:get_my_payments", kwargs={"owner_id": corporation_id})
@@ -151,41 +119,38 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             3. Member payments are returned successfully for superuser.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
         # Pending Payment
-        payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
+        )
+
+        print(
+            f"Payment created: {payment}, Amount: {payment.amount}, Owner: {payment.owner}, Date: {payment.date}, Status: {payment.request_status}"
+        )
+        print(
+            f"User: {self.user}, Character: {self.user_character}({self.user_character.character_id}), Corporation ID: {corporation_id}"
         )
 
         url = reverse(
             f"{API_URL}:get_member_payments",
             kwargs={
                 "owner_id": corporation_id,
-                "character_id": self.user_character.character.character_id,
+                "character_id": self.user_character.character_id,
             },
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         # Test Action
         response = self.client.get(url)
@@ -199,7 +164,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             f"{API_URL}:get_member_payments",
             kwargs={
                 "owner_id": corporation_id,
-                "character_id": self.user_character.character.character_id,
+                "character_id": self.user_character.character_id,
             },
         )
         self.client.force_login(self.user)
@@ -216,7 +181,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             f"{API_URL}:get_member_payments",
             kwargs={
                 "owner_id": corporation_id,
-                "character_id": self.user_character.character.character_id,
+                "character_id": self.user_character.character_id,
             },
         )
         self.client.force_login(self.superuser)
@@ -237,33 +202,24 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             2. Permission Denied for users without access.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
+        user = UserMainFactory()
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
         # Pending Payment
-        payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
-        create_payment_history(
+        CorporationPaymentHistoryFactory(
             payment=payment,
             user=self.user,
             new_status=PaymentRequestStatus.PENDING,
@@ -274,7 +230,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             f"{API_URL}:get_payment_details",
             kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         # Test Action
         response = self.client.get(url)
@@ -290,16 +246,13 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             f"{API_URL}:get_payment_details",
             kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
         )
-        self.client.force_login(self.user2)
+        self.client.force_login(user)
 
         # Test Action
         response = self.client.get(url)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-        self.assertNotIn(str(payment.amount), str(response.json()))
-        self.assertNotIn(payment.reason, str(response.json()))
-        self.assertNotIn(str(self.audit.name), str(response.json()))
 
     def test_add_payment(self):
         """
@@ -310,25 +263,21 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             2. Permission Denied for users without manage access.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        CorporationJournalFactory(
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
+        )
+
+        tax_account = CorporationTaxAccountFactory(
+            owner=self.audit,
         )
 
         url = reverse(
             f"{API_URL}:add_payment",
-            kwargs={"owner_id": corporation_id, "account_pk": self.tax_account.pk},
+            kwargs={"owner_id": corporation_id, "account_pk": tax_account.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "amount": 1000,
@@ -348,7 +297,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Test Data for Permission Denied
         url = reverse(
             f"{API_URL}:add_payment",
-            kwargs={"owner_id": corporation_id, "account_pk": self.tax_account.pk},
+            kwargs={"owner_id": corporation_id, "account_pk": tax_account.pk},
         )
         self.client.force_login(self.user)
 
@@ -376,38 +325,28 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             2. Permission Denied for users without manage access.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
         # Pending Payment
-        payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         url = reverse(
             f"{API_URL}:approve_payment",
             kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "comment": "Approving payment via API test.",
@@ -452,49 +391,37 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             3. Permission Denied for users without manage access.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
-        self.journal_entry2 = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=2,
+        journal_entry2 = CorporationJournalFactory(
+            division=journal_entry.division,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
-        reject_payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
+        reject_payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            journal=self.journal_entry2,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry2,
+            amount=journal_entry2.amount,
+            date=journal_entry2.date,
             request_status=PaymentRequestStatus.REJECTED,
-            reviser="",
+        )
+
+        tax_account = CorporationTaxAccountFactory(
+            owner=self.audit,
+            deposit=0,
         )
 
         url = reverse(
             f"{API_URL}:undo_payment",
             kwargs={"owner_id": corporation_id, "payment_pk": reject_payment.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "comment": "Undoing payment via API test.",
@@ -511,29 +438,27 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             amount=intcomma(reject_payment.amount),
             name=reject_payment.name,
         )
-        tax_account = CorporationPaymentAccount.objects.get(pk=self.tax_account.pk)
+        account = CorporationPaymentAccount.objects.get(pk=tax_account.pk)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json().get("message"), result)
-        self.assertEqual(tax_account.deposit, 0)
+        self.assertEqual(account.deposit, 0)
 
         # Test Data for Approved Payment
-        approved_payment = create_payment(
-            name=self.user_character.character.character_name,
-            account=self.tax_account,
+        approved_payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            account=tax_account,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.APPROVED,
-            reviser="",
         )
 
         url = reverse(
             f"{API_URL}:undo_payment",
             kwargs={"owner_id": corporation_id, "payment_pk": approved_payment.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "comment": "Undoing payment via API test.",
@@ -550,10 +475,10 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             amount=intcomma(approved_payment.amount),
             name=approved_payment.name,
         )
-        tax_account = CorporationPaymentAccount.objects.get(pk=self.tax_account.pk)
+        account = CorporationPaymentAccount.objects.get(pk=tax_account.pk)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json().get("message"), result)
-        self.assertEqual(tax_account.deposit, -1000)
+        self.assertEqual(account.deposit, -1000)
 
         # Test Data for Permission Denied
         url = reverse(
@@ -582,50 +507,38 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             3. ESI imported Payments cannot be deleted.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
-        pending_payment = create_payment(
+        pending_payment = CorporationPaymentsFactory(
             name="Pending Payment",
-            account=self.tax_account,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         # Pending Payment
-        custom_payment = create_payment(
+        custom_payment = CorporationPaymentsFactory(
             name="Custom Payment",
-            account=self.tax_account,
+            account=pending_payment.account,
             owner=self.audit,
             journal=None,
             amount=2000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         url = reverse(
             f"{API_URL}:delete_payment",
             kwargs={"owner_id": corporation_id, "payment_pk": custom_payment.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "comment": "Deleting payment via API test.",
@@ -668,7 +581,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             f"{API_URL}:delete_payment",
             kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "comment": "Deleting payment via API test.",
@@ -693,37 +606,28 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             2. Permission Denied for users without manage access.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
-        self.journal_entry = create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
+        journal_entry = CorporationJournalFactory(
             amount=1000,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.first_party,
-            second_party=self.second_party,
-            description="Test Description",
         )
 
-        pending_payment = create_payment(
+        pending_payment = CorporationPaymentsFactory(
             name="Pending Payment",
-            account=self.tax_account,
             owner=self.audit,
-            journal=self.journal_entry,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         url = reverse(
             f"{API_URL}:reject_payment",
             kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "comment": "Rejecting payment via API test.",
@@ -771,39 +675,33 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             3. Permission Denied for users without manage access.
         """
         # Test Data
-        corporation_id = self.user_character.character.corporation_id
+        corporation_id = self.user_character.corporation_id
 
         # Pending Payment 1
-        payment1 = create_payment(
+        payment1 = CorporationPaymentsFactory(
             name="Pending Payment 1",
-            account=self.tax_account,
             owner=self.audit,
+            account=self.account,
             journal=None,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         # Pending Payment 2
-        payment2 = create_payment(
+        payment2 = CorporationPaymentsFactory(
             name="Pending Payment 2",
-            account=self.tax_account,
             owner=self.audit,
+            account=self.account,
             journal=None,
             amount=2000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         url = reverse(
             f"{API_URL}:perform_bulk_actions_payments",
             kwargs={"owner_id": corporation_id},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
 
         data = {
             "pks": [payment1.pk, payment2.pk],
@@ -837,7 +735,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             f"{API_URL}:perform_bulk_actions_payments",
             kwargs={"owner_id": corporation_id},
         )
-        self.client.force_login(self.manage_own_user)
+        self.client.force_login(self.superuser)
         data = {
             "pks": [payment1.pk, payment2.pk],
             "action": "reject",

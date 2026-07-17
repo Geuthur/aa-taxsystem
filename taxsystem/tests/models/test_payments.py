@@ -1,24 +1,29 @@
 # Django
-from django.test import TestCase
 from django.utils import timezone
 
 # Alliance Auth
+from allianceauth.eveonline.models import EveCorporationInfo
 from allianceauth.tests.auth_utils import AuthUtils
 
 # AA TaxSystem
 from taxsystem.models.alliance import AlliancePayments
 from taxsystem.models.corporation import CorporationPayments
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
 )
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_owner_from_user,
-    create_payment,
-    create_tax_account,
-    create_wallet_journal_entry,
+from taxsystem.tests.testdata.factory import (
+    AllianceOwnerFactory,
+    AlliancePaymentsFactory,
+    AllianceTaxAccountFactory,
+    CorporationJournalFactory,
+    CorporationOwnerFactory,
+    CorporationPaymentsFactory,
+    CorporationTaxAccountFactory,
+    DivisionFactory,
+    EveCharacterFactory,
+    EveEntityFactory,
+    UserMainFactory,
 )
 
 MODULE_PATH = "taxsystem.models.tax"
@@ -28,39 +33,26 @@ class TestPaymentsModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user)
-        cls.audit2 = create_owner_from_user(cls.superuser)
+        cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.audit2 = CorporationOwnerFactory(user=cls.superuser)
+        cls.user2 = UserMainFactory()
 
-        cls.eve_character_first_party = EveEntity.objects.get(id=2001)
-        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
-
-        cls.division = create_division(
-            corporation=cls.audit,
-            division_id=1,
-            name="Main Division",
-            balance=1000000,
+        # Corporation Owner
+        corp = EveCorporationInfo.objects.get(
+            corporation_id=cls.user_character.corporation_id
+        )
+        cls.manage_own_corporation = UserMainFactory(
+            main_character__character=EveCharacterFactory(corporation=corp),
+            permissions__=["taxsystem.manage_own_corp"],
         )
 
-        cls.journal_entry = create_wallet_journal_entry(
-            division=cls.division,
-            entry_id=1,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Test Journal Entry",
-            ref_type="tax_payment",
-            first_party=cls.eve_character_first_party,
-            second_party=cls.eve_character_second_party,
-            description="Test Description",
-        )
-
-        cls.tax_account = create_tax_account(
-            name=cls.user_character.character.character_name,
+        cls.journal_entry = CorporationJournalFactory()
+        cls.tax_account = CorporationTaxAccountFactory(
+            name=cls.user_character.character_name,
             owner=cls.audit,
             user=cls.user,
-            deposit=0,
         )
-
-        cls.payments = create_payment(
+        cls.payments = CorporationPaymentsFactory(
             name="Gneuten",
             amount=1000,
             request_status="needs_approval",
@@ -109,14 +101,12 @@ class TestPaymentsModel(TaxSystemTestCase):
     def test_character_id(self):
         """Test if the character_id is correct."""
         payments = CorporationPayments.objects.get(account=self.tax_account)
-        self.assertEqual(
-            payments.character_id, self.user_character.character.character_id
-        )
+        self.assertEqual(payments.character_id, self.user_character.character_id)
 
     def test_division(self):
         """Test if the division is correct."""
         payments = CorporationPayments.objects.get(account=self.tax_account)
-        self.assertEqual(payments.division_name, "Main Division")
+        self.assertEqual(payments.division_name, self.journal_entry.division.name)
 
     def test_access_no_perms(self):
         """Test should return only own corporation if basic_access is set."""
@@ -167,7 +157,7 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.payments.save()
 
         open_invoices = CorporationPayments.objects.get_visible_open_invoices(
-            user=self.manage_own_user
+            user=self.manage_own_corporation
         )
         self.assertEqual(open_invoices, 1)
 
@@ -186,48 +176,35 @@ class TestAlliancePaymentsModel(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.corp_audit = create_owner_from_user(user=cls.user)
-        cls.audit = create_owner_from_user(user=cls.user, tax_type="alliance")
-        cls.audit2 = create_owner_from_user(user=cls.superuser, tax_type="alliance")
+        cls.corp_audit = CorporationOwnerFactory(user=cls.user)
+        cls.audit = AllianceOwnerFactory(user=cls.user)
+        cls.audit2 = AllianceOwnerFactory(user=cls.superuser)
+        cls.user2 = UserMainFactory()
 
-        cls.eve_character_first_party = EveEntity.objects.get(id=2001)
-        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
-
-        cls.division = create_division(
-            corporation=cls.corp_audit,
-            division_id=1,
-            name="Main Division",
-            balance=1000000,
+        # Alliance Owner
+        corp = EveCorporationInfo.objects.get(
+            corporation_id=cls.user_character.corporation_id
+        )
+        cls.manage_own_alliance = UserMainFactory(
+            main_character__character=EveCharacterFactory(corporation=corp),
+            permissions__=["taxsystem.manage_own_alliance"],
         )
 
-        cls.journal_entry = create_wallet_journal_entry(
-            division=cls.division,
-            entry_id=1,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Test Journal Entry",
-            ref_type="tax_payment",
-            first_party=cls.eve_character_first_party,
-            second_party=cls.eve_character_second_party,
-            description="Test Description",
-        )
-
-        cls.tax_account = create_tax_account(
-            name=cls.user_character.character.character_name,
+        cls.journal_entry = CorporationJournalFactory()
+        cls.tax_account = AllianceTaxAccountFactory(
+            name=cls.user_character.character_name,
             owner=cls.audit,
             user=cls.user,
-            deposit=0,
         )
-
-        cls.payments = create_payment(
+        cls.payments = AlliancePaymentsFactory(
             name="Gneuten",
             amount=1000,
             request_status="needs_approval",
+            owner=cls.audit,
             account=cls.tax_account,
             date=timezone.datetime(2025, 1, 1, 12, 0, 0),
             reviser="Requires Auditor",
             journal=cls.journal_entry,
-            owner=cls.audit,
         )
 
     def test_str(self):
@@ -268,14 +245,12 @@ class TestAlliancePaymentsModel(TaxSystemTestCase):
     def test_character_id(self):
         """Test if the character_id is correct."""
         payments = AlliancePayments.objects.get(account=self.tax_account)
-        self.assertEqual(
-            payments.character_id, self.user_character.character.character_id
-        )
+        self.assertEqual(payments.character_id, self.user_character.character_id)
 
     def test_division(self):
         """Test if the division is correct."""
         payments = AlliancePayments.objects.get(account=self.tax_account)
-        self.assertEqual(payments.division_name, "Main Division")
+        self.assertEqual(payments.division_name, self.journal_entry.division.name)
 
     def test_access_no_perms(self):
         """Test should return only own corporation if basic_access is set."""
@@ -326,7 +301,7 @@ class TestAlliancePaymentsModel(TaxSystemTestCase):
         self.payments.save()
 
         open_invoices = AlliancePayments.objects.get_visible_open_invoices(
-            user=self.manage_own_user
+            user=self.manage_own_alliance
         )
         self.assertEqual(open_invoices, 1)
 

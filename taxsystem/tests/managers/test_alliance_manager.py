@@ -2,7 +2,6 @@
 from unittest.mock import patch
 
 # Django
-from django.test import override_settings
 from django.utils import timezone
 
 # AA TaxSystem
@@ -11,28 +10,26 @@ from taxsystem.models.alliance import (
     AlliancePaymentAccount,
     AlliancePayments,
 )
-from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     FilterMatchType,
     PaymentRequestStatus,
 )
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import (
-    create_division,
-    create_filter,
-    create_filterset,
-    create_owner_from_user,
-    create_payment,
-    create_tax_account,
-    create_user_from_evecharacter,
-    create_wallet_journal_entry,
+from taxsystem.tests.testdata.factory import (
+    AllianceFilterFactory,
+    AllianceFilterSetFactory,
+    AllianceOwnerFactory,
+    AlliancePaymentsFactory,
+    AllianceTaxAccountFactory,
+    CorporationJournalFactory,
+    DivisionFactory,
+    UserMainFactory,
 )
 
 MODULE_PATH = "taxsystem.managers.alliance_manager"
 
 
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class TestAllianceManager(TaxSystemTestCase):
     """Test Alliance Managers."""
 
@@ -40,23 +37,20 @@ class TestAllianceManager(TaxSystemTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = create_owner_from_user(cls.user, tax_type="alliance")
+        cls.audit = AllianceOwnerFactory(user=cls.user)
 
-        cls.filter_set = create_filterset(
+        cls.filter_set = AllianceFilterSetFactory(
             owner=cls.audit,
             name="Test Filter Set",
             description="Filter Set for Testing Alliance Manager",
+            enabled=True,
         )
-
-        cls.division = create_division(
+        cls.division = DivisionFactory(
             corporation=cls.audit.corporation,
-            division_id=1,
             name="Main Division",
             balance=1000000,
+            division_id=1,
         )
-
-        cls.eve_character_first_party = EveEntity.objects.get(id=1002)
-        cls.eve_character_second_party = EveEntity.objects.get(id=1001)
 
     def test_update_tax_account(self):
         """
@@ -68,8 +62,8 @@ class TestAllianceManager(TaxSystemTestCase):
             2. Mark a payment as NEEDS_APPROVAL.
         """
         # Test Data
-        tax_account = create_tax_account(
-            name=self.user_character.character.character_name,
+        tax_account = AllianceTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.ACTIVE,
@@ -77,31 +71,17 @@ class TestAllianceManager(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        journal_entry = create_wallet_journal_entry(
+        journal_entry = CorporationJournalFactory(
             division=self.division,
-            entry_id=1,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="tax_payment",
-            first_party=self.eve_character_first_party,
-            second_party=self.eve_character_second_party,
-            description="Test Description",
         )
 
-        journal_entry2 = create_wallet_journal_entry(
+        journal_entry2 = CorporationJournalFactory(
             division=self.division,
-            entry_id=2,
             amount=6000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0),
-            reason="Mining Stuff",
-            ref_type="tax_payment",
-            first_party=self.eve_character_first_party,
-            second_party=self.eve_character_second_party,
-            description="Test Description 2",
         )
 
-        create_filter(
+        AllianceFilterFactory(
             filter_set=self.filter_set,
             filter_type=AllianceFilter.FilterType.AMOUNT,
             match_type=FilterMatchType.EXACT,
@@ -109,29 +89,23 @@ class TestAllianceManager(TaxSystemTestCase):
         )
 
         # Approved Payment
-        create_payment(
-            name=self.user_character.character.character_name,
+        AlliancePaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=journal_entry,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         # Needs Approval Payment
-        create_payment(
-            name=self.user_character.character.character_name,
+        AlliancePaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=journal_entry2,
             amount=6000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0),
-            reason="Mining Stuff",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         # Test Action
@@ -143,13 +117,17 @@ class TestAllianceManager(TaxSystemTestCase):
                     "journal__entry_id", flat=True
                 )
             ),
-            {1, 2},
+            {journal_entry.entry_id, journal_entry2.entry_id},
         )
-        obj = self.audit.ts_alliance_payments.get(journal__entry_id=1)
+        obj: AlliancePayments = self.audit.ts_alliance_payments.get(
+            journal__entry_id=journal_entry.entry_id
+        )
         self.assertEqual(obj.amount, 1000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.APPROVED)
 
-        obj = self.audit.ts_alliance_payments.get(journal__entry_id=2)
+        obj: AlliancePayments = self.audit.ts_alliance_payments.get(
+            journal__entry_id=journal_entry2.entry_id
+        )
         self.assertEqual(obj.amount, 6000)
         self.assertEqual(obj.request_status, PaymentRequestStatus.NEEDS_APPROVAL)
 
@@ -162,10 +140,13 @@ class TestAllianceManager(TaxSystemTestCase):
             1. Mark a tax account as MISSING when the user is no longer in the alliance.
         """
         # Test Data
-        create_tax_account(
-            name=self.user2_character.character.character_name,
+        missing_user = UserMainFactory()
+        missing_user_character = missing_user.profile.main_character
+
+        AllianceTaxAccountFactory(
+            name=missing_user_character.character_name,
             owner=self.audit,
-            user=self.user2,
+            user=missing_user,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -174,7 +155,7 @@ class TestAllianceManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = AlliancePaymentAccount.objects.get(user=self.user2)
+        tax_account = AlliancePaymentAccount.objects.get(user=missing_user)
         self.assertEqual(tax_account.status, AccountStatus.MISSING)
         mock_logger.info.assert_any_call(
             "Marked Tax Account %s as MISSING",
@@ -192,11 +173,14 @@ class TestAllianceManager(TaxSystemTestCase):
             1. Move a tax account to a new alliance when the user has changed alliance.
         """
         # Test Data
-        audit_2 = create_owner_from_user(self.user2, tax_type="alliance")
-        create_tax_account(
-            name=self.user2_character.character.character_name,
+        missing_user = UserMainFactory()
+        missing_user_character = missing_user.profile.main_character
+        audit_2 = AllianceOwnerFactory(user=missing_user)
+
+        AllianceTaxAccountFactory(
+            name=missing_user_character.character_name,
             owner=self.audit,
-            user=self.user2,
+            user=missing_user,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
@@ -206,7 +190,8 @@ class TestAllianceManager(TaxSystemTestCase):
         self.audit.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = AlliancePaymentAccount.objects.get(user=self.user2)
+        tax_account = AlliancePaymentAccount.objects.get(user=missing_user)
+
         self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
         self.assertEqual(tax_account.owner, audit_2)
         mock_logger.info.assert_any_call(
@@ -224,8 +209,8 @@ class TestAllianceManager(TaxSystemTestCase):
             1. Reset a tax account when the user was missing and has returned to the previous alliance.
         """
         # Test Data
-        create_tax_account(
-            name=self.user_character.character.character_name,
+        AllianceTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.MISSING,
@@ -257,22 +242,19 @@ class TestAllianceManager(TaxSystemTestCase):
         """
         # Test Data
         self.audit.tax_amount = 1000
-        create_tax_account(
-            name=self.user_character.character.character_name,
+        AllianceTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.ACTIVE,
             deposit=1000,
             last_paid=(timezone.now() - timezone.timedelta(days=60)),
         )
-        self.new_user, self.new_user_character = create_user_from_evecharacter(
-            character_id=1006,
-            permissions=["taxsystem.basic_access"],
-        )
+        self.new_user = UserMainFactory()
 
         # 1 Month is free for new users
-        create_tax_account(
-            name=self.new_user_character.character.character_name,
+        AllianceTaxAccountFactory(
+            name=self.new_user.profile.main_character.character_name,
             owner=self.audit,
             user=self.new_user,
             status=AccountStatus.ACTIVE,
@@ -298,8 +280,8 @@ class TestAllianceManager(TaxSystemTestCase):
             2. Second Payment does not match Filter Set and will be marked as needs approval.
         """
         # Test Data
-        tax_account = create_tax_account(
-            name=self.user_character.character.character_name,
+        tax_account = AllianceTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.ACTIVE,
@@ -307,39 +289,37 @@ class TestAllianceManager(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        create_filter(
+        AllianceFilterFactory(
             filter_set=self.filter_set,
             filter_type=AllianceFilter.FilterType.REASON,
             match_type=FilterMatchType.CONTAINS,
             value="Payments",
         )
 
-        create_filter(
+        AllianceFilterFactory(
             filter_set=self.filter_set,
             filter_type=AllianceFilter.FilterType.AMOUNT,
             match_type=FilterMatchType.EXACT,
             value=1000,
         )
 
-        create_payment(
-            name=self.user_character.character.character_name,
+        AlliancePaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=None,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
             reason="Approved Payments",
             request_status=PaymentRequestStatus.PENDING,
             reviser="",
         )
 
-        create_payment(
-            name=self.user_character.character.character_name,
+        AlliancePaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=None,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0),
             reason="Other Reason",
             request_status=PaymentRequestStatus.PENDING,
             reviser="",
@@ -368,8 +348,8 @@ class TestAllianceManager(TaxSystemTestCase):
             3. Third Payment does not match any filter set filters and will be marked as needs approval.
         """
         # Test Data
-        tax_account = create_tax_account(
-            name=self.user_character.character.character_name,
+        tax_account = AllianceTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             user=self.user,
             status=AccountStatus.ACTIVE,
@@ -377,67 +357,62 @@ class TestAllianceManager(TaxSystemTestCase):
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
 
-        filter_set2 = create_filterset(
+        filter_set2 = AllianceFilterSetFactory(
             owner=self.audit,
             name="Test Filter Set 2",
             description="Second Filter Set for Testing Alliance Manager",
+            enabled=True,
         )
 
-        create_filter(
+        AllianceFilterFactory(
             filter_set=self.filter_set,
             filter_type=AllianceFilter.FilterType.REASON,
             match_type=FilterMatchType.CONTAINS,
             value="Payments",
         )
 
-        create_filter(
+        AllianceFilterFactory(
             filter_set=self.filter_set,
             filter_type=AllianceFilter.FilterType.AMOUNT,
             match_type=FilterMatchType.EXACT,
             value=1000,
         )
 
-        create_filter(
+        AllianceFilterFactory(
             filter_set=filter_set2,
             filter_type=AllianceFilter.FilterType.REASON,
             match_type=FilterMatchType.CONTAINS,
             value="Reason",
         )
 
-        create_payment(
-            name=self.user_character.character.character_name,
+        AlliancePaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=None,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
             reason="Approved Payments",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
-        create_payment(
-            name=self.user_character.character.character_name,
+        AlliancePaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=None,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0),
             reason="Other Reason",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
-        create_payment(
-            name=self.user_character.character.character_name,
+        AlliancePaymentsFactory(
+            name=self.user_character.character_name,
             account=tax_account,
             owner=self.audit,
             journal=None,
             amount=1000,
-            date=timezone.datetime(2025, 1, 1, 14, 0, 0),
             reason="2025",
             request_status=PaymentRequestStatus.PENDING,
-            reviser="",
         )
 
         # Test Action
@@ -468,46 +443,33 @@ class TestAllianceManager(TaxSystemTestCase):
             3. Payments with missing parties are skipped.
         """
         # Test Data
-        create_tax_account(
-            name=self.user_character.character.character_name,
+        AllianceTaxAccountFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
-            user=self.user2,
+            user=self.user,
             status=AccountStatus.ACTIVE,
             deposit=0,
             last_paid=(timezone.now() - timezone.timedelta(days=30)),
         )
-        self.audit2 = create_owner_from_user(user=self.user2, tax_type="alliance")
 
-        create_wallet_journal_entry(
-            division=self.division,
-            entry_id=1,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
+        journal = CorporationJournalFactory(
             ref_type="player_donation",
-            first_party=self.eve_character_first_party,
-            second_party=self.eve_character_second_party,
-            description="Test Description",
         )
 
-        create_wallet_journal_entry(
-            division=self.division,
-            entry_id=2,
-            amount=1000,
-            date=timezone.datetime(2025, 1, 1, 12, 0, 0),
-            reason="Tax Payment",
-            ref_type="player_donation",
-            second_party=self.eve_character_second_party,
-            description="Test Description",
+        # The second journal entry should not create a payment because it doesn't have a first_party
+        error_journal = CorporationJournalFactory(
+            first_party=None,
         )
         # Test Action
         self.audit.update_payments(force_refresh=False)
 
         # Expected Results
-        obj = self.audit.ts_alliance_payments.get(journal__entry_id=1)
-        self.assertEqual(obj.amount, 1000)
+        obj = self.audit.ts_alliance_payments.get(journal__entry_id=journal.entry_id)
+        self.assertEqual(obj.amount, journal.amount)
         self.assertEqual(obj.request_status, PaymentRequestStatus.PENDING)
 
         # The second journal entry should not create a payment because it doesn't have a first_party
         with self.assertRaises(AlliancePayments.DoesNotExist):
-            self.audit.ts_alliance_payments.get(journal__entry_id=2)
+            self.audit.ts_alliance_payments.get(
+                journal__entry_id=error_journal.entry_id
+            )

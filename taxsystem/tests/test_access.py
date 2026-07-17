@@ -15,7 +15,11 @@ from taxsystem import views
 # AA Taxsystem
 from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.utils import create_owner_from_user, create_tax_account
+from taxsystem.tests.testdata.factory import (
+    CorporationOwnerFactory,
+    CorporationTaxAccountFactory,
+    UserMainFactory,
+)
 
 INDEX_PATH = "taxsystem.views"
 
@@ -26,11 +30,17 @@ class TestViewAccess(TaxSystemTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.audit = create_owner_from_user(cls.user)
-        cls.audit_2 = create_owner_from_user(cls.superuser)
-        cls.manage_audit = create_owner_from_user(cls.manage_own_user)
-        cls.tax_account = create_tax_account(
-            name=cls.user_character.character.character_name,
+
+        cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.audit_2 = CorporationOwnerFactory(user=cls.superuser)
+
+        cls.manage_own_user = UserMainFactory(
+            permissions__=["taxsystem.manage_own_corp"]
+        )
+        cls.manage_audit = CorporationOwnerFactory(user=cls.manage_own_user)
+
+        cls.tax_account = CorporationTaxAccountFactory(
+            name=cls.user_character.character_name,
             owner=cls.audit,
             user=cls.user,
             status=AccountStatus.ACTIVE,
@@ -53,7 +63,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:manage_owner",
-                args=[2001],
+                args=[self.manage_audit.eve_corporation.corporation_id],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -61,7 +71,9 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.manage_own_user
         # when
-        response = views.manage_owner(request, 2001)
+        response = views.manage_owner(
+            request, self.manage_audit.eve_corporation.corporation_id
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Accounts")
@@ -73,7 +85,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:manage_owner",
-                args=[2001],
+                args=[self.audit.eve_corporation.corporation_id],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -81,7 +93,9 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.manage_owner(request, 2001)
+        response = views.manage_owner(
+            request, self.audit.eve_corporation.corporation_id
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_with(request, "Permission Denied.")
@@ -92,7 +106,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:payments",
-                args=[2001],
+                args=[self.user_character.corporation_id],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -100,7 +114,7 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.payments(request, 2001)
+        response = views.payments(request, self.user_character.corporation_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Payments")
@@ -132,7 +146,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:payments",
-                args=[2003],
+                args=[self.audit_2.eve_corporation.corporation_id],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -140,7 +154,7 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.payments(request, 2003)
+        response = views.payments(request, self.audit_2.eve_corporation.corporation_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_with(request, "Permission Denied.")
@@ -151,7 +165,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:my_payments",
-                args=[2001],
+                args=[self.user_character.corporation_id],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -159,7 +173,7 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.my_payments(request, 2001)
+        response = views.my_payments(request, self.user_character.corporation_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Own Payments")
@@ -170,12 +184,12 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:faq",
-                args=[2001],
+                args=[self.user_character.corporation_id],
             )
         )
         request.user = self.user
         # when
-        response = views.faq(request, 2001)
+        response = views.faq(request, self.user_character.corporation_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "FAQ")
@@ -188,16 +202,22 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:account",
-                args=[2001, 1001],
+                args=[
+                    self.user_character.corporation_id,
+                    self.user_character.character_id,
+                ],
             )
         )
         request.user = self.user
-
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
 
         # when
-        response = views.account(request, 2001, 1001)
+        response = views.account(
+            request,
+            self.user_character.corporation_id,
+            self.user_character.character_id,
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertFalse(mock_messages.error.called)
@@ -208,12 +228,14 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:manage_filter",
-                args=[2001],
+                args=[self.manage_audit.eve_corporation.corporation_id],
             )
         )
         request.user = self.manage_own_user
         # when
-        response = views.manage_filter(request, owner_id=2001)
+        response = views.manage_filter(
+            request, owner_id=self.manage_audit.eve_corporation.corporation_id
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Manage Filters")
@@ -225,7 +247,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:my_payments",
-                args=[999999],
+                args=[self.user_character.corporation_id],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -245,7 +267,7 @@ class TestViewAccess(TaxSystemTestCase):
         request = self.factory.get(
             reverse(
                 "taxsystem:my_payments",
-                args=[2003],
+                args=[self.audit_2.eve_corporation.corporation_id],
             )
         )
         middleware = SessionMiddleware(Mock())
@@ -253,7 +275,9 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.my_payments(request, 2003)
+        response = views.my_payments(
+            request, self.audit_2.eve_corporation.corporation_id
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_with(request, "Permission Denied.")
@@ -283,7 +307,7 @@ class TestViewAccess(TaxSystemTestCase):
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.account(request, 999999)
+        response = views.account(request, 999999, self.user_character.character_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_with(request, "Owner not Found.")
@@ -292,13 +316,25 @@ class TestViewAccess(TaxSystemTestCase):
     def test_should_not_show_account_when_no_permission(self, mock_messages):
         """Test that a user with 'basic_access' can not access foreign corporation."""
         # given
-        request = self.factory.get(reverse("taxsystem:account", args=[2003, 1001]))
+        request = self.factory.get(
+            reverse(
+                "taxsystem:account",
+                args=[
+                    self.user_character.corporation_id,
+                    self.user_character.character_id,
+                ],
+            )
+        )
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user2
+        request.user = UserMainFactory()
         # when
-        response = views.account(request, 2003, 1001)
+        response = views.account(
+            request,
+            self.user_character.corporation_id,
+            self.user_character.character_id,
+        )
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_with(request, "Permission Denied.")
@@ -322,13 +358,15 @@ class TestViewAccess(TaxSystemTestCase):
     def test_should_not_show_manage_owner_when_no_permission(self, mock_messages):
         """Test that a user with 'basic_access' can not access manage_owner."""
         # given
-        request = self.factory.get(reverse("taxsystem:manage_owner", args=[2003]))
+        request = self.factory.get(
+            reverse("taxsystem:manage_owner", args=[self.user_character.corporation_id])
+        )
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.manage_own_user
         # when
-        response = views.manage_owner(request, 2003)
+        response = views.manage_owner(request, self.user_character.corporation_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Verify the exact error message is "Permission Denied." (not "Owner not Found")
@@ -338,13 +376,17 @@ class TestViewAccess(TaxSystemTestCase):
     def test_should_not_show_manage_filter_when_no_permission(self, mock_messages):
         """Test that a user with 'basic_access' can not access manage_filter."""
         # given
-        request = self.factory.get(reverse("taxsystem:manage_filter", args=[2001]))
+        request = self.factory.get(
+            reverse(
+                "taxsystem:manage_filter", args=[self.user_character.corporation_id]
+            )
+        )
         middleware = SessionMiddleware(Mock())
         middleware.process_request(request)
         MessageMiddleware(Mock()).process_request(request)
         request.user = self.user
         # when
-        response = views.manage_filter(request, 2001)
+        response = views.manage_filter(request, self.user_character.corporation_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called()
