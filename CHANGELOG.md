@@ -15,6 +15,10 @@ Section Order:
 
 - `Pook` package that provides a more efficient approach to handling ESI calls at the http level.
 
+### Fixed
+
+- related name issues in Alliance/Corporation Admin Logs
+
 ### Changed
 
 - Modernized Test Enviroment

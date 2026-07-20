@@ -359,11 +359,11 @@ class TestCorporationManager(TaxSystemTestCase):
         self.audit.update_members(force_refresh=False)
 
         # Expected Results
-        obj = self.audit.ts_members.get(character_id=1001)
+        obj = Members.objects.get(character_id=1001)
         self.assertEqual(obj.character_name, "Member 1")
-        obj = self.audit.ts_members.get(character_id=1002)
+        obj = Members.objects.get(character_id=1002)
         self.assertEqual(obj.character_name, "Member 2")
-        obj = self.audit.ts_members.get(character_id=1003)
+        obj = Members.objects.get(character_id=1003)
         self.assertEqual(obj.character_name, "Member 3")
 
         mock_logger.info.assert_called_with(

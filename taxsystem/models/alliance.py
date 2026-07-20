@@ -240,7 +240,7 @@ class AlliancePaymentAccount(PaymentAccountBaseModel):
     owner = models.ForeignKey(
         AllianceOwner,
         on_delete=models.CASCADE,
-        related_name="ts_ally_tax_accounts",
+        related_name="ts_alliance_tax_accounts",
     )
 
 
@@ -374,7 +374,7 @@ class AllianceAdminHistory(HistoryBaseModel):
         verbose_name=_("Owner"),
         help_text=_("Owner that the action was performed on"),
         on_delete=models.CASCADE,
-        related_name="ts_admin_history",
+        related_name="ts_alliance_admin_history",
     )
 
     action = models.CharField(

@@ -373,7 +373,7 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
     owner = models.ForeignKey(
         CorporationOwner,
         on_delete=models.CASCADE,
-        related_name="ts_corp_tax_accounts",
+        related_name="ts_corporation_tax_accounts",
     )
 
 
@@ -513,7 +513,7 @@ class CorporationAdminHistory(HistoryBaseModel):
         verbose_name=_("Owner"),
         help_text=_("Owner that the action was performed on"),
         on_delete=models.CASCADE,
-        related_name="ts_admin_history",
+        related_name="ts_corporation_admin_history",
     )
 
     # pylint: disable=duplicate-code
