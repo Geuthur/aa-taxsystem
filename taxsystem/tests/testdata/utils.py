@@ -13,22 +13,8 @@ from allianceauth.tests.auth_utils import AuthUtils
 from esi.models import Scope, Token
 
 # AA TaxSystem
-from taxsystem.models.alliance import (
-    AlliancePaymentAccount,
-    AlliancePaymentHistory,
-    AlliancePayments,
-    AllianceUpdateStatus,
-)
 from taxsystem.models.corporation import (
     CorporationOwner,
-    CorporationPaymentAccount,
-    CorporationPaymentHistory,
-    CorporationPayments,
-    CorporationUpdateStatus,
-    Members,
-)
-from taxsystem.models.wallet import (
-    CorporationWalletJournalEntry,
 )
 
 
