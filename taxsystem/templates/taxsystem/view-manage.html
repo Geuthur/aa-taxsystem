@@ -24,7 +24,8 @@
 {% endblock %}
 
 {% block extra_css %}
-    {% include 'taxsystem/bundles/datatables-2-css.html' with extColumnControl=True %}
+    {% include 'bundles/datatables-2-css-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-css-bs5.html' %}
     {% include 'taxsystem/bundles/aa-taxsystem-css.html' %}
 {% endblock %}
 
@@ -71,7 +72,8 @@
     {% include 'taxsystem/modals/request-view-tax-account.html' %}
     {% include 'taxsystem/modals/request-view-payment-details.html' %}
     {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
-    {% include 'taxsystem/bundles/datatables-2-js.html' with extColumnControl=True %}
+    {% include 'bundles/datatables-2-js-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
     {% include 'taxsystem/bundles/view-manage-js.html' %}
 {% endblock extra_javascript %}
 
