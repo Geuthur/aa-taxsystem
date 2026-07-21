@@ -31,7 +31,7 @@ from taxsystem.models.corporation import (
     CorporationOwner,
     Members,
 )
-from taxsystem.models.helpers.textchoices import AdminActions
+from taxsystem.models.helpers.textchoices import ActionType, AdminActions
 from taxsystem.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -150,6 +150,7 @@ class CorporationApiEndpoints:
                 owner.admin_log_model(
                     user=request.user,
                     owner=owner,
+                    target=ActionType.CORPORATION,
                     action=AdminActions.DELETE,
                     comment=msg,
                 ).save()

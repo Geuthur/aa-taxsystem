@@ -8,6 +8,6 @@
     <a class="nav-link {% navactive request 'taxsystem:account' %}" href="{% url 'taxsystem:account' owner_id=owner.eve_id %}">{% translate 'Account' %}</a>
 {% endif %}
 
-{% if request.resolver_match.url_name == "manage_filter" %}
+{% if request.resolver_match.url_name == "manage_filter" or request.resolver_match.url_name == "admin_history" %}
     <a class="nav-link {% navactive request 'taxsystem:manage_owner' %}" href="{% url 'taxsystem:manage_owner' owner_id=owner.eve_id %}">{% translate 'Manage Tax System' %}</a>
 {% endif %}

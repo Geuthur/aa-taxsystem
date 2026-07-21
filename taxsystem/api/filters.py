@@ -162,6 +162,7 @@ class FilterApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
+                target=AdminActions.FILTER,
                 action=AdminActions.DELETE,
                 comment=msg,
             ).save()
@@ -278,6 +279,7 @@ class FilterApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
+                target=AdminActions.FILTER_SET,
                 action=AdminActions.DELETE,
                 comment=msg,
             ).save()
@@ -333,6 +335,14 @@ class FilterApiEndpoints:
                 filter_set=filter_set,
                 enabled=filter_set.enabled,
             )
+            # Log the change in Admin History
+            owner.admin_log_model(
+                user=request.user,
+                owner=owner,
+                target=AdminActions.FILTER_SET,
+                action=AdminActions.CHANGE,
+                comment=msg,
+            ).save()
 
             # Return success response
             return 200, {"success": True, "message": msg}

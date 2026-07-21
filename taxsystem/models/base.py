@@ -165,7 +165,7 @@ class PaymentAccountBaseModel(models.Model):
     notice = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.date} - {self.status}"
+        return f"{self.name} - {self.status} - {self.deposit} ISK - Last Paid: {self.last_paid}"
 
     def get_payment_status(self) -> str:
         return self.get_status_display()
