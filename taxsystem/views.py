@@ -550,7 +550,7 @@ def admin_history(request: WSGIRequest, owner_id: int):
     owner, perms = get_manage_owner(request, owner_id)
 
     if perms is False:
-        messages.error(request, _("You do not have permission to manage this owner."))
+        messages.error(request, _("Permission Denied."))
         return redirect("taxsystem:index")
 
     context = {

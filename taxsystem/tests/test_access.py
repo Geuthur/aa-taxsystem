@@ -390,3 +390,43 @@ class TestViewAccess(TaxSystemTestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called()
+
+    def test_should_access_admin_history(self):
+        """Test that a user with 'manage_own_corp' can access admin history."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "taxsystem:admin_history",
+                args=[self.manage_audit.eve_corporation.corporation_id],
+            )
+        )
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        MessageMiddleware(Mock()).process_request(request)
+        request.user = self.manage_own_user
+        # when
+        response = views.admin_history(
+            request, owner_id=self.manage_audit.eve_corporation.corporation_id
+        )
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    @patch(INDEX_PATH + ".messages")
+    def test_should_not_show_admin_history_when_no_permission(self, mock_messages):
+        """Test that a user with 'basic_access' can not access admin history."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "taxsystem:admin_history",
+                args=[self.user_character.corporation_id],
+            )
+        )
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        MessageMiddleware(Mock()).process_request(request)
+        request.user = self.user
+        # when
+        response = views.admin_history(request, self.user_character.corporation_id)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.error.assert_called_with(request, "Permission Denied.")
