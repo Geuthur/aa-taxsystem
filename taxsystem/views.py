@@ -424,6 +424,9 @@ def manage_owner(request: WSGIRequest, owner_id: int = None):
         "manage_filter_url": reverse(
             "taxsystem:manage_filter", kwargs={"owner_id": owner_id}
         ),
+        "admin_history_url": reverse(
+            "taxsystem:admin_history", kwargs={"owner_id": owner_id}
+        ),
         "forms": {
             "accept_payment_request": (
                 forms.AcceptCorporationPaymentForm()
@@ -454,7 +457,7 @@ def manage_owner(request: WSGIRequest, owner_id: int = None):
 
 @login_required
 def manage_filter(request: WSGIRequest, owner_id: int):
-    """Manage View"""
+    """Manage Filter View"""
     owner, perms = get_manage_owner(request, owner_id)
 
     if perms is False:
@@ -539,6 +542,24 @@ def manage_filter(request: WSGIRequest, owner_id: int):
                 return redirect("taxsystem:manage_filter", owner_id=owner_id)
 
     return render(request, "taxsystem/view-filter.html", context=context)
+
+
+@login_required
+def admin_history(request: WSGIRequest, owner_id: int):
+    """Admin History View"""
+    owner, perms = get_manage_owner(request, owner_id)
+
+    if perms is False:
+        messages.error(request, _("Permission Denied."))
+        return redirect("taxsystem:index")
+
+    context = {
+        "owner": owner,
+        "title": _("Admin History"),
+        "forms": {},
+    }
+
+    return render(request, "taxsystem/view-admin-history.html", context=context)
 
 
 @login_required

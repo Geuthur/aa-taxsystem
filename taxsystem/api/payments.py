@@ -37,6 +37,7 @@ from taxsystem.models.corporation import (
 )
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
+    ActionType,
     AdminActions,
     PaymentActions,
     PaymentRequestStatus,
@@ -432,6 +433,15 @@ class PaymentsApiEndpoints:
                         comment=comment,
                     ).save()
 
+                    # Log the addition in Admin History
+                    owner.admin_log_model(
+                        user=request.user,
+                        owner=owner,
+                        target=ActionType.PAYMENT,
+                        action=AdminActions.ADD,
+                        comment=msg,
+                    ).save()
+
                 return 200, {"success": True, "message": msg}
             except IntegrityError:
                 msg = _("Transaction failed. Please try again.")
@@ -688,6 +698,7 @@ class PaymentsApiEndpoints:
                     owner.admin_log_model(
                         owner=owner,
                         user=request.user,
+                        target=ActionType.PAYMENT,
                         action=AdminActions.DELETE,
                         comment=msg,
                     ).save()
@@ -872,6 +883,7 @@ class PaymentsApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
+                target=ActionType.PAYMENT,
                 action=AdminActions.CHANGE,
                 comment=msg,
             ).save()

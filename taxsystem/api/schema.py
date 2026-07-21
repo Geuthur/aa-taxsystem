@@ -117,7 +117,8 @@ class AdminHistorySchema(Schema):
     log_id: int
     user_name: str
     date: str
-    action: str
+    target: str
+    action: DataTableSchema
     comment: str
 
 

@@ -1,5 +1,5 @@
 # Third Party
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI
 
 # Django
 from django.utils import timezone
@@ -13,6 +13,7 @@ from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.schema import (
     AdminHistorySchema,
+    DataTableSchema,
     PaymentHistorySchema,
 )
 from taxsystem.providers import AppLogger
@@ -20,21 +21,13 @@ from taxsystem.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class AdminLogResponse(Schema):
-    owner: list[AdminHistorySchema]
-
-
-class PaymentsLogResponse(Schema):
-    owner: list[AdminHistorySchema]
-
-
 class LogsApiEndpoints:
     tags = ["Logs"]
 
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "owner/admin/{owner_id}/view/logs/",
-            response={200: PaymentsLogResponse, 403: dict, 404: dict},
+            "owner/{owner_id}/view/payment-history/",
+            response={200: list[PaymentHistorySchema], 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_payments_history(request, owner_id: int):
@@ -45,7 +38,7 @@ class LogsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose payments logs are to be retrieved.
             Returns:
-                PaymentsLogResponse: A response object containing the list of payments logs.
+                list[PaymentHistorySchema]: A response object containing the list of payments logs.
             """
             # pylint: disable=duplicate-code
             owner, perms = core.get_manage_owner(request, owner_id)
@@ -69,19 +62,18 @@ class LogsApiEndpoints:
                     log_id=log.pk,
                     user_name=log.user.username,
                     date=timezone.localtime(log.date).strftime("%Y-%m-%d %H:%M"),
-                    action=log.action,
+                    action=log.get_action_display(),
                     comment=log.comment,
                 )
                 response_admin_logs_list.append(response_log)
-
-            return PaymentsLogResponse(owner=response_admin_logs_list)
+            return response_admin_logs_list
 
         @api.get(
-            "owner/admin/{owner_id}/view/logs/",
-            response={200: AdminLogResponse, 403: dict, 404: dict},
+            "owner/{owner_id}/view/admin-history/",
+            response={200: list[AdminHistorySchema], 403: dict, 404: dict},
             tags=self.tags,
         )
-        def get_owner_admin_logs(request, owner_id: int):
+        def get_admin_history(request, owner_id: int):
             """
             This Endpoint retrieves the admin logs associated with a specific owner.
 
@@ -89,7 +81,7 @@ class LogsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose admin logs are to be retrieved.
             Returns:
-                AdminLogResponse: A response object containing the list of admin logs.
+                list[AdminHistorySchema]: A response object containing the list of admin logs.
             """
             # pylint: disable=duplicate-code
             owner, perms = core.get_manage_owner(request, owner_id)
@@ -113,9 +105,13 @@ class LogsApiEndpoints:
                     log_id=log.pk,
                     user_name=log.user.username,
                     date=timezone.localtime(log.date).strftime("%Y-%m-%d %H:%M"),
-                    action=log.action,
+                    target=log.get_target_display(),
+                    action=DataTableSchema(
+                        raw=log.action,
+                        display=log.get_action_display(),
+                        sort=log.get_action_display(),
+                    ),
                     comment=log.comment,
                 )
                 response_admin_logs_list.append(response_log)
-
-            return AdminLogResponse(owner=response_admin_logs_list)
+            return response_admin_logs_list

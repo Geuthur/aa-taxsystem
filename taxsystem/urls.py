@@ -51,6 +51,11 @@ urlpatterns = [
         views.manage_filter,
         name="manage_filter",
     ),
+    path(
+        "owner/<int:owner_id>/view/admin-history/",
+        views.admin_history,
+        name="admin_history",
+    ),
     # -- API System
     re_path(r"^api/", api.urls),
 ]

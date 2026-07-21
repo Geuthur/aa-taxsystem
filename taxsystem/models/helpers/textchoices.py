@@ -152,6 +152,16 @@ class PaymentActions(models.TextChoices):
     REVISER_COMMENT = "Reviser Comment", _("Reviser Comment")
 
 
+class ActionType(models.TextChoices):
+    DEFAULT = "", ""
+    TAX_ACCOUNT = "account", _("Tax Account")
+    CORPORATION = "corporation", _("Corporation")
+    FILTER = "filter", _("Filter")
+    FILTER_SET = "filter_set", _("Filter Set")
+    PAYMENT = "payment", _("Payment")
+    SETTINGS = "settings", _("Settings")
+
+
 class PaymentStatus(models.TextChoices):
     """Status for Payments.
     This indicates whether a payment has been made or not.

@@ -38,6 +38,10 @@
         background-color: rgb(255 238 0 / 10%) !important;
     }
 
+    .tax-blue {
+        background-color: rgb(0 0 255 / 10%) !important;
+    }
+
     .tax-red {
         background-color: rgb(255 0 0 / 10%) !important;
     }

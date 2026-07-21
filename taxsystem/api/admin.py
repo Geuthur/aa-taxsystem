@@ -37,7 +37,7 @@ from taxsystem.models.corporation import (
     CorporationOwner,
     CorporationWalletJournalEntry,
 )
-from taxsystem.models.helpers.textchoices import AccountStatus, AdminActions
+from taxsystem.models.helpers.textchoices import AccountStatus, ActionType, AdminActions
 from taxsystem.models.wallet import CorporationWalletDivision
 from taxsystem.providers import AppLogger
 
@@ -238,7 +238,7 @@ class AdminApiEndpoints:
             # Create log message
             msg = format_lazy(
                 _("{account} switched to {status}"),
-                account=account,
+                account=account.name,
                 status=account.status,
             )
 
@@ -246,7 +246,8 @@ class AdminApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
-                action=AdminActions.DELETE,
+                target=ActionType.TAX_ACCOUNT,
+                action=AdminActions.CHANGE,
                 comment=msg,
             ).save()
 
@@ -306,6 +307,7 @@ class AdminApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
+                target=ActionType.SETTINGS,
                 action=AdminActions.CHANGE,
                 comment=msg,
             ).save()
@@ -366,6 +368,7 @@ class AdminApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
+                target=ActionType.SETTINGS,
                 action=AdminActions.CHANGE,
                 comment=msg,
             ).save()
@@ -438,6 +441,7 @@ class AdminApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
+                target=ActionType.TAX_ACCOUNT,
                 action=AdminActions.CHANGE,
                 comment=msg,
             ).save()

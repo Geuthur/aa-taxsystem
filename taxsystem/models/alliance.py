@@ -29,6 +29,7 @@ from taxsystem.models.base import (
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.general import UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
+    ActionType,
     AdminActions,
     AllianceUpdateSection,
     PaymentRequestStatus,
@@ -375,6 +376,14 @@ class AllianceAdminHistory(HistoryBaseModel):
         help_text=_("Owner that the action was performed on"),
         on_delete=models.CASCADE,
         related_name="ts_alliance_admin_history",
+    )
+
+    target = models.CharField(
+        max_length=20,
+        choices=ActionType.choices,
+        default=ActionType.DEFAULT,
+        verbose_name=_("Type"),
+        help_text=_("Type of the action"),
     )
 
     action = models.CharField(

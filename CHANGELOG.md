@@ -14,10 +14,13 @@ Section Order:
 ### Added
 
 - `Pook` package that provides a more efficient approach to handling ESI calls at the http level.
+- Admin History - You can access the Admin History View through `Manage Tax System`
+- ActionType for History Logs
 
 ### Fixed
 
 - related name issues in Alliance/Corporation Admin Logs
+- Wrong State in Switch Account
 
 ### Changed
 
@@ -26,6 +29,7 @@ Section Order:
 ### Removed
 
 - ESI Test Stub
+- DataTable v2 (use AAv5 DT2)
 
 ## [4.0.1] - 2026-07-14
 

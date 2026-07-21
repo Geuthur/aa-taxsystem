@@ -1,10 +1,10 @@
 {% extends 'taxsystem/base.html' %}
 {% load i18n %}
-{% load humanize %}
-{% load static %}
+{% load django_bootstrap5 %}
+
 
 {% block page_title %}
-    {{ title }} ⋗ {% translate "Tax System" %}
+    {{ title }}
 {% endblock %}
 
 {% block page_topic %}
@@ -14,14 +14,14 @@
 {% endblock page_topic %}
 
 {% block taxsystem_block %}
-<div class="card">
-    <div class="card-header bg-primary rounded-top d-flex align-items-center">
-        <h3 class="me-3">{% translate "Frequently Asked Questions" %}</h3>
+    <div class="card">
+        <div class="card-header bg-primary rounded-top d-flex align-items-center">
+            <h3 class="me-3">{% translate "Admin History" %}</h3>
+        </div>
+        <div class="card-body">
+            {% include 'taxsystem/partials/view-manage/admin-history.html' %}
+        </div>
     </div>
-    <div class="card-body">
-        {% include 'taxsystem/partials/view-faq/faq.html' %}
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -31,9 +31,21 @@
 {% endblock %}
 
 {% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for aaTaxSystem
+         */
+        const aaTaxSystemSettingsOverride = {
+            url: {
+                AdminHistory: '{% url "taxsystem:api:get_admin_history" owner_id=owner.eve_id %}',
+            },
+        };
+    </script>
+    <!-- load modals -->
     {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
     {% include 'bundles/datatables-2-js-bs5.html' %}
     {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
+    {% include 'taxsystem/bundles/view-admin-history-js.html' %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}

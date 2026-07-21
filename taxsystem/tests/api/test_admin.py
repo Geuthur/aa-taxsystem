@@ -142,7 +142,7 @@ class TestAdminApiEndpoints(TaxSystemTestCase):
         # Expected Result
         tax_account = CorporationPaymentAccount.objects.get(pk=self.tax_account.pk)
         result = "{account} switched to {status}".format(
-            account=tax_account, status=tax_account.status
+            account=tax_account.name, status=tax_account.status
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json().get("message"), result)
