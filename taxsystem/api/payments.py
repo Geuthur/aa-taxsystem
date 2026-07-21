@@ -437,7 +437,7 @@ class PaymentsApiEndpoints:
                     owner.admin_log_model(
                         user=request.user,
                         owner=owner,
-                        target=AdminActions.PAYMENT,
+                        target=ActionType.PAYMENT,
                         action=AdminActions.ADD,
                         comment=msg,
                     ).save()

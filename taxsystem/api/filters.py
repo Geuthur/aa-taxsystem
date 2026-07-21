@@ -30,6 +30,7 @@ from taxsystem.models.corporation import (
     CorporationOwner,
 )
 from taxsystem.models.helpers.textchoices import (
+    ActionType,
     AdminActions,
 )
 from taxsystem.providers import AppLogger
@@ -162,7 +163,7 @@ class FilterApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
-                target=AdminActions.FILTER,
+                target=ActionType.FILTER,
                 action=AdminActions.DELETE,
                 comment=msg,
             ).save()
@@ -279,7 +280,7 @@ class FilterApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
-                target=AdminActions.FILTER_SET,
+                target=ActionType.FILTER_SET,
                 action=AdminActions.DELETE,
                 comment=msg,
             ).save()
@@ -339,7 +340,7 @@ class FilterApiEndpoints:
             owner.admin_log_model(
                 user=request.user,
                 owner=owner,
-                target=AdminActions.FILTER_SET,
+                target=ActionType.FILTER_SET,
                 action=AdminActions.CHANGE,
                 comment=msg,
             ).save()
