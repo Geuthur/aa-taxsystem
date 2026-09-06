@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [4.0.2] - 2026-09-06
+
 ### Added
 
 - Tax Free Group Managment - You can access the Admin History View through `Manage Tax System`
@@ -931,5 +933,6 @@ python manage.py taxsystem_migrate_payments
 [3.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.3...v3.0.4 "3.0.4"
 [4.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.4...v4.0.0 "4.0.0"
 [4.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.0...v4.0.1 "4.0.1"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.1...HEAD "In Development"
+[4.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.1...v4.0.2 "4.0.2"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
