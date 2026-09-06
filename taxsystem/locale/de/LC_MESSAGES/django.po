@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
 "POT-Creation-Date: 2026-07-14 15:25+0200\n"
-"PO-Revision-Date: 2026-09-02 13:13+0000\n"
+"PO-Revision-Date: 2026-09-06 11:26+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
@@ -580,7 +580,7 @@ msgid "Tax Paid"
 msgstr "Steuer Gezahlt"
 
 msgid "Accept Add Payment"
-msgstr "Akzeptiere Zahlung hinzufügen"
+msgstr "Akzeptiere – Zahlung hinzufügen"
 
 msgid "Close"
 msgstr "Schließen"
@@ -596,55 +596,55 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 msgid "Accept Approve Payment"
-msgstr "Akzeptiere Zahlungsanfrage"
+msgstr "Akzeptiere – Zahlungsanfrage"
 
 msgid "Are you sure you want to approve this payment?"
 msgstr "Sind Sie sicher, dass Sie diese Zahlung genehmigen möchten?"
 
 msgid "Accept Bulk Action"
-msgstr "Akzeptiere Massen Aktion"
+msgstr "Akzeptiere – Massen Aktion"
 
 msgid "Are you sure you want to perform this bulk action?"
 msgstr "Sind Sie sicher, dass Sie diese Massenaktion durchführen möchten?"
 
 msgid "Accept Delete Filter-Set"
-msgstr "Akzeptiere Filtersatz Löschen"
+msgstr "Akzeptiere – Filtersatz Löschen"
 
 msgid "Are you sure you want to delete this filter set?"
 msgstr "Möchten Sie diesen Filtersatz wirklich löschen?"
 
 msgid "Accept Delete Filter"
-msgstr "Akzeptiere Filter Löschen"
+msgstr "Akzeptiere – Filter Löschen"
 
 msgid "Are you sure you want to delete this filter?"
 msgstr "Möchten Sie diesen Filter wirklich löschen?"
 
 msgid "Accept Delete Member"
-msgstr "Akzeptiere Mitglied löschen"
+msgstr "Akzeptiere – Mitglied löschen"
 
 msgid "Are you sure you want to delete this member?"
 msgstr "Sind Sie sicher, dass Sie dieses Mitglied löschen möchten?"
 
 msgid "Accept Delete Payment"
-msgstr "Akzeptiere Zahlung löschen"
+msgstr "Akzeptiere – Zahlung löschen"
 
 msgid "Are you sure you want to delete this payment?"
 msgstr "Möchten Sie diese Zahlung wirklich löschen?"
 
 msgid "Accept Reject Payment"
-msgstr "Akzeptiere Zahlung ablehnen"
+msgstr "Akzeptiere – Zahlung ablehnen"
 
 msgid "Are you sure you want to reject this payment?"
 msgstr "Sind Sie sicher, dass Sie diese Zahlung ablehnen möchten?"
 
 msgid "Accept Switch Account"
-msgstr "Akzeptiere Umschalten Account"
+msgstr "Akzeptiere – Umschalten Account"
 
 msgid "Are you sure you want to switch this account?"
 msgstr "Möchten Sie dieses Konto wirklich wechseln?"
 
 msgid "Accept Undo Payment"
-msgstr "Akzeptiere Zahlung zurücksetzen"
+msgstr "Akzeptiere – Zahlung zurücksetzen"
 
 msgid "Are you sure you want to undo this payment?"
 msgstr "Möchten Sie diese Zahlung wirklich rückgängig machen?"
