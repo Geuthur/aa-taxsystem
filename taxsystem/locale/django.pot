@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System 4.0.1\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-09-06 13:40+0200\n"
+"POT-Creation-Date: 2026-09-06 13:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1288,10 +1288,13 @@ msgid "Admin History:"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:54
-#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:55
 #: taxsystem/templates/taxsystem/view-admin-history.html:19
 #: taxsystem/views.py:590
 msgid "Admin History"
+msgstr ""
+
+#: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:55
+msgid "View Admin History"
 msgstr ""
 
 #: taxsystem/templates/taxsystem/partials/view-manage/dashboard.html:68
