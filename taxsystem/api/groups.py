@@ -90,9 +90,11 @@ class GroupsApiEndpoints:
             """
             owner, perms = core.get_manage_owner(request, owner_id)
 
+            # pylint: disable=duplicate-code
             if owner is None:
                 return 404, {"error": _("Owner not Found.")}
 
+            # pylint: disable=duplicate-code
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
