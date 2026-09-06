@@ -136,13 +136,6 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
             request_status=PaymentRequestStatus.PENDING,
         )
 
-        print(
-            f"Payment created: {payment}, Amount: {payment.amount}, Owner: {payment.owner}, Date: {payment.date}, Status: {payment.request_status}"
-        )
-        print(
-            f"User: {self.user}, Character: {self.user_character}({self.user_character.character_id}), Corporation ID: {corporation_id}"
-        )
-
         url = reverse(
             f"{API_URL}:get_member_payments",
             kwargs={

@@ -137,3 +137,14 @@ class FilterModelSchema(Schema):
     match_type: str
     value: str | DataTableSchema
     actions: str | None = None
+
+
+class GroupSchema(Schema):
+    id: int
+    name: str
+
+
+class GroupManagementSchema(Schema):
+    name: str
+    groups: list[GroupSchema] | None = None
+    actions: str | None = None

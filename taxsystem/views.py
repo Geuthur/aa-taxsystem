@@ -424,6 +424,9 @@ def manage_owner(request: WSGIRequest, owner_id: int = None):
         "manage_filter_url": reverse(
             "taxsystem:manage_filter", kwargs={"owner_id": owner_id}
         ),
+        "manage_groups_url": reverse(
+            "taxsystem:manage_groups", kwargs={"owner_id": owner_id}
+        ),
         "admin_history_url": reverse(
             "taxsystem:admin_history", kwargs={"owner_id": owner_id}
         ),
@@ -542,6 +545,35 @@ def manage_filter(request: WSGIRequest, owner_id: int):
                 return redirect("taxsystem:manage_filter", owner_id=owner_id)
 
     return render(request, "taxsystem/view-filter.html", context=context)
+
+
+@login_required
+def manage_groups(request: WSGIRequest, owner_id: int):
+    """Manage Groups View"""
+    owner, perms = get_manage_owner(request, owner_id)
+
+    if perms is False:
+        messages.error(request, _("You do not have permission to manage this owner."))
+        return redirect("taxsystem:index")
+
+    form = forms.GroupsForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        corporation_group = form.save(commit=False)
+        corporation_group.owner = owner
+        corporation_group.save()
+        form.save_m2m()
+        messages.success(request, _("Tax free group added."))
+        return redirect("taxsystem:manage_groups", owner_id=owner_id)
+
+    context = {
+        "owner": owner,
+        "title": _("Manage Groups"),
+        "forms": {
+            "groups": form,
+            "delete_group": forms.DeleteGroupForm(),
+        },
+    }
+    return render(request, "taxsystem/view-groups.html", context=context)
 
 
 @login_required

@@ -34,7 +34,7 @@ from taxsystem import (
 )
 from taxsystem.errors import DownTimeError
 
-spec_file = Path(__file__).parent / "openapi_2026-06-09.json"
+spec_file = Path(__file__).parent / f"openapi_{__esi_compatibility_date__}.json"
 esi = ESIClientProvider(
     compatibility_date=__esi_compatibility_date__,
     ua_appname=__app_name_useragent__,

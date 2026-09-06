@@ -345,9 +345,16 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
 
         items = []
         for account in tax_accounts:
+            # Skip accounts that belong to any tax-free group
+            if account.is_tax_free:
+                continue
+
+            # Check if the account is due for a payment
             if account.last_paid is None:
                 # First Period is free
                 account.last_paid = timezone.now()
+
+            # If this is the first period, set the last_paid to now without deducting tax
             if timezone.now() - account.last_paid >= timezone.timedelta(
                 days=owner.tax_period
             ):

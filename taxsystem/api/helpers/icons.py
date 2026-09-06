@@ -17,6 +17,7 @@ from taxsystem.models.alliance import (
 from taxsystem.models.corporation import (
     CorporationFilter,
     CorporationFilterSet,
+    CorporationGroup,
     CorporationPaymentAccount,
     CorporationPayments,
     Members,
@@ -814,3 +815,43 @@ def get_members_delete_button(member: Members) -> str:
         f'title="{title}">{icon}</button>'
     )
     return members_delete_button
+
+
+def get_groups_delete_button(group: CorporationGroup) -> str:
+    """
+    Generate a Delete Group button for the Tax System Manage view.
+
+    This function creates a HTML Delete Group button for deleting groups in the Tax System Manage view.
+    When clicked, it triggers a modal to confirm the deletion of the according group.
+
+    Args:
+        group (CorporationGroup): The group object to be viewed.
+    Returns:
+        String: HTML string containing the delete group button.
+    """
+
+    # Generate the URL for the info member Request
+    button_request_delete_url = reverse(
+        "taxsystem:api:delete_group",
+        kwargs={
+            "owner_id": group.owner.eve_id,
+            "group_pk": group.pk,
+        },
+    )
+
+    # Define the icon, color and tooltip for the delete button
+    color = "danger"
+    icon = '<i class="fa-solid fa-trash"></i>'
+    title = _("Delete Group")
+
+    # Create the HTML for the delete group icon button
+    groups_delete_button = (
+        "<button "
+        f'data-action="{button_request_delete_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-toggle="modal" '
+        'data-bs-tooltip="aa-taxsystem" '
+        'data-bs-target="#taxsystem-accept-delete-group" '
+        f'title="{title}">{icon}</button>'
+    )
+    return groups_delete_button

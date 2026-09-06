@@ -430,3 +430,46 @@ class TestViewAccess(TaxSystemTestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         mock_messages.error.assert_called_with(request, "Permission Denied.")
+
+    @patch(INDEX_PATH + ".messages")
+    def test_manage_groups_should_return_200(self, mock_messages):
+        """Test that a user with 'manage_own_corp' can access manage groups."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "taxsystem:manage_groups",
+                args=[self.manage_audit.eve_id],
+            )
+        )
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        MessageMiddleware(Mock()).process_request(request)
+        request.user = self.manage_own_user
+        # when
+        response = views.manage_groups(request, owner_id=self.manage_audit.eve_id)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    @patch(INDEX_PATH + ".messages")
+    def test_manage_groups_should_not_return_200_when_no_permission(
+        self, mock_messages
+    ):
+        """Test that a user with 'basic_access' can not access manage groups."""
+        # given
+        request = self.factory.get(
+            reverse(
+                "taxsystem:manage_groups",
+                args=[self.user_character.corporation_id],
+            )
+        )
+        middleware = SessionMiddleware(Mock())
+        middleware.process_request(request)
+        MessageMiddleware(Mock()).process_request(request)
+        request.user = self.user
+        # when
+        response = views.manage_groups(request, self.user_character.corporation_id)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        mock_messages.error.assert_called_with(
+            request, "You do not have permission to manage this owner."
+        )

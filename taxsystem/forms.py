@@ -5,6 +5,9 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
+from allianceauth.groupmanagement.models import Group
+
 # AA TaxSystem
 from taxsystem.models.alliance import (
     AllianceAdminHistory,
@@ -13,6 +16,7 @@ from taxsystem.models.alliance import (
 from taxsystem.models.corporation import (
     CorporationAdminHistory,
     CorporationFilter,
+    CorporationGroup,
     CorporationPaymentHistory,
 )
 from taxsystem.models.helpers.textchoices import FilterMatchType
@@ -371,3 +375,43 @@ class CreateFilterSetForm(forms.Form):
             attrs={"placeholder": _("Enter filter set description"), "rows": 3}
         ),
     )
+
+
+class GroupsForm(forms.ModelForm):
+    groups = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.order_by("name"),
+        label=_("Groups"),
+        widget=forms.CheckboxSelectMultiple(),
+    )
+
+    class Meta:
+        model = CorporationGroup
+        fields = ["name", "groups"]
+        labels = {
+            "name": get_mandatory_form_label_text(text=_("Group Name")),
+        }
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": _("Enter group name")}),
+        }
+
+
+class DeleteGroupForm(forms.ModelForm):
+    """Form for deleting Group."""
+
+    class Meta:
+        model = CorporationAdminHistory
+        fields = ["comment"]
+        help_texts = {
+            "comment": _("Reason for deleting the group"),
+        }
+        labels = {
+            "comment": get_mandatory_form_label_text(text=_("Delete Reason")),
+        }
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 5,
+                    "required": "required",
+                }
+            ),
+        }

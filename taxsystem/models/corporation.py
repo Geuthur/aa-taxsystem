@@ -1,5 +1,8 @@
 """Models for Tax System."""
 
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -10,6 +13,7 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
+from allianceauth.groupmanagement.models import AuthGroup, Group
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
@@ -74,6 +78,12 @@ class CorporationUpdateStatus(UpdateStatusBaseModel):
 
 class CorporationOwner(models.Model):
     """Model representing a corporation owner in the tax system."""
+
+    if TYPE_CHECKING:
+        ts_corporation_groups: models.QuerySet["CorporationGroup"]
+        ts_corporation_update_status: models.QuerySet["CorporationUpdateStatus"]
+        ts_corporation_payments: PaymentsManager
+        ts_corporation_admin_history: models.QuerySet["CorporationAdminHistory"]
 
     class Meta:
         default_permissions = ()
@@ -377,6 +387,23 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
         related_name="ts_corporation_tax_accounts",
     )
 
+    @property
+    def group_ids(self) -> list[int]:
+        """Return a list of group IDs the account belongs to."""
+        return (
+            AuthGroup.objects.filter(group__user=self.user)
+            .values_list("pk", flat=True)
+            .distinct()
+        )
+
+    @property
+    def is_tax_free(self) -> bool:
+        """Return True if the account belongs to any tax-free group."""
+        tax_free = self.owner.ts_corporation_groups.values_list(
+            "groups__pk", flat=True
+        ).distinct()
+        return any(group_id in tax_free for group_id in self.group_ids)
+
 
 class CorporationPayments(PaymentsBaseModel):
     """Model representing payments made by corporation members in the tax system."""
@@ -533,3 +560,34 @@ class CorporationAdminHistory(HistoryBaseModel):
         verbose_name=_("Action"),
         help_text=_("Action performed"),
     )
+
+
+class CorporationGroup(models.Model):
+    """Model representing a group of corporations in the tax system."""
+
+    class Meta:
+        default_permissions = ()
+
+    owner = models.ForeignKey(
+        CorporationOwner,
+        on_delete=models.CASCADE,
+        related_name="ts_corporation_groups",
+        verbose_name=_("Owner"),
+        help_text=_("Owner of the corporation group"),
+    )
+
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("Group Name"),
+        help_text=_("Name of the corporation group"),
+    )
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name="ts_corporation_aa_groups",
+        verbose_name=_("Groups"),
+        help_text=_("Groups that will not be taxed"),
+    )
+
+    def __str__(self) -> str:
+        return f"Corporation Group: {self.name}"

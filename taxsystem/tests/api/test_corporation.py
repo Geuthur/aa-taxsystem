@@ -127,7 +127,6 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         response = self.client.post(
             path=url, body=json.dumps(data), content_type="application/json"
         )
-        print(json.loads(response.content))
 
         # Expected Result
         result = "Member {member} deleted - {reason}".format(

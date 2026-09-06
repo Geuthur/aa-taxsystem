@@ -111,10 +111,10 @@ class TestCorporationManager(TaxSystemTestCase):
             date=timezone.datetime(2025, 1, 1, 14, 0, 0),
             request_status=PaymentRequestStatus.PENDING,
         )
-        print("before: %s", self.audit.ts_corporation_payments)
+
         # Test Action
         self.audit.update_tax_accounts(force_refresh=False)
-        print("after: %s", self.audit.ts_corporation_payments)
+
         # Expected Results
         self.assertSetEqual(
             set(
