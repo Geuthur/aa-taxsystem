@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-09-06 13:33+0200\n"
+"POT-Creation-Date: 2026-09-06 13:47+0200\n"
 "PO-Revision-Date: 2026-01-10 15:39+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: French <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -835,6 +835,9 @@ msgid "Admin History:"
 msgstr ""
 
 msgid "Admin History"
+msgstr ""
+
+msgid "View Admin History"
 msgstr ""
 
 msgid "Update Information"
