@@ -722,3 +722,11 @@ class CorporationGroupFactory(
 
     owner = factory.SubFactory(CorporationOwnerFactory)
     name = factory.Faker("company")
+
+    @factory.post_generation
+    def groups(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for group in extracted:
+                obj.groups.add(group)

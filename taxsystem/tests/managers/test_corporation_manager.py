@@ -8,6 +8,9 @@ import pook
 # Django
 from django.utils import timezone
 
+# Alliance Auth
+from allianceauth.groupmanagement.models import AuthGroup, Group
+
 # AA TaxSystem
 from taxsystem.models.corporation import (
     CorporationFilter,
@@ -20,6 +23,7 @@ from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationFilterFactory,
     CorporationFilterSetFactory,
+    CorporationGroupFactory,
     CorporationJournalFactory,
     CorporationOwnerFactory,
     CorporationPaymentsFactory,
@@ -252,16 +256,30 @@ class TestCorporationManager(TaxSystemTestCase):
             deposit=1000,
             last_paid=(timezone.now() - timezone.timedelta(days=60)),
         )
-        new_user = UserMainFactory()
 
+        new_user = UserMainFactory()
         # 1 Month is free for new users
         tax_account_2 = CorporationTaxAccountFactory(
             name=new_user.profile.main_character.character_name,
             owner=self.audit,
             user=new_user,
             status=AccountStatus.ACTIVE,
-            deposit=0,
+            deposit=1000,
             last_paid=None,
+        )
+
+        tax_free_user = UserMainFactory()
+        # Tax Free Account
+        test_group = Group.objects.create(name="Test Group")
+        test_group.user_set.add(tax_free_user)
+        CorporationGroupFactory(owner=self.audit, groups=[test_group])
+        tax_account_3 = CorporationTaxAccountFactory(
+            name=tax_free_user.profile.main_character.character_name,
+            owner=self.audit,
+            user=tax_free_user,
+            status=AccountStatus.ACTIVE,
+            deposit=1000,
+            last_paid=(timezone.now() - timezone.timedelta(days=60)),
         )
 
         # Test Action
@@ -271,7 +289,9 @@ class TestCorporationManager(TaxSystemTestCase):
         tax_account = CorporationPaymentAccount.objects.get(user=self.user)
         self.assertEqual(tax_account.deposit, 0)
         tax_account_2 = CorporationPaymentAccount.objects.get(user=new_user)
-        self.assertEqual(tax_account_2.deposit, 0)
+        self.assertEqual(tax_account_2.deposit, 1000)
+        tax_account_3 = CorporationPaymentAccount.objects.get(name=tax_account_3.name)
+        self.assertEqual(tax_account_3.deposit, 1000)
 
     @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
     @patch(MODULE_PATH + ".logger")
