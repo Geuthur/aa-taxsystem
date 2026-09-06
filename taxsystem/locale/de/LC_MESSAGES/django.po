@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-07-14 15:25+0200\n"
-"PO-Revision-Date: 2026-09-06 11:26+0000\n"
+"POT-Creation-Date: 2026-09-06 13:33+0200\n"
+"PO-Revision-Date: 2026-09-06 11:39+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
@@ -104,6 +104,13 @@ msgstr "{filter_set} gelöscht – Grund: {reason}"
 msgid "{filter_set} switched to {enabled}"
 msgstr "{filter_set} wurde auf {enabled} umgestellt"
 
+#, python-brace-format
+msgid "{group_obj} deleted - Reason: {reason}"
+msgstr "{group_obj} gelöscht – Grund: {reason}"
+
+msgid "Group not Found."
+msgstr "Gruppe nicht gefunden."
+
 msgid "View Filter Set"
 msgstr "Filter anzeigen"
 
@@ -154,6 +161,9 @@ msgstr "Zahlung ablehnen"
 
 msgid "Delete Member"
 msgstr "Lösche Mitglied"
+
+msgid "Delete Group"
+msgstr "Gruppe löschen"
 
 msgid "System"
 msgstr "System"
@@ -280,6 +290,18 @@ msgstr "Filtersatz Beschreibung"
 msgid "Enter filter set description"
 msgstr "Filtersatz Beschreibung eingeben"
 
+msgid "Groups"
+msgstr "Gruppen"
+
+msgid "Group Name"
+msgstr "Gruppenname"
+
+msgid "Enter group name"
+msgstr "Gruppennamen eingeben"
+
+msgid "Reason for deleting the group"
+msgstr "Grund für die Löschung der Gruppe"
+
 msgid "Master Wallet"
 msgstr "Haupt Konto"
 
@@ -326,6 +348,12 @@ msgstr "Inhaber"
 
 msgid "Owner that the action was performed on"
 msgstr "Inhaber, an dem die Aktion durchgeführt wurde"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Type of the action"
+msgstr "Art der Aktion"
 
 msgid "Action"
 msgstr "Aktion"
@@ -395,6 +423,15 @@ msgstr "ist alt"
 
 msgid "Status"
 msgstr "Status"
+
+msgid "Owner of the corporation group"
+msgstr "Eigentümer der Corporationsgruppe"
+
+msgid "Name of the corporation group"
+msgstr "Name der Corporationsgruppe"
+
+msgid "Groups that will not be taxed"
+msgstr "Gruppen, die nicht besteuert werden"
 
 msgid "Can access the Tax System"
 msgstr "Kann auf das Steuersystem zugreifen"
@@ -476,6 +513,21 @@ msgstr "Benutzerdefinierte Zahlung hinzugefügt"
 
 msgid "Reviser Comment"
 msgstr "Prüfer Kommentar"
+
+msgid "Tax Account"
+msgstr "Steuer Account"
+
+msgid "Corporation"
+msgstr "Corporation"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Group"
+msgstr "Gruppe"
 
 msgid "Paid"
 msgstr "Gezahlt"
@@ -619,6 +671,12 @@ msgstr "Akzeptiere – Filter Löschen"
 msgid "Are you sure you want to delete this filter?"
 msgstr "Möchten Sie diesen Filter wirklich löschen?"
 
+msgid "Accept Delete Group"
+msgstr "Akzeptieren – Gruppe löschen"
+
+msgid "Are you sure you want to delete this group?"
+msgstr "Möchten Sie diese Gruppe wirklich löschen?"
+
 msgid "Accept Delete Member"
 msgstr "Akzeptiere – Mitglied löschen"
 
@@ -749,6 +807,12 @@ msgstr "Charakter Name"
 msgid "Deposit"
 msgstr "Einlage"
 
+msgid "ID"
+msgstr "ID"
+
+msgid "Target"
+msgstr "Ziel"
+
 msgid "selected"
 msgstr "ausgewählt"
 
@@ -784,6 +848,18 @@ msgstr "Automatische Zahlungen Filter"
 
 msgid "Manage Filters"
 msgstr "Filter verwalten"
+
+msgid "Tax Free Groups:"
+msgstr "Steuerbefreite Gruppen:"
+
+msgid "Manage Groups"
+msgstr "Gruppen verwalten"
+
+msgid "Admin History:"
+msgstr "Verlauf der Administratoraktionen:"
+
+msgid "Admin History"
+msgstr "Verlauf der Administratorrechte"
 
 msgid "Update Information"
 msgstr "Aktualisierungsinformationen"
@@ -863,9 +939,6 @@ msgstr "Nach Mitgliedsstatus filtern"
 msgid "Payment Information"
 msgstr "Zahlungsinformation"
 
-msgid "Tax Account"
-msgstr "Steuer Account"
-
 msgid "Payment History"
 msgstr "Zahlungsverlauf"
 
@@ -880,9 +953,6 @@ msgstr "Ausgewählte Zahlungen genehmigen"
 
 msgid "Reject selected Payments"
 msgstr "Ausgewählte Zahlungen ablehnen"
-
-msgid "Type"
-msgstr "Typ"
 
 msgid "Open Invoices"
 msgstr "Offene Rechnungen"
@@ -914,8 +984,14 @@ msgstr "Filter hinzufügen"
 msgid "Add Filter Set"
 msgstr "Filtersatz Hinzufügen"
 
-msgid "Edit Filter Set"
-msgstr "Filtersatz bearbeiten"
+msgid "Tax Free Groups"
+msgstr "Steuerbefreite Gruppen"
+
+msgid "Group Setup"
+msgstr "Gruppen Konfiguration"
+
+msgid "Add Group"
+msgstr "Gruppe hinzufügen"
 
 msgid "Enter tax amount"
 msgstr "Steuerbetrag eingeben"
@@ -964,9 +1040,6 @@ msgstr "In der Warteschlange: Alle Allianzen des Steuersystems aktualisieren"
 msgid "Tax System Superuser Administration"
 msgstr "Steuersystem-Superuser-Verwaltung"
 
-msgid "Corporation"
-msgstr "Corporation"
-
 msgid "Alliance"
 msgstr "Allianz"
 
@@ -995,6 +1068,9 @@ msgstr "Es ist ein Fehler aufgetreten, bitte versuchen Sie es später erneut."
 msgid "A filter set with this name already exists."
 msgstr "Ein Filtersatz mit diesem Namen existiert bereits."
 
+msgid "Tax free group added."
+msgstr "Steuerfreie Gruppe hinzugefügt."
+
 msgid "Added to Tax System"
 msgstr "Zum Steuersystem hinzugefügt"
 
@@ -1010,6 +1086,9 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+
+#~ msgid "Edit Filter Set"
+#~ msgstr "Filtersatz bearbeiten"
 
 #~ msgid "Accept Payment request"
 #~ msgstr "Zahlunganfrage akzeptieren"
