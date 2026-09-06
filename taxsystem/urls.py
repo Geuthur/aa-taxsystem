@@ -52,6 +52,11 @@ urlpatterns = [
         name="manage_filter",
     ),
     path(
+        "owner/<int:owner_id>/view/groups/",
+        views.manage_groups,
+        name="manage_groups",
+    ),
+    path(
         "owner/<int:owner_id>/view/admin-history/",
         views.admin_history,
         name="admin_history",

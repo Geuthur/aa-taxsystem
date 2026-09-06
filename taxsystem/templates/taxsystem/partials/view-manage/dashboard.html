@@ -14,36 +14,44 @@
                         <tr>
                             <td>{% trans "Tax Amount:" %}</td>
                             <td class="text-end">
-                               <i class="fa-solid fa-circle-question fa-fw" data-bs-tooltip="aa-taxsystem" title="{% trans 'Click on the value to edit' %}"></i>
+                               <i class="fa-solid fa-circle-question fa-fw" data-bs-tooltip="aa-taxsystem" title="{% translate 'Click on the value to edit' %}"></i>
                                <span href="#" id="taxamount" data-url=""></span>
                             </td>
                         </tr>
                         <tr>
                             <td>{% trans "Tax Period:" %}</td>
                             <td class="text-end">
-                                <i class="fa-solid fa-circle-question fa-fw" data-bs-tooltip="aa-taxsystem" title="{% trans 'Click on the value to edit' %}"></i>
+                                <i class="fa-solid fa-circle-question fa-fw" data-bs-tooltip="aa-taxsystem" title="{% translate 'Click on the value to edit' %}"></i>
                                 <span href="#" id="period" data-url=""></span>
                             </td>
                         </tr>
                         <tr>
                             <td>{% trans "Wallet Activity:" %}</td>
                             <td class="text-end">
-                                <i class="fa-solid fa-circle-question fa-fw" data-bs-tooltip="aa-taxsystem" title="{% trans 'Last 30 days' %}"></i>
+                                <i class="fa-solid fa-circle-question fa-fw" data-bs-tooltip="aa-taxsystem" title="{% translate 'Last 30 days' %}"></i>
                                 <span id="activity"></span>
                             </td>
                         </tr>
                         <tr>
                             <td>{% trans "Payment Filters:" %}</td>
                             <td class="text-end">
-                                <a href="{{ manage_filter_url }}" data-bs-tooltip="aa-taxsystem" title="{% trans 'Automatic Payments Filters' %}">
+                                <a href="{{ manage_filter_url }}" data-bs-tooltip="aa-taxsystem" title="{% translate 'Automatic Payments Filters' %}">
                                     <span class="btn btn-primary">{% translate 'Manage Filters' %}</span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Tax Free Groups:" %}</td>
+                            <td class="text-end">
+                                <a href="{{ manage_groups_url }}" data-bs-tooltip="aa-taxsystem" title="{% translate 'Manage Groups' %}">
+                                    <span class="btn btn-primary">{% translate 'Manage Groups' %}</span>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>{% trans "Admin History:" %}</td>
                             <td class="text-end">
-                                <a href="{{ admin_history_url }}" data-bs-tooltip="aa-taxsystem" title="{% trans 'Admin History' %}">
+                                <a href="{{ admin_history_url }}" data-bs-tooltip="aa-taxsystem" title="{% translate 'Admin History' %}">
                                     <span class="btn btn-primary">{% translate 'Admin History' %}</span>
                                 </a>
                             </td>

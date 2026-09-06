@@ -16,42 +16,28 @@
 {% block taxsystem_block %}
     <div class="card">
         <div class="card-header bg-primary rounded-top d-flex align-items-center">
-            <h3 class="me-3">{% translate "Filter Sets" %}</h3>
+            <h3 class="me-3">{% translate "Tax Free Groups" %}</h3>
         </div>
         <div class="card-body">
-            {% include 'taxsystem/partials/view-manage/filter-set.html' %}
+            {% include 'taxsystem/partials/view-manage/manage-groups.html' %}
         </div>
     </div>
-
     <div class="card mt-3">
         <div class="card-header bg-primary rounded-top d-flex align-items-center">
-            <h3 class="me-3">{% translate "Filter Setup" %}</h3>
+            <h3 class="me-3">{% translate "Group Setup" %}</h3>
         </div>
 
         <div class="card-body">
             <div class="row">
-                {% if forms.filter %}
+                {% if forms.groups %}
                     <div class="col-md-6">
                         <form method="post">
                             {% csrf_token %}
-                            <fieldset class="tax-filter-form">
-                                {% bootstrap_form forms.filter %}
+                            <fieldset class="tax-group-form">
+                                {% bootstrap_form forms.groups %}
                             </fieldset>
                             <button type="submit" class="btn btn-success mt-3">
-                                <i class="fa-solid fa-plus"></i> {% translate "Add Filter" %}
-                            </button>
-                        </form>
-                    </div>
-                {% endif %}
-                {% if forms.filter_set %}
-                    <div class="col-md-6">
-                        <form method="post">
-                            {% csrf_token %}
-                            <fieldset class="tax-filter-form">
-                                {% bootstrap_form forms.filter_set %}
-                            </fieldset>
-                            <button type="submit" class="btn btn-success mt-3">
-                                <i class="fa-solid fa-plus"></i> {% translate "Add Filter Set" %}
+                                <i class="fa-solid fa-plus"></i> {% translate "Add Group" %}
                             </button>
                         </form>
                     </div>
@@ -74,18 +60,16 @@
          */
         const aaTaxSystemSettingsOverride = {
             url: {
-                FilterSet: '{% url "taxsystem:api:get_filter_set" owner_id=owner.eve_id %}',
+                Groups: '{% url "taxsystem:api:get_groups" owner_id=owner.eve_id %}',
             },
         };
     </script>
     <!-- load modals -->
-    {% include 'taxsystem/modals/request-accept-delete-filter-set.html' %}
-    {% include 'taxsystem/modals/request-accept-delete-filter.html' %}
-    {% include 'taxsystem/modals/request-view-filter-set.html' %}
+    {% include 'taxsystem/modals/request-accept-delete-group.html' %}
     {% include 'taxsystem/bundles/aa-taxsystem-js.html' %}
     {% include 'bundles/datatables-2-js-bs5.html' %}
     {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
-    {% include 'taxsystem/bundles/view-filter-js.html' %}
+    {% include 'taxsystem/bundles/view-groups-js.html' %}
 {% endblock extra_javascript %}
 
 {% block extra_script %}

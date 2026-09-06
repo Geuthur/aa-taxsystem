@@ -13,6 +13,7 @@ Section Order:
 
 ### Added
 
+- Tax Free Group Managment - You can access the Admin History View through `Manage Tax System`
 - `Pook` package that provides a more efficient approach to handling ESI calls at the http level.
 - Admin History - You can access the Admin History View through `Manage Tax System`
 - ActionType for History Logs

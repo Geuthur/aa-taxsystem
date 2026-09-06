@@ -160,6 +160,7 @@ class ActionType(models.TextChoices):
     FILTER_SET = "filter_set", _("Filter Set")
     PAYMENT = "payment", _("Payment")
     SETTINGS = "settings", _("Settings")
+    GROUP = "group", _("Group")
 
 
 class PaymentStatus(models.TextChoices):

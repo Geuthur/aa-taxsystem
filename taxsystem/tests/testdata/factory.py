@@ -39,6 +39,7 @@ from taxsystem.models import (
     EveEntity,
     Members,
 )
+from taxsystem.models.corporation import CorporationGroup
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     AllianceUpdateSection,
@@ -708,3 +709,24 @@ class AllianceUpdateStatusFactory(
         start_dt=timezone.make_aware(timezone.datetime(2020, 1, 1)),
         end_dt=timezone.make_aware(timezone.datetime(2024, 12, 31)),
     )
+
+
+class CorporationGroupFactory(
+    factory.django.DjangoModelFactory, metaclass=BaseMetaFactory[CorporationGroup]
+):
+    """Generate a CorporationGroup object for testing."""
+
+    class Meta:
+        model = CorporationGroup
+        django_get_or_create = ("owner", "name")
+
+    owner = factory.SubFactory(CorporationOwnerFactory)
+    name = factory.Faker("company")
+
+    @factory.post_generation
+    def groups(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for group in extracted:
+                obj.groups.add(group)
