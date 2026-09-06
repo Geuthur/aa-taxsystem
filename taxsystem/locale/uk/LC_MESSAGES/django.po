@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-07-14 15:25+0200\n"
+"POT-Creation-Date: 2026-09-06 13:33+0200\n"
 "PO-Revision-Date: 2026-01-10 15:39+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: Ukrainian <https://weblate.geuthur.de/projects/allianceauth/"
@@ -101,6 +101,13 @@ msgstr ""
 msgid "{filter_set} switched to {enabled}"
 msgstr ""
 
+#, python-brace-format
+msgid "{group_obj} deleted - Reason: {reason}"
+msgstr ""
+
+msgid "Group not Found."
+msgstr ""
+
 msgid "View Filter Set"
 msgstr ""
 
@@ -150,6 +157,9 @@ msgid "Reject Payment"
 msgstr ""
 
 msgid "Delete Member"
+msgstr ""
+
+msgid "Delete Group"
 msgstr ""
 
 msgid "System"
@@ -272,6 +282,18 @@ msgstr ""
 msgid "Enter filter set description"
 msgstr ""
 
+msgid "Groups"
+msgstr ""
+
+msgid "Group Name"
+msgstr ""
+
+msgid "Enter group name"
+msgstr ""
+
+msgid "Reason for deleting the group"
+msgstr ""
+
 msgid "Master Wallet"
 msgstr ""
 
@@ -314,6 +336,12 @@ msgid "Owner"
 msgstr ""
 
 msgid "Owner that the action was performed on"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Type of the action"
 msgstr ""
 
 msgid "Action"
@@ -379,6 +407,15 @@ msgid "is alt"
 msgstr ""
 
 msgid "Status"
+msgstr ""
+
+msgid "Owner of the corporation group"
+msgstr ""
+
+msgid "Name of the corporation group"
+msgstr ""
+
+msgid "Groups that will not be taxed"
 msgstr ""
 
 msgid "Can access the Tax System"
@@ -460,6 +497,21 @@ msgid "Custom Payment Added"
 msgstr ""
 
 msgid "Reviser Comment"
+msgstr ""
+
+msgid "Tax Account"
+msgstr ""
+
+msgid "Corporation"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Group"
 msgstr ""
 
 msgid "Paid"
@@ -603,6 +655,12 @@ msgstr ""
 msgid "Are you sure you want to delete this filter?"
 msgstr ""
 
+msgid "Accept Delete Group"
+msgstr ""
+
+msgid "Are you sure you want to delete this group?"
+msgstr ""
+
 msgid "Accept Delete Member"
 msgstr ""
 
@@ -728,6 +786,12 @@ msgstr ""
 msgid "Deposit"
 msgstr ""
 
+msgid "ID"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
 msgid "selected"
 msgstr ""
 
@@ -762,6 +826,18 @@ msgid "Automatic Payments Filters"
 msgstr ""
 
 msgid "Manage Filters"
+msgstr ""
+
+msgid "Tax Free Groups:"
+msgstr ""
+
+msgid "Manage Groups"
+msgstr ""
+
+msgid "Admin History:"
+msgstr ""
+
+msgid "Admin History"
 msgstr ""
 
 msgid "Update Information"
@@ -842,9 +918,6 @@ msgstr ""
 msgid "Payment Information"
 msgstr ""
 
-msgid "Tax Account"
-msgstr ""
-
 msgid "Payment History"
 msgstr ""
 
@@ -858,9 +931,6 @@ msgid "Approve selected Payments"
 msgstr ""
 
 msgid "Reject selected Payments"
-msgstr ""
-
-msgid "Type"
 msgstr ""
 
 msgid "Open Invoices"
@@ -893,7 +963,13 @@ msgstr ""
 msgid "Add Filter Set"
 msgstr ""
 
-msgid "Edit Filter Set"
+msgid "Tax Free Groups"
+msgstr ""
+
+msgid "Group Setup"
+msgstr ""
+
+msgid "Add Group"
 msgstr ""
 
 msgid "Enter tax amount"
@@ -942,9 +1018,6 @@ msgstr ""
 msgid "Tax System Superuser Administration"
 msgstr ""
 
-msgid "Corporation"
-msgstr ""
-
 msgid "Alliance"
 msgstr ""
 
@@ -971,6 +1044,9 @@ msgid "Something went wrong, please try again later."
 msgstr ""
 
 msgid "A filter set with this name already exists."
+msgstr ""
+
+msgid "Tax free group added."
 msgstr ""
 
 msgid "Added to Tax System"
