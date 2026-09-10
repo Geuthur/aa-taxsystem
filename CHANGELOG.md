@@ -3,6 +3,21 @@
 ## [In Development] - Unreleased
 
 <!--
+> [!NOTE]
+>
+
+> [!TIP]
+>
+
+> [!IMPORTANT]
+>
+
+> [!WARNING]
+>
+
+> [!CAUTION]
+>
+
 Section Order:
 
 ### Added
@@ -10,6 +25,8 @@ Section Order:
 ### Changed
 ### Removed
 -->
+
+<!-- Your changes go here -->
 
 ## [4.0.2] - 2026-09-06
 
@@ -912,6 +929,8 @@ python manage.py taxsystem_migrate_payments
 ### Added
 
 - Initial public release
+
+<!-- Links -->
 
 [1.0.0-beta.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.0-beta.1 "1.0.0-beta.1"
 [1.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v0.7.2...v1.0.1 "1.0.1"

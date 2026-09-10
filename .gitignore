@@ -1,23 +1,30 @@
-*.log
-.tox/
-*.old
-__pycache__
-node_modules/
-
-# Ignore all files in the root of the directory
-.coverage
+# Environment files
 .env
-.pypirc
-.vscode/
+.tox/
 .venv/
+node_modules/
+__pycache__
+
+# Standard System Files
+*.log
+*.tmp
+*.bak
+*.swp
+*.old
+*.cache
+
+# GitHub Stuff
+.coverage
+.pypirc
 /build/
 /dist/
 /coverage.xml
+
+# Alliance Auth
 testing/
 
-.make/myauth-path
+# Make ignore overrides
+.make/config-overrides.ini
 
-# Co Pilot Agent
-docs/IMPROVEMENT_PLAN.md
-docs/checkpoints/
-docs/PERFORMANCE_ANALYSIS.md
+# Weblate
+*/locale/en/
