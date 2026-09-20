@@ -17,6 +17,8 @@ class General(models.Model):
 
     class Meta:
         managed = False
+        verbose_name = "AA-TaxSystem"
+        verbose_name_plural = "AA-TaxSystem"
         permissions = (
             ("basic_access", _("Can access the Tax System")),
             ("create_access", _("Can add Corporation/Alliance")),
