@@ -43,7 +43,7 @@ NOTIFICATIONS_MAX_PER_USER = 50
 
 # Use the USE_MYSQL environment variable to select the database backend (MySQL or Memcached).
 # NOTE: On Windows, set this variable in the system/user environment variables.
-if os.environ.get("USE_MYSQL", True) is True:
+if str(os.environ.get("USE_MYSQL", True)).lower() in ("true", "1"):
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "temp_allianceauth",
@@ -53,6 +53,16 @@ if os.environ.get("USE_MYSQL", True) is True:
         "PORT": "3306",
         "OPTIONS": {"charset": "utf8mb4"},
     }
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 
 # Add any additional apps to this list.
 INSTALLED_APPS += [

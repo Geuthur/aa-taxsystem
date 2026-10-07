@@ -1,6 +1,3 @@
-# Standard Library
-import json
-
 # Third Party
 from ninja import NinjaAPI
 
@@ -19,10 +16,11 @@ from taxsystem.api.helpers.icons import (
     get_members_delete_button,
 )
 from taxsystem.api.schema import (
+    ActionCommentRequest,
     CharacterSchema,
+    ErrorSchema,
     MembersSchema,
 )
-from taxsystem.forms import DeleteMemberForm
 from taxsystem.helpers import lazy
 from taxsystem.models.alliance import (
     AllianceOwner,
@@ -43,7 +41,7 @@ class CorporationApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "owner/{owner_id}/view/members/",
-            response={200: list, 403: dict, 404: dict},
+            response={200: list[MembersSchema], 403: ErrorSchema, 404: ErrorSchema},
             tags=self.tags,
         )
         def get_members(request, owner_id: int):
@@ -89,7 +87,7 @@ class CorporationApiEndpoints:
                         character_id=member.character_id,
                         character_name=member.character_name,
                         character_portrait=lazy.get_character_portrait_url(
-                            member.character_id, size=32, as_html=True
+                            member.character_id, size=32
                         ),
                     ),
                     is_missing=member.is_missing,
@@ -106,7 +104,12 @@ class CorporationApiEndpoints:
             response={200: dict, 400: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def delete_member(request: WSGIRequest, owner_id: int, member_pk: int):
+        def delete_member(
+            request: WSGIRequest,
+            owner_id: int,
+            member_pk: int,
+            payload: ActionCommentRequest = ActionCommentRequest(),
+        ):
             """
             Handle an Request to Delete a Member
 
@@ -117,6 +120,7 @@ class CorporationApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 member_pk (int): The ID of the member to be deleted.
+                payload (ActionCommentRequest): Optional action comment payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -131,13 +135,7 @@ class CorporationApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            # Validate the form data
-            form = DeleteMemberForm(data=json.loads(request.body))
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
-
-            reason = form.cleaned_data["comment"]
+            reason = payload.comment if payload else ""
 
             member = Members.objects.get(owner=owner, pk=member_pk)
             if member.is_missing:

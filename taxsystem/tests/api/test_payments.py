@@ -658,6 +658,90 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
+    def test_approve_payment_should_succeed_with_empty_body(self):
+        """Test approving payment without a request body succeeds."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_entry = CorporationJournalFactory(amount=1000)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:approve_payment",
+            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(path=url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        payment.refresh_from_db()
+        self.assertEqual(payment.request_status, PaymentRequestStatus.APPROVED)
+
+    def test_undo_payment_should_succeed_with_empty_body(self):
+        """Test undoing payment without a request body succeeds."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_entry = CorporationJournalFactory(amount=1000)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
+            request_status=PaymentRequestStatus.APPROVED,
+        )
+        url = reverse(
+            f"{API_URL}:undo_payment",
+            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(path=url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        payment.refresh_from_db()
+        self.assertEqual(payment.request_status, PaymentRequestStatus.PENDING)
+
+    def test_reject_payment_should_succeed_with_empty_body(self):
+        """Test rejecting payment without a request body succeeds."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_entry = CorporationJournalFactory(amount=1000)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:reject_payment",
+            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(path=url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        payment.refresh_from_db()
+        self.assertEqual(payment.request_status, PaymentRequestStatus.REJECTED)
+
     def test_bulk_actions(self):
         """
         Test bulk actions endpoint.

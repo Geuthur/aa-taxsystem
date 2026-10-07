@@ -189,7 +189,7 @@ class TestAdminApiEndpoints(TaxSystemTestCase):
         # Expected Result
         owner = CorporationOwner.objects.get(pk=self.audit.pk)
         result = "Tax Period from {owner} changed to {value}".format(
-            owner=owner, value=float(owner.tax_amount)
+            owner=owner, value=owner.tax_amount
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json().get("message"), result)

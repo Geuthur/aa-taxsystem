@@ -1,8 +1,5 @@
-# Standard Library
-import json
-
 # Third Party
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI
 
 # Django
 from django.contrib.humanize.templatetags.humanize import intcomma
@@ -18,23 +15,13 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
 from taxsystem import __title__, forms
+from taxsystem.api import schema
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.icons import (
     get_taxsystem_manage_payments_action_icons,
     get_taxsystem_payments_action_icons,
 )
-from taxsystem.api.schema import (
-    CharacterSchema,
-    MembersSchema,
-    OwnerSchema,
-    PaymentHistorySchema,
-    PaymentSchema,
-    RequestStatusSchema,
-)
 from taxsystem.helpers import lazy
-from taxsystem.models.corporation import (
-    CorporationOwner,
-)
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     ActionType,
@@ -47,29 +34,6 @@ from taxsystem.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class PaymentCorporationSchema(PaymentSchema):
-    character: CharacterSchema
-
-
-class MembersResponse(Schema):
-    corporation: list[MembersSchema]
-
-
-class TaxAccountSchema(Schema):
-    account_id: int
-    account_name: str
-    account_status: str
-    character: CharacterSchema
-    payment_pool: int
-
-
-class PaymentsDetailsResponse(Schema):
-    owner: OwnerSchema
-    account: TaxAccountSchema
-    payment: PaymentSchema
-    payment_histories: list[PaymentHistorySchema]
-
-
 class PaymentsApiEndpoints:
     tags = ["Payments"]
 
@@ -77,9 +41,14 @@ class PaymentsApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "owner/{owner_id}/view/payments/",
-            response={200: list, 403: dict, 404: dict},
+            response={
+                200: list[schema.PaymentCorporationSchema],
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
+        # pylint: disable=too-many-locals
         def get_payments(request: WSGIRequest, owner_id: int):
             """
             This Endpoint retrieves all payments to the accordicng owner.
@@ -116,10 +85,11 @@ class PaymentsApiEndpoints:
             # Limit to last 10,000 payments
             payments = payments[:10000]
 
-            response_payments_list: list[PaymentCorporationSchema] = []
+            can_manage = core.get_manage_owner(request, owner_id)[1]
+            response_payments_list: list[schema.PaymentCorporationSchema] = []
             for payment in payments:
                 character_portrait = lazy.get_character_portrait_url(
-                    payment.character_id, size=32, as_html=True
+                    payment.character_id, size=32
                 )
                 # Create the action buttons
                 actions_html = str(
@@ -128,15 +98,32 @@ class PaymentsApiEndpoints:
                     )
                 )
 
+                raw_status = payment.request_status
+                is_custom = payment.journal is None
+                can_approve = can_manage and raw_status in [
+                    PaymentRequestStatus.PENDING,
+                    PaymentRequestStatus.NEEDS_APPROVAL,
+                ]
+                can_reject = can_manage and raw_status in [
+                    PaymentRequestStatus.PENDING,
+                    PaymentRequestStatus.NEEDS_APPROVAL,
+                ]
+                can_undo = can_manage and raw_status in [
+                    PaymentRequestStatus.APPROVED,
+                    PaymentRequestStatus.REJECTED,
+                ]
+                can_delete = can_manage and is_custom
+
                 # Create the request status
-                response_request_status = RequestStatusSchema(
+                response_request_status = schema.RequestStatusSchema(
                     status=payment.get_request_status_display(),
-                    color=PaymentRequestStatus(payment.request_status).color(),
+                    code=raw_status,
+                    color=PaymentRequestStatus(raw_status).color(),
                 )
 
-                response_payment = PaymentCorporationSchema(
+                response_payment = schema.PaymentCorporationSchema(
                     payment_id=payment.pk,
-                    character=CharacterSchema(
+                    character=schema.CharacterSchema(
                         character_id=payment.character_id,
                         character_name=payment.account.name,
                         character_portrait=character_portrait,
@@ -147,6 +134,11 @@ class PaymentsApiEndpoints:
                     division_name=payment.division_name,
                     reviser=payment.reviser,
                     reason=payment.reason,
+                    is_custom=is_custom,
+                    can_delete=can_delete,
+                    can_approve=can_approve,
+                    can_reject=can_reject,
+                    can_undo=can_undo,
                     actions=actions_html,
                 )
                 response_payments_list.append(response_payment)
@@ -154,7 +146,10 @@ class PaymentsApiEndpoints:
 
         @api.get(
             "owner/{owner_id}/view/my-payments/",
-            response={200: list, 404: dict},
+            response={
+                200: list[schema.PaymentCorporationSchema],
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         def get_my_payments(request: WSGIRequest, owner_id: int):
@@ -190,21 +185,25 @@ class PaymentsApiEndpoints:
             # Limit to last 10,000 payments
             payments = payments[:10000]
 
-            response_payments_list: list[PaymentCorporationSchema] = []
+            response_payments_list: list[schema.PaymentCorporationSchema] = []
             for payment in payments:
                 character_portrait = lazy.get_character_portrait_url(
-                    payment.character_id, size=32, as_html=True
+                    payment.character_id, size=32
                 )
+
+                raw_status = payment.request_status
+                is_custom = payment.journal is None
 
                 # Create the request status
-                response_request_status = RequestStatusSchema(
+                response_request_status = schema.RequestStatusSchema(
                     status=payment.get_request_status_display(),
-                    color=PaymentRequestStatus(payment.request_status).color(),
+                    code=raw_status,
+                    color=PaymentRequestStatus(raw_status).color(),
                 )
 
-                response_payment = PaymentSchema(
+                response_payment = schema.PaymentCorporationSchema(
                     payment_id=payment.pk,
-                    character=CharacterSchema(
+                    character=schema.CharacterSchema(
                         character_id=payment.character_id,
                         character_name=payment.account.name,
                         character_portrait=character_portrait,
@@ -215,13 +214,18 @@ class PaymentsApiEndpoints:
                     division_name=payment.division_name,
                     reviser=payment.reviser,
                     reason=payment.reason,
+                    is_custom=is_custom,
+                    can_delete=False,
+                    can_approve=False,
+                    can_reject=False,
+                    can_undo=False,
                 )
                 response_payments_list.append(response_payment)
             return response_payments_list
 
         @api.get(
             "owner/{owner_id}/payment/{payment_pk}/view/details/",
-            response={200: PaymentsDetailsResponse, 403: dict, 404: dict},
+            response={200: schema.PaymentsDetailsResponse, 403: dict, 404: dict},
             tags=self.tags,
         )
         # pylint: disable=too-many-locals
@@ -241,14 +245,14 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            response_payment_histories: list[PaymentHistorySchema] = []
+            response_payment_histories: list[schema.PaymentHistorySchema] = []
             payments_history = owner.payment_history_model.objects.filter(
                 payment=payment,
             ).order_by("-date")
 
             # Create a list for the payment histories
             for log in payments_history:
-                response_log = PaymentHistorySchema(
+                response_log = schema.PaymentHistorySchema(
                     log_id=log.pk,
                     reviser=log.user.username if log.user else _("System"),
                     date=log.date.strftime("%Y-%m-%d %H:%M:%S"),
@@ -259,15 +263,15 @@ class PaymentsApiEndpoints:
                 response_payment_histories.append(response_log)
 
             # Create the tax account
-            response_account = TaxAccountSchema(
+            response_account = schema.TaxAccountSchema(
                 account_id=payment.account.pk,
                 account_name=payment.account.name,
                 account_status=AccountStatus(payment.account.status).html(),
-                character=CharacterSchema(
+                character=schema.CharacterSchema(
                     character_id=payment.character_id,
                     character_name=payment.account.name,
                     character_portrait=lazy.get_character_portrait_url(
-                        payment.character_id, size=32, as_html=True
+                        payment.character_id, size=32
                     ),
                     corporation_id=payment.account.owner.pk,
                     corporation_name=payment.account.owner.name,
@@ -275,13 +279,18 @@ class PaymentsApiEndpoints:
                 payment_pool=payment.account.deposit,
             )
 
-            response_request_status = RequestStatusSchema(
+            raw_status = payment.request_status
+            is_custom = payment.journal is None
+            can_manage = core.get_manage_owner(request, owner_id)[1]
+
+            response_request_status = schema.RequestStatusSchema(
                 status=payment.get_request_status_display(),
-                html=PaymentRequestStatus(payment.request_status).alert(),
+                code=raw_status,
+                html=PaymentRequestStatus(raw_status).alert(),
             )
 
             # Create the payment
-            response_payment = PaymentSchema(
+            response_payment = schema.PaymentSchema(
                 payment_id=payment.pk,
                 amount=payment.amount,
                 date=payment.formatted_payment_date,
@@ -289,14 +298,34 @@ class PaymentsApiEndpoints:
                 division_name=payment.division_name,
                 reason=payment.reason,
                 reviser=payment.reviser,
+                is_custom=is_custom,
+                can_delete=can_manage and is_custom,
+                can_approve=can_manage
+                and raw_status
+                in [
+                    PaymentRequestStatus.PENDING,
+                    PaymentRequestStatus.NEEDS_APPROVAL,
+                ],
+                can_reject=can_manage
+                and raw_status
+                in [
+                    PaymentRequestStatus.PENDING,
+                    PaymentRequestStatus.NEEDS_APPROVAL,
+                ],
+                can_undo=can_manage
+                and raw_status
+                in [
+                    PaymentRequestStatus.APPROVED,
+                    PaymentRequestStatus.REJECTED,
+                ],
             )
 
-            response_owner = OwnerSchema(
+            response_owner = schema.OwnerSchema(
                 owner_id=owner.eve_id,
                 owner_name=owner.name,
             )
 
-            payment_details_response = PaymentsDetailsResponse(
+            payment_details_response = schema.PaymentsDetailsResponse(
                 owner=response_owner,
                 account=response_account,
                 payment=response_payment,
@@ -307,7 +336,11 @@ class PaymentsApiEndpoints:
 
         @api.get(
             "owner/{owner_id}/character/{character_id}/view/payments/",
-            response={200: list[PaymentSchema], 403: dict, 404: dict},
+            response={
+                200: list[schema.PaymentSchema],
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         def get_member_payments(request, owner_id: int, character_id: int):
@@ -329,7 +362,8 @@ class PaymentsApiEndpoints:
             # Limit to last 10,000 payments
             payments = payments[:10000]
 
-            response_payments_list: list[PaymentSchema] = []
+            can_manage = core.get_manage_owner(request, owner_id)[1]
+            response_payments_list: list[schema.PaymentSchema] = []
             for payment in payments:
                 # Create the actions
                 actions_html = str(
@@ -338,14 +372,17 @@ class PaymentsApiEndpoints:
                     )
                 )
 
-                # pylint: disable=duplicate-code
+                raw_status = payment.request_status
+                is_custom = payment.journal is None
+
                 # Create the request status
-                response_request_status = RequestStatusSchema(
+                response_request_status = schema.RequestStatusSchema(
                     status=payment.get_request_status_display(),
-                    color=PaymentRequestStatus(payment.request_status).color(),
+                    code=raw_status,
+                    color=PaymentRequestStatus(raw_status).color(),
                 )
 
-                response_payment = PaymentSchema(
+                response_payment = schema.PaymentSchema(
                     payment_id=payment.pk,
                     amount=payment.amount,
                     date=payment.formatted_payment_date,
@@ -354,6 +391,26 @@ class PaymentsApiEndpoints:
                     reason=payment.reason,
                     actions=actions_html,
                     reviser=payment.reviser,
+                    is_custom=is_custom,
+                    can_delete=can_manage and is_custom,
+                    can_approve=can_manage
+                    and raw_status
+                    in [
+                        PaymentRequestStatus.PENDING,
+                        PaymentRequestStatus.NEEDS_APPROVAL,
+                    ],
+                    can_reject=can_manage
+                    and raw_status
+                    in [
+                        PaymentRequestStatus.PENDING,
+                        PaymentRequestStatus.NEEDS_APPROVAL,
+                    ],
+                    can_undo=can_manage
+                    and raw_status
+                    in [
+                        PaymentRequestStatus.APPROVED,
+                        PaymentRequestStatus.REJECTED,
+                    ],
                 )
                 response_payments_list.append(response_payment)
 
@@ -364,7 +421,12 @@ class PaymentsApiEndpoints:
             response={200: dict, 400: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def add_payment(request: WSGIRequest, owner_id: int, account_pk: int):
+        def add_payment(
+            request: WSGIRequest,
+            owner_id: int,
+            account_pk: int,
+            payload: schema.AddPaymentRequest,
+        ):
             """
             Handle an Request to Add a custom Payment
 
@@ -375,6 +437,7 @@ class PaymentsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 account_pk (int): The ID of the tax account to which the payment will be added.
+                payload (schema.AddPaymentRequest): Custom payment details (amount and comment).
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -389,7 +452,8 @@ class PaymentsApiEndpoints:
                 return 403, {"error": _("Permission Denied.")}
 
             # Validate the form data
-            form = forms.PaymentAddForm(data=json.loads(request.body))
+            data = {"amount": payload.amount, "comment": payload.comment}
+            form = forms.PaymentAddForm(data=data)
             if not form.is_valid():
                 msg = _("Invalid form data.")
                 return 400, {"success": False, "message": msg}
@@ -452,7 +516,12 @@ class PaymentsApiEndpoints:
             response={200: dict, 400: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def approve_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
+        def approve_payment(
+            request: WSGIRequest,
+            owner_id: int,
+            payment_pk: int,
+            payload: schema.ActionCommentRequest = schema.ActionCommentRequest(),
+        ):
             """
             Handle an Request to Approve a Payment
 
@@ -463,6 +532,7 @@ class PaymentsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 payment_pk (int): The ID of the payment to be approved.
+                payload (ActionCommentRequest): Optional action comment payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -476,19 +546,7 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            payment_form_instance = (
-                forms.AcceptCorporationPaymentForm
-                if isinstance(owner, CorporationOwner)
-                else forms.AcceptAlliancePaymentForm
-            )
-
-            # Validate the form data
-            form = payment_form_instance(data=json.loads(request.body))
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
-
-            reason = form.cleaned_data["comment"]
+            reason = payload.comment if payload else ""
 
             # Begin transaction
             try:
@@ -538,7 +596,12 @@ class PaymentsApiEndpoints:
             response={200: dict, 400: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def undo_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
+        def undo_payment(
+            request: WSGIRequest,
+            owner_id: int,
+            payment_pk: int,
+            payload: schema.ActionCommentRequest = schema.ActionCommentRequest(),
+        ):
             """
             Handle an Request to Undo a Payment
 
@@ -549,6 +612,7 @@ class PaymentsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 payment_pk (int): The ID of the payment to be approved.
+                payload (ActionCommentRequest): Optional action comment payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -562,19 +626,7 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            payment_form_instance = (
-                forms.AcceptCorporationPaymentForm
-                if isinstance(owner, CorporationOwner)
-                else forms.AcceptAlliancePaymentForm
-            )
-
-            # Validate the form data
-            form = payment_form_instance(data=json.loads(request.body))
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
-
-            reason = form.cleaned_data["comment"]
+            reason = payload.comment if payload else ""
 
             # Begin transaction
             try:
@@ -621,7 +673,12 @@ class PaymentsApiEndpoints:
             response={200: dict, 400: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def delete_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
+        def delete_payment(
+            request: WSGIRequest,
+            owner_id: int,
+            payment_pk: int,
+            payload: schema.DeletePaymentRequest = schema.DeletePaymentRequest(),
+        ):
             """
             Handle an Request to Delete a Payment
 
@@ -632,6 +689,7 @@ class PaymentsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 payment_pk (int): The ID of the payment to be approved.
+                payload (DeletePaymentRequest, optional): Delete payload with comment.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -645,19 +703,11 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            payment_form_instance = (
-                forms.DeleteCorporationPaymentForm
-                if isinstance(owner, CorporationOwner)
-                else forms.DeleteAlliancePaymentForm
+            reason = (
+                payload.comment
+                if payload and payload.comment
+                else "Deleted via TaxSystem"
             )
-
-            # Validate the form data
-            form = payment_form_instance(data=json.loads(request.body))
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
-
-            reason = form.cleaned_data["comment"]
 
             # Begin transaction
             try:
@@ -712,7 +762,12 @@ class PaymentsApiEndpoints:
             response={200: dict, 400: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def reject_payment(request: WSGIRequest, owner_id: int, payment_pk: int):
+        def reject_payment(
+            request: WSGIRequest,
+            owner_id: int,
+            payment_pk: int,
+            payload: schema.ActionCommentRequest = schema.ActionCommentRequest(),
+        ):
             """
             Handle an Request to Reject a Payment
 
@@ -723,6 +778,7 @@ class PaymentsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 payment_pk (int): The ID of the payment to be approved.
+                payload (ActionCommentRequest): Optional action comment payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -736,19 +792,7 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            payment_form_instance = (
-                forms.DeleteCorporationPaymentForm
-                if isinstance(owner, CorporationOwner)
-                else forms.DeleteAlliancePaymentForm
-            )
-
-            # Validate the form data
-            form = payment_form_instance(data=json.loads(request.body))
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
-
-            reason = form.cleaned_data["comment"]
+            reason = payload.comment if payload else ""
 
             # Begin transaction
             try:
@@ -792,7 +836,11 @@ class PaymentsApiEndpoints:
             response={200: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def perform_bulk_actions_payments(request: WSGIRequest, owner_id: int):
+        def perform_bulk_actions_payments(
+            request: WSGIRequest,
+            owner_id: int,
+            payload: schema.BulkActionPaymentsRequest,
+        ):
             """
             Handle an Request to Bulk Actions
 
@@ -802,6 +850,7 @@ class PaymentsApiEndpoints:
             Args:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
+                payload (BulkActionPaymentsRequest): Bulk actions payload with pks and action.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -816,8 +865,8 @@ class PaymentsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            pks_ids = json.loads(request.body).get("pks", [])
-            action = json.loads(request.body).get("action", "")
+            pks_ids = payload.pks
+            action = payload.action
 
             if len(pks_ids) == 0:
                 msg = _("Please select at least one payment to perform bulk actions.")

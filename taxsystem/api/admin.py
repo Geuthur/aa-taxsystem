@@ -1,5 +1,6 @@
 # Standard Library
-import json
+from decimal import Decimal
+from http import HTTPStatus
 
 # Third Party
 from ninja import NinjaAPI, Schema
@@ -9,17 +10,15 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Sum
 from django.utils import timezone
 from django.utils.text import format_lazy
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
-from taxsystem import __title__
+from taxsystem import __title__, tasks
+from taxsystem.api import schema
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.icons import (
-    get_taxsystem_manage_action_icons,
-)
 from taxsystem.api.helpers.statistics import (
     StatisticsResponse,
     create_dashboard_common_data,
@@ -27,12 +26,13 @@ from taxsystem.api.helpers.statistics import (
 from taxsystem.api.schema import (
     AccountSchema,
     DashboardDivisionsSchema,
-    DataTableSchema,
+    ErrorSchema,
     OwnerSchema,
     PaymentSystemSchema,
     UpdateStatusSchema,
 )
 from taxsystem.helpers import lazy
+from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import (
     CorporationOwner,
     CorporationWalletJournalEntry,
@@ -122,7 +122,11 @@ class AdminApiEndpoints:
 
         @api.get(
             "owner/{owner_id}/manage/tax-accounts/",
-            response={200: list, 403: dict, 404: dict},
+            response={
+                200: list[PaymentSystemSchema],
+                403: ErrorSchema,
+                404: ErrorSchema,
+            },
             tags=self.tags,
         )
         def get_tax_accounts(request, owner_id: int):
@@ -161,31 +165,22 @@ class AdminApiEndpoints:
             for account in tax_accounts:
                 # Build tax account data
                 tax_account_data = PaymentSystemSchema(
+                    account_id=account.pk,
                     account=AccountSchema(
                         character_id=account.user.profile.main_character.character_id,
                         character_name=account.user.profile.main_character.character_name,
                         character_portrait=lazy.get_character_portrait_url(
                             account.user.profile.main_character.character_id,
                             size=32,
-                            as_html=True,
                         ),
                         alt_ids=account.get_alt_ids(),
                     ),
                     status=account.get_payment_status(),
                     deposit=account.deposit,
-                    has_paid=DataTableSchema(
-                        raw=account.has_paid,
-                        display=account.has_paid_icon(badge=True),
-                        sort=str(int(account.has_paid)),
-                    ),
+                    has_paid=account.has_paid,
                     last_paid=account.last_paid,
                     next_due=account.next_due,
                     is_active=account.is_active,
-                    actions=str(
-                        get_taxsystem_manage_action_icons(
-                            request=request, account=account, checkbox=True
-                        )
-                    ),
                 )
                 tax_accounts_list.append(tax_account_data)
             return tax_accounts_list
@@ -256,10 +251,14 @@ class AdminApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/manage/update-tax/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: dict, 404: dict, 400: dict},
             tags=self.tags,
         )
-        def update_tax_amount(request: WSGIRequest, owner_id: int):
+        def update_tax_amount(
+            request: WSGIRequest,
+            owner_id: int,
+            payload: schema.UpdateTaxAmountRequest,
+        ):
             """
             Handle an Request to Update Tax Amount
 
@@ -269,6 +268,7 @@ class AdminApiEndpoints:
             Args:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
+                payload (UpdateTaxAmountRequest): The update tax amount request payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -283,7 +283,7 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            value = float(json.loads(request.body).get("tax_amount", 0))
+            value = Decimal(payload.tax_amount)
 
             if value < 0:
                 msg = _("Please enter a valid number")
@@ -317,10 +317,14 @@ class AdminApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/manage/update-period/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: dict, 404: dict, 400: dict},
             tags=self.tags,
         )
-        def update_tax_period(request: WSGIRequest, owner_id: int):
+        def update_tax_period(
+            request: WSGIRequest,
+            owner_id: int,
+            payload: schema.UpdateTaxPeriodRequest,
+        ):
             """
             Handle an Request to Update Tax Period
 
@@ -330,6 +334,7 @@ class AdminApiEndpoints:
             Args:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
+                payload (UpdateTaxPeriodRequest): The update tax period request payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -344,7 +349,7 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            value = int(json.loads(request.body).get("tax_period", 0))
+            value = payload.tax_period
 
             if value < 0:
                 msg = _("Please enter a valid number")
@@ -378,10 +383,14 @@ class AdminApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/manage/bulk-actions/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: dict, 404: dict, 400: dict},
             tags=self.tags,
         )
-        def perform_bulk_actions_tax_accounts(request: WSGIRequest, owner_id: int):
+        def perform_bulk_actions_tax_accounts(
+            request: WSGIRequest,
+            owner_id: int,
+            payload: schema.BulkActionAccountsRequest,
+        ):
             """
             Handle an Request to Bulk Actions
 
@@ -391,6 +400,7 @@ class AdminApiEndpoints:
             Args:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
+                payload (BulkActionAccountsRequest): The bulk actions request payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -405,8 +415,8 @@ class AdminApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            pks_ids = json.loads(request.body).get("pks", [])
-            action = json.loads(request.body).get("action", "")
+            pks_ids = payload.pks
+            action = payload.action
 
             if len(pks_ids) == 0:
                 msg = _("Please select at least one account to perform bulk actions.")
@@ -448,3 +458,91 @@ class AdminApiEndpoints:
 
             # Return success response
             return 200, {"success": True, "message": msg}
+
+        @api.post(
+            "admin/tasks/run/",
+            response={
+                HTTPStatus.OK: schema.MessageSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
+            },
+            tags=self.tags,
+            summary="Queue update tasks for taxsystem",
+        )
+        # pylint: disable=too-many-return-statements
+        def run_update_tasks(request: WSGIRequest, payload: schema.AdminUpdateRequest):
+            if not request.user.is_superuser:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            force_refresh = payload.force_refresh
+            target = payload.target
+            eve_id = payload.eve_id
+
+            if target == "all":
+                tasks.update_all_taxsytem.apply_async(
+                    kwargs={"force_refresh": force_refresh}, priority=7
+                )
+                return HTTPStatus.OK, {"message": _("Queued Update All Taxsystem")}
+
+            if target == "corporation":
+                if eve_id:
+                    try:
+                        corp = CorporationOwner.objects.get(
+                            eve_corporation__corporation_id=eve_id
+                        )
+                        tasks.update_corporation.apply_async(
+                            args=[corp.eve_id],
+                            kwargs={"force_refresh": force_refresh},
+                            priority=7,
+                        )
+                        return HTTPStatus.OK, {
+                            "message": _("Queued Update for Corporation: %s")
+                            % corp.name
+                        }
+                    except CorporationOwner.DoesNotExist:
+                        return HTTPStatus.BAD_REQUEST, {
+                            "error": _("Corporation with ID %s not found") % eve_id
+                        }
+                else:
+                    corporations = CorporationOwner.objects.filter(active=True)
+                    for corporation in corporations:
+                        tasks.update_corporation.apply_async(
+                            args=[corporation.eve_id],
+                            kwargs={"force_refresh": force_refresh},
+                            priority=7,
+                        )
+                    return HTTPStatus.OK, {
+                        "message": _("Queued Update All Taxsystem Corporations")
+                    }
+
+            if target == "alliance":
+                if eve_id:
+                    try:
+                        ally = AllianceOwner.objects.get(
+                            eve_alliance__alliance_id=eve_id
+                        )
+                        tasks.update_alliance.apply_async(
+                            args=[ally.eve_alliance.alliance_id],
+                            kwargs={"force_refresh": force_refresh},
+                            priority=7,
+                        )
+                        return HTTPStatus.OK, {
+                            "message": _("Queued Update for Alliance: %s") % ally.name
+                        }
+                    except AllianceOwner.DoesNotExist:
+                        return HTTPStatus.BAD_REQUEST, {
+                            "error": _("Alliance with ID %s not found") % eve_id
+                        }
+                else:
+                    alliances = AllianceOwner.objects.filter(active=True)
+                    for alliance in alliances:
+                        tasks.update_alliance.apply_async(
+                            args=[alliance.eve_alliance.alliance_id],
+                            kwargs={"force_refresh": force_refresh},
+                            priority=7,
+                        )
+                    return HTTPStatus.OK, {
+                        "message": _("Queued Update All Taxsystem Alliances")
+                    }
+
+            return HTTPStatus.BAD_REQUEST, {"error": _("Invalid target specified.")}

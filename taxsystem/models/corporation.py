@@ -388,7 +388,7 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
     )
 
     @property
-    def group_ids(self) -> list[int]:
+    def group_ids(self):
         """Return a list of group IDs the account belongs to."""
         return (
             AuthGroup.objects.filter(group__user=self.user)

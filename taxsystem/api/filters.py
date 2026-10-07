@@ -1,6 +1,3 @@
-# Standard Library
-import json
-
 # Third Party
 from ninja import NinjaAPI
 
@@ -14,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
-from taxsystem import __title__, forms
+from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.icons import (
     get_filter_delete_button,
@@ -22,12 +19,14 @@ from taxsystem.api.helpers.icons import (
     get_filter_set_active_icon,
 )
 from taxsystem.api.schema import (
+    ActionCommentRequest,
+    CreateFilterRequest,
+    CreateFilterSetRequest,
     DataTableSchema,
+    ErrorSchema,
     FilterModelSchema,
     FilterSetModelSchema,
-)
-from taxsystem.models.corporation import (
-    CorporationOwner,
+    MessageSchema,
 )
 from taxsystem.models.helpers.textchoices import (
     ActionType,
@@ -45,7 +44,7 @@ class FilterApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "owner/{owner_id}/filter-set/{filterset_pk}/view/filter/",
-            response={200: list, 403: dict, 404: dict},
+            response={200: list[FilterModelSchema], 403: ErrorSchema, 404: ErrorSchema},
             tags=self.tags,
         )
         def get_filters(request, owner_id: int, filterset_pk: int):
@@ -64,9 +63,11 @@ class FilterApiEndpoints:
             # pylint: disable=duplicate-code
             owner, perms = core.get_manage_owner(request, owner_id)
 
+            # pylint: disable=duplicate-code
             if owner is None:
                 return 404, {"error": _("Owner not Found.")}
 
+            # pylint: disable=duplicate-code
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
@@ -82,7 +83,9 @@ class FilterApiEndpoints:
                     display = str(filter_obj.value)
 
                 response_filter = FilterModelSchema(
+                    id=filter_obj.pk,
                     filter_set=FilterSetModelSchema(
+                        id=filter_obj.filter_set.pk,
                         owner_id=filter_obj.filter_set.owner.pk,
                         name=filter_obj.filter_set.name,
                         description=filter_obj.filter_set.description,
@@ -106,7 +109,12 @@ class FilterApiEndpoints:
             response={200: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def delete_filter(request: WSGIRequest, owner_id: int, filter_pk: int):
+        def delete_filter(
+            request: WSGIRequest,
+            owner_id: int,
+            filter_pk: int,
+            payload: ActionCommentRequest = ActionCommentRequest(),
+        ):
             """
             Handle an Request to delete a Filter.
 
@@ -117,6 +125,7 @@ class FilterApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 filter_pk (int): The ID of the filter to be deleted.
+                payload (ActionCommentRequest): The action comment request payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -130,16 +139,6 @@ class FilterApiEndpoints:
             # Check permissions
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
-
-            # Validate the form data
-            form = (
-                forms.DeleteCorporationFilterForm(data=json.loads(request.body))
-                if isinstance(owner, CorporationOwner)
-                else forms.DeleteAllianceFilterForm(data=json.loads(request.body))
-            )
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
 
             # Check if filter set exists
             filter_obj = owner.filter_model.objects.filter(
@@ -157,7 +156,7 @@ class FilterApiEndpoints:
                 _('{filter_obj} in "{filter_set}" deleted - Reason: {reason}'),
                 filter_obj=filter_obj,
                 filter_set=filter_obj.filter_set.name,
-                reason=form.cleaned_data["comment"],
+                reason=payload.comment,
             )
             # Log the deletion in Admin History
             owner.admin_log_model(
@@ -173,7 +172,11 @@ class FilterApiEndpoints:
 
         @api.get(
             "owner/{owner_id}/view/filter-set/",
-            response={200: list, 403: dict, 404: dict},
+            response={
+                200: list[FilterSetModelSchema],
+                403: ErrorSchema,
+                404: ErrorSchema,
+            },
             tags=self.tags,
         )
         def get_filter_set(request, owner_id: int):
@@ -201,6 +204,7 @@ class FilterApiEndpoints:
             response_filter_list: list[FilterSetModelSchema] = []
             for filter_set in filter_sets:
                 response_filter = FilterSetModelSchema(
+                    id=filter_set.pk,
                     owner_id=filter_set.owner.pk,
                     name=filter_set.name,
                     description=filter_set.description,
@@ -223,7 +227,12 @@ class FilterApiEndpoints:
             response={200: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def delete_filter_set(request: WSGIRequest, owner_id: int, filterset_pk: int):
+        def delete_filter_set(
+            request: WSGIRequest,
+            owner_id: int,
+            filterset_pk: int,
+            payload: ActionCommentRequest = ActionCommentRequest(),
+        ):
             """
             Handle an Request to delete a Filter Set.
 
@@ -234,6 +243,7 @@ class FilterApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner whose filter set is to be retrieved.
                 filter_pk (int): The ID of the filter to be deleted.
+                payload (ActionCommentRequest): The action comment request payload.
             Returns:
                 dict: A dictionary containing the success status and message.
             """
@@ -247,16 +257,6 @@ class FilterApiEndpoints:
             # Check permissions
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
-
-            # Validate the form data
-            form = (
-                forms.DeleteCorporationFilterSetForm(data=json.loads(request.body))
-                if isinstance(owner, CorporationOwner)
-                else forms.DeleteAllianceFilterSetForm(data=json.loads(request.body))
-            )
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
 
             # Check if filter set exists
             filter_set = owner.filterset_model.objects.filter(
@@ -273,7 +273,7 @@ class FilterApiEndpoints:
             msg = format_lazy(
                 _("{filter_set} deleted - Reason: {reason}"),
                 filter_set=filter_set,
-                reason=form.cleaned_data["comment"],
+                reason=payload.comment,
             )
 
             # Log the deletion in Admin History
@@ -347,3 +347,121 @@ class FilterApiEndpoints:
 
             # Return success response
             return 200, {"success": True, "message": msg}
+
+        @api.post(
+            "owner/{owner_id}/filter-set/create/",
+            response={
+                200: MessageSchema,
+                400: ErrorSchema,
+                403: ErrorSchema,
+                404: ErrorSchema,
+            },
+            tags=self.tags,
+        )
+        def create_filter_set(
+            request: WSGIRequest, owner_id: int, payload: CreateFilterSetRequest
+        ):
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # pylint: disable=duplicate-code
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            name = payload.name.strip()
+            if not name:
+                return 400, {"error": _("Filter set name is required.")}
+
+            if owner.filterset_model.objects.filter(owner=owner, name=name).exists():
+                return 400, {"error": _("A filter set with this name already exists.")}
+
+            filter_set = owner.filterset_model.objects.create(
+                owner=owner,
+                name=name,
+                description=payload.description or "",
+            )
+
+            msg = format_lazy(
+                _('Filter set "{filter_set}" created.'),
+                filter_set=filter_set.name,
+            )
+            owner.admin_log_model(
+                user=request.user,
+                owner=owner,
+                target=ActionType.FILTER_SET,
+                action=AdminActions.ADD,
+                comment=msg,
+            ).save()
+
+            return 200, MessageSchema(message=str(msg))
+
+        @api.post(
+            "owner/{owner_id}/filter/create/",
+            response={
+                200: MessageSchema,
+                400: ErrorSchema,
+                403: ErrorSchema,
+                404: ErrorSchema,
+            },
+            tags=self.tags,
+        )
+        def create_filter(
+            request: WSGIRequest, owner_id: int, payload: CreateFilterRequest
+        ):
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # pylint: disable=duplicate-code
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            filter_set = owner.filterset_model.objects.filter(
+                owner=owner, pk=payload.filter_set_id
+            ).first()
+            if not filter_set:
+                return 404, {"error": _("Filter set not found.")}
+
+            val = payload.value.strip()
+            if not val:
+                return 400, {"error": _("Filter value is required.")}
+
+            if owner.filter_model.objects.filter(
+                filter_set=filter_set,
+                filter_type=payload.filter_type,
+                match_type=payload.match_type,
+                value=val,
+            ).exists():
+                return 400, {
+                    "error": _("This filter already exists in the filter set.")
+                }
+
+            filter_obj = owner.filter_model.objects.create(
+                filter_set=filter_set,
+                filter_type=payload.filter_type,
+                match_type=payload.match_type,
+                value=val,
+            )
+
+            msg = format_lazy(
+                _('Filter {filter_type} "{val}" created in "{filter_set}".'),
+                filter_type=filter_obj.get_filter_type_display(),
+                val=val,
+                filter_set=filter_set.name,
+            )
+            owner.admin_log_model(
+                user=request.user,
+                owner=owner,
+                target=ActionType.FILTER,
+                action=AdminActions.ADD,
+                comment=msg,
+            ).save()
+
+            return 200, MessageSchema(message=str(msg))

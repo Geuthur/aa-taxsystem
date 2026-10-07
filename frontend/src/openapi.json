@@ -1,0 +1,4638 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TaxSystem API",
+    "version": "0.5.0",
+    "description": ""
+  },
+  "paths": {
+    "/taxsystem/api/menu/": {
+      "get": {
+        "operationId": "taxsystem_api_general_get_menu",
+        "summary": "Get the navigation menu of the current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/user/": {
+      "get": {
+        "operationId": "taxsystem_api_general_get_user",
+        "summary": "Get the current user and permissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserData"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/settings/": {
+      "get": {
+        "operationId": "taxsystem_api_general_get_user_settings",
+        "summary": "Get the settings of the current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettingsSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "taxsystem_api_general_update_user_settings",
+        "summary": "Update the settings of the current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettingsSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSettingsUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/user/accounts/": {
+      "get": {
+        "operationId": "taxsystem_api_general_get_user_accounts",
+        "summary": "Get all tax accounts for the current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserAccountSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/overview/": {
+      "get": {
+        "operationId": "taxsystem_api_overview_get_overview",
+        "summary": "Get list of all visible Corporation and Alliance owners",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Overview"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/view/members/": {
+      "get": {
+        "operationId": "taxsystem_api_corporation_get_members",
+        "summary": "Get Members",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MembersSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves the members of the according Owner.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose members are to be retrieved.\nReturns:\n    MembersResponse: A response object containing the list of members.",
+        "tags": [
+          "Corporation Tax System"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/member/{member_pk}/manage/delete-member/": {
+      "post": {
+        "operationId": "taxsystem_api_corporation_delete_member",
+        "summary": "Delete Member",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "member_pk",
+            "schema": {
+              "title": "Member Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Delete a Member\n\nThis Endpoint deletes a member from an associated tax account.\nIt validates the request, checks permissions, and deletes the member from the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    member_pk (int): The ID of the member to be deleted.\n    payload (ActionCommentRequest): Optional action comment payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Corporation Tax System"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ActionCommentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": ""
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/corporation/{owner_id}/view/dashboard/": {
+      "get": {
+        "operationId": "taxsystem_api_admin_get_dashboard",
+        "summary": "Get Dashboard",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves the dashboard information for a specific corporation.\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    corporation_id (int): The ID of the corporation whose dashboard information is to be retrieved.\nReturns:\n    DashboardResponse: A response object containing the dashboard information.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/manage/tax-accounts/": {
+      "get": {
+        "operationId": "taxsystem_api_admin_get_tax_accounts",
+        "summary": "Get Tax Accounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentSystemSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves the tax accounts associated with a specific owner.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose tax accounts are to be retrieved.\nReturns:\n    PaymentSystemResponse: A response object containing the list of tax accounts.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/account/{account_pk}/manage/switch-account/": {
+      "post": {
+        "operationId": "taxsystem_api_admin_switch_tax_account",
+        "summary": "Switch Tax Account",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "account_pk",
+            "schema": {
+              "title": "Account Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Switch a Tax Account\n\nThis Endpoint switches a tax account from an associated owner.\nIt validates the request, checks permissions, and switches the his state to the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    account_pk (int): The ID of the tax account to be switched.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/manage/update-tax/": {
+      "post": {
+        "operationId": "taxsystem_api_admin_update_tax_amount",
+        "summary": "Update Tax Amount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Update Tax Amount\n\nThis Endpoint updates the tax amount for an associated owner.\nIt validates the request, checks permissions, and updates the tax amount accordingly.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payload (UpdateTaxAmountRequest): The update tax amount request payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaxAmountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/manage/update-period/": {
+      "post": {
+        "operationId": "taxsystem_api_admin_update_tax_period",
+        "summary": "Update Tax Period",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Update Tax Period\n\nThis Endpoint updates the tax period for an associated owner.\nIt validates the request, checks permissions, and updates the tax period accordingly.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payload (UpdateTaxPeriodRequest): The update tax period request payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaxPeriodRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/manage/bulk-actions/": {
+      "post": {
+        "operationId": "taxsystem_api_admin_perform_bulk_actions_tax_accounts",
+        "summary": "Perform Bulk Actions Tax Accounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Bulk Actions\n\nThis Endpoint performs bulk actions for an associated owner.\nIt validates the request, checks permissions, and performs the bulk actions accordingly.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payload (BulkActionAccountsRequest): The bulk actions request payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkActionAccountsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/admin/tasks/run/": {
+      "post": {
+        "operationId": "taxsystem_api_admin_run_update_tasks",
+        "summary": "Queue update tasks for taxsystem",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/view/payments/": {
+      "get": {
+        "operationId": "taxsystem_api_payments_get_payments",
+        "summary": "Get Payments",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentCorporationSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves all payments to the accordicng owner.\nIt checks for the owner's existence and the user's permissions\nbefore fetching and returning the payment data.\n\nArgs:\n    request (WSGIRequest): The incoming HTTP request.\n    owner_id (int): The ID of the owner whose payments are to be retrieved.\nReturns:\n    A list of payment data if successful, or an error message with appropriate status code.",
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/view/my-payments/": {
+      "get": {
+        "operationId": "taxsystem_api_payments_get_my_payments",
+        "summary": "Get My Payments",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentCorporationSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves all payments made by the requesting user\naccording to the owner. It checks for the owner's existence\nbefore fetching and returning the payment data.\nArgs:\n    request (WSGIRequest): The incoming HTTP request.\n    owner_id (int): The ID of the owner whose payments are to be retrieved.\nReturns:\n    A list of payment data if successful, or an error message with appropriate status code.",
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/view/details/": {
+      "get": {
+        "operationId": "taxsystem_api_payments_get_payment_details",
+        "summary": "Get Payment Details",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "payment_pk",
+            "schema": {
+              "title": "Payment Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentsDetailsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/character/{character_id}/view/payments/": {
+      "get": {
+        "operationId": "taxsystem_api_payments_get_member_payments",
+        "summary": "Get Member Payments",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "character_id",
+            "schema": {
+              "title": "Character Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/account/{account_pk}/manage/add-payment/": {
+      "post": {
+        "operationId": "taxsystem_api_payments_add_payment",
+        "summary": "Add Payment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "account_pk",
+            "schema": {
+              "title": "Account Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Add a custom Payment\n\nThis Endpoint adds a custom payment for a tax account.\nIt validates the request, checks permissions, and adds the payment to the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    account_pk (int): The ID of the tax account to which the payment will be added.\n    payload (schema.AddPaymentRequest): Custom payment details (amount and comment).\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/approve-payment/": {
+      "post": {
+        "operationId": "taxsystem_api_payments_approve_payment",
+        "summary": "Approve Payment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "payment_pk",
+            "schema": {
+              "title": "Payment Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Approve a Payment\n\nThis Endpoint approves a payment from an associated tax account.\nIt validates the request, checks permissions, and approves the payment to the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payment_pk (int): The ID of the payment to be approved.\n    payload (ActionCommentRequest): Optional action comment payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ActionCommentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": ""
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/undo-payment/": {
+      "post": {
+        "operationId": "taxsystem_api_payments_undo_payment",
+        "summary": "Undo Payment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "payment_pk",
+            "schema": {
+              "title": "Payment Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Undo a Payment\n\nThis Endpoint undoes a payment from an associated tax account.\nIt validates the request, checks permissions, and undoes the payment to the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payment_pk (int): The ID of the payment to be approved.\n    payload (ActionCommentRequest): Optional action comment payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ActionCommentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": ""
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/delete-payment/": {
+      "post": {
+        "operationId": "taxsystem_api_payments_delete_payment",
+        "summary": "Delete Payment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "payment_pk",
+            "schema": {
+              "title": "Payment Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Delete a Payment\n\nThis Endpoint deletes a payment from an associated tax account.\nIt validates the request, checks permissions, and deletes the payment to the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payment_pk (int): The ID of the payment to be approved.\n    payload (DeletePaymentRequest, optional): Delete payload with comment.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DeletePaymentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": "Deleted via TaxSystem"
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/reject-payment/": {
+      "post": {
+        "operationId": "taxsystem_api_payments_reject_payment",
+        "summary": "Reject Payment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "payment_pk",
+            "schema": {
+              "title": "Payment Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Reject a Payment\n\nThis Endpoint rejects a payment from an associated tax account.\nIt validates the request, checks permissions, and rejects the payment to the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payment_pk (int): The ID of the payment to be approved.\n    payload (ActionCommentRequest): Optional action comment payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ActionCommentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": ""
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/payment/manage/bulk-actions/": {
+      "post": {
+        "operationId": "taxsystem_api_payments_perform_bulk_actions_payments",
+        "summary": "Perform Bulk Actions Payments",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Bulk Actions\n\nThis Endpoint performs bulk actions for an associated owner.\nIt validates the request, checks permissions, and performs the bulk actions accordingly.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    payload (BulkActionPaymentsRequest): Bulk actions payload with pks and action.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkActionPaymentsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/view/payment-history/": {
+      "get": {
+        "operationId": "taxsystem_api_logs_get_payments_history",
+        "summary": "Get Payments History",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentHistorySchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves the payments logs associated with a specific owner.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose payments logs are to be retrieved.\nReturns:\n    list[PaymentHistorySchema]: A response object containing the list of payments logs.",
+        "tags": [
+          "Logs"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/view/admin-history/": {
+      "get": {
+        "operationId": "taxsystem_api_logs_get_admin_history",
+        "summary": "Get Admin History",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminHistorySchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves the admin logs associated with a specific owner.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose admin logs are to be retrieved.\nReturns:\n    list[AdminHistorySchema]: A response object containing the list of admin logs.",
+        "tags": [
+          "Logs"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/filter-set/{filterset_pk}/view/filter/": {
+      "get": {
+        "operationId": "taxsystem_api_filters_get_filters",
+        "summary": "Get Filters",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "filterset_pk",
+            "schema": {
+              "title": "Filterset Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FilterModelSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to retrieve Filters for a Filter Set.\nThis Endpoint retrieves the filters for a filter set for a owner.\nIt validates the request, checks permissions, and retrieves the according filters.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    filter_pk (int): The ID of the filter set whose filters are to be retrieved.\nReturns:\n    list[FilterModelSchema]: A list of filter schema objects.",
+        "tags": [
+          "Filter Management"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/filter/{filter_pk}/manage/delete-filter/": {
+      "post": {
+        "operationId": "taxsystem_api_filters_delete_filter",
+        "summary": "Delete Filter",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "filter_pk",
+            "schema": {
+              "title": "Filter Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to delete a Filter.\n\nThis Endpoint deletes a filter from an associated owner.\nIt validates the request, checks permissions, and deletes the according filter.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    filter_pk (int): The ID of the filter to be deleted.\n    payload (ActionCommentRequest): The action comment request payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Filter Management"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ActionCommentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": ""
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/view/filter-set/": {
+      "get": {
+        "operationId": "taxsystem_api_filters_get_filter_set",
+        "summary": "Get Filter Set",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FilterSetModelSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "This Endpoint retrieves the filter set for an owner.\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\nReturns:\n    list[FilterSetModelSchema]: A list of filter set schema objects.",
+        "tags": [
+          "Filter Management"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/filter-set/{filterset_pk}/manage/delete-filter/": {
+      "post": {
+        "operationId": "taxsystem_api_filters_delete_filter_set",
+        "summary": "Delete Filter Set",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "filterset_pk",
+            "schema": {
+              "title": "Filterset Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to delete a Filter Set.\n\nThis Endpoint deletes a filter set for a owner.\nIt validates the request, checks permissions, and deletes the according filter set.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    filter_pk (int): The ID of the filter to be deleted.\n    payload (ActionCommentRequest): The action comment request payload.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Filter Management"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ActionCommentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": ""
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/filter-set/{filterset_pk}/manage/switch-filter/": {
+      "post": {
+        "operationId": "taxsystem_api_filters_switch_filter_set",
+        "summary": "Switch Filter Set",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "filterset_pk",
+            "schema": {
+              "title": "Filterset Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Handle an Request to Switch a Filter Set.\n\nThis Endpoint handle an Request to switching a filter set from an associated owner depending on its current state.\nIt validates the request, checks permissions, and toggles the enabled state of the according filter set.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    filter_pk (int): The ID of the filter set to be switched.\nReturns:\n    dict: A dictionary containing the success status and message.",
+        "tags": [
+          "Filter Management"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/filter-set/create/": {
+      "post": {
+        "operationId": "taxsystem_api_filters_create_filter_set",
+        "summary": "Create Filter Set",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Filter Management"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFilterSetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/filter/create/": {
+      "post": {
+        "operationId": "taxsystem_api_filters_create_filter",
+        "summary": "Create Filter",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Filter Management"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFilterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/groups/": {
+      "get": {
+        "operationId": "taxsystem_api_groups_get_groups",
+        "summary": "Get Groups",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GroupManagementSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Group Management"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/groups/{group_pk}/manage/delete/": {
+      "post": {
+        "operationId": "taxsystem_api_groups_delete_group",
+        "summary": "Delete Group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "group_pk",
+            "schema": {
+              "title": "Group Pk",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a specific group for the given owner.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner.\n    group_pk (int): The primary key of the group to be deleted.\n    payload (ActionCommentRequest): The action comment request payload.\nReturns:\n    200: A success message indicating the group was deleted successfully.\n    403: An error message if the user does not have permission or the group is not found.\n    404: An error message if the group does not exist.",
+        "tags": [
+          "Group Management"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ActionCommentRequest"
+                  }
+                ],
+                "default": {
+                  "comment": ""
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/groups/available/": {
+      "get": {
+        "operationId": "taxsystem_api_groups_get_available_groups",
+        "summary": "Get Available Groups",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GroupSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Group Management"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/groups/create/": {
+      "post": {
+        "operationId": "taxsystem_api_groups_create_group",
+        "summary": "Create Group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Group Management"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MenuLink": {
+        "description": "A navigation link. `link` is relative to the app root unless `is_external` is set.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "link": {
+            "title": "Link",
+            "type": "string"
+          },
+          "badge": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Badge"
+          },
+          "is_external": {
+            "default": false,
+            "title": "Is External",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "link"
+        ],
+        "title": "MenuLink",
+        "type": "object"
+      },
+      "MenuSchema": {
+        "description": "The navigation menu of the application.",
+        "properties": {
+          "left_links": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MenuLink"
+            },
+            "title": "Left Links",
+            "type": "array"
+          },
+          "right_links": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MenuLink"
+            },
+            "title": "Right Links",
+            "type": "array"
+          }
+        },
+        "title": "MenuSchema",
+        "type": "object"
+      },
+      "ErrorSchema": {
+        "description": "Schema for error responses.",
+        "properties": {
+          "error": {
+            "title": "Error",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorSchema",
+        "type": "object"
+      },
+      "UserData": {
+        "description": "The current user, main character and permissions.",
+        "properties": {
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "character_id": {
+            "default": 0,
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "default": "",
+            "title": "Character Name",
+            "type": "string"
+          },
+          "corporation_id": {
+            "default": 0,
+            "title": "Corporation Id",
+            "type": "integer"
+          },
+          "corporation_name": {
+            "default": "",
+            "title": "Corporation Name",
+            "type": "string"
+          },
+          "alliance_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Id"
+          },
+          "alliance_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Name"
+          },
+          "portrait": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portrait"
+          },
+          "is_admin": {
+            "default": false,
+            "title": "Is Admin",
+            "type": "boolean"
+          },
+          "can_manage": {
+            "default": false,
+            "title": "Can Manage",
+            "type": "boolean"
+          },
+          "can_create": {
+            "default": false,
+            "title": "Can Create",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "title": "UserData",
+        "type": "object"
+      },
+      "UserSettingsSchema": {
+        "description": "User notification preferences.",
+        "properties": {
+          "disable_notifications": {
+            "title": "Disable Notifications",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "disable_notifications"
+        ],
+        "title": "UserSettingsSchema",
+        "type": "object"
+      },
+      "UserSettingsUpdateRequest": {
+        "description": "Request to update user notification preferences.",
+        "properties": {
+          "disable_notifications": {
+            "title": "Disable Notifications",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "disable_notifications"
+        ],
+        "title": "UserSettingsUpdateRequest",
+        "type": "object"
+      },
+      "UserAccountSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "integer"
+          },
+          "owner_name": {
+            "title": "Owner Name",
+            "type": "string"
+          },
+          "owner_type": {
+            "title": "Owner Type",
+            "type": "string"
+          },
+          "owner_logo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Logo"
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          },
+          "character_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Name"
+          },
+          "character_portrait": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Portrait"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "status_display": {
+            "title": "Status Display",
+            "type": "string"
+          },
+          "deposit": {
+            "title": "Deposit",
+            "type": "number"
+          },
+          "tax_amount": {
+            "title": "Tax Amount",
+            "type": "number"
+          },
+          "tax_period": {
+            "title": "Tax Period",
+            "type": "integer"
+          },
+          "has_paid": {
+            "title": "Has Paid",
+            "type": "boolean"
+          },
+          "last_paid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Paid"
+          },
+          "next_due": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Due"
+          },
+          "joined": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined"
+          },
+          "last_login": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Login"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notice"
+          },
+          "open_invoices": {
+            "default": 0,
+            "title": "Open Invoices",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "owner_id",
+          "owner_name",
+          "owner_type",
+          "status",
+          "status_display",
+          "deposit",
+          "tax_amount",
+          "tax_period",
+          "has_paid"
+        ],
+        "title": "UserAccountSchema",
+        "type": "object"
+      },
+      "OverviewSchema": {
+        "description": "List of all visible owners.",
+        "properties": {
+          "owners": {
+            "items": {
+              "$ref": "#/components/schemas/OwnerOverviewSchema"
+            },
+            "title": "Owners",
+            "type": "array"
+          },
+          "total_count": {
+            "title": "Total Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "owners",
+          "total_count"
+        ],
+        "title": "OverviewSchema",
+        "type": "object"
+      },
+      "OwnerOverviewSchema": {
+        "description": "Overview item for an owner corporation or alliance.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "corporation",
+              "alliance"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "type_display": {
+            "title": "Type Display",
+            "type": "string"
+          },
+          "portrait_url": {
+            "title": "Portrait Url",
+            "type": "string"
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "open_invoices": {
+            "title": "Open Invoices",
+            "type": "integer"
+          },
+          "can_manage": {
+            "title": "Can Manage",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "type_display",
+          "portrait_url",
+          "active",
+          "open_invoices",
+          "can_manage"
+        ],
+        "title": "OwnerOverviewSchema",
+        "type": "object"
+      },
+      "CharacterSchema": {
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "character_portrait": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Portrait"
+          },
+          "corporation_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corporation Id"
+          },
+          "corporation_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corporation Name"
+          },
+          "alliance_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Id"
+          },
+          "alliance_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Name"
+          },
+          "display": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "CharacterSchema",
+        "type": "object"
+      },
+      "MembersSchema": {
+        "properties": {
+          "character": {
+            "$ref": "#/components/schemas/CharacterSchema"
+          },
+          "is_missing": {
+            "title": "Is Missing",
+            "type": "boolean"
+          },
+          "is_noaccount": {
+            "title": "Is Noaccount",
+            "type": "boolean"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "joined": {
+            "format": "date-time",
+            "title": "Joined",
+            "type": "string"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actions"
+          }
+        },
+        "required": [
+          "character",
+          "is_missing",
+          "is_noaccount",
+          "status",
+          "joined"
+        ],
+        "title": "MembersSchema",
+        "type": "object"
+      },
+      "ActionCommentRequest": {
+        "properties": {
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "title": "ActionCommentRequest",
+        "type": "object"
+      },
+      "DashboardDivisionsSchema": {
+        "properties": {
+          "divisions": {
+            "items": {
+              "$ref": "#/components/schemas/DivisionSchema"
+            },
+            "title": "Divisions",
+            "type": "array"
+          },
+          "total_balance": {
+            "title": "Total Balance",
+            "type": "number"
+          }
+        },
+        "required": [
+          "divisions",
+          "total_balance"
+        ],
+        "title": "DashboardDivisionsSchema",
+        "type": "object"
+      },
+      "DashboardResponse": {
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "update_status": {
+            "$ref": "#/components/schemas/UpdateStatusSchema"
+          },
+          "tax_amount": {
+            "title": "Tax Amount",
+            "type": "integer"
+          },
+          "tax_period": {
+            "title": "Tax Period",
+            "type": "integer"
+          },
+          "divisions": {
+            "$ref": "#/components/schemas/DashboardDivisionsSchema"
+          },
+          "statistics": {
+            "$ref": "#/components/schemas/StatisticsResponse"
+          },
+          "activity": {
+            "title": "Activity",
+            "type": "number"
+          }
+        },
+        "required": [
+          "owner",
+          "update_status",
+          "tax_amount",
+          "tax_period",
+          "divisions",
+          "statistics",
+          "activity"
+        ],
+        "title": "DashboardResponse",
+        "type": "object"
+      },
+      "DivisionSchema": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "balance": {
+            "title": "Balance",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "balance"
+        ],
+        "title": "DivisionSchema",
+        "type": "object"
+      },
+      "MembersStatisticsSchema": {
+        "properties": {
+          "members": {
+            "title": "Members",
+            "type": "integer"
+          },
+          "members_unregistered": {
+            "title": "Members Unregistered",
+            "type": "integer"
+          },
+          "members_alts": {
+            "title": "Members Alts",
+            "type": "integer"
+          },
+          "members_mains": {
+            "title": "Members Mains",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "members",
+          "members_unregistered",
+          "members_alts",
+          "members_mains"
+        ],
+        "title": "MembersStatisticsSchema",
+        "type": "object"
+      },
+      "OwnerSchema": {
+        "properties": {
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "integer"
+          },
+          "owner_name": {
+            "title": "Owner Name",
+            "type": "string"
+          },
+          "owner_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Type"
+          },
+          "owner_portrait": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Portrait"
+          }
+        },
+        "required": [
+          "owner_id",
+          "owner_name"
+        ],
+        "title": "OwnerSchema",
+        "type": "object"
+      },
+      "PaymentsStatisticsSchema": {
+        "properties": {
+          "payments": {
+            "title": "Payments",
+            "type": "integer"
+          },
+          "payments_pending": {
+            "title": "Payments Pending",
+            "type": "integer"
+          },
+          "payments_approved": {
+            "default": 0,
+            "title": "Payments Approved",
+            "type": "integer"
+          },
+          "payments_automatic": {
+            "title": "Payments Automatic",
+            "type": "integer"
+          },
+          "payments_manual": {
+            "title": "Payments Manual",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "payments",
+          "payments_pending",
+          "payments_automatic",
+          "payments_manual"
+        ],
+        "title": "PaymentsStatisticsSchema",
+        "type": "object"
+      },
+      "StatisticsResponse": {
+        "properties": {
+          "owner_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Id"
+          },
+          "owner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Name"
+          },
+          "tax_account": {
+            "$ref": "#/components/schemas/TaxAccountStatisticsSchema"
+          },
+          "payments": {
+            "$ref": "#/components/schemas/PaymentsStatisticsSchema"
+          },
+          "members": {
+            "$ref": "#/components/schemas/MembersStatisticsSchema"
+          }
+        },
+        "required": [
+          "tax_account",
+          "payments",
+          "members"
+        ],
+        "title": "StatisticsResponse",
+        "type": "object"
+      },
+      "TaxAccountStatisticsSchema": {
+        "properties": {
+          "accounts": {
+            "title": "Accounts",
+            "type": "integer"
+          },
+          "accounts_active": {
+            "title": "Accounts Active",
+            "type": "integer"
+          },
+          "accounts_inactive": {
+            "title": "Accounts Inactive",
+            "type": "integer"
+          },
+          "accounts_deactivated": {
+            "title": "Accounts Deactivated",
+            "type": "integer"
+          },
+          "accounts_paid": {
+            "title": "Accounts Paid",
+            "type": "integer"
+          },
+          "accounts_unpaid": {
+            "title": "Accounts Unpaid",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accounts",
+          "accounts_active",
+          "accounts_inactive",
+          "accounts_deactivated",
+          "accounts_paid",
+          "accounts_unpaid"
+        ],
+        "title": "TaxAccountStatisticsSchema",
+        "type": "object"
+      },
+      "UpdateStatusSchema": {
+        "properties": {
+          "status": {
+            "additionalProperties": true,
+            "title": "Status",
+            "type": "object"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Html"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "UpdateStatusSchema",
+        "type": "object"
+      },
+      "AccountSchema": {
+        "properties": {
+          "character_id": {
+            "title": "Character Id",
+            "type": "integer"
+          },
+          "character_name": {
+            "title": "Character Name",
+            "type": "string"
+          },
+          "character_portrait": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Portrait"
+          },
+          "corporation_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corporation Id"
+          },
+          "corporation_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corporation Name"
+          },
+          "alliance_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Id"
+          },
+          "alliance_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alliance Name"
+          },
+          "display": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display"
+          },
+          "alt_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alt Ids"
+          }
+        },
+        "required": [
+          "character_id",
+          "character_name"
+        ],
+        "title": "AccountSchema",
+        "type": "object"
+      },
+      "DataTableSchema": {
+        "description": "Legacy DataTable wrapper schema (kept for backwards compatibility).",
+        "properties": {
+          "raw": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "Raw"
+          },
+          "display": {
+            "title": "Display",
+            "type": "string"
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort"
+          },
+          "translation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Translation"
+          },
+          "dropdown_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dropdown Text"
+          }
+        },
+        "required": [
+          "raw",
+          "display"
+        ],
+        "title": "DataTableSchema",
+        "type": "object"
+      },
+      "PaymentSystemSchema": {
+        "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
+          "account": {
+            "$ref": "#/components/schemas/AccountSchema"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "deposit": {
+            "title": "Deposit",
+            "type": "integer"
+          },
+          "has_paid": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "$ref": "#/components/schemas/DataTableSchema"
+              }
+            ],
+            "title": "Has Paid"
+          },
+          "last_paid": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Paid"
+          },
+          "next_due": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Due"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actions"
+          }
+        },
+        "required": [
+          "account",
+          "status",
+          "deposit",
+          "has_paid",
+          "is_active"
+        ],
+        "title": "PaymentSystemSchema",
+        "type": "object"
+      },
+      "UpdateTaxAmountRequest": {
+        "properties": {
+          "tax_amount": {
+            "title": "Tax Amount",
+            "type": "number"
+          }
+        },
+        "required": [
+          "tax_amount"
+        ],
+        "title": "UpdateTaxAmountRequest",
+        "type": "object"
+      },
+      "UpdateTaxPeriodRequest": {
+        "properties": {
+          "tax_period": {
+            "title": "Tax Period",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tax_period"
+        ],
+        "title": "UpdateTaxPeriodRequest",
+        "type": "object"
+      },
+      "BulkActionAccountsRequest": {
+        "properties": {
+          "pks": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Pks",
+            "type": "array"
+          },
+          "action": {
+            "enum": [
+              "activate",
+              "deactivate"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pks",
+          "action"
+        ],
+        "title": "BulkActionAccountsRequest",
+        "type": "object"
+      },
+      "MessageSchema": {
+        "description": "Schema for simple success responses.",
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "MessageSchema",
+        "type": "object"
+      },
+      "AdminUpdateRequest": {
+        "description": "Request to trigger background update tasks.",
+        "properties": {
+          "target": {
+            "enum": [
+              "all",
+              "corporation",
+              "alliance"
+            ],
+            "title": "Target",
+            "type": "string"
+          },
+          "eve_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eve Id"
+          },
+          "force_refresh": {
+            "default": false,
+            "title": "Force Refresh",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "title": "AdminUpdateRequest",
+        "type": "object"
+      },
+      "PaymentCorporationSchema": {
+        "properties": {
+          "payment_id": {
+            "title": "Payment Id",
+            "type": "integer"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "request_status": {
+            "$ref": "#/components/schemas/RequestStatusSchema"
+          },
+          "division_name": {
+            "title": "Division Name",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "reviser": {
+            "title": "Reviser",
+            "type": "string"
+          },
+          "is_custom": {
+            "default": false,
+            "title": "Is Custom",
+            "type": "boolean"
+          },
+          "can_delete": {
+            "default": false,
+            "title": "Can Delete",
+            "type": "boolean"
+          },
+          "can_approve": {
+            "default": false,
+            "title": "Can Approve",
+            "type": "boolean"
+          },
+          "can_reject": {
+            "default": false,
+            "title": "Can Reject",
+            "type": "boolean"
+          },
+          "can_undo": {
+            "default": false,
+            "title": "Can Undo",
+            "type": "boolean"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actions"
+          },
+          "character": {
+            "$ref": "#/components/schemas/CharacterSchema"
+          }
+        },
+        "required": [
+          "payment_id",
+          "amount",
+          "date",
+          "request_status",
+          "division_name",
+          "reason",
+          "reviser",
+          "character"
+        ],
+        "title": "PaymentCorporationSchema",
+        "type": "object"
+      },
+      "RequestStatusSchema": {
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Html"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "RequestStatusSchema",
+        "type": "object"
+      },
+      "PaymentHistorySchema": {
+        "properties": {
+          "log_id": {
+            "title": "Log Id",
+            "type": "integer"
+          },
+          "reviser": {
+            "title": "Reviser",
+            "type": "string"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "log_id",
+          "reviser",
+          "date",
+          "action",
+          "comment",
+          "status"
+        ],
+        "title": "PaymentHistorySchema",
+        "type": "object"
+      },
+      "PaymentSchema": {
+        "properties": {
+          "payment_id": {
+            "title": "Payment Id",
+            "type": "integer"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "request_status": {
+            "$ref": "#/components/schemas/RequestStatusSchema"
+          },
+          "division_name": {
+            "title": "Division Name",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "reviser": {
+            "title": "Reviser",
+            "type": "string"
+          },
+          "is_custom": {
+            "default": false,
+            "title": "Is Custom",
+            "type": "boolean"
+          },
+          "can_delete": {
+            "default": false,
+            "title": "Can Delete",
+            "type": "boolean"
+          },
+          "can_approve": {
+            "default": false,
+            "title": "Can Approve",
+            "type": "boolean"
+          },
+          "can_reject": {
+            "default": false,
+            "title": "Can Reject",
+            "type": "boolean"
+          },
+          "can_undo": {
+            "default": false,
+            "title": "Can Undo",
+            "type": "boolean"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actions"
+          }
+        },
+        "required": [
+          "payment_id",
+          "amount",
+          "date",
+          "request_status",
+          "division_name",
+          "reason",
+          "reviser"
+        ],
+        "title": "PaymentSchema",
+        "type": "object"
+      },
+      "PaymentsDetailsResponse": {
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/OwnerSchema"
+          },
+          "account": {
+            "$ref": "#/components/schemas/TaxAccountSchema"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentSchema"
+          },
+          "payment_histories": {
+            "items": {
+              "$ref": "#/components/schemas/PaymentHistorySchema"
+            },
+            "title": "Payment Histories",
+            "type": "array"
+          }
+        },
+        "required": [
+          "owner",
+          "account",
+          "payment",
+          "payment_histories"
+        ],
+        "title": "PaymentsDetailsResponse",
+        "type": "object"
+      },
+      "TaxAccountSchema": {
+        "properties": {
+          "account_id": {
+            "title": "Account Id",
+            "type": "integer"
+          },
+          "account_name": {
+            "title": "Account Name",
+            "type": "string"
+          },
+          "account_status": {
+            "title": "Account Status",
+            "type": "string"
+          },
+          "character": {
+            "$ref": "#/components/schemas/CharacterSchema"
+          },
+          "payment_pool": {
+            "title": "Payment Pool",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "account_id",
+          "account_name",
+          "account_status",
+          "character",
+          "payment_pool"
+        ],
+        "title": "TaxAccountSchema",
+        "type": "object"
+      },
+      "AddPaymentRequest": {
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "comment"
+        ],
+        "title": "AddPaymentRequest",
+        "type": "object"
+      },
+      "DeletePaymentRequest": {
+        "properties": {
+          "comment": {
+            "default": "Deleted via TaxSystem",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "title": "DeletePaymentRequest",
+        "type": "object"
+      },
+      "BulkActionPaymentsRequest": {
+        "properties": {
+          "pks": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Pks",
+            "type": "array"
+          },
+          "action": {
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pks",
+          "action"
+        ],
+        "title": "BulkActionPaymentsRequest",
+        "type": "object"
+      },
+      "AdminHistorySchema": {
+        "properties": {
+          "log_id": {
+            "title": "Log Id",
+            "type": "integer"
+          },
+          "user_name": {
+            "title": "User Name",
+            "type": "string"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/DataTableSchema"
+              }
+            ],
+            "title": "Action"
+          },
+          "comment": {
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "log_id",
+          "user_name",
+          "date",
+          "target",
+          "action",
+          "comment"
+        ],
+        "title": "AdminHistorySchema",
+        "type": "object"
+      },
+      "FilterModelSchema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "filter_set": {
+            "$ref": "#/components/schemas/FilterSetModelSchema"
+          },
+          "filter_type": {
+            "title": "Filter Type",
+            "type": "string"
+          },
+          "match_type": {
+            "title": "Match Type",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/DataTableSchema"
+              }
+            ],
+            "title": "Value"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actions"
+          }
+        },
+        "required": [
+          "filter_set",
+          "filter_type",
+          "match_type",
+          "value"
+        ],
+        "title": "FilterModelSchema",
+        "type": "object"
+      },
+      "FilterSetModelSchema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "$ref": "#/components/schemas/DataTableSchema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actions"
+          }
+        },
+        "required": [
+          "owner_id",
+          "name",
+          "description",
+          "enabled"
+        ],
+        "title": "FilterSetModelSchema",
+        "type": "object"
+      },
+      "CreateFilterSetRequest": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "CreateFilterSetRequest",
+        "type": "object"
+      },
+      "CreateFilterRequest": {
+        "properties": {
+          "filter_set_id": {
+            "title": "Filter Set Id",
+            "type": "integer"
+          },
+          "filter_type": {
+            "enum": [
+              "reason",
+              "amount"
+            ],
+            "title": "Filter Type",
+            "type": "string"
+          },
+          "match_type": {
+            "enum": [
+              "exact",
+              "contains"
+            ],
+            "title": "Match Type",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "filter_set_id",
+          "filter_type",
+          "match_type",
+          "value"
+        ],
+        "title": "CreateFilterRequest",
+        "type": "object"
+      },
+      "GroupManagementSchema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "groups": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/GroupSchema"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groups"
+          },
+          "actions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actions"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "GroupManagementSchema",
+        "type": "object"
+      },
+      "GroupSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "GroupSchema",
+        "type": "object"
+      },
+      "CreateGroupRequest": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "group_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Group Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "group_ids"
+        ],
+        "title": "CreateGroupRequest",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "SessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid"
+      }
+    }
+  },
+  "servers": []
+}

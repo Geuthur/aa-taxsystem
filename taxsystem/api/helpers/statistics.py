@@ -41,6 +41,7 @@ class TaxAccountStatisticsSchema(Schema):
 class PaymentsStatisticsSchema(Schema):
     payments: int
     payments_pending: int
+    payments_approved: int = 0
     payments_automatic: int
     payments_manual: int
 
@@ -129,11 +130,16 @@ def get_payments_statistics(
                 ]
             ),
         ),
+        approved=Count(
+            "id",
+            filter=Q(request_status=PaymentRequestStatus.APPROVED),
+        ),
     )
 
     return PaymentsStatisticsSchema(
         payments=payments_statistics["total"],
         payments_pending=payments_statistics["pending"],
+        payments_approved=payments_statistics["approved"],
         payments_automatic=payments_statistics["automatic"],
         payments_manual=payments_statistics["manual"],
     )

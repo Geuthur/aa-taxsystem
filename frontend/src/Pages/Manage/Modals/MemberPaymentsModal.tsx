@@ -1,0 +1,396 @@
+// React
+import { useMemo, useState } from "react";
+
+// Third Party
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Check, RotateCcw, Trash2, X } from "lucide-react";
+import {
+  Badge,
+  Button,
+  Form,
+  Image,
+  Spinner,
+} from "react-bootstrap";
+import { useTranslation } from "react-i18next";
+
+// AA TaxSystem
+import {
+  approvePayment,
+  deletePayment,
+  loadMemberPayments,
+  rejectPayment,
+  undoPayment,
+} from "@/Api/ApiCalls";
+import type { components } from "@/Api/OpenApi";
+import { queryKeys } from "@/Api/query";
+import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
+import { BaseTable } from "@/Components/Base/BaseTable";
+import { formatNumber } from "@/Utils";
+
+type PaymentRow = components["schemas"]["PaymentSchema"];
+
+interface MemberPaymentsModalProps {
+  ownerId: number;
+  characterId: number | null;
+  characterName: string;
+  characterPortrait?: string;
+  show: boolean;
+  onClose: () => void;
+}
+
+export function MemberPaymentsModal({
+  ownerId,
+  characterId,
+  characterName,
+  characterPortrait,
+  show,
+  onClose,
+}: MemberPaymentsModalProps) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const [rejectingPaymentId, setRejectingPaymentId] = useState<number | null>(null);
+  const [rejectComment, setRejectComment] = useState("");
+
+  const [deletingPayment, setDeletingPayment] = useState<PaymentRow | null>(null);
+  const [deleteComment, setDeleteComment] = useState("");
+
+  const {
+    data: payments,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: characterId ? queryKeys.MemberPayments(ownerId, characterId) : ["MemberPayments", ownerId],
+    queryFn: () => (characterId ? loadMemberPayments(ownerId, characterId) : Promise.resolve([])),
+    enabled: show && characterId !== null,
+  });
+
+  const invalidateAll = () => {
+    if (characterId) {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.MemberPayments(ownerId, characterId),
+      });
+    }
+    queryClient.invalidateQueries({ queryKey: queryKeys.TaxAccounts(ownerId) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.Payments(ownerId) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.Dashboard(ownerId) });
+  };
+
+  const approveMutation = useMutation({
+    mutationFn: (paymentId: number) => approvePayment(ownerId, paymentId),
+    onSuccess: () => {
+      invalidateAll();
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: ({ paymentId, comment }: { paymentId: number; comment?: string }) =>
+      rejectPayment(ownerId, paymentId, comment),
+    onSuccess: () => {
+      invalidateAll();
+      setRejectingPaymentId(null);
+      setRejectComment("");
+    },
+  });
+
+  const undoMutation = useMutation({
+    mutationFn: (paymentId: number) => undoPayment(ownerId, paymentId),
+    onSuccess: () => {
+      invalidateAll();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: ({ paymentPk, comment }: { paymentPk: number; comment?: string }) =>
+      deletePayment(ownerId, paymentPk, comment),
+    onSuccess: () => {
+      invalidateAll();
+      setDeletingPayment(null);
+      setDeleteComment("");
+    },
+  });
+
+  const columns = useMemo<ColumnDef<PaymentRow>[]>(
+    () => [
+      {
+        id: "date",
+        header: t("Date", "Date"),
+        accessorKey: "date",
+        cell: ({ getValue }) => <span className="text-secondary small">{String(getValue())}</span>,
+      },
+      {
+        id: "division_name",
+        header: t("Division", "Division"),
+        accessorKey: "division_name",
+        cell: ({ getValue }) => <span>{String(getValue() || "—")}</span>,
+      },
+      {
+        id: "reason",
+        header: t("Reason", "Reason"),
+        accessorKey: "reason",
+        cell: ({ getValue }) => <span>{String(getValue() || "—")}</span>,
+      },
+      {
+        id: "amount",
+        header: t("Amount", "Amount"),
+        accessorKey: "amount",
+        cell: ({ getValue }) => {
+          const val = Number(getValue() || 0);
+          return <span className="fw-semibold text-info">{formatNumber(val)}</span>;
+        },
+      },
+      {
+        id: "request_status",
+        header: t("Status", "Status"),
+        accessorFn: (row) => row.request_status?.status,
+        cell: ({ row }) => {
+          const status = row.original.request_status;
+          return <Badge bg={status?.color || "secondary"}>{status?.status || "Unknown"}</Badge>;
+        },
+      },
+      {
+        id: "reviser",
+        header: t("Reviser", "Reviser"),
+        accessorKey: "reviser",
+        cell: ({ getValue }) => (
+          <span className="small text-muted">{String(getValue() || "—")}</span>
+        ),
+      },
+      {
+        id: "actions",
+        header: t("Actions", "Actions"),
+        cell: ({ row }) => {
+          const p = row.original;
+          const statusCode = p.request_status?.code?.toLowerCase() || "";
+          const isPending =
+            p.can_approve ??
+            (statusCode === "pending" || statusCode === "needs_approval");
+          const isProcessed =
+            p.can_undo ??
+            (statusCode === "approved" || statusCode === "rejected");
+          const canDelete = Boolean(p.can_delete ?? p.is_custom);
+
+          return (
+            <div className="d-flex align-items-center gap-1">
+              {isPending && (
+                <>
+                  <Button
+                    variant="outline-success"
+                    size="sm"
+                    title={t("Approve Payment", "Approve Payment")}
+                    disabled={approveMutation.isPending}
+                    onClick={() => approveMutation.mutate(p.payment_id)}
+                  >
+                    <Check size={14} />
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    title={t("Reject Payment", "Reject Payment")}
+                    disabled={rejectMutation.isPending}
+                    onClick={() => {
+                      setRejectingPaymentId(p.payment_id);
+                      setRejectComment("");
+                    }}
+                  >
+                    <X size={14} />
+                  </Button>
+                </>
+              )}
+              {isProcessed && (
+                <Button
+                  variant="outline-warning"
+                  size="sm"
+                  title={t("Undo Payment", "Undo Payment")}
+                  disabled={undoMutation.isPending}
+                  onClick={() => undoMutation.mutate(p.payment_id)}
+                >
+                  <RotateCcw size={14} />
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  title={t("Delete Custom Payment", "Delete Custom Payment")}
+                  disabled={deleteMutation.isPending}
+                  onClick={() => {
+                    setDeletingPayment(p);
+                    setDeleteComment("");
+                  }}
+                >
+                  <Trash2 size={14} />
+                </Button>
+              )}
+            </div>
+          );
+        },
+      },
+    ],
+    [t, approveMutation, rejectMutation, undoMutation, deleteMutation],
+  );
+
+  return (
+    <>
+      <BaseModal
+        show={show}
+        onHide={onClose}
+        size={ModalSize.extraLarge}
+        title={
+          <div className="d-flex align-items-center gap-3">
+            {characterPortrait && (
+              <Image
+                src={characterPortrait}
+                roundedCircle
+                width={40}
+                height={40}
+                alt={characterName}
+              />
+            )}
+            <div>
+              <div className="h5 mb-0">{characterName}</div>
+              <small className="text-secondary">
+                {t("Payment History & Activities", "Payment History & Activities")}
+              </small>
+            </div>
+          </div>
+        }
+        bodyClassName="p-0"
+        footer={
+          <Button variant="secondary" onClick={onClose}>
+            {t("Close", "Close")}
+          </Button>
+        }
+      >
+        {isError ? (
+          <div className="p-4 text-center text-danger">
+            {t("Failed to load member payments.", "Failed to load member payments.")}
+          </div>
+        ) : (
+          <BaseTable
+            data={payments || []}
+            columns={columns}
+            isFetching={isLoading}
+            emptyText={t("No payments found for this member.", "No payments found for this member.")}
+          />
+        )}
+      </BaseModal>
+
+      {/* Reject Modal with optional comment */}
+      {rejectingPaymentId !== null && (
+        <BaseModal
+          show={rejectingPaymentId !== null}
+          onHide={() => setRejectingPaymentId(null)}
+          size={ModalSize.medium}
+          title={<span className="h5 text-danger mb-0">{t("Reject Payment", "Reject Payment")}</span>}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setRejectingPaymentId(null)}>
+                {t("Cancel", "Cancel")}
+              </Button>
+              <Button
+                variant="danger"
+                disabled={rejectMutation.isPending}
+                onClick={() =>
+                  rejectMutation.mutate({
+                    paymentId: rejectingPaymentId,
+                    comment: rejectComment,
+                  })
+                }
+              >
+                {rejectMutation.isPending && (
+                  <Spinner size="sm" animation="border" className="me-1" />
+                )}
+                {t("Confirm Reject", "Confirm Reject")}
+              </Button>
+            </>
+          }
+        >
+          <Form.Group>
+            <Form.Label>{t("Reason / Comment", "Reason / Comment")}</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              className="bg-black text-light border-secondary"
+              placeholder={t("Optional rejection reason", "Optional rejection reason")}
+              value={rejectComment}
+              onChange={(e) => setRejectComment(e.target.value)}
+            />
+          </Form.Group>
+        </BaseModal>
+      )}
+
+      {/* Delete Custom Payment Modal */}
+      {deletingPayment && (
+        <BaseModal
+          show={!!deletingPayment}
+          onHide={() => setDeletingPayment(null)}
+          size={ModalSize.medium}
+          title={
+            <div className="h5 d-flex align-items-center gap-2 text-danger mb-0">
+              <Trash2 size={18} />
+              {t("Delete Custom Payment", "Delete Custom Payment")}
+            </div>
+          }
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setDeletingPayment(null)}>
+                {t("Cancel", "Cancel")}
+              </Button>
+              <Button
+                variant="danger"
+                disabled={deleteMutation.isPending}
+                onClick={() =>
+                  deleteMutation.mutate({
+                    paymentPk: deletingPayment.payment_id,
+                    comment: deleteComment || "Deleted via TaxSystem",
+                  })
+                }
+              >
+                {deleteMutation.isPending && (
+                  <Spinner size="sm" animation="border" className="me-1" />
+                )}
+                {t("Confirm Deletion", "Confirm Deletion")}
+              </Button>
+            </>
+          }
+        >
+          <p>
+            {t(
+              "Are you sure you want to permanently delete this custom payment of",
+              "Are you sure you want to permanently delete this custom payment of",
+            )}{" "}
+            <strong className="text-danger">
+              {formatNumber(Number(deletingPayment.amount || 0))}
+            </strong>?
+          </p>
+          {deletingPayment.request_status?.code === "approved" && (
+            <div className="alert alert-warning small mb-3">
+              {t(
+                "This payment was already approved. Deleting it will automatically deduct this amount from the member's account deposit.",
+                "This payment was already approved. Deleting it will automatically deduct this amount from the member's account deposit.",
+              )}
+            </div>
+          )}
+          <Form.Group className="mb-3">
+            <Form.Label>{t("Deletion Reason / Comment", "Deletion Reason / Comment")}</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={deleteComment}
+              onChange={(e) => setDeleteComment(e.target.value)}
+              placeholder={t(
+                "Reason for deleting this custom payment...",
+                "Reason for deleting this custom payment...",
+              )}
+              className="bg-dark text-light border-secondary"
+            />
+          </Form.Group>
+        </BaseModal>
+      )}
+    </>
+  );
+}
+
+export default MemberPaymentsModal;

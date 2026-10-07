@@ -125,7 +125,7 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
 
         # Test Action
         response = self.client.post(
-            path=url, body=json.dumps(data), content_type="application/json"
+            path=url, data=json.dumps(data), content_type="application/json"
         )
 
         # Expected Result
