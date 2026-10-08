@@ -53,8 +53,8 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
         header: t("Action"),
         accessorKey: "action",
         cell: ({ row }) => {
-          const raw = (row.original.action ?? "").toLowerCase().trim();
-          const label = row.original.action_display || row.original.action || "";
+          const raw = String(row.original.action ?? "").toLowerCase().trim();
+          const label = String(row.original.action_display || row.original.action || "");
 
           if (raw.includes("deleted")) {
             return <Badge bg="danger">{label}</Badge>;
@@ -90,7 +90,7 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
             {t("Admin History")}
           </h5>
         </Card.Header>
-        <Card.Body className="p-0">
+        <Card.Body>
           <BaseTable
             data={logs || []}
             columns={columns}

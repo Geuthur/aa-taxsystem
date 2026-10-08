@@ -42,6 +42,7 @@ const mockAccounts: UserAccount[] = [
     last_login: "2026-10-05",
     notice: "VIP Member",
     open_invoices: 0,
+    is_main: true,
   },
   {
     id: 2,
@@ -65,6 +66,7 @@ const mockAccounts: UserAccount[] = [
     last_login: null,
     notice: null,
     open_invoices: 2,
+    is_main: false,
   },
 ];
 

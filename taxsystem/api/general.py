@@ -238,6 +238,7 @@ class ApiEndpoints:
                         ),
                         notice=tax_account.notice,
                         open_invoices=open_inv,
+                        is_main=tax_account.is_main,
                     )
                 )
 
@@ -283,6 +284,7 @@ class ApiEndpoints:
                         last_login=None,
                         notice=tax_account.notice,
                         open_invoices=open_inv,
+                        is_main=tax_account.is_main,
                     )
                 )
 

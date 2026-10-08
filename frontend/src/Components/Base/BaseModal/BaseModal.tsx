@@ -42,7 +42,7 @@ function ModalShell({
   restoreFocus = MODAL_DEFAULTS.restoreFocus,
   closeButton = MODAL_DEFAULTS.closeButton,
   className,
-  bodyClassName,
+  bodyClassName = MODAL_DEFAULTS.bodyClassName,
   titleClassName,
 }: ModalShellProps) {
   // Behalte Inhalte während der Schließen-Animation bei, damit das Modal nicht leer aufblitzt

@@ -275,5 +275,9 @@
   "Unknown": "Unbekannt",
   "Deleted via TaxSystem": "Über Steuersystem gelöscht",
   "Deleted via Tax System": "Über Steuersystem gelöscht",
-  "{{count}} Rows": "{{count}} Zeilen"
+  "{{count}} Rows": "{{count}} Zeilen",
+  "Alts": "Alts",
+  "Show {{count}} alt character(s)": "{{count}} Alt-Charakter(e) anzeigen",
+  "Alts of {{name}}": "Alts von {{name}}",
+  "No alt characters found.": "Keine Alt-Charaktere gefunden."
 }

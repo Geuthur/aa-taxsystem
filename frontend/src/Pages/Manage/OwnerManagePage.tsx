@@ -119,9 +119,7 @@ export function OwnerManagePage() {
             {t("Overview")}
           </Link>
           <Button
-            variant="outline-warning"
-            size="sm"
-            className="d-flex align-items-center gap-1"
+            className="aa-btn aa-btn-sm aa-btn-warning d-flex align-items-center gap-1"
             onClick={handleOpenSettings}
           >
             <Settings size={14} />
@@ -171,9 +169,7 @@ export function OwnerManagePage() {
                 </div>
               </div>
               <Button
-                variant="outline-success"
-                size="sm"
-                className="mt-3 w-100 d-flex align-items-center justify-content-center gap-1"
+                className="aa-btn aa-btn-sm aa-btn-success mt-3 w-100 d-flex align-items-center justify-content-center gap-1"
                 onClick={() => setShowDivisionsModal(true)}
               >
                 <Layers size={14} />
@@ -369,7 +365,10 @@ export function OwnerManagePage() {
         }
         footer={
           <>
-            <Button variant="secondary" onClick={() => setShowSettingsModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowSettingsModal(false)}
+            >
               {t("Cancel")}
             </Button>
             <Button

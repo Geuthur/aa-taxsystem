@@ -30,41 +30,24 @@ Section Order:
 
 ### Added
 
-- React 19 + Vite SPA frontend with `nuqs` URL query state management
-- Member Account Overview page (`AccountOverviewPage`) displaying member tax accounts, paid/unpaid status, ISK balances, next payment due dates, and direct links to payments
-- Left navigation menu entry for Account Overview (`/account/`)
-- Custom payment addition ("Add Payment") modal in the Manage area for manual payments with character details, amount and comment
-- Endpoint `GET /api/user/accounts/` returning all user tax accounts with status and membership metrics
-- Typed `AddPaymentRequest` payload schema on payment management endpoint
-- Django Ninja API endpoints: `/menu/`, `/user/`, `/settings/`, `/overview/`, `/admin/tasks/run/`
-- Filter Set creation (`POST /api/owner/{owner_id}/filter-set/create/`) and Filter rule creation (`POST /api/owner/{owner_id}/filter/create/`) endpoints
-- Available Auth groups (`GET /api/owner/{owner_id}/groups/available/`) and Tax-Free Group creation (`POST /api/owner/{owner_id}/groups/create/`) endpoints
-- Member payment history & activities modal with interactive payment approval, rejection (with comment), and undo actions
-- Custom payment deletion confirmation modal with refund deduction warning and comment input
-- Creation and deletion dialogs for Filter Sets, Filters, and Tax-Free Groups in the Manage area
-- UserSettings model for user-specific settings
-- Full OpenAPI specification generator and typed TypeScript client (`openapi-fetch`)
+- Modern React user interface
+- Member account overview with personal balances and tax statuses
+- Multi-account support with separate accounts per corporation and alliance
+- Automatic tax exemption for missing members and accounts where the main character belongs to another entity
+- Pending payment indicators with quick actions to approve, reject, or undo payments
+- Quick payment status filters (All, Paid, Unpaid) in the tax accounts table
+- Alt character modal in members table grouped by main character
+- Complete German localization
 
 ### Fixed
 
-- Fixed payment status filter breakdown in German and other locales by decoupling raw filter state/API values from translated display text
-- Replaced legacy template view references in celery notification tasks with direct React SPA route paths
-- Modernized `taxsystem.tests.test_access` for the React SPA base view and route resolution
-- Payment action buttons on the Payments page and Member Payments modal now conditionally reflect the payment state (`Accept`/`Reject` only for pending payments, `Undo` only for processed payments)
-- Prevented deletion of ESI imported payments: the delete action is strictly restricted to custom payments (`is_custom === true`, `payment.journal is None`) both on the backend and frontend
-- Fixed Internal Server Error (`JSONDecodeError`) when approving, rejecting, undoing, or deleting payments/members/groups/filters with an empty request body via safe body parsing (`parse_json_body`)
+- Payment status filtering in localized languages
+- Action buttons in payment and member management modals
 
 ### Changed
 
-- Comprehensive frontend translation coverage: eliminated redundant fallback strings (`t("Key", "Key")` -> `t("Key")`), wrapped all hardcoded UI strings in `t()`, and completed full German translations in `i18n/de/translation.json`
-- Standardized all ISK values across tables, cards, modals, and overview pages to use the frontend `formatNumber` utility
-- Corrected Tax Configuration unit display and form input labels from percentage (`%`) to `ISK`
-- Modernized Ninja API schemas and responses (clean typed fields, removal of redundant DataTable wrappers and raw HTML actions)
-- Configured Admin History action badges with distinct variant colors: green (`bg="success"`) for added actions, yellow (`bg="warning"`) for changed actions, and red (`bg="danger"`) for deleted actions
-- Refactored all Django Ninja mutation endpoints across payments, corporation members, groups, filters, and admin settings to use typed Pydantic request schemas and automatic validation, replacing legacy Django forms and direct `request.body` parsing
-- Introduced `SafeNinjaParser` to handle empty request bodies gracefully with default schema values
-- Regenerated OpenAPI types and updated frontend `ApiCalls.ts` to use strict payload types without unsafe `as never` type casts
-- Replaced default Django view route with Vite React mount point (`react_base.html`), retaining all legacy views and URL names for side-by-side testing
+- Automatic reactivation of tax accounts when switching main character
+- Standardized ISK formatting and improved history status badges
 
 ## [4.0.2] - 2026-09-06
 

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Filter, Layers, Plus, Trash2 } from "lucide-react";
+import { ArrowRight, Filter, Layers, Plus, Trash2 } from "lucide-react";
 import { Badge, Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -118,13 +118,18 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
         header: t("Name"),
         accessorKey: "name",
         cell: ({ row }) => (
-          <Button
-            variant="link"
-            className={`p-0 fw-semibold text-decoration-none ${row.original.id === activeSetId ? "text-primary" : "text-light"}`}
-            onClick={() => row.original.id && setSelectedFilterSetId(row.original.id)}
-          >
-            {row.original.name}
-          </Button>
+          <div className="d-flex align-items-center gap-2">
+            {row.original.id === activeSetId && <ArrowRight />}
+            <Button
+              variant="link"
+              className={`fw-semibold text-decoration-none`}
+              onClick={() => row.original.id && setSelectedFilterSetId(row.original.id)}
+            >
+              <span className={`${row.original.id === activeSetId ? "text-primary" : "text-light"}`}>
+                {row.original.name}
+              </span>
+            </Button>
+          </div>
         ),
       },
       {
@@ -149,11 +154,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
         cell: ({ row }) =>
           row.original.id ? (
             <Button
-              variant="outline-danger"
-              size="sm"
+              className="aa-btn aa-btn-sm aa-btn-danger"
               onClick={() => setFilterSetToDelete(row.original.id!)}
             >
-              <Trash2 size={12} className="me-1" />
+              <Trash2 size={12} />
               {t("Delete")}
             </Button>
           ) : null,
@@ -210,11 +214,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
         cell: ({ row }) =>
           row.original.id ? (
             <Button
-              variant="outline-danger"
-              size="sm"
+              className="aa-btn aa-btn-sm aa-btn-danger"
               onClick={() => setFilterToDelete(row.original.id!)}
             >
-              <Trash2 size={12} className="me-1" />
+              <Trash2 size={12} />
               {t("Delete")}
             </Button>
           ) : null,
@@ -234,15 +237,14 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 {t("Filter Sets")}
               </h5>
               <Button
-                variant="outline-primary"
-                size="sm"
+                className="aa-btn aa-btn-sm aa-btn-primary"
                 onClick={() => setShowCreateSetModal(true)}
               >
-                <Plus size={14} className="me-1" />
+                <Plus size={14} />
                 {t("Add Filter Set")}
               </Button>
             </Card.Header>
-            <Card.Body className="p-0">
+            <Card.Body>
               <BaseTable
                 data={filterSets || []}
                 columns={setColumns}
@@ -261,19 +263,18 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 {t("Active Filters")}
               </h5>
               <Button
-                variant="outline-info"
-                size="sm"
+                className="aa-btn aa-btn-sm aa-btn-info"
                 disabled={!filterSets || filterSets.length === 0}
                 onClick={() => {
                   setNewFilterSetId(activeSetId);
                   setShowCreateFilterModal(true);
                 }}
               >
-                <Plus size={14} className="me-1" />
+                <Plus size={14} />
                 {t("Add Filter")}
               </Button>
             </Card.Header>
-            <Card.Body className="p-0">
+            <Card.Body>
               <BaseTable
                 data={filters || []}
                 columns={filterColumns}
@@ -299,7 +300,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           }
           footer={
             <>
-              <Button variant="secondary" onClick={() => setShowCreateSetModal(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setShowCreateSetModal(false)}
+              >
                 {t("Cancel")}
               </Button>
               <Button
@@ -351,7 +355,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           }
           footer={
             <>
-              <Button variant="secondary" onClick={() => setShowCreateFilterModal(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setShowCreateFilterModal(false)}
+              >
                 {t("Cancel")}
               </Button>
               <Button
@@ -373,7 +380,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
               className="bg-dark text-light border-secondary"
             >
               {filterSets?.map((fs) => (
-				<option key={fs.id} value={fs.id || 0}>
+                <option key={fs.id} value={fs.id || 0}>
                   {fs.name}
                 </option>
               ))}
@@ -423,7 +430,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           title={<span className="h5 text-danger mb-0">{t("Delete Filter Set")}</span>}
           footer={
             <>
-              <Button variant="secondary" onClick={() => setFilterSetToDelete(null)}>
+              <Button
+                variant="secondary"
+                onClick={() => setFilterSetToDelete(null)}
+              >
                 {t("Cancel")}
               </Button>
               <Button
@@ -449,7 +459,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           title={<span className="h5 text-danger mb-0">{t("Delete Filter")}</span>}
           footer={
             <>
-              <Button variant="secondary" onClick={() => setFilterToDelete(null)}>
+              <Button
+                variant="secondary"
+                onClick={() => setFilterToDelete(null)}
+              >
                 {t("Cancel")}
               </Button>
               <Button

@@ -124,6 +124,7 @@ export function MyPaymentsPage() {
           isFetching={isLoading}
           isError={isError}
           emptyText={t("No payments found for this owner.")}
+          variant="vowra-light"
         />
       </div>
     </main>

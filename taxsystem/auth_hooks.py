@@ -14,6 +14,7 @@ from taxsystem.models.corporation import (
     CorporationPaymentAccount,
     CorporationPayments,
 )
+from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -32,12 +33,11 @@ class TaxSystemMenuItem(MenuItemHook):
 
     def render(self, request: UserProfile):
         if request.user.has_perm("taxsystem.basic_access"):
-            # Check if the User has Paid for the current period and set count to 1 if not paid, otherwise 0
-            try:
-                payment_user = CorporationPaymentAccount.objects.get(user=request.user)
-                self.count = 1 if not payment_user.has_paid else 0
-            except CorporationPaymentAccount.DoesNotExist:
-                self.count = 0
+            # Check if the User has any unpaid active accounts
+            user_accounts = CorporationPaymentAccount.objects.filter(
+                user=request.user, status=AccountStatus.ACTIVE
+            )
+            self.count = 1 if any(not acc.has_paid for acc in user_accounts) else 0
 
             if request.user.has_perm(
                 "taxsystem.manage_own_corp"

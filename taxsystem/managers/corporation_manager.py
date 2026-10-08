@@ -151,50 +151,62 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
     def _check_tax_accounts(self, owner: "OwnerContext"):
         """
         Check tax accounts for a corporation.
-        Create new accounts, update existing ones, and remove orphaned accounts.
+        Create new accounts, update existing ones, and mark departed users as missing.
         """
         logger.debug("Checking Tax Accounts for: %s", owner.name)
         items = []
+        corp_id = owner.eve_corporation.corporation_id
 
-        # Get all existing accounts with a Main Character
-        auth_accounts = UserProfile.objects.filter(
+        # Get all Auth accounts that have a Main Character
+        all_auth_accounts = UserProfile.objects.filter(
             main_character__isnull=False,
         ).prefetch_related("user__profile__main_character")
-        auth_accounts_ids = set(auth_accounts.values_list("user_id", flat=True))
+        all_auth_user_ids = set(all_auth_accounts.values_list("user_id", flat=True))
 
-        # If no valid accounts, return
-        if not auth_accounts:
-            logger.debug("No valid accounts for skipping Check: %s", owner.name)
-            return "No Accounts"
+        # Filter users who have at least one character (main or alt) in this corporation
+        eligible_profiles = all_auth_accounts.filter(
+            user__character_ownerships__character__corporation_id=corp_id,
+        ).distinct()
+        eligible_user_ids = set(eligible_profiles.values_list("user_id", flat=True))
 
-        # Get existing and new accounts
-        existing_accounts = self.filter(owner=owner).select_related("user")
-        existing_accounts_ids = set(existing_accounts.values_list("user_id", flat=True))
-
-        # Filter only new accounts
-        new_accounts = auth_accounts.exclude(
-            user__in=existing_accounts.values_list("user", flat=True)
+        # Users whose MAIN character is in this corporation
+        main_user_ids = set(
+            eligible_profiles.filter(
+                main_character__corporation_id=corp_id
+            ).values_list("user_id", flat=True)
         )
 
-        # Cleanup orphaned accounts
-        self._cleanup_orphaned_accounts(owner, auth_accounts_ids, existing_accounts_ids)
+        # Existing accounts for this corporation
+        existing_accounts = self.filter(owner=owner).select_related("user")
+        existing_user_ids = set(existing_accounts.values_list("user_id", flat=True))
 
-        # Update existing accounts
+        # Cleanup orphaned accounts (users who no longer have a valid Auth profile)
+        self._cleanup_orphaned_accounts(owner, all_auth_user_ids, existing_user_ids)
+
+        # Update existing accounts: reactivate if returned, mark missing if departed, set inactive if alt only
         for tax_account in existing_accounts:
-            self._update_existing_account(tax_account)
+            self._update_existing_account(tax_account, eligible_user_ids, main_user_ids)
 
-        # Create new accounts for users without existing tax accounts
-        for account in new_accounts:
+        # Create new accounts for eligible users without an existing account in this corporation
+        new_profiles = eligible_profiles.exclude(user_id__in=existing_user_ids)
+        for profile in new_profiles:
+            account_status = (
+                AccountStatus.ACTIVE
+                if profile.user_id in main_user_ids
+                else AccountStatus.INACTIVE
+            )
             logger.debug(
-                "Creating new corporation tax account for user: %s",
-                account.user.username,
+                "Creating new corporation tax account for user: %s in %s (status: %s)",
+                profile.user.username,
+                owner.name,
+                account_status,
             )
             items.append(
                 self.model(
-                    name=account.main_character.character_name,
+                    name=profile.main_character.character_name,
                     owner=owner,
-                    user=account.user,
-                    status=AccountStatus.ACTIVE,
+                    user=profile.user,
+                    status=account_status,
                 )
             )
 
@@ -227,43 +239,66 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
     def _update_existing_account(
         self,
         tax_account: "PaymentAccountContext",
+        eligible_user_ids: set[int] | None = None,
+        main_user_ids: set[int] | None = None,
     ):
         """
         Update an existing tax account based on current state.
 
         Args:
-            owner (CorporationOwner): The owner of the tax account.
             tax_account (CorporationPaymentAccount): The tax account to update.
+            eligible_user_ids (set[int], optional): Set of user IDs with characters in this corporation.
+            main_user_ids (set[int], optional): Set of user IDs whose main character is in this corporation.
         """
-        # pylint: disable=import-outside-toplevel, cyclic-import
-        # AA TaxSystem
-        from taxsystem.models.corporation import CorporationOwner
+        if eligible_user_ids is None or main_user_ids is None:
+            corp_id = tax_account.owner.eve_corporation.corporation_id
+            eligible = UserProfile.objects.filter(
+                main_character__isnull=False,
+                user__character_ownerships__character__corporation_id=corp_id,
+            )
+            eligible_user_ids = set(eligible.values_list("user_id", flat=True))
+            main_user_ids = set(
+                eligible.filter(main_character__corporation_id=corp_id).values_list(
+                    "user_id", flat=True
+                )
+            )
 
-        # Get corporation IDs
-        pa_corp_id = tax_account.owner.eve_corporation.corporation_id
-        main_corp_id = tax_account.user.profile.main_character.corporation_id
-
-        # Reactivate Account if user returned to corporation
-        if tax_account.status == AccountStatus.MISSING and main_corp_id == pa_corp_id:
-            self._reset_account(tax_account)
+        # User has characters in corporation
+        if tax_account.user_id in eligible_user_ids:
+            if tax_account.user_id in main_user_ids:
+                # Main character is in this corporation -> ACTIVE
+                if tax_account.status == AccountStatus.MISSING:
+                    self._reset_account(tax_account)
+                elif tax_account.status == AccountStatus.INACTIVE:
+                    tax_account.status = AccountStatus.ACTIVE
+                    tax_account.save()
+                    logger.info(
+                        "Activated Tax Account %s (main character is in corporation)",
+                        tax_account.name,
+                    )
+            else:
+                # User has only alt characters in this corporation -> INACTIVE (not a tax account)
+                if tax_account.status == AccountStatus.ACTIVE:
+                    self._mark_inactive_tax_account(tax_account)
             return
 
-        # Update Account when user left the corporation
-        if pa_corp_id != main_corp_id:
-            # Mark as missing if not already
-            if not tax_account.is_missing:
-                self._mark_missing_tax_account(tax_account)
-            # Try to move to new corporation if exists
-            try:
-                new_owner = CorporationOwner.objects.get(
-                    eve_corporation__corporation_id=main_corp_id
-                )
-                # Move to new owner
-                self._move_tax_account_to_owner(tax_account, new_owner)
-            except CorporationOwner.DoesNotExist:
-                pass
-            # Save changes
-            tax_account.save()
+        # Mark Account as MISSING when user has no characters left in corporation
+        if not tax_account.is_missing:
+            self._mark_missing_tax_account(tax_account)
+
+    def _mark_inactive_tax_account(self, tax_account: "PaymentAccountContext"):
+        """
+        Mark the tax account as inactive (user has only alt characters in this corporation).
+
+        Args:
+            tax_account (CorporationPaymentAccount): The tax account to mark as inactive.
+        """
+        tax_account.status = AccountStatus.INACTIVE
+        tax_account.save()
+        logger.info(
+            "Marked Tax Account %s as INACTIVE",
+            tax_account.name,
+        )
 
     def _reset_account(self, tax_account: "PaymentAccountContext"):
         """

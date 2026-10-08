@@ -7,7 +7,12 @@ from django.urls import reverse
 
 # AA TaxSystem
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.factory import CorporationOwnerFactory, MembersFactory
+from taxsystem.tests.testdata.factory import (
+    CorporationOwnerFactory,
+    EveCharacterFactory,
+    MembersFactory,
+)
+from taxsystem.tests.testdata.utils import add_character_to_user
 
 MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
@@ -82,6 +87,67 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn("Test Character", str(response.json()))
         self.assertIn("Missing Character", str(response.json()))
+
+    def test_get_members_should_identify_alts_and_assign_to_main(self):
+        """
+        Test should correctly identify alt members and assign them to the main character.
+        """
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        main_member = MembersFactory(
+            owner=self.audit,
+            character_id=self.user_character.character_id,
+            character_name=self.user_character.character_name,
+            status="active",
+        )
+        alt_char = EveCharacterFactory(
+            character_name="User Alt Character",
+            corporation=self.corp,
+        )
+        add_character_to_user(
+            user=self.user,
+            character=alt_char,
+            is_main=False,
+        )
+        alt_member = MembersFactory(
+            owner=self.audit,
+            character_id=alt_char.character_id,
+            character_name=alt_char.character_name,
+            status="is_alt",
+        )
+
+        url = reverse(f"{API_URL}:get_members", kwargs={"owner_id": corporation_id})
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        main_entry = next(
+            (
+                m
+                for m in data
+                if m["character"]["character_id"] == main_member.character_id
+            ),
+            None,
+        )
+        alt_entry = next(
+            (
+                m
+                for m in data
+                if m["character"]["character_id"] == alt_member.character_id
+            ),
+            None,
+        )
+        self.assertIsNotNone(main_entry)
+        self.assertFalse(main_entry["is_alt"])
+        self.assertTrue(len(main_entry["alts"]) > 0)
+        self.assertEqual(main_entry["alts"][0]["character_id"], alt_char.character_id)
+
+        self.assertIsNotNone(alt_entry)
+        self.assertTrue(alt_entry["is_alt"])
 
     def test_delete_member_should_403(self):
         """

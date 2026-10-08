@@ -16,18 +16,20 @@ import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
 import { MemberPaymentsModal } from "@/Pages/Manage/Modals/MemberPaymentsModal";
-import { formatNumber } from "@/Utils";
+import { formatNumber, renderTooltip } from "@/Utils";
 
 interface AccountsTabProps {
   ownerId: number;
 }
 
 type AccountRow = components["schemas"]["PaymentSystemSchema"];
+type PaidFilter = "all" | "paid" | "unpaid";
 
 export function AccountsTab({ ownerId }: AccountsTabProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [search, setSearch] = useTableSearchState("accountSearch");
+  const [paidFilter, setPaidFilter] = useState<PaidFilter>("all");
 
   // Modal State for switching account
   const [selectedAccount, setSelectedAccount] = useState<AccountRow | null>(null);
@@ -81,14 +83,20 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
 
   const filteredAccounts = useMemo(() => {
     if (!accounts) return [];
-    if (!search) return accounts;
+    let list = accounts;
+    if (paidFilter === "paid") {
+      list = list.filter((acc) => Boolean(acc.has_paid));
+    } else if (paidFilter === "unpaid") {
+      list = list.filter((acc) => !acc.has_paid);
+    }
+    if (!search) return list;
     const q = search.toLowerCase();
-    return accounts.filter(
+    return list.filter(
       (acc) =>
         acc.account?.character_name?.toLowerCase().includes(q) ||
         acc.status?.toLowerCase().includes(q),
     );
-  }, [accounts, search]);
+  }, [accounts, search, paidFilter]);
 
   const columns = useMemo<ColumnDef<AccountRow>[]>(
     () => [
@@ -96,20 +104,50 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
         id: "character",
         header: t("Character"),
         accessorFn: (row) => row.account?.character_name,
-        cell: ({ row }) => (
-          <div className="d-flex align-items-center gap-2">
-            {row.original.account?.character_portrait && (
-              <img
-                src={row.original.account.character_portrait}
-                alt={row.original.account.character_name}
-                width={32}
-                height={32}
-                className="rounded-circle"
-              />
-            )}
-            <span className="fw-semibold">{row.original.account?.character_name}</span>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const openInvoices = row.original.open_invoices ?? 0;
+          return (
+            <div className="d-flex align-items-center gap-2">
+              {row.original.account?.character_portrait && (
+                <img
+                  src={row.original.account.character_portrait}
+                  alt={row.original.account.character_name}
+                  width={32}
+                  height={32}
+                  className="rounded-circle"
+                />
+              )}
+              <span className="fw-semibold">{row.original.account?.character_name}</span>
+              {openInvoices > 0 &&
+                renderTooltip(
+                  t("{{count}} pending payment(s) to review/approve", {
+                    count: openInvoices,
+                  }),
+                  <Button
+                    className="aa-btn aa-btn-sm aa-btn-warning aa-btn-pulse"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (row.original.account?.character_id) {
+                        setHistoryMember({
+                          characterId: row.original.account.character_id,
+                          characterName: row.original.account.character_name || "",
+                          characterPortrait: row.original.account.character_portrait,
+                        });
+                      }
+                    }}
+                  >
+                    <span className="aa-pending-dot-container">
+                      <span className="aa-pending-dot-ping" />
+                      <span className="aa-pending-dot-core" />
+                    </span>
+                    <span>
+                      {openInvoices} {t("Pending")}
+                    </span>
+                  </Button>,
+                )}
+            </div>
+          );
+        },
       },
       {
         id: "status",
@@ -172,48 +210,51 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
         header: t("Actions"),
         cell: ({ row }) => (
           <div className="d-flex align-items-center gap-1">
-            <Button
-              variant="outline-info"
-              size="sm"
-              title={t("Payment History & Activities")}
-              onClick={() => {
-                if (row.original.account?.character_id) {
-                  setHistoryMember({
-                    characterId: row.original.account.character_id,
-                    characterName: row.original.account.character_name || "",
-                    characterPortrait: row.original.account.character_portrait,
-                  });
-                }
-              }}
-            >
-              <History size={12} className="me-1" />
-              {t("History")}
-            </Button>
-            <Button
-              variant="outline-success"
-              size="sm"
-              title={t("Add Custom Payment")}
-              onClick={() => {
-                setPaymentAccount(row.original);
-                setPaymentAmount("");
-                setPaymentComment("");
-              }}
-            >
-              <DollarSign size={12} className="me-1" />
-              {t("Add Payment")}
-            </Button>
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              title={t("Switch Account Status")}
-              onClick={() => {
-                setSelectedAccount(row.original);
-                setNewStatus(row.original.is_active ? "inactive" : "active");
-              }}
-            >
-              <RefreshCw size={12} className="me-1" />
-              {t("Switch")}
-            </Button>
+            {renderTooltip(
+              t("Payment History & Activities"),
+              <Button
+                className="aa-btn aa-btn-sm aa-btn-info"
+                onClick={() => {
+                  if (row.original.account?.character_id) {
+                    setHistoryMember({
+                      characterId: row.original.account.character_id,
+                      characterName: row.original.account.character_name || "",
+                      characterPortrait: row.original.account.character_portrait,
+                    });
+                  }
+                }}
+              >
+                <History size={12} />
+                {t("History")}
+              </Button>,
+            )}
+            {renderTooltip(
+              t("Add Custom Payment"),
+              <Button
+                className="aa-btn aa-btn-sm aa-btn-success"
+                onClick={() => {
+                  setPaymentAccount(row.original);
+                  setPaymentAmount("");
+                  setPaymentComment("");
+                }}
+              >
+                <DollarSign size={12} />
+                {t("Add Payment")}
+              </Button>,
+            )}
+            {renderTooltip(
+              t("Switch Account Status"),
+              <Button
+                className="aa-btn aa-btn-sm aa-btn-secondary"
+                onClick={() => {
+                  setSelectedAccount(row.original);
+                  setNewStatus(row.original.is_active ? "inactive" : "active");
+                }}
+              >
+                <RefreshCw size={12} />
+                {t("Switch")}
+              </Button>,
+            )}
           </div>
         ),
       },
@@ -223,19 +264,44 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
 
   return (
     <div className="mt-3">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <InputGroup style={{ maxWidth: 360 }}>
-          <InputGroup.Text className="bg-dark border-secondary text-secondary">
-            <Search size={16} />
-          </InputGroup.Text>
-          <Form.Control
-            type="text"
-            placeholder={t("Filter accounts by name or status...")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-dark text-light border-secondary"
-          />
-        </InputGroup>
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div className="d-flex flex-wrap align-items-center gap-2">
+          <InputGroup style={{ maxWidth: 360 }}>
+            <InputGroup.Text className="bg-dark border-secondary text-secondary">
+              <Search size={16} />
+            </InputGroup.Text>
+            <Form.Control
+              type="text"
+              placeholder={t("Filter accounts by name or status...")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-dark text-light border-secondary"
+            />
+          </InputGroup>
+
+          <div className="btn-group" role="group">
+            <Button
+              className={`aa-btn aa-btn-sm ${paidFilter === "all" ? "aa-btn-primary" : "aa-btn-secondary"}`}
+              onClick={() => setPaidFilter("all")}
+            >
+              {t("All")}
+            </Button>
+            <Button
+              className={`aa-btn aa-btn-sm ${paidFilter === "paid" ? "aa-btn-success" : "aa-btn-secondary"}`}
+              onClick={() => setPaidFilter("paid")}
+            >
+              <CheckCircle2 size={13} className="me-1" />
+              {t("Paid")}
+            </Button>
+            <Button
+              className={`aa-btn aa-btn-sm ${paidFilter === "unpaid" ? "aa-btn-danger" : "aa-btn-secondary"}`}
+              onClick={() => setPaidFilter("unpaid")}
+            >
+              <XCircle size={13} className="me-1" />
+              {t("Unpaid")}
+            </Button>
+          </div>
+        </div>
       </div>
 
       <BaseTable
@@ -244,6 +310,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
         isFetching={isLoading}
         isError={isError}
         emptyText={t("No tax accounts found.")}
+        variant="vowra-light"
       />
 
       {/* Switch Account Modal */}
@@ -260,7 +327,10 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
           }
           footer={
             <>
-              <Button variant="secondary" onClick={() => setSelectedAccount(null)}>
+              <Button
+                variant="secondary"
+                onClick={() => setSelectedAccount(null)}
+              >
                 {t("Cancel")}
               </Button>
               <Button
@@ -320,7 +390,10 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
           }
           footer={
             <>
-              <Button variant="secondary" onClick={() => setPaymentAccount(null)}>
+              <Button
+                variant="secondary"
+                onClick={() => setPaymentAccount(null)}
+              >
                 {t("Cancel")}
               </Button>
               <Button

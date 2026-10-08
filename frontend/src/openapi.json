@@ -3042,6 +3042,11 @@
             "default": 0,
             "title": "Open Invoices",
             "type": "integer"
+          },
+          "is_main": {
+            "default": false,
+            "title": "Is Main",
+            "type": "boolean"
           }
         },
         "required": [
@@ -3237,9 +3242,16 @@
             "type": "string"
           },
           "joined": {
-            "format": "date-time",
-            "title": "Joined",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined"
           },
           "actions": {
             "anyOf": [
@@ -3251,14 +3263,31 @@
               }
             ],
             "title": "Actions"
+          },
+          "open_invoices": {
+            "default": 0,
+            "title": "Open Invoices",
+            "type": "integer"
+          },
+          "is_alt": {
+            "default": false,
+            "title": "Is Alt",
+            "type": "boolean"
+          },
+          "alts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CharacterSchema"
+            },
+            "title": "Alts",
+            "type": "array"
           }
         },
         "required": [
           "character",
           "is_missing",
           "is_noaccount",
-          "status",
-          "joined"
+          "status"
         ],
         "title": "MembersSchema",
         "type": "object"
@@ -3755,6 +3784,11 @@
               }
             ],
             "title": "Actions"
+          },
+          "open_invoices": {
+            "default": 0,
+            "title": "Open Invoices",
+            "type": "integer"
           }
         },
         "required": [

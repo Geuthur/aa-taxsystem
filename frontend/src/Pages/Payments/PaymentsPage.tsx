@@ -34,7 +34,7 @@ import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { formatNumber } from "@/Utils";
+import { formatNumber, renderTooltip } from "@/Utils";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 
@@ -196,60 +196,68 @@ export function PaymentsPage() {
 
           return (
             <div className="d-flex align-items-center gap-1">
-              <Button
-                variant="outline-info"
-                size="sm"
-                title={t("View Details")}
-                onClick={() => setDetailsPaymentId(p.payment_id)}
-              >
-                <Eye size={12} />
-              </Button>
+              {renderTooltip(
+                t("View Details"),
+                <Button
+                  className="aa-btn aa-btn-sm aa-btn-info"
+                  aria-label={t("View Details")}
+                  onClick={() => setDetailsPaymentId(p.payment_id)}
+                >
+                  <Eye size={12} />
+                </Button>,
+              )}
               {isPending && (
                 <>
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    title={t("Accept Payment")}
-                    disabled={acceptMutation.isPending}
-                    onClick={() => acceptMutation.mutate(p.payment_id)}
-                  >
-                    <Check size={12} />
-                  </Button>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    title={t("Reject Payment")}
-                    onClick={() => setRejectingPayment(p)}
-                  >
-                    <X size={12} />
-                  </Button>
+                  {renderTooltip(
+                    t("Accept Payment"),
+                    <Button
+                      className="aa-btn aa-btn-sm aa-btn-success"
+                      aria-label={t("Accept Payment")}
+                      disabled={acceptMutation.isPending}
+                      onClick={() => acceptMutation.mutate(p.payment_id)}
+                    >
+                      <Check size={12} />
+                    </Button>,
+                  )}
+                  {renderTooltip(
+                    t("Reject Payment"),
+                    <Button
+                      className="aa-btn aa-btn-sm aa-btn-danger"
+                      aria-label={t("Reject Payment")}
+                      onClick={() => setRejectingPayment(p)}
+                    >
+                      <X size={12} />
+                    </Button>,
+                  )}
                 </>
               )}
-              {isProcessed && (
-                <Button
-                  variant="outline-secondary"
-                  size="sm"
-                  title={t("Undo Payment")}
-                  disabled={undoMutation.isPending}
-                  onClick={() => undoMutation.mutate(p.payment_id)}
-                >
-                  <RotateCcw size={12} />
-                </Button>
-              )}
-              {canDelete && (
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  title={t("Delete Custom Payment")}
-                  disabled={deleteMutation.isPending}
-                  onClick={() => {
-                    setDeletingPayment(p);
-                    setDeleteComment("");
-                  }}
-                >
-                  <Trash2 size={12} />
-                </Button>
-              )}
+              {isProcessed &&
+                renderTooltip(
+                  t("Undo Payment"),
+                  <Button
+                    className="aa-btn aa-btn-sm aa-btn-secondary"
+                    aria-label={t("Undo Payment")}
+                    disabled={undoMutation.isPending}
+                    onClick={() => undoMutation.mutate(p.payment_id)}
+                  >
+                    <RotateCcw size={12} />
+                  </Button>,
+                )}
+              {canDelete &&
+                renderTooltip(
+                  t("Delete Custom Payment"),
+                  <Button
+                    className="aa-btn aa-btn-sm aa-btn-danger"
+                    aria-label={t("Delete Custom Payment")}
+                    disabled={deleteMutation.isPending}
+                    onClick={() => {
+                      setDeletingPayment(p);
+                      setDeleteComment("");
+                    }}
+                  >
+                    <Trash2 size={12} />
+                  </Button>,
+                )}
             </div>
           );
         },
@@ -268,21 +276,21 @@ export function PaymentsPage() {
       </BaseSectionHeader>
 
       <div className="mt-3 p-3 aa-panel rounded">
-        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-          <InputGroup style={{ maxWidth: 360 }}>
-            <InputGroup.Text className="bg-dark border-secondary text-secondary">
-              <Search size={16} />
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder={t("Filter by character or reason...")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-dark text-light border-secondary"
-            />
-          </InputGroup>
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <InputGroup style={{ maxWidth: 360 }}>
+              <InputGroup.Text className="bg-dark border-secondary text-secondary">
+                <Search size={16} />
+              </InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder={t("Filter by character or reason...")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="bg-dark text-light border-secondary"
+              />
+            </InputGroup>
 
-          <div className="d-flex gap-2">
             <PaymentsFilter statusFilter={statusFilter} setStatusFilter={setStatusFilter} t={t} />
           </div>
         </div>
@@ -293,6 +301,7 @@ export function PaymentsPage() {
           isFetching={isLoading}
           isError={isError}
           emptyText={t("No payments found.")}
+          variant="vowra-light"
         />
       </div>
 
@@ -451,7 +460,7 @@ export function PaymentsPage() {
               </div>
 
               <h6 className="mt-4 mb-2">{t("Audit History")}</h6>
-              <div className="border border-secondary rounded p-2">
+              <div className="bg-secondary bg-opacity-25 border border-secondary rounded p-2">
                 {paymentDetails.payment_histories?.length ? (
                   paymentDetails.payment_histories.map((h) => (
                     <div key={h.log_id} className="d-flex justify-content-between border-bottom border-secondary py-2 small">

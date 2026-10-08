@@ -1079,6 +1079,11 @@ export interface components {
              * @default 0
              */
             open_invoices: number;
+            /**
+             * Is Main
+             * @default false
+             */
+            is_main: boolean;
         };
         /**
          * OverviewSchema
@@ -1143,13 +1148,25 @@ export interface components {
             is_noaccount: boolean;
             /** Status */
             status: string;
-            /**
-             * Joined
-             * Format: date-time
-             */
-            joined: string;
+            /** Joined */
+            joined?: string | null;
             /** Actions */
             actions?: string | null;
+            /**
+             * Open Invoices
+             * @default 0
+             */
+            open_invoices: number;
+            /**
+             * Is Alt
+             * @default false
+             */
+            is_alt: boolean;
+            /**
+             * Alts
+             * @default []
+             */
+            alts: components["schemas"]["CharacterSchema"][];
         };
         /** ActionCommentRequest */
         ActionCommentRequest: {
@@ -1304,6 +1321,11 @@ export interface components {
             is_active: boolean;
             /** Actions */
             actions?: string | null;
+            /**
+             * Open Invoices
+             * @default 0
+             */
+            open_invoices: number;
         };
         /** UpdateTaxAmountRequest */
         UpdateTaxAmountRequest: {

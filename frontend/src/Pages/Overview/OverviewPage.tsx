@@ -55,9 +55,9 @@ export function OverviewPage() {
       </BaseSectionHeader>
 
       <div className="mt-3 p-3 aa-panel rounded">
-        <Row className="g-3 align-items-center mb-4">
-          <Col md={6} lg={4}>
-            <InputGroup>
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <InputGroup style={{ maxWidth: 360 }}>
               <InputGroup.Text className="bg-dark border-secondary text-secondary">
                 <Search size={16} />
               </InputGroup.Text>
@@ -69,13 +69,14 @@ export function OverviewPage() {
                 className="bg-dark text-light border-secondary"
               />
             </InputGroup>
-          </Col>
-          <OwnerTypeFilter
-            ownerType={ownerType}
-            setOwnerType={setOwnerType}
-            t={t}
-          />
-        </Row>
+
+            <OwnerTypeFilter
+              ownerType={ownerType}
+              setOwnerType={setOwnerType}
+              t={t}
+            />
+          </div>
+        </div>
 
         {isLoading && (
           <div className="text-center py-5">
@@ -136,7 +137,7 @@ export function OverviewPage() {
                       </div>
                     </div>
 
-                    <div className="d-flex align-items-center justify-content-between mb-3 p-2 rounded bg-dark border border-secondary small">
+                    <div className="aa-panel d-flex align-items-center justify-content-between mb-3 p-2 rounded border border-secondary small">
                       <span className="text-muted">{t("Open Invoices")}</span>
                       <Badge bg={owner.open_invoices > 0 ? "danger" : "secondary"} pill>
                         {owner.open_invoices}

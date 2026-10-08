@@ -40,7 +40,7 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
       closeText={t("Close")}
     >
       <div className="mb-3">
-        <Card className="bg-dark border-secondary">
+        <Card className="border-secondary">
           <Card.Body className="p-3">
             <Row className="align-items-center">
               <Col xs={12} sm={6}>

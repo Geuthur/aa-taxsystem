@@ -91,9 +91,9 @@ export function AccountOverviewPage() {
       </BaseSectionHeader>
 
       <div className="p-3 aa-panel rounded">
-        <Row className="g-3 align-items-center mb-4">
-          <Col md={6} lg={4}>
-            <InputGroup>
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <InputGroup style={{ maxWidth: 360 }}>
               <InputGroup.Text className="bg-dark border-secondary text-secondary">
                 <Search size={16} />
               </InputGroup.Text>
@@ -105,13 +105,14 @@ export function AccountOverviewPage() {
                 className="bg-dark text-light border-secondary"
               />
             </InputGroup>
-          </Col>
-          <OwnerTypeFilter
-            ownerType={ownerType}
-            setOwnerType={setOwnerType}
-            t={t}
-          />
-        </Row>
+
+            <OwnerTypeFilter
+              ownerType={ownerType}
+              setOwnerType={setOwnerType}
+              t={t}
+            />
+          </div>
+        </div>
 
         {isLoading && (
           <div className="text-center py-5">
@@ -161,7 +162,7 @@ export function AccountOverviewPage() {
 
             return (
               <Col key={`${account.owner_type}-${account.owner_id}-${account.id}`} xs={12} lg={6}>
-                <div className="aa-panel h-100 d-flex flex-column justify-content-between p-3 border-secondary">
+                <div className="aa-panel-light h-100 d-flex flex-column justify-content-between p-3 border-secondary">
                   <div>
                     {/* Header: Owner branding + Paid status badge */}
                     <div className="d-flex align-items-center justify-content-between gap-3 mb-3 pb-3 border-bottom border-secondary">

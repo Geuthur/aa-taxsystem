@@ -159,8 +159,11 @@ class MembersSchema(Schema):
     is_missing: bool
     is_noaccount: bool
     status: str
-    joined: datetime
+    joined: datetime | None = None
     actions: str | None = None
+    open_invoices: int = 0
+    is_alt: bool = False
+    alts: list[CharacterSchema] = []
 
 
 class DeletePaymentRequest(Schema):
@@ -197,6 +200,7 @@ class PaymentSystemSchema(Schema):
     next_due: datetime | None = None
     is_active: bool
     actions: str | None = None
+    open_invoices: int = 0
 
 
 class DivisionSchema(Schema):
@@ -320,6 +324,7 @@ class UserAccountSchema(Schema):
     last_login: str | None = None
     notice: str | None = None
     open_invoices: int = 0
+    is_main: bool = False
 
 
 class ActionCommentRequest(Schema):

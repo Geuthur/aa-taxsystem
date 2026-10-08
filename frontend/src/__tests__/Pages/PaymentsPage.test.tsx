@@ -139,9 +139,9 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
     });
 
     const pendingRow = screen.getByText("Pilot ESI Pending").closest("tr")!;
-    expect(pendingRow.querySelector("button[title='Accept Payment']")).toBeInTheDocument();
-    expect(pendingRow.querySelector("button[title='Reject Payment']")).toBeInTheDocument();
-    expect(pendingRow.querySelector("button[title='Undo Payment']")).toBeNull();
+    expect(pendingRow.querySelector("button[aria-label='Accept Payment']")).toBeInTheDocument();
+    expect(pendingRow.querySelector("button[aria-label='Reject Payment']")).toBeInTheDocument();
+    expect(pendingRow.querySelector("button[aria-label='Undo Payment']")).toBeNull();
   });
 
   it("should show Undo for approved payment, but not Accept or Reject", async () => {
@@ -157,9 +157,9 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
     });
 
     const approvedRow = screen.getByText("Pilot ESI Approved").closest("tr")!;
-    expect(approvedRow.querySelector("button[title='Undo Payment']")).toBeInTheDocument();
-    expect(approvedRow.querySelector("button[title='Accept Payment']")).toBeNull();
-    expect(approvedRow.querySelector("button[title='Reject Payment']")).toBeNull();
+    expect(approvedRow.querySelector("button[aria-label='Undo Payment']")).toBeInTheDocument();
+    expect(approvedRow.querySelector("button[aria-label='Accept Payment']")).toBeNull();
+    expect(approvedRow.querySelector("button[aria-label='Reject Payment']")).toBeNull();
   });
 
   it("should NOT show Delete button for ESI payments", async () => {
@@ -177,8 +177,8 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
 
     const pendingRow = screen.getByText("Pilot ESI Pending").closest("tr")!;
     const approvedRow = screen.getByText("Pilot ESI Approved").closest("tr")!;
-    expect(pendingRow.querySelector("button[title='Delete Custom Payment']")).toBeNull();
-    expect(approvedRow.querySelector("button[title='Delete Custom Payment']")).toBeNull();
+    expect(pendingRow.querySelector("button[aria-label='Delete Custom Payment']")).toBeNull();
+    expect(approvedRow.querySelector("button[aria-label='Delete Custom Payment']")).toBeNull();
   });
 
   it("should show Delete button for Custom payments and open confirmation modal", async () => {
@@ -193,7 +193,7 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
     });
 
     const customRow = screen.getByText("Pilot Custom Payment").closest("tr")!;
-    const deleteBtn = customRow.querySelector("button[title='Delete Custom Payment']")!;
+    const deleteBtn = customRow.querySelector("button[aria-label='Delete Custom Payment']")!;
     expect(deleteBtn).toBeInTheDocument();
 
     await user.click(deleteBtn);

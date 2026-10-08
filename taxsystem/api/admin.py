@@ -7,7 +7,7 @@ from ninja import NinjaAPI, Schema
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext as _
@@ -37,7 +37,12 @@ from taxsystem.models.corporation import (
     CorporationOwner,
     CorporationWalletJournalEntry,
 )
-from taxsystem.models.helpers.textchoices import AccountStatus, ActionType, AdminActions
+from taxsystem.models.helpers.textchoices import (
+    AccountStatus,
+    ActionType,
+    AdminActions,
+    PaymentRequestStatus,
+)
 from taxsystem.models.wallet import CorporationWalletDivision
 from taxsystem.providers import AppLogger
 
@@ -161,6 +166,19 @@ class AdminApiEndpoints:
                 .prefetch_related("user__character_ownerships__character")
             )
 
+            open_invoices_map = dict(
+                owner.payment_model.objects.filter(
+                    owner=owner,
+                    request_status__in=[
+                        PaymentRequestStatus.PENDING,
+                        PaymentRequestStatus.NEEDS_APPROVAL,
+                    ],
+                )
+                .values("account_id")
+                .annotate(count=Count("id"))
+                .values_list("account_id", "count")
+            )
+
             tax_accounts_list: list[PaymentSystemSchema] = []
             for account in tax_accounts:
                 # Build tax account data
@@ -181,6 +199,7 @@ class AdminApiEndpoints:
                     last_paid=account.last_paid,
                     next_due=account.next_due,
                     is_active=account.is_active,
+                    open_invoices=open_invoices_map.get(account.pk, 0),
                 )
                 tax_accounts_list.append(tax_account_data)
             return tax_accounts_list

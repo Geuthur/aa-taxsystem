@@ -1,6 +1,6 @@
 // Third Party
 import { Building2, Shield, Users } from "lucide-react";
-import { Button, Col } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 
 export interface OwnerTypeFilterProps {
   ownerType: string;
@@ -14,31 +14,30 @@ export function OwnerTypeFilter({
   t,
 }: OwnerTypeFilterProps) {
   return (
-    <Col md={6} lg={8} className="d-flex justify-content-md-end gap-2">
+    <div className="btn-group" role="group">
       <Button
-        size="sm"
+        className={`aa-btn aa-btn-sm ${ownerType === "all" ? "aa-btn-primary" : "aa-btn-secondary"}`}
         onClick={() => setOwnerType("all")}
-        className={ownerType === "all" ? "aa-btn aa-btn-primary" : "aa-btn aa-btn-secondary"}
       >
-        <Users size={14} className="me-1" />
+        <Users size={13} className="me-1" />
         {t("All")}
       </Button>
       <Button
-        size="sm"
+        className={`aa-btn aa-btn-sm ${ownerType === "corporation" ? "aa-btn-primary" : "aa-btn-secondary"}`}
         onClick={() => setOwnerType("corporation")}
-        className={ownerType === "corporation" ? "aa-btn aa-btn-primary" : "aa-btn aa-btn-secondary"}
       >
-        <Building2 size={14} className="me-1" />
+        <Building2 size={13} className="me-1" />
         {t("Corporations")}
       </Button>
       <Button
-        size="sm"
+        className={`aa-btn aa-btn-sm ${ownerType === "alliance" ? "aa-btn-primary" : "aa-btn-secondary"}`}
         onClick={() => setOwnerType("alliance")}
-        className={ownerType === "alliance" ? "aa-btn aa-btn-primary" : "aa-btn aa-btn-secondary"}
       >
-        <Shield size={14} className="me-1" />
+        <Shield size={13} className="me-1" />
         {t("Alliances")}
       </Button>
-    </Col>
+    </div>
   );
 }
+
+export default OwnerTypeFilter;

@@ -101,4 +101,5 @@ export const MODAL_DEFAULTS = {
   closeButton: true,
   closeVariant: "primary",
   confirmVariant: "success",
+  bodyClassName: "aa-panel",
 } as const;

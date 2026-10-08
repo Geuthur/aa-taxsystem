@@ -26,7 +26,7 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
-import { formatNumber } from "@/Utils";
+import { formatNumber, renderTooltip } from "@/Utils";
 
 type PaymentRow = components["schemas"]["PaymentSchema"];
 
@@ -117,7 +117,7 @@ export function MemberPaymentsModal({
         id: "date",
         header: t("Date"),
         accessorKey: "date",
-        cell: ({ getValue }) => <span className="text-secondary small">{String(getValue())}</span>,
+        cell: ({ getValue }) => <span className="small">{String(getValue())}</span>,
       },
       {
         id: "division_name",
@@ -175,54 +175,56 @@ export function MemberPaymentsModal({
             <div className="d-flex align-items-center gap-1">
               {isPending && (
                 <>
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    title={t("Approve Payment")}
-                    disabled={approveMutation.isPending}
-                    onClick={() => approveMutation.mutate(p.payment_id)}
-                  >
-                    <Check size={14} />
-                  </Button>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    title={t("Reject Payment")}
-                    disabled={rejectMutation.isPending}
-                    onClick={() => {
-                      setRejectingPaymentId(p.payment_id);
-                      setRejectComment("");
-                    }}
-                  >
-                    <X size={14} />
-                  </Button>
+                  {renderTooltip(
+                    t("Approve Payment"),
+                    <Button
+                      className="aa-btn aa-btn-sm aa-btn-success"
+                      disabled={approveMutation.isPending}
+                      onClick={() => approveMutation.mutate(p.payment_id)}
+                    >
+                      <Check size={14} />
+                    </Button>,
+                  )}
+                  {renderTooltip(
+                    t("Reject Payment"),
+                    <Button
+                      className="aa-btn aa-btn-sm aa-btn-danger"
+                      disabled={rejectMutation.isPending}
+                      onClick={() => {
+                        setRejectingPaymentId(p.payment_id);
+                        setRejectComment("");
+                      }}
+                    >
+                      <X size={14} />
+                    </Button>,
+                  )}
                 </>
               )}
-              {isProcessed && (
-                <Button
-                  variant="outline-warning"
-                  size="sm"
-                  title={t("Undo Payment")}
-                  disabled={undoMutation.isPending}
-                  onClick={() => undoMutation.mutate(p.payment_id)}
-                >
-                  <RotateCcw size={14} />
-                </Button>
-              )}
-              {canDelete && (
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  title={t("Delete Custom Payment")}
-                  disabled={deleteMutation.isPending}
-                  onClick={() => {
-                    setDeletingPayment(p);
-                    setDeleteComment("");
-                  }}
-                >
-                  <Trash2 size={14} />
-                </Button>
-              )}
+              {isProcessed &&
+                renderTooltip(
+                  t("Undo Payment"),
+                  <Button
+                    className="aa-btn aa-btn-sm aa-btn-warning"
+                    disabled={undoMutation.isPending}
+                    onClick={() => undoMutation.mutate(p.payment_id)}
+                  >
+                    <RotateCcw size={14} />
+                  </Button>,
+                )}
+              {canDelete &&
+                renderTooltip(
+                  t("Delete Custom Payment"),
+                  <Button
+                    className="aa-btn aa-btn-sm aa-btn-danger"
+                    disabled={deleteMutation.isPending}
+                    onClick={() => {
+                      setDeletingPayment(p);
+                      setDeleteComment("");
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </Button>,
+                )}
             </div>
           );
         },
@@ -250,18 +252,13 @@ export function MemberPaymentsModal({
             )}
             <div>
               <div className="h5 mb-0">{characterName}</div>
-              <small className="text-secondary">
+              <small className="fs-6">
                 {t("Payment History & Activities")}
               </small>
             </div>
           </div>
         }
-        bodyClassName="p-0"
-        footer={
-          <Button variant="secondary" onClick={onClose}>
-            {t("Close")}
-          </Button>
-        }
+        bodyClassName="aa-panel"
       >
         {isError ? (
           <div className="p-4 text-center text-danger">
@@ -269,6 +266,7 @@ export function MemberPaymentsModal({
           </div>
         ) : (
           <BaseTable
+            variant="vowra-light"
             data={payments || []}
             columns={columns}
             isFetching={isLoading}
@@ -286,7 +284,10 @@ export function MemberPaymentsModal({
           title={<span className="h5 text-danger mb-0">{t("Reject Payment")}</span>}
           footer={
             <>
-              <Button variant="secondary" onClick={() => setRejectingPaymentId(null)}>
+              <Button
+                variant="secondary"
+                onClick={() => setRejectingPaymentId(null)}
+              >
                 {t("Cancel")}
               </Button>
               <Button
@@ -312,7 +313,6 @@ export function MemberPaymentsModal({
             <Form.Control
               as="textarea"
               rows={3}
-              className="bg-black text-light border-secondary"
               placeholder={t("Optional rejection reason")}
               value={rejectComment}
               onChange={(e) => setRejectComment(e.target.value)}
@@ -335,7 +335,10 @@ export function MemberPaymentsModal({
           }
           footer={
             <>
-              <Button variant="secondary" onClick={() => setDeletingPayment(null)}>
+              <Button
+                variant="secondary"
+                onClick={() => setDeletingPayment(null)}
+              >
                 {t("Cancel")}
               </Button>
               <Button

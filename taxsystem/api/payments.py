@@ -5,6 +5,7 @@ from ninja import NinjaAPI
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import format_lazy
@@ -355,10 +356,17 @@ class PaymentsApiEndpoints:
                 return 403, {"error": _("Permission Denied.")}
 
             # Filter payments by character
-            payments = owner.payment_model.objects.filter(
-                account__user__profile__main_character__character_id=character_id,
-                owner=owner,
-            ).order_by("-date")
+            payments = (
+                owner.payment_model.objects.filter(
+                    Q(account__user__profile__main_character__character_id=character_id)
+                    | Q(
+                        account__user__character_ownerships__character__character_id=character_id
+                    ),
+                    owner=owner,
+                )
+                .distinct()
+                .order_by("-date")
+            )
             # Limit to last 10,000 payments
             payments = payments[:10000]
 

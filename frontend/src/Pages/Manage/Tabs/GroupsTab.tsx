@@ -116,14 +116,13 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
         cell: ({ row }) =>
           row.original.id ? (
             <Button
-              variant="outline-danger"
-              size="sm"
+              className="aa-btn aa-btn-sm aa-btn-danger"
               onClick={() => {
                 setGroupToDelete(row.original);
                 setDeleteComment(t("Deleted via Tax System"));
               }}
             >
-              <Trash2 size={12} className="me-1" />
+              <Trash2 size={12} />
               {t("Delete")}
             </Button>
           ) : null,
@@ -141,15 +140,14 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
             {t("Tax Groups")}
           </h5>
           <Button
-            variant="outline-primary"
-            size="sm"
+            className="aa-btn aa-btn-sm aa-btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
-            <Plus size={14} className="me-1" />
+            <Plus size={14} />
             {t("Add Tax-Free Group")}
           </Button>
         </Card.Header>
-        <Card.Body className="p-0">
+        <Card.Body>
           <BaseTable
             data={groups || []}
             columns={columns}
@@ -174,7 +172,10 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
           }
           footer={
             <>
-              <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setShowCreateModal(false)}
+              >
                 {t("Cancel")}
               </Button>
               <Button
@@ -211,7 +212,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
               className="bg-dark text-light border-secondary mb-2"
             />
             <div
-              className="p-2 border border-secondary rounded overflow-auto"
+              className="p-2 aa-panel-light border border-secondary rounded overflow-auto"
               style={{ maxHeight: "200px" }}
             >
               {availableLoading ? (
@@ -262,7 +263,10 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
           }
           footer={
             <>
-              <Button variant="secondary" onClick={() => setGroupToDelete(null)}>
+              <Button
+                variant="secondary"
+                onClick={() => setGroupToDelete(null)}
+              >
                 {t("Cancel")}
               </Button>
               <Button
