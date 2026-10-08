@@ -4,7 +4,7 @@ import React from "react";
 // Third Party
 import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
-import { Badge } from "react-bootstrap";
+import { Badge, Form } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
@@ -18,6 +18,7 @@ export interface PaymentColumnsOptions<T extends GenericPaymentRow> {
   t: TFunction;
   showCharacter?: boolean;
   showReviser?: boolean;
+  enableRowSelection?: boolean;
   renderActions?: (row: T) => React.ReactNode;
 }
 
@@ -25,9 +26,42 @@ export function getPaymentColumns<T extends GenericPaymentRow>({
   t,
   showCharacter = false,
   showReviser = false,
+  enableRowSelection = false,
   renderActions,
 }: PaymentColumnsOptions<T>): ColumnDef<T>[] {
   const columns: ColumnDef<T>[] = [];
+
+  if (enableRowSelection) {
+    columns.push({
+      id: "select",
+      header: ({ table }) => (
+        <Form.Check
+          type="checkbox"
+          id="select-all-payments"
+          checked={table.getIsAllPageRowsSelected()}
+          ref={(input: HTMLInputElement | null) => {
+            if (input) {
+              input.indeterminate = table.getIsSomePageRowsSelected();
+            }
+          }}
+          onChange={table.getToggleAllPageRowsSelectedHandler()}
+          aria-label={t("Select all")}
+        />
+      ),
+      cell: ({ row }) => (
+        <Form.Check
+          type="checkbox"
+          id={`select-payment-${row.original.payment_id}`}
+          checked={row.getIsSelected()}
+          disabled={!row.getCanSelect()}
+          onChange={row.getToggleSelectedHandler()}
+          aria-label={t("Select row")}
+        />
+      ),
+      enableSorting: false,
+      enableColumnFilter: false,
+    });
+  }
 
   if (showCharacter) {
     columns.push({

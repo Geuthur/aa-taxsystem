@@ -274,5 +274,19 @@
   "Style Guide": "Style Guide",
   "Unknown": "Unknown",
   "Deleted via TaxSystem": "Deleted via TaxSystem",
-  "Deleted via Tax System": "Deleted via Tax System"
+  "Deleted via Tax System": "Deleted via Tax System",
+  "{{count}} selected": "{{count}} selected",
+  "Approve": "Approve",
+  "Reject": "Reject",
+  "Undo": "Undo",
+  "Clear": "Clear",
+  "Select all": "Select all",
+  "Select row": "Select row",
+  "Reject Selected Payments": "Reject Selected Payments",
+  "Are you sure you want to reject {{count}} selected payments?": "Are you sure you want to reject {{count}} selected payments?",
+  "Reason for rejecting payments...": "Reason for rejecting payments...",
+  "Delete Selected Payments": "Delete Selected Payments",
+  "Are you sure you want to permanently delete {{count}} selected custom payments?": "Are you sure you want to permanently delete {{count}} selected custom payments?",
+  "Any approved custom payments in this selection will have their amounts deducted from member account deposits.": "Any approved custom payments in this selection will have their amounts deducted from member account deposits.",
+  "Reason for deleting payments...": "Reason for deleting payments..."
 }

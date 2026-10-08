@@ -330,6 +330,19 @@ class PaymentActionRequest(Schema):
     comment: str = ""
 
 
+class BulkPaymentActionRequest(Schema):
+    payment_ids: list[int]
+    action: Literal["approve", "reject", "undo", "delete"]
+    comment: str = ""
+
+
+class BulkPaymentActionResponse(Schema):
+    success: bool
+    processed_count: int
+    total_count: int
+    message: str
+
+
 class UpdateOwnerSettingsRequest(Schema):
     tax_amount: float | None = None
     tax_period: int | None = None

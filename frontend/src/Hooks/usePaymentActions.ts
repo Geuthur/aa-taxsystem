@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 
 // AA TaxSystem
-import { managePaymentAction } from "@/Api/ApiCalls";
+import { manageBulkPaymentAction, managePaymentAction } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 
 export type BasePaymentRow =
@@ -23,6 +23,12 @@ export function usePaymentActions({ ownerId, onSuccess }: UsePaymentActionsProps
 
   const [deletingPayment, setDeletingPayment] = useState<BasePaymentRow | null>(null);
   const [deleteComment, setDeleteComment] = useState("");
+
+  const [bulkRejectingPaymentIds, setBulkRejectingPaymentIds] = useState<number[] | null>(null);
+  const [bulkRejectComment, setBulkRejectComment] = useState("");
+
+  const [bulkDeletingPaymentIds, setBulkDeletingPaymentIds] = useState<number[] | null>(null);
+  const [bulkDeleteComment, setBulkDeleteComment] = useState("");
 
   const actionMutation = useMutation({
     mutationFn: ({
@@ -43,6 +49,29 @@ export function usePaymentActions({ ownerId, onSuccess }: UsePaymentActionsProps
       if (variables.action === "delete") {
         setDeletingPayment(null);
         setDeleteComment("");
+      }
+    },
+  });
+
+  const bulkActionMutation = useMutation({
+    mutationFn: ({
+      paymentIds,
+      action,
+      comment,
+    }: {
+      paymentIds: number[];
+      action: "approve" | "reject" | "undo" | "delete";
+      comment?: string;
+    }) => manageBulkPaymentAction(ownerId, paymentIds, action, comment),
+    onSuccess: (_, variables) => {
+      onSuccess?.();
+      if (variables.action === "reject") {
+        setBulkRejectingPaymentIds(null);
+        setBulkRejectComment("");
+      }
+      if (variables.action === "delete") {
+        setBulkDeletingPaymentIds(null);
+        setBulkDeleteComment("");
       }
     },
   });
@@ -75,6 +104,38 @@ export function usePaymentActions({ ownerId, onSuccess }: UsePaymentActionsProps
     }
   };
 
+  const bulkApprove = (paymentIds: number[]) => {
+    if (paymentIds.length > 0) {
+      bulkActionMutation.mutate({ paymentIds, action: "approve" });
+    }
+  };
+
+  const bulkUndo = (paymentIds: number[]) => {
+    if (paymentIds.length > 0) {
+      bulkActionMutation.mutate({ paymentIds, action: "undo" });
+    }
+  };
+
+  const confirmBulkReject = () => {
+    if (bulkRejectingPaymentIds && bulkRejectingPaymentIds.length > 0) {
+      bulkActionMutation.mutate({
+        paymentIds: bulkRejectingPaymentIds,
+        action: "reject",
+        comment: bulkRejectComment.trim(),
+      });
+    }
+  };
+
+  const confirmBulkDelete = () => {
+    if (bulkDeletingPaymentIds && bulkDeletingPaymentIds.length > 0) {
+      bulkActionMutation.mutate({
+        paymentIds: bulkDeletingPaymentIds,
+        action: "delete",
+        comment: bulkDeleteComment.trim() || undefined,
+      });
+    }
+  };
+
   return {
     approve,
     undo,
@@ -88,7 +149,20 @@ export function usePaymentActions({ ownerId, onSuccess }: UsePaymentActionsProps
     deleteComment,
     setDeleteComment,
     confirmDelete,
-    isPending: actionMutation.isPending,
+    // Bulk actions
+    bulkApprove,
+    bulkUndo,
+    bulkRejectingPaymentIds,
+    setBulkRejectingPaymentIds,
+    bulkRejectComment,
+    setBulkRejectComment,
+    confirmBulkReject,
+    bulkDeletingPaymentIds,
+    setBulkDeletingPaymentIds,
+    bulkDeleteComment,
+    setBulkDeleteComment,
+    confirmBulkDelete,
+    isPending: actionMutation.isPending || bulkActionMutation.isPending,
   };
 }
 

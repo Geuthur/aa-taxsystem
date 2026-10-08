@@ -252,6 +252,25 @@ export async function managePaymentAction(
   return data as { success: boolean; message: string };
 }
 
+export async function manageBulkPaymentAction(
+  ownerId: number,
+  paymentIds: number[],
+  action: "approve" | "reject" | "undo" | "delete",
+  comment?: string,
+): Promise<components["schemas"]["BulkPaymentActionResponse"]> {
+  const { data, error } = await apiClient.POST(
+    `/${ProjectName}/api/owner/{owner_id}/manage/payments/bulk-action/`,
+    {
+      params: { path: { owner_id: ownerId } },
+      body: { payment_ids: paymentIds, action, comment: comment ?? "" },
+    },
+  );
+  if (error || !data) {
+    throw new Error(`Failed to bulk ${action} payments`);
+  }
+  return data;
+}
+
 export async function approvePayment(
   ownerId: number,
   paymentPk: number,

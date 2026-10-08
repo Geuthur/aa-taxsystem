@@ -17,7 +17,9 @@ import type {
   Cell,
   ColumnDef,
   InitialTableState,
+  OnChangeFn,
   Row,
+  RowSelectionState,
 } from "@tanstack/react-table";
 import {
   ArrowUpDown,
@@ -55,6 +57,10 @@ export interface BaseTableProps<TData, TValue = unknown> {
   pageSizeOptions?: number[];
   itemLabel?: string;
   getRowClassName?: (row: Row<TData>) => string;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+  enableRowSelection?: boolean | ((row: Row<TData>) => boolean);
+  getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string;
 }
 
 const BaseTable = <TData, TValue = unknown>({
@@ -74,6 +80,10 @@ const BaseTable = <TData, TValue = unknown>({
   pageSizeOptions = [10, 25, 50, 100],
   itemLabel,
   getRowClassName,
+  rowSelection,
+  onRowSelectionChange,
+  enableRowSelection,
+  getRowId,
 }: BaseTableProps<TData, TValue>) => {
   const location = useLocation();
   const { t } = useTranslation();
@@ -84,6 +94,12 @@ const BaseTable = <TData, TValue = unknown>({
   const table = useReactTable({
     data,
     columns,
+    getRowId,
+    state: {
+      ...(rowSelection !== undefined ? { rowSelection } : {}),
+    },
+    onRowSelectionChange,
+    enableRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),

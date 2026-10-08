@@ -4,7 +4,8 @@ import { Link, useParams } from "react-router-dom";
 
 // Third Party
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CreditCard, Search } from "lucide-react";
+import type { RowSelectionState } from "@tanstack/react-table";
+import { ArrowLeft, Check, CreditCard, RotateCcw, Search, Trash2, X } from "lucide-react";
 import { Badge, Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -35,6 +36,7 @@ export function PaymentsPage() {
 
   const [search, setSearch] = useTableSearchState("paymentSearch");
   const [statusFilter, setStatusFilter] = useStatusFilterState("paymentStatus");
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   // Details Modal state
   const [detailsPaymentId, setDetailsPaymentId] = useState<number | null>(null);
@@ -64,13 +66,31 @@ export function PaymentsPage() {
     deleteComment,
     setDeleteComment,
     confirmDelete,
+    bulkApprove,
+    bulkUndo,
+    bulkRejectingPaymentIds,
+    setBulkRejectingPaymentIds,
+    bulkRejectComment,
+    setBulkRejectComment,
+    confirmBulkReject,
+    bulkDeletingPaymentIds,
+    setBulkDeletingPaymentIds,
+    bulkDeleteComment,
+    setBulkDeleteComment,
+    confirmBulkDelete,
     isPending,
   } = usePaymentActions({
     ownerId: numericOwnerId,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.Payments(numericOwnerId) });
+      setRowSelection({});
     },
   });
+
+  const selectedPaymentIds = useMemo(
+    () => Object.keys(rowSelection).filter((id) => rowSelection[id]).map(Number),
+    [rowSelection],
+  );
 
   const filteredPayments = useMemo(() => {
     if (!payments) return [];
@@ -94,6 +114,7 @@ export function PaymentsPage() {
       getPaymentColumns<PaymentRow>({
         t,
         showCharacter: true,
+        enableRowSelection: true,
         renderActions: (p) => (
           <PaymentActionButtons
             payment={p}
@@ -136,11 +157,71 @@ export function PaymentsPage() {
 
             <PaymentsFilter statusFilter={statusFilter} setStatusFilter={setStatusFilter} t={t} />
           </div>
+
+          {selectedPaymentIds.length > 0 && (
+            <div className="d-flex flex-wrap align-items-center gap-2 bg-dark p-2 rounded border border-secondary">
+              <span className="small text-muted me-1">
+                {t("{{count}} selected", { count: selectedPaymentIds.length })}:
+              </span>
+              <Button
+                variant="success"
+                size="sm"
+                className="d-flex align-items-center gap-1 aa-btn aa-btn-success"
+                disabled={isPending}
+                onClick={() => bulkApprove(selectedPaymentIds)}
+              >
+                <Check size={14} />
+                {t("Approve")}
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                className="d-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                disabled={isPending}
+                onClick={() => setBulkRejectingPaymentIds(selectedPaymentIds)}
+              >
+                <X size={14} />
+                {t("Reject")}
+              </Button>
+              <Button
+                variant="warning"
+                size="sm"
+                className="d-flex align-items-center gap-1 aa-btn aa-btn-warning"
+                disabled={isPending}
+                onClick={() => bulkUndo(selectedPaymentIds)}
+              >
+                <RotateCcw size={14} />
+                {t("Undo")}
+              </Button>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                className="d-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                disabled={isPending}
+                onClick={() => setBulkDeletingPaymentIds(selectedPaymentIds)}
+              >
+                <Trash2 size={14} />
+                {t("Delete")}
+              </Button>
+              <Button
+                variant="outline-secondary"
+                className="aa-btn aa-btn-secondary"
+                size="sm"
+                onClick={() => setRowSelection({})}
+              >
+                {t("Clear")}
+              </Button>
+            </div>
+          )}
         </div>
 
         <BaseTable
           data={filteredPayments}
           columns={columns}
+          getRowId={(row) => String(row.payment_id)}
+          rowSelection={rowSelection}
+          onRowSelectionChange={setRowSelection}
+          enableRowSelection={true}
           isFetching={isLoading}
           isError={isError}
           emptyText={t("No payments found.")}
@@ -159,6 +240,16 @@ export function PaymentsPage() {
         onDeleteCommentChange={setDeleteComment}
         onCancelDelete={() => setDeletingPayment(null)}
         onConfirmDelete={confirmDelete}
+        bulkRejectingPaymentIds={bulkRejectingPaymentIds}
+        bulkRejectComment={bulkRejectComment}
+        onBulkRejectCommentChange={setBulkRejectComment}
+        onCancelBulkReject={() => setBulkRejectingPaymentIds(null)}
+        onConfirmBulkReject={confirmBulkReject}
+        bulkDeletingPaymentIds={bulkDeletingPaymentIds}
+        bulkDeleteComment={bulkDeleteComment}
+        onBulkDeleteCommentChange={setBulkDeleteComment}
+        onCancelBulkDelete={() => setBulkDeletingPaymentIds(null)}
+        onConfirmBulkDelete={confirmBulkDelete}
         isPending={isPending}
       />
 

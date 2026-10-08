@@ -811,3 +811,124 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         # Expected Result
         self.assertEqual(response_char.status_code, HTTPStatus.OK)
         self.assertIn(str(payment.amount), str(response_char.json()))
+
+    def test_bulk_payment_action_should_approve_multiple_payments(self):
+        """Test bulk approve action on multiple pending payments."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_1 = CorporationJournalFactory(amount=2000)
+        journal_2 = CorporationJournalFactory(amount=3000)
+        payment_1 = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_1,
+            amount=journal_1.amount,
+            date=journal_1.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        payment_2 = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_2,
+            amount=journal_2.amount,
+            date=journal_2.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:manage_bulk_payment_action",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    "payment_ids": [payment_1.pk, payment_2.pk],
+                    "action": "approve",
+                    "comment": "Bulk approved",
+                }
+            ),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        self.assertTrue(data.get("success"))
+        self.assertEqual(data.get("processed_count"), 2)
+        self.assertEqual(data.get("total_count"), 2)
+        payment_1.refresh_from_db()
+        payment_2.refresh_from_db()
+        self.assertEqual(payment_1.request_status, PaymentRequestStatus.APPROVED)
+        self.assertEqual(payment_2.request_status, PaymentRequestStatus.APPROVED)
+
+    def test_bulk_payment_action_should_reject_multiple_payments(self):
+        """Test bulk reject action on multiple pending payments."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_1 = CorporationJournalFactory(amount=1000)
+        payment_1 = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_1,
+            amount=journal_1.amount,
+            date=journal_1.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:manage_bulk_payment_action",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    "payment_ids": [payment_1.pk],
+                    "action": "reject",
+                    "comment": "Bulk rejected for testing",
+                }
+            ),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        self.assertTrue(data.get("success"))
+        self.assertEqual(data.get("processed_count"), 1)
+        payment_1.refresh_from_db()
+        self.assertEqual(payment_1.request_status, PaymentRequestStatus.REJECTED)
+
+    def test_bulk_payment_action_should_fail_when_no_ids(self):
+        """Test bulk payment action fails with 400 if payment_ids is empty."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        url = reverse(
+            f"{API_URL}:manage_bulk_payment_action",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    "payment_ids": [],
+                    "action": "approve",
+                }
+            ),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertFalse(response.json().get("success"))

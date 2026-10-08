@@ -22,6 +22,8 @@ vi.mock("@/Api/ApiCalls", () => ({
   rejectPayment: vi.fn(),
   undoPayment: vi.fn(),
   deletePayment: vi.fn(),
+  managePaymentAction: vi.fn(),
+  manageBulkPaymentAction: vi.fn(),
 }));
 
 const mockPayments: PaymentRow[] = [
@@ -203,5 +205,49 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
     expect(
       screen.getByText(/Are you sure you want to permanently delete this custom payment/i),
     ).toBeInTheDocument();
+  });
+
+  it("should show bulk actions toolbar when rows are selected and execute bulk approve", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    vi.mocked(ApiCalls.loadPayments).mockResolvedValue(mockPayments);
+    vi.mocked(ApiCalls.manageBulkPaymentAction).mockResolvedValue({
+      success: true,
+      message: "2 payments processed successfully",
+      processed_count: 2,
+      total_count: 2,
+    });
+
+    // Test Action
+    renderPage();
+    await waitFor(() => {
+      expect(screen.getByText("Pilot ESI Pending")).toBeInTheDocument();
+    });
+
+    // Check row 101 checkbox
+    const checkbox101 = screen.getByLabelText("Select row", { selector: "#select-payment-101" });
+    await user.click(checkbox101);
+
+    // Expected Result - toolbar visible with 1 selected
+    expect(screen.getByText("1 selected:")).toBeInTheDocument();
+
+    // Check row 103 checkbox
+    const checkbox103 = screen.getByLabelText("Select row", { selector: "#select-payment-103" });
+    await user.click(checkbox103);
+
+    // Expected Result - toolbar visible with 2 selected
+    expect(screen.getByText("2 selected:")).toBeInTheDocument();
+
+    // Test Action - click bulk Approve
+    const approveBtn = screen.getByRole("button", { name: /^Approve$/i });
+    await user.click(approveBtn);
+
+    // Expected Result - bulk approve API called with [101, 103]
+    expect(ApiCalls.manageBulkPaymentAction).toHaveBeenCalledWith(
+      10,
+      [101, 103],
+      "approve",
+      undefined,
+    );
   });
 });

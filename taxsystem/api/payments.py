@@ -572,6 +572,72 @@ class PaymentsApiEndpoints:
             )
 
         @api.post(
+            "owner/{owner_id}/manage/payments/bulk-action/",
+            response={
+                200: schema.BulkPaymentActionResponse,
+                400: schema.BulkPaymentActionResponse,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
+            tags=self.tags,
+            summary="Execute bulk payment actions (approve, reject, undo, delete)",
+        )
+        def manage_bulk_payment_action(
+            request: WSGIRequest,
+            owner_id: int,
+            payload: schema.BulkPaymentActionRequest,
+        ):
+            """Manage multiple payments in bulk."""
+            owner, perms = core.get_manage_owner(request, owner_id)
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            payment_ids = payload.payment_ids
+            if not payment_ids:
+                return 400, {
+                    "success": False,
+                    "processed_count": 0,
+                    "total_count": 0,
+                    "message": str(_("No payment IDs provided.")),
+                }
+
+            processed = 0
+            for payment_pk in payment_ids:
+                status_code, _res = _execute_payment_action(
+                    user=request.user,
+                    owner=owner,
+                    payment_pk=payment_pk,
+                    action=payload.action,
+                    comment=payload.comment or "",
+                )
+                if status_code == 200:
+                    processed += 1
+
+            action_labels = {
+                "approve": _("approved"),
+                "reject": _("rejected"),
+                "undo": _("undone"),
+                "delete": _("deleted"),
+            }
+            action_label = action_labels.get(payload.action, payload.action)
+
+            msg = format_lazy(
+                _("{processed} of {total} payments successfully {action}."),
+                processed=processed,
+                total=len(payment_ids),
+                action=action_label,
+            )
+
+            return 200, {
+                "success": processed > 0,
+                "processed_count": processed,
+                "total_count": len(payment_ids),
+                "message": str(msg),
+            }
+
+        @api.post(
             "owner/{owner_id}/payment/{payment_pk}/manage/approve-payment/",
             response={200: dict, 400: dict, 403: dict, 404: dict},
             tags=self.tags,

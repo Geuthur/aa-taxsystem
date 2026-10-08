@@ -10,6 +10,7 @@ import {
     loadUserAccounts,
     loadUserData,
     loadUserSettings,
+    manageBulkPaymentAction,
     updateUserSettings,
 } from '@/Api/ApiCalls';
 
@@ -216,6 +217,54 @@ describe('General API client functions', () => {
 
             // Test Action & Expected Result
             await expect(deletePayment(10, 42)).rejects.toThrow('Failed to delete payment');
+        });
+    });
+
+    describe('manageBulkPaymentAction', () => {
+        it('calls POST endpoint with owner_id and bulk payload', async () => {
+            // Test Data
+            const mockResponse = {
+                success: true,
+                message: '3 payments processed successfully',
+                processed_count: 3,
+                total_count: 3,
+            };
+            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
+                data: mockResponse,
+                error: undefined,
+                response: new Response(),
+            } as never);
+
+            // Test Action
+            const result = await manageBulkPaymentAction(10, [101, 102, 103], 'approve', 'Bulk test');
+
+            // Expected Result
+            expect(result).toEqual(mockResponse);
+            expect(apiClient.POST).toHaveBeenCalledWith(
+                '/taxsystem/api/owner/{owner_id}/manage/payments/bulk-action/',
+                {
+                    params: { path: { owner_id: 10 } },
+                    body: {
+                        payment_ids: [101, 102, 103],
+                        action: 'approve',
+                        comment: 'Bulk test',
+                    },
+                },
+            );
+        });
+
+        it('throws error when POST fails or returns no data', async () => {
+            // Test Data
+            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
+                data: undefined,
+                error: { status: 400 },
+                response: new Response(),
+            } as never);
+
+            // Test Action & Expected Result
+            await expect(
+                manageBulkPaymentAction(10, [101], 'reject'),
+            ).rejects.toThrow('Failed to bulk reject payments');
         });
     });
 });

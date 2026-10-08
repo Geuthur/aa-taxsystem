@@ -447,6 +447,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/taxsystem/api/owner/{owner_id}/manage/payments/bulk-action/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute bulk payment actions (approve, reject, undo, delete)
+         * @description Manage multiple payments in bulk.
+         */
+        post: operations["taxsystem_api_payments_manage_bulk_payment_action"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/approve-payment/": {
         parameters: {
             query?: never;
@@ -1398,6 +1418,32 @@ export interface components {
         };
         /** PaymentActionRequest */
         PaymentActionRequest: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "approve" | "reject" | "undo" | "delete";
+            /**
+             * Comment
+             * @default
+             */
+            comment: string;
+        };
+        /** BulkPaymentActionResponse */
+        BulkPaymentActionResponse: {
+            /** Success */
+            success: boolean;
+            /** Processed Count */
+            processed_count: number;
+            /** Total Count */
+            total_count: number;
+            /** Message */
+            message: string;
+        };
+        /** BulkPaymentActionRequest */
+        BulkPaymentActionRequest: {
+            /** Payment Ids */
+            payment_ids: number[];
             /**
              * Action
              * @enum {string}
@@ -2480,6 +2526,59 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    taxsystem_api_payments_manage_bulk_payment_action: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkPaymentActionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkPaymentActionResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkPaymentActionResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
         };
