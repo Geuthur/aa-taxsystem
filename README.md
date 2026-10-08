@@ -1,4 +1,4 @@
-# Tax System module for AllianceAuth.<a name="aa-taxsystem"></a>
+# Tax System module for AllianceAuth.<a name="tax-system-module-for-allianceauth"></a>
 
 ![Release](https://img.shields.io/pypi/v/aa-taxsystem?label=release)
 ![Licence](https://img.shields.io/github/license/geuthur/aa-taxsystem)
@@ -17,20 +17,24 @@ A Tax System for Corporation to Monitor Payments like Renting Tax, etc.
 
 ______________________________________________________________________
 
-- [AA Tax System](#aa-taxsystem)
-  - [Features](#features)
-  - [Upcoming](#upcoming)
-  - [Screenshots](#screenshots)
-  - [Installation](#features)
-    - [Step 1 - Install the Package](#step1)
-    - [Step 2 - Configure Alliance Auth](#step2)
-    - [Step 3 - Add the Scheduled Tasks and Settings](#step3)
-    - [Step 4 - Migration to AA](#step4)
-    - [Step 5 - Setting up Permissions](#step5)
-    - [Step 6 - (Optional) Setting up Compatibilies](#step6)
-  - [Documentation](#documentation)
-  - [Translations](#translations)
-  - [Contributing](#contributing)
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=2 -->
+
+- [Features](#features)
+- [Upcoming](#upcoming)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+  - [Step 1 - Install the Package](#step-1---install-the-package)
+  - [Step 2 - Configure Alliance Auth](#step-2---configure-alliance-auth)
+  - [Step 3 - Add the Scheduled Tasks](#step-3---add-the-scheduled-tasks)
+  - [Step 3.1 - (Optional) Add own Logger File](#step-31---optional-add-own-logger-file)
+  - [Step 4 - Migration to AA](#step-4---migration-to-aa)
+  - [Step 5 - Setting up Permissions](#step-5---setting-up-permissions)
+  - [Step 6 - (Optional) Setting up Compatibilies](#step-6---optional-setting-up-compatibilies)
+- [Documentation](#documentation)
+- [Translations](#translations)
+- [Contributing](#contributing)
+
+<!-- mdformat-toc end -->
 
 ## Features<a name="features"></a>
 
@@ -66,25 +70,11 @@ ______________________________________________________________________
 
 ## Screenshots<a name="screenshots"></a>
 
-### Administration View
-
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/administration.png)
-
-### Account User Payments History
-
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/administrationpaymentaccount.png)
-
-### Tax Filters
-
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/filters.png)
-
-### Payments Details
-
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/paymentdetails.png)
-
-### Payments
-
-![Screenshot](https://raw.githubusercontent.com/Geuthur/aa-taxsystem/refs/heads/master/docs/images/payments.png)
+![Image: administration]
+![Image: adminhistory]
+![Image: payments]
+![Image: filters]
+![Image: paymentdetails]
 
 ## Installation<a name="installation"></a>
 
@@ -92,7 +82,7 @@ ______________________________________________________________________
 > AA Tax System needs at least Alliance Auth v5
 > Please make sure to update your Alliance Auth before you install this APP
 
-### Step 1 - Install the Package<a name="step1"></a>
+### Step 1 - Install the Package<a name="step-1---install-the-package"></a>
 
 Make sure you're in your virtual environment (venv) of your Alliance Auth then install the pakage.
 
@@ -100,13 +90,13 @@ Make sure you're in your virtual environment (venv) of your Alliance Auth then i
 pip install aa-taxsystem
 ```
 
-### Step 2 - Configure Alliance Auth<a name="step2"></a>
+### Step 2 - Configure Alliance Auth<a name="step-2---configure-alliance-auth"></a>
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
 - Add `'taxsystem',` to `INSTALLED_APPS`
 
-### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
+### Step 3 - Add the Scheduled Tasks<a name="step-3---add-the-scheduled-tasks"></a>
 
 To set up the Scheduled Tasks add following code to your `local.py`
 
@@ -121,7 +111,7 @@ CELERYBEAT_SCHEDULE["AA Taxsystem :: Sent out Notification"] = {
 }
 ```
 
-### Step 3.1 - (Optional) Add own Logger File
+### Step 3.1 - (Optional) Add own Logger File<a name="step-31---optional-add-own-logger-file"></a>
 
 To set up the Logger add following code to your `local.py`
 Ensure that you have writing permission in logs folder.
@@ -141,14 +131,14 @@ LOGGING["loggers"]["extensions.taxsystem"] = {
 }
 ```
 
-### Step 4 - Migration to AA<a name="step4"></a>
+### Step 4 - Migration to AA<a name="step-4---migration-to-aa"></a>
 
 ```shell
 python manage.py collectstatic
 python manage.py migrate
 ```
 
-### Step 5 - Setting up Permissions<a name="step5"></a>
+### Step 5 - Setting up Permissions<a name="step-5---setting-up-permissions"></a>
 
 With the Following IDs you can set up the permissions for the Tax System
 
@@ -161,7 +151,7 @@ With the Following IDs you can set up the permissions for the Tax System
 | `manage_own_alliance` | Can manage own Alliance          | Users with this permission can manage own alliance.            |
 | `manage_alliances`    | Can manage all Alliances         | Users with this permission can manage all alliances.           |
 
-### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
+### Step 6 - (Optional) Setting up Compatibilies<a name="step-6---optional-setting-up-compatibilies"></a>
 
 The Following Settings can be setting up in the `local.py`
 
@@ -194,7 +184,13 @@ The manual covers:
 
 Help us translate this app into your language or improve existing translations. Join our team!"
 
-## Contributing <a name="contributing"></a>
+## Contributing<a name="contributing"></a>
 
 You want to improve the project?
 Please ensure you read the [contribution guidelines](https://github.com/Geuthur/aa-taxsystem/blob/master/CONTRIBUTING.md)
+
+[image: adminhistory]: https://raw.githubusercontent.com/geuthur/aa-taxsystem/master/docs/images/adminhistory.png "Administration History"
+[image: administration]: https://raw.githubusercontent.com/geuthur/aa-taxsystem/master/docs/images/administration.png "Administation Overview"
+[image: filters]: https://raw.githubusercontent.com/geuthur/aa-taxsystem/master/docs/images/filters.png "Tax Filters"
+[image: paymentdetails]: https://raw.githubusercontent.com/geuthur/aa-taxsystem/master/docs/images/paymentdetails.png "Payment Details"
+[image: payments]: https://raw.githubusercontent.com/geuthur/aa-taxsystem/master/docs/images/payments.png "Payments"

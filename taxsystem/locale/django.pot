@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Taxsystem\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-taxsystem/\n"
-"POT-Creation-Date: 2026-10-08 21:16+0200\n"
+"POT-Creation-Date: 2026-10-08 23:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,40 +40,38 @@ msgid "Started force update for {count} alliance(s). Updates will run in the bac
 msgstr ""
 
 #: taxsystem/api/admin.py:86 taxsystem/api/admin.py:151
-#: taxsystem/api/admin.py:231 taxsystem/api/admin.py:299
-#: taxsystem/api/admin.py:365 taxsystem/api/admin.py:431
-#: taxsystem/api/corporation.py:66 taxsystem/api/corporation.py:229
-#: taxsystem/api/filters.py:66 taxsystem/api/filters.py:134
-#: taxsystem/api/filters.py:192 taxsystem/api/filters.py:247
-#: taxsystem/api/filters.py:307 taxsystem/api/filters.py:361
-#: taxsystem/api/filters.py:412 taxsystem/api/groups.py:50
-#: taxsystem/api/groups.py:105 taxsystem/api/groups.py:149
-#: taxsystem/api/groups.py:176 taxsystem/api/logs.py:46
-#: taxsystem/api/logs.py:89 taxsystem/api/payments.py:238
-#: taxsystem/api/payments.py:456 taxsystem/api/payments.py:551
-#: taxsystem/api/payments.py:631 taxsystem/api/payments.py:708
-#: taxsystem/api/payments.py:797 taxsystem/api/payments.py:870
+#: taxsystem/api/admin.py:231 taxsystem/api/admin.py:289
+#: taxsystem/api/corporation.py:64 taxsystem/api/corporation.py:220
+#: taxsystem/api/filters.py:62 taxsystem/api/filters.py:129
+#: taxsystem/api/filters.py:187 taxsystem/api/filters.py:239
+#: taxsystem/api/filters.py:299 taxsystem/api/filters.py:353
+#: taxsystem/api/filters.py:404 taxsystem/api/groups.py:47
+#: taxsystem/api/groups.py:101 taxsystem/api/groups.py:145
+#: taxsystem/api/groups.py:172 taxsystem/api/logs.py:46
+#: taxsystem/api/payments.py:338 taxsystem/api/payments.py:485
+#: taxsystem/api/payments.py:563 taxsystem/api/payments.py:589
+#: taxsystem/api/payments.py:616 taxsystem/api/payments.py:643
+#: taxsystem/api/payments.py:674
 msgid "Owner not Found."
 msgstr ""
 
 #: taxsystem/api/admin.py:89 taxsystem/api/admin.py:154
-#: taxsystem/api/admin.py:235 taxsystem/api/admin.py:303
-#: taxsystem/api/admin.py:369 taxsystem/api/admin.py:435
-#: taxsystem/api/admin.py:494 taxsystem/api/corporation.py:69
-#: taxsystem/api/corporation.py:233 taxsystem/api/filters.py:70
-#: taxsystem/api/filters.py:138 taxsystem/api/filters.py:195
-#: taxsystem/api/filters.py:251 taxsystem/api/filters.py:311
-#: taxsystem/api/filters.py:365 taxsystem/api/filters.py:416
+#: taxsystem/api/admin.py:235 taxsystem/api/admin.py:293
+#: taxsystem/api/admin.py:398 taxsystem/api/corporation.py:67
+#: taxsystem/api/corporation.py:224 taxsystem/api/filters.py:66
+#: taxsystem/api/filters.py:133 taxsystem/api/filters.py:190
+#: taxsystem/api/filters.py:243 taxsystem/api/filters.py:303
+#: taxsystem/api/filters.py:357 taxsystem/api/filters.py:408
 #: taxsystem/api/general.py:40 taxsystem/api/general.py:82
 #: taxsystem/api/general.py:133 taxsystem/api/general.py:153
-#: taxsystem/api/general.py:174 taxsystem/api/groups.py:53
-#: taxsystem/api/groups.py:109 taxsystem/api/groups.py:153
-#: taxsystem/api/groups.py:180 taxsystem/api/logs.py:49
-#: taxsystem/api/logs.py:92 taxsystem/api/overview.py:34
-#: taxsystem/api/payments.py:247 taxsystem/api/payments.py:356
-#: taxsystem/api/payments.py:460 taxsystem/api/payments.py:555
-#: taxsystem/api/payments.py:635 taxsystem/api/payments.py:712
-#: taxsystem/api/payments.py:801 taxsystem/api/payments.py:874
+#: taxsystem/api/general.py:174 taxsystem/api/groups.py:50
+#: taxsystem/api/groups.py:105 taxsystem/api/groups.py:149
+#: taxsystem/api/groups.py:176 taxsystem/api/logs.py:49
+#: taxsystem/api/overview.py:34 taxsystem/api/payments.py:347
+#: taxsystem/api/payments.py:453 taxsystem/api/payments.py:489
+#: taxsystem/api/payments.py:565 taxsystem/api/payments.py:591
+#: taxsystem/api/payments.py:618 taxsystem/api/payments.py:645
+#: taxsystem/api/payments.py:676
 msgid "Permission Denied."
 msgstr ""
 
@@ -86,122 +84,118 @@ msgstr ""
 msgid "{account} switched to {status}"
 msgstr ""
 
-#: taxsystem/api/admin.py:308 taxsystem/api/admin.py:374
+#: taxsystem/api/admin.py:301 taxsystem/api/admin.py:317
 msgid "Please enter a valid number"
 msgstr ""
 
-#: taxsystem/api/admin.py:320 taxsystem/api/admin.py:386
+#: taxsystem/api/admin.py:306
+#, python-brace-format
+msgid "Tax Amount from {owner} changed to {value}"
+msgstr ""
+
+#: taxsystem/api/admin.py:322
 #, python-brace-format
 msgid "Tax Period from {owner} changed to {value}"
 msgstr ""
 
-#: taxsystem/api/admin.py:441
-msgid "Please select at least one account to perform bulk actions."
+#: taxsystem/api/admin.py:331
+msgid "No settings provided to update."
 msgstr ""
 
-#: taxsystem/api/admin.py:457 taxsystem/api/payments.py:927
-msgid "Please select a valid action"
-msgstr ""
-
-#: taxsystem/api/admin.py:462
-#, python-brace-format
-msgid "Bulk '{status}' performed for {items} accounts({pks}) for {owner}"
-msgstr ""
-
-#: taxsystem/api/admin.py:504
+#: taxsystem/api/admin.py:408
 msgid "Queued Update All Taxsystem"
 msgstr ""
 
-#: taxsystem/api/admin.py:518
+#: taxsystem/api/admin.py:422
 #, python-format
 msgid "Queued Update for Corporation: %s"
 msgstr ""
 
-#: taxsystem/api/admin.py:523
+#: taxsystem/api/admin.py:427
 #, python-format
 msgid "Corporation with ID %s not found"
 msgstr ""
 
-#: taxsystem/api/admin.py:534
+#: taxsystem/api/admin.py:438
 msgid "Queued Update All Taxsystem Corporations"
 msgstr ""
 
-#: taxsystem/api/admin.py:549
+#: taxsystem/api/admin.py:453
 #, python-format
 msgid "Queued Update for Alliance: %s"
 msgstr ""
 
-#: taxsystem/api/admin.py:553
+#: taxsystem/api/admin.py:457
 #, python-format
 msgid "Alliance with ID %s not found"
 msgstr ""
 
-#: taxsystem/api/admin.py:564
+#: taxsystem/api/admin.py:468
 msgid "Queued Update All Taxsystem Alliances"
 msgstr ""
 
-#: taxsystem/api/admin.py:567
+#: taxsystem/api/admin.py:471
 msgid "Invalid target specified."
 msgstr ""
 
-#: taxsystem/api/corporation.py:240
+#: taxsystem/api/corporation.py:231
 #, python-brace-format
 msgid "Member {member} deleted - {reason}"
 msgstr ""
 
-#: taxsystem/api/corporation.py:253
+#: taxsystem/api/corporation.py:244
 msgid "Member is not marked as missing."
 msgstr ""
 
-#: taxsystem/api/filters.py:145
+#: taxsystem/api/filters.py:140
 msgid "Filter not found."
 msgstr ""
 
-#: taxsystem/api/filters.py:153
+#: taxsystem/api/filters.py:148
 #, python-brace-format
 msgid "{filter_obj} in \"{filter_set}\" deleted - Reason: {reason}"
 msgstr ""
 
-#: taxsystem/api/filters.py:258 taxsystem/api/filters.py:318
+#: taxsystem/api/filters.py:250 taxsystem/api/filters.py:310
 msgid "Filter Set not found."
 msgstr ""
 
-#: taxsystem/api/filters.py:266
+#: taxsystem/api/filters.py:258
 #, python-brace-format
 msgid "{filter_set} deleted - Reason: {reason}"
 msgstr ""
 
-#: taxsystem/api/filters.py:327
+#: taxsystem/api/filters.py:319
 #, python-brace-format
 msgid "{filter_set} switched to {enabled}"
 msgstr ""
 
-#: taxsystem/api/filters.py:369
+#: taxsystem/api/filters.py:361
 msgid "Filter set name is required."
 msgstr ""
 
-#: taxsystem/api/filters.py:372
+#: taxsystem/api/filters.py:364
 msgid "A filter set with this name already exists."
 msgstr ""
 
-#: taxsystem/api/filters.py:381
+#: taxsystem/api/filters.py:373
 #, python-brace-format
 msgid "Filter set \"{filter_set}\" created."
 msgstr ""
 
-#: taxsystem/api/filters.py:422
+#: taxsystem/api/filters.py:414
 msgid "Filter set not found."
 msgstr ""
 
-#: taxsystem/api/filters.py:426
+#: taxsystem/api/filters.py:418
 msgid "Filter value is required."
 msgstr ""
 
-#: taxsystem/api/filters.py:435
+#: taxsystem/api/filters.py:427
 msgid "This filter already exists in the filter set."
 msgstr ""
 
-#: taxsystem/api/filters.py:446
+#: taxsystem/api/filters.py:438
 #, python-brace-format
 msgid "Filter {filter_type} \"{val}\" created in \"{filter_set}\"."
 msgstr ""
@@ -219,12 +213,10 @@ msgid "Settings"
 msgstr ""
 
 #: taxsystem/api/general.py:52
-#: taxsystem/templates/taxsystem/partials/navigation/administration.html:7
 msgid "Add Corporation"
 msgstr ""
 
 #: taxsystem/api/general.py:57
-#: taxsystem/templates/taxsystem/partials/navigation/administration.html:12
 msgid "Add Alliance"
 msgstr ""
 
@@ -232,104 +224,30 @@ msgstr ""
 msgid "Superadmin"
 msgstr ""
 
-#: taxsystem/api/groups.py:117
+#: taxsystem/api/groups.py:113
 #, python-brace-format
 msgid "{group_obj} deleted - Reason: {reason}"
 msgstr ""
 
-#: taxsystem/api/groups.py:132
+#: taxsystem/api/groups.py:128
 msgid "Group not Found."
 msgstr ""
 
-#: taxsystem/api/groups.py:184
+#: taxsystem/api/groups.py:180
 msgid "Groups are only supported for Corporation owners."
 msgstr ""
 
-#: taxsystem/api/groups.py:189
+#: taxsystem/api/groups.py:185
 msgid "Group name is required."
 msgstr ""
 
-#: taxsystem/api/groups.py:192
+#: taxsystem/api/groups.py:188
 msgid "A group with this name already exists."
 msgstr ""
 
-#: taxsystem/api/groups.py:198
+#: taxsystem/api/groups.py:194
 #, python-brace-format
 msgid "Tax free group \"{name}\" created."
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:227
-msgid "View Filter Set"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:270
-msgid "Deactivate Filter Set"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:273
-msgid "Activate Filter Set"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:312
-msgid "Delete Filter Set"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:343 taxsystem/models/corporation.py:328
-#: taxsystem/models/helpers/textchoices.py:83
-msgid "Active"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:347
-#: taxsystem/models/helpers/textchoices.py:84
-msgid "Inactive"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:390
-msgid "Delete Filter"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:434
-msgid "Deactivate Account"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:437
-msgid "Activate Account"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:479
-msgid "Add Payment"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:520
-msgid "View Tax Account"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:568
-msgid "Approve Payment"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:617
-msgid "Undo Payment"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:666
-msgid "Show Details"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:715
-msgid "Delete Payment"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:764
-msgid "Reject Payment"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:805
-msgid "Delete Member"
-msgstr ""
-
-#: taxsystem/api/helpers/icons.py:845
-msgid "Delete Group"
 msgstr ""
 
 #: taxsystem/api/overview.py:51 taxsystem/models/helpers/textchoices.py:158
@@ -340,186 +258,61 @@ msgstr ""
 msgid "Alliance"
 msgstr ""
 
-#: taxsystem/api/payments.py:258
-msgid "System"
+#: taxsystem/api/payments.py:108 taxsystem/api/payments.py:135
+msgid "Payment is not pending or does not need approval."
 msgstr ""
 
-#: taxsystem/api/payments.py:352
-msgid "Corporation Not Found"
-msgstr ""
-
-#: taxsystem/api/payments.py:466
-msgid "Invalid form data."
-msgstr ""
-
-#: taxsystem/api/payments.py:492
-#, python-brace-format
-msgid "Custom Payment Added: {comment}"
-msgstr ""
-
-#: taxsystem/api/payments.py:519 taxsystem/api/payments.py:599
-#: taxsystem/api/payments.py:676 taxsystem/api/payments.py:765
-#: taxsystem/api/payments.py:839
-msgid "Transaction failed. Please try again."
-msgstr ""
-
-#: taxsystem/api/payments.py:589
+#: taxsystem/api/payments.py:126
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
 msgstr ""
 
-#: taxsystem/api/payments.py:596 taxsystem/api/payments.py:836
-msgid "Payment is not pending or does not need approval."
-msgstr ""
-
-#: taxsystem/api/payments.py:666
-#, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
-msgstr ""
-
-#: taxsystem/api/payments.py:673
-msgid "Payment is approved or rejected."
-msgstr ""
-
-#: taxsystem/api/payments.py:729
-msgid "ESI imported payments cannot be deleted"
-msgstr ""
-
-#: taxsystem/api/payments.py:747
-#, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
-msgstr ""
-
-#: taxsystem/api/payments.py:820
+#: taxsystem/api/payments.py:151
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected - {reason}"
 msgstr ""
 
-#: taxsystem/api/payments.py:880
-msgid "Please select at least one payment to perform bulk actions."
+#: taxsystem/api/payments.py:162
+msgid "Payment is approved or rejected."
 msgstr ""
 
-#: taxsystem/api/payments.py:911
-msgid "Bulk Approved"
-msgstr ""
-
-#: taxsystem/api/payments.py:932
+#: taxsystem/api/payments.py:181
 #, python-brace-format
-msgid "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}"
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
 msgstr ""
 
-#: taxsystem/forms.py:42 taxsystem/forms.py:63
-msgid "Reason for accepting the payment"
+#: taxsystem/api/payments.py:190
+msgid "ESI imported payments cannot be deleted"
 msgstr ""
 
-#: taxsystem/forms.py:45 taxsystem/forms.py:66
-msgid "Comment (optional)"
+#: taxsystem/api/payments.py:206
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
 msgstr ""
 
-#: taxsystem/forms.py:84 taxsystem/forms.py:106
-msgid "Reason for rejecting the payment"
+#: taxsystem/api/payments.py:226
+msgid "Payment not Found."
 msgstr ""
 
-#: taxsystem/forms.py:87 taxsystem/forms.py:109
-msgid "Reject Reason"
+#: taxsystem/api/payments.py:228 taxsystem/api/payments.py:545
+msgid "Transaction failed. Please try again."
 msgstr ""
 
-#: taxsystem/forms.py:128 taxsystem/forms.py:150
-msgid "Reason for undoing the payment"
+#: taxsystem/api/payments.py:358
+msgid "System"
 msgstr ""
 
-#: taxsystem/forms.py:131 taxsystem/forms.py:153
-msgid "Undo Reason"
+#: taxsystem/api/payments.py:451
+msgid "Corporation Not Found"
 msgstr ""
 
-#: taxsystem/forms.py:172 taxsystem/forms.py:194
-msgid "Reason for deleting the payment"
+#: taxsystem/api/payments.py:495
+msgid "Invalid form data."
 msgstr ""
 
-#: taxsystem/forms.py:175 taxsystem/forms.py:197 taxsystem/forms.py:237
-#: taxsystem/forms.py:259 taxsystem/forms.py:281 taxsystem/forms.py:303
-#: taxsystem/forms.py:325 taxsystem/forms.py:408
-msgid "Delete Reason"
-msgstr ""
-
-#: taxsystem/forms.py:214 taxsystem/models/base.py:377
-msgid "Amount"
-msgstr ""
-
-#: taxsystem/forms.py:215
-msgid "Amount to be added"
-msgstr ""
-
-#: taxsystem/forms.py:221
-msgid "Add Reason"
-msgstr ""
-
-#: taxsystem/forms.py:222
-msgid "Reason for adding this payment"
-msgstr ""
-
-#: taxsystem/forms.py:234
-msgid "Reason for deleting the member"
-msgstr ""
-
-#: taxsystem/forms.py:256 taxsystem/forms.py:300
-msgid "Reason for deleting the filter"
-msgstr ""
-
-#: taxsystem/forms.py:278 taxsystem/forms.py:322
-msgid "Reason for deleting the filter set"
-msgstr ""
-
-#: taxsystem/forms.py:340 taxsystem/models/helpers/textchoices.py:160
-msgid "Filter Set"
-msgstr ""
-
-#: taxsystem/forms.py:345
-msgid "Filter Type"
-msgstr ""
-
-#: taxsystem/forms.py:350
-msgid "Match Type"
-msgstr ""
-
-#: taxsystem/forms.py:354
-msgid "Filter Value"
-msgstr ""
-
-#: taxsystem/forms.py:356
-msgid "Enter filter value"
-msgstr ""
-
-#: taxsystem/forms.py:367
-msgid "Filter Set Name"
-msgstr ""
-
-#: taxsystem/forms.py:369
-msgid "Enter filter set name"
-msgstr ""
-
-#: taxsystem/forms.py:372
-msgid "Filter Set Description"
-msgstr ""
-
-#: taxsystem/forms.py:375
-msgid "Enter filter set description"
-msgstr ""
-
-#: taxsystem/forms.py:383 taxsystem/models/corporation.py:608
-msgid "Groups"
-msgstr ""
-
-#: taxsystem/forms.py:391 taxsystem/models/corporation.py:601
-msgid "Group Name"
-msgstr ""
-
-#: taxsystem/forms.py:394
-msgid "Enter group name"
-msgstr ""
-
-#: taxsystem/forms.py:405
-msgid "Reason for deleting the group"
+#: taxsystem/api/payments.py:518
+#, python-brace-format
+msgid "Custom Payment Added: {comment}"
 msgstr ""
 
 #: taxsystem/managers/wallet_manager.py:266
@@ -551,51 +344,51 @@ msgstr ""
 msgid "Message that is sent to alliance members when a tax payment is overdue or the deposit has fallen below zero."
 msgstr ""
 
-#: taxsystem/models/alliance.py:289 taxsystem/models/corporation.py:446
+#: taxsystem/models/alliance.py:289 taxsystem/models/corporation.py:447
 msgid "Owner of this payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:376 taxsystem/models/corporation.py:537
+#: taxsystem/models/alliance.py:376 taxsystem/models/corporation.py:538
 #: taxsystem/models/helpers/textchoices.py:161
 msgid "Payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:377 taxsystem/models/corporation.py:538
+#: taxsystem/models/alliance.py:377 taxsystem/models/corporation.py:539
 msgid "Payment that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:383 taxsystem/models/corporation.py:545
+#: taxsystem/models/alliance.py:383 taxsystem/models/corporation.py:546
 msgid "New Status"
 msgstr ""
 
-#: taxsystem/models/alliance.py:384 taxsystem/models/corporation.py:546
+#: taxsystem/models/alliance.py:384 taxsystem/models/corporation.py:547
 msgid "New Status of the action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:398 taxsystem/models/corporation.py:561
-#: taxsystem/models/corporation.py:595
+#: taxsystem/models/alliance.py:398 taxsystem/models/corporation.py:562
+#: taxsystem/models/corporation.py:596
 msgid "Owner"
 msgstr ""
 
-#: taxsystem/models/alliance.py:399 taxsystem/models/corporation.py:562
+#: taxsystem/models/alliance.py:399 taxsystem/models/corporation.py:563
 msgid "Owner that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:408 taxsystem/models/corporation.py:571
+#: taxsystem/models/alliance.py:408 taxsystem/models/corporation.py:572
 msgid "Type"
 msgstr ""
 
-#: taxsystem/models/alliance.py:409 taxsystem/models/corporation.py:572
+#: taxsystem/models/alliance.py:409 taxsystem/models/corporation.py:573
 msgid "Type of the action"
 msgstr ""
 
 #: taxsystem/models/alliance.py:416 taxsystem/models/base.py:455
-#: taxsystem/models/corporation.py:580
+#: taxsystem/models/corporation.py:581
 msgid "Action"
 msgstr ""
 
 #: taxsystem/models/alliance.py:417 taxsystem/models/base.py:456
-#: taxsystem/models/corporation.py:581
+#: taxsystem/models/corporation.py:582
 msgid "Action performed"
 msgstr ""
 
@@ -617,6 +410,10 @@ msgstr ""
 
 #: taxsystem/models/base.py:376
 msgid "Reason"
+msgstr ""
+
+#: taxsystem/models/base.py:377
+msgid "Amount"
 msgstr ""
 
 #: taxsystem/models/base.py:441
@@ -659,6 +456,11 @@ msgstr ""
 msgid "Message that is sent to corporation members when a tax payment is overdue or the deposit has fallen below zero."
 msgstr ""
 
+#: taxsystem/models/corporation.py:328
+#: taxsystem/models/helpers/textchoices.py:83
+msgid "Active"
+msgstr ""
+
 #: taxsystem/models/corporation.py:329
 #: taxsystem/models/helpers/textchoices.py:86
 msgid "Missing"
@@ -676,15 +478,23 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: taxsystem/models/corporation.py:596
+#: taxsystem/models/corporation.py:597
 msgid "Owner of the corporation group"
 msgstr ""
 
 #: taxsystem/models/corporation.py:602
+msgid "Group Name"
+msgstr ""
+
+#: taxsystem/models/corporation.py:603
 msgid "Name of the corporation group"
 msgstr ""
 
 #: taxsystem/models/corporation.py:609
+msgid "Groups"
+msgstr ""
+
+#: taxsystem/models/corporation.py:610
 msgid "Groups that will not be taxed"
 msgstr ""
 
@@ -760,6 +570,10 @@ msgstr ""
 msgid "Updates completed successfully"
 msgstr ""
 
+#: taxsystem/models/helpers/textchoices.py:84
+msgid "Inactive"
+msgstr ""
+
 #: taxsystem/models/helpers/textchoices.py:85
 msgid "Deactivated"
 msgstr ""
@@ -802,6 +616,10 @@ msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:159
 msgid "Filter"
+msgstr ""
+
+#: taxsystem/models/helpers/textchoices.py:160
+msgid "Filter Set"
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:163
@@ -851,7 +669,6 @@ msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:204
 #: taxsystem/models/helpers/textchoices.py:212
-#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:5
 msgid "Payments"
 msgstr ""
 
@@ -878,23 +695,6 @@ msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:225
 msgid "Contains"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/navigation/administration.html:20
-#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:12
-msgid "Manage Tax System"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:6
-msgid "Own Payments"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:7
-msgid "FAQ"
-msgstr ""
-
-#: taxsystem/templates/taxsystem/partials/navigation/navigation.html:8
-msgid "Account"
 msgstr ""
 
 #: taxsystem/views.py:66
