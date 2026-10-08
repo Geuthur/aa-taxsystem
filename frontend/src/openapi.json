@@ -1451,6 +1451,84 @@
         ]
       }
     },
+    "/taxsystem/api/owner/{owner_id}/manage/payments/bulk-action/": {
+      "post": {
+        "operationId": "taxsystem_api_payments_manage_bulk_payment_action",
+        "summary": "Execute bulk payment actions (approve, reject, undo, delete)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkPaymentActionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkPaymentActionResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "Manage multiple payments in bulk.",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPaymentActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/approve-payment/": {
       "post": {
         "operationId": "taxsystem_api_payments_approve_payment",
@@ -4261,6 +4339,66 @@
           "action"
         ],
         "title": "PaymentActionRequest",
+        "type": "object"
+      },
+      "BulkPaymentActionResponse": {
+        "properties": {
+          "success": {
+            "title": "Success",
+            "type": "boolean"
+          },
+          "processed_count": {
+            "title": "Processed Count",
+            "type": "integer"
+          },
+          "total_count": {
+            "title": "Total Count",
+            "type": "integer"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "processed_count",
+          "total_count",
+          "message"
+        ],
+        "title": "BulkPaymentActionResponse",
+        "type": "object"
+      },
+      "BulkPaymentActionRequest": {
+        "properties": {
+          "payment_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Payment Ids",
+            "type": "array"
+          },
+          "action": {
+            "enum": [
+              "approve",
+              "reject",
+              "undo",
+              "delete"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "comment": {
+            "default": "",
+            "title": "Comment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "payment_ids",
+          "action"
+        ],
+        "title": "BulkPaymentActionRequest",
         "type": "object"
       },
       "DeletePaymentRequest": {

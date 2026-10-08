@@ -26,7 +26,10 @@ Section Order:
 ### Removed
 -->
 
-<!-- Your changes go here -->
+### Added
+
+- Bulk payment actions in Payments Management (multi-select rows to bulk approve, reject, undo, or delete payments)
+- Dedicated backend API endpoint for bulk payment actions (`/taxsystem/api/owner/{owner_id}/manage/payments/bulk-action/`)
 
 ## [5.0.0] - 2026-10-08
 

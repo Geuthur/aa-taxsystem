@@ -279,5 +279,19 @@
   "Alts": "Alts",
   "Show {{count}} alt character(s)": "{{count}} Alt-Charakter(e) anzeigen",
   "Alts of {{name}}": "Alts von {{name}}",
-  "No alt characters found.": "Keine Alt-Charaktere gefunden."
+  "No alt characters found.": "Keine Alt-Charaktere gefunden.",
+  "{{count}} selected": "{{count}} ausgewählt",
+  "Approve": "Genehmigen",
+  "Reject": "Ablehnen",
+  "Undo": "Rückgängig",
+  "Clear": "Auswahl aufheben",
+  "Select all": "Alle auswählen",
+  "Select row": "Zeile auswählen",
+  "Reject Selected Payments": "Ausgewählte Zahlungen ablehnen",
+  "Are you sure you want to reject {{count}} selected payments?": "Sind Sie sicher, dass Sie {{count}} ausgewählte Zahlungen ablehnen möchten?",
+  "Reason for rejecting payments...": "Grund für die Ablehnung der Zahlungen...",
+  "Delete Selected Payments": "Ausgewählte Zahlungen löschen",
+  "Are you sure you want to permanently delete {{count}} selected custom payments?": "Sind Sie sicher, dass Sie {{count}} ausgewählte benutzerdefinierte Zahlungen dauerhaft löschen möchten?",
+  "Any approved custom payments in this selection will have their amounts deducted from member account deposits.": "Bereits genehmigte benutzerdefinierte Zahlungen in dieser Auswahl werden automatisch von den Kontoeinzahlungen der Mitglieder abgezogen.",
+  "Reason for deleting payments...": "Grund für das Löschen der Zahlungen..."
 }

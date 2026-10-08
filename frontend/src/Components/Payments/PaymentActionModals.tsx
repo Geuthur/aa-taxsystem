@@ -24,6 +24,19 @@ export interface PaymentActionModalsProps {
   onCancelDelete: () => void;
   onConfirmDelete: () => void;
 
+  // Bulk actions
+  bulkRejectingPaymentIds?: number[] | null;
+  bulkRejectComment?: string;
+  onBulkRejectCommentChange?: (comment: string) => void;
+  onCancelBulkReject?: () => void;
+  onConfirmBulkReject?: () => void;
+
+  bulkDeletingPaymentIds?: number[] | null;
+  bulkDeleteComment?: string;
+  onBulkDeleteCommentChange?: (comment: string) => void;
+  onCancelBulkDelete?: () => void;
+  onConfirmBulkDelete?: () => void;
+
   isPending?: boolean;
 }
 
@@ -38,6 +51,16 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
   onDeleteCommentChange,
   onCancelDelete,
   onConfirmDelete,
+  bulkRejectingPaymentIds,
+  bulkRejectComment = "",
+  onBulkRejectCommentChange,
+  onCancelBulkReject,
+  onConfirmBulkReject,
+  bulkDeletingPaymentIds,
+  bulkDeleteComment = "",
+  onBulkDeleteCommentChange,
+  onCancelBulkDelete,
+  onConfirmBulkDelete,
   isPending = false,
 }) => {
   const { t } = useTranslation();
@@ -160,6 +183,109 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               value={deleteComment}
               onChange={(e) => onDeleteCommentChange(e.target.value)}
               placeholder={t("Reason for deleting this custom payment...")}
+              className="bg-dark text-light border-secondary"
+            />
+          </Form.Group>
+        </BaseModal>
+      )}
+
+      {/* Bulk Reject Modal */}
+      {bulkRejectingPaymentIds && bulkRejectingPaymentIds.length > 0 && (
+        <BaseModal
+          show={!!bulkRejectingPaymentIds}
+          onHide={onCancelBulkReject || (() => {})}
+          size={ModalSize.medium}
+          title={
+            <div className="h5 d-flex align-items-center gap-2 text-danger mb-0">
+              {t("Reject Selected Payments")}
+            </div>
+          }
+          footer={
+            <>
+              <Button variant="secondary" onClick={onCancelBulkReject}>
+                {t("Cancel")}
+              </Button>
+              <Button
+                variant="danger"
+                disabled={isPending}
+                onClick={onConfirmBulkReject}
+              >
+                {isPending && (
+                  <Spinner size="sm" animation="border" className="me-1" />
+                )}
+                {t("Confirm Rejection")}
+              </Button>
+            </>
+          }
+        >
+          <p>
+            {t("Are you sure you want to reject {{count}} selected payments?", {
+              count: bulkRejectingPaymentIds.length,
+            })}
+          </p>
+          <Form.Group className="mb-3">
+            <Form.Label>{t("Rejection Reason / Comment")}</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={bulkRejectComment}
+              onChange={(e) => onBulkRejectCommentChange?.(e.target.value)}
+              placeholder={t("Reason for rejecting payments...")}
+              className="bg-dark text-light border-secondary"
+            />
+          </Form.Group>
+        </BaseModal>
+      )}
+
+      {/* Bulk Delete Modal */}
+      {bulkDeletingPaymentIds && bulkDeletingPaymentIds.length > 0 && (
+        <BaseModal
+          show={!!bulkDeletingPaymentIds}
+          onHide={onCancelBulkDelete || (() => {})}
+          size={ModalSize.medium}
+          title={
+            <div className="h5 d-flex align-items-center gap-2 text-danger mb-0">
+              <Trash2 size={18} />
+              {t("Delete Selected Payments")}
+            </div>
+          }
+          footer={
+            <>
+              <Button variant="secondary" onClick={onCancelBulkDelete}>
+                {t("Cancel")}
+              </Button>
+              <Button
+                variant="danger"
+                disabled={isPending}
+                onClick={onConfirmBulkDelete}
+              >
+                {isPending && (
+                  <Spinner size="sm" animation="border" className="me-1" />
+                )}
+                {t("Confirm Deletion")}
+              </Button>
+            </>
+          }
+        >
+          <p>
+            {t(
+              "Are you sure you want to permanently delete {{count}} selected custom payments?",
+              { count: bulkDeletingPaymentIds.length },
+            )}
+          </p>
+          <div className="alert alert-warning small mb-3">
+            {t(
+              "Any approved custom payments in this selection will have their amounts deducted from member account deposits.",
+            )}
+          </div>
+          <Form.Group className="mb-3">
+            <Form.Label>{t("Deletion Reason / Comment")}</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={bulkDeleteComment}
+              onChange={(e) => onBulkDeleteCommentChange?.(e.target.value)}
+              placeholder={t("Reason for deleting payments...")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
