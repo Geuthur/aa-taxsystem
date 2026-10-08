@@ -3,38 +3,27 @@ import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowLeft,
-  Check,
-  CreditCard,
-  Eye,
-  RotateCcw,
-  Search,
-  Trash2,
-  X,
-} from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, CreditCard, Search } from "lucide-react";
 import { Badge, Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import {
-  acceptPayment,
-  deletePayment,
-  loadPaymentDetails,
-  loadPayments,
-  rejectPayment,
-  undoPayment,
-} from "@/Api/ApiCalls";
+import { loadPaymentDetails, loadPayments } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
+import {
+  PaymentActionButtons,
+  PaymentActionModals,
+} from "@/Components/Payments";
+import { getPaymentColumns } from "@/Components/Tables";
+import { usePaymentActions } from "@/Hooks/usePaymentActions";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { formatNumber, renderTooltip } from "@/Utils";
+import { formatNumber } from "@/Utils";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 
@@ -46,14 +35,6 @@ export function PaymentsPage() {
 
   const [search, setSearch] = useTableSearchState("paymentSearch");
   const [statusFilter, setStatusFilter] = useStatusFilterState("paymentStatus");
-
-  // Reject / Undo Modal states
-  const [rejectingPayment, setRejectingPayment] = useState<PaymentRow | null>(null);
-  const [rejectComment, setRejectComment] = useState("");
-
-  // Delete Modal states
-  const [deletingPayment, setDeletingPayment] = useState<PaymentRow | null>(null);
-  const [deleteComment, setDeleteComment] = useState("");
 
   // Details Modal state
   const [detailsPaymentId, setDetailsPaymentId] = useState<number | null>(null);
@@ -70,37 +51,24 @@ export function PaymentsPage() {
     enabled: Boolean(detailsPaymentId && detailsPaymentId > 0),
   });
 
-  const acceptMutation = useMutation({
-    mutationFn: (paymentPk: number) => acceptPayment(numericOwnerId, paymentPk),
+  const {
+    approve,
+    undo,
+    rejectingPayment,
+    setRejectingPayment,
+    rejectComment,
+    setRejectComment,
+    confirmReject,
+    deletingPayment,
+    setDeletingPayment,
+    deleteComment,
+    setDeleteComment,
+    confirmDelete,
+    isPending,
+  } = usePaymentActions({
+    ownerId: numericOwnerId,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.Payments(numericOwnerId) });
-    },
-  });
-
-  const rejectMutation = useMutation({
-    mutationFn: ({ paymentPk, comment }: { paymentPk: number; comment?: string }) =>
-      rejectPayment(numericOwnerId, paymentPk, comment),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Payments(numericOwnerId) });
-      setRejectingPayment(null);
-      setRejectComment("");
-    },
-  });
-
-  const undoMutation = useMutation({
-    mutationFn: (paymentPk: number) => undoPayment(numericOwnerId, paymentPk),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Payments(numericOwnerId) });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: ({ paymentPk, comment }: { paymentPk: number; comment?: string }) =>
-      deletePayment(numericOwnerId, paymentPk, comment),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Payments(numericOwnerId) });
-      setDeletingPayment(null);
-      setDeleteComment("");
     },
   });
 
@@ -111,7 +79,6 @@ export function PaymentsPage() {
         !search ||
         p.character?.character_name?.toLowerCase().includes(search.toLowerCase()) ||
         p.reason?.toLowerCase().includes(search.toLowerCase());
-      // `status` is translated (e.g. "Genehmigt"), `code` is the stable key.
       const statusCode = (
         p.request_status?.code ||
         p.request_status?.status ||
@@ -122,148 +89,24 @@ export function PaymentsPage() {
     });
   }, [payments, search, statusFilter]);
 
-  const columns = useMemo<ColumnDef<PaymentRow>[]>(
-    () => [
-      {
-        id: "character",
-        header: t("Character"),
-        accessorFn: (row) => row.character?.character_name,
-        cell: ({ row }) => (
-          <div className="d-flex align-items-center gap-2">
-            {row.original.character?.character_portrait && (
-              <img
-                src={row.original.character.character_portrait}
-                alt={row.original.character.character_name}
-                width={32}
-                height={32}
-                className="rounded-circle"
-              />
-            )}
-            <span className="fw-semibold">{row.original.character?.character_name}</span>
-          </div>
+  const columns = useMemo(
+    () =>
+      getPaymentColumns<PaymentRow>({
+        t,
+        showCharacter: true,
+        renderActions: (p) => (
+          <PaymentActionButtons
+            payment={p}
+            onViewDetails={setDetailsPaymentId}
+            onApprove={approve}
+            onReject={setRejectingPayment}
+            onUndo={undo}
+            onDelete={setDeletingPayment}
+            isPending={isPending}
+          />
         ),
-      },
-      {
-        id: "date",
-        header: t("Date"),
-        accessorKey: "date",
-        cell: ({ getValue }) => <span className="small text-muted">{String(getValue() || "")}</span>,
-      },
-      {
-        id: "amount",
-        header: t("Amount"),
-        accessorKey: "amount",
-        cell: ({ getValue }) => {
-          const val = Number(getValue() || 0);
-          return <span className="fw-mono text-light">{formatNumber(val)}</span>;
-        },
-      },
-      {
-        id: "division",
-        header: t("Division"),
-        accessorKey: "division_name",
-      },
-      {
-        id: "status",
-        header: t("Status"),
-        cell: ({ row }) => {
-          const s = row.original.request_status;
-          return (
-            <Badge bg={s?.color || "secondary"}>
-              {s?.status}
-            </Badge>
-          );
-        },
-      },
-      {
-        id: "reason",
-        header: t("Reason"),
-        accessorKey: "reason",
-      },
-      {
-        id: "actions",
-        header: t("Actions"),
-        cell: ({ row }) => {
-          const p = row.original;
-          const statusCode = p.request_status?.code?.toLowerCase() || "";
-          const isPending =
-            p.can_approve ??
-            (statusCode === "pending" || statusCode === "needs_approval");
-          const isProcessed =
-            p.can_undo ??
-            (statusCode === "approved" || statusCode === "rejected");
-          const canDelete = Boolean(p.can_delete ?? p.is_custom);
-
-          return (
-            <div className="d-flex align-items-center gap-1">
-              {renderTooltip(
-                t("View Details"),
-                <Button
-                  className="aa-btn aa-btn-sm aa-btn-info"
-                  aria-label={t("View Details")}
-                  onClick={() => setDetailsPaymentId(p.payment_id)}
-                >
-                  <Eye size={12} />
-                </Button>,
-              )}
-              {isPending && (
-                <>
-                  {renderTooltip(
-                    t("Accept Payment"),
-                    <Button
-                      className="aa-btn aa-btn-sm aa-btn-success"
-                      aria-label={t("Accept Payment")}
-                      disabled={acceptMutation.isPending}
-                      onClick={() => acceptMutation.mutate(p.payment_id)}
-                    >
-                      <Check size={12} />
-                    </Button>,
-                  )}
-                  {renderTooltip(
-                    t("Reject Payment"),
-                    <Button
-                      className="aa-btn aa-btn-sm aa-btn-danger"
-                      aria-label={t("Reject Payment")}
-                      onClick={() => setRejectingPayment(p)}
-                    >
-                      <X size={12} />
-                    </Button>,
-                  )}
-                </>
-              )}
-              {isProcessed &&
-                renderTooltip(
-                  t("Undo Payment"),
-                  <Button
-                    className="aa-btn aa-btn-sm aa-btn-secondary"
-                    aria-label={t("Undo Payment")}
-                    disabled={undoMutation.isPending}
-                    onClick={() => undoMutation.mutate(p.payment_id)}
-                  >
-                    <RotateCcw size={12} />
-                  </Button>,
-                )}
-              {canDelete &&
-                renderTooltip(
-                  t("Delete Custom Payment"),
-                  <Button
-                    className="aa-btn aa-btn-sm aa-btn-danger"
-                    aria-label={t("Delete Custom Payment")}
-                    disabled={deleteMutation.isPending}
-                    onClick={() => {
-                      setDeletingPayment(p);
-                      setDeleteComment("");
-                    }}
-                  >
-                    <Trash2 size={12} />
-                  </Button>,
-                )}
-            </div>
-          );
-        },
-      },
-    ],
-    [t, acceptMutation, undoMutation, deleteMutation],
+      }),
+    [t, approve, setRejectingPayment, undo, setDeletingPayment, isPending],
   );
 
   return (
@@ -305,120 +148,19 @@ export function PaymentsPage() {
         />
       </div>
 
-      {/* Reject Payment Modal */}
-      {rejectingPayment && (
-        <BaseModal
-          show={!!rejectingPayment}
-          onHide={() => setRejectingPayment(null)}
-          size={ModalSize.medium}
-          title={
-            <div className="h5 text-danger d-flex align-items-center gap-2 mb-0">
-              <X size={18} />
-              {t("Reject Payment")}
-            </div>
-          }
-          footer={
-            <>
-              <Button variant="secondary" onClick={() => setRejectingPayment(null)}>
-                {t("Cancel")}
-              </Button>
-              <Button
-                variant="danger"
-                disabled={rejectMutation.isPending}
-                onClick={() =>
-                  rejectMutation.mutate({
-                    paymentPk: rejectingPayment.payment_id,
-                    comment: rejectComment,
-                  })
-                }
-              >
-                {rejectMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Confirm Rejection")}
-              </Button>
-            </>
-          }
-        >
-          <p>
-            {t("Rejecting payment of")}{" "}
-            <strong>{formatNumber(Number(rejectingPayment.amount || 0))}</strong>{" "}
-            {t("from")} <strong>{rejectingPayment.character?.character_name}</strong>.
-          </p>
-          <Form.Group className="mb-3">
-            <Form.Label>{t("Rejection Reason / Comment")}</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              value={rejectComment}
-              onChange={(e) => setRejectComment(e.target.value)}
-              placeholder={t("Reason for rejecting payment...")}
-              className="bg-dark text-light border-secondary"
-            />
-          </Form.Group>
-        </BaseModal>
-      )}
-
-      {/* Delete Custom Payment Modal */}
-      {deletingPayment && (
-        <BaseModal
-          show={!!deletingPayment}
-          onHide={() => setDeletingPayment(null)}
-          size={ModalSize.medium}
-          title={
-            <div className="h5 d-flex align-items-center gap-2 text-danger mb-0">
-              <Trash2 size={18} />
-              {t("Delete Custom Payment")}
-            </div>
-          }
-          footer={
-            <>
-              <Button variant="secondary" onClick={() => setDeletingPayment(null)}>
-                {t("Cancel")}
-              </Button>
-              <Button
-                variant="danger"
-                disabled={deleteMutation.isPending}
-                onClick={() =>
-                  deleteMutation.mutate({
-                    paymentPk: deletingPayment.payment_id,
-                    comment: deleteComment || t("Deleted via Tax System"),
-                  })
-                }
-              >
-                {deleteMutation.isPending && (
-                  <Spinner size="sm" animation="border" className="me-1" />
-                )}
-                {t("Confirm Deletion")}
-              </Button>
-            </>
-          }
-        >
-          <p>
-            {t("Are you sure you want to permanently delete this custom payment of")}{" "}
-            <strong className="text-danger">
-              {formatNumber(Number(deletingPayment.amount || 0))}
-            </strong>{" "}
-            {t("from")} <strong>{deletingPayment.character?.character_name}</strong>?
-          </p>
-          {deletingPayment.request_status?.code === "approved" && (
-            <div className="alert alert-warning small mb-3">
-              {t(
-                "This payment was already approved. Deleting it will automatically deduct this amount from the member's account deposit.",
-              )}
-            </div>
-          )}
-          <Form.Group className="mb-3">
-            <Form.Label>{t("Deletion Reason / Comment")}</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              value={deleteComment}
-              onChange={(e) => setDeleteComment(e.target.value)}
-              placeholder={t("Reason for deleting this custom payment...")}
-              className="bg-dark text-light border-secondary"
-            />
-          </Form.Group>
-        </BaseModal>
-      )}
+      <PaymentActionModals
+        rejectingPayment={rejectingPayment}
+        rejectComment={rejectComment}
+        onRejectCommentChange={setRejectComment}
+        onCancelReject={() => setRejectingPayment(null)}
+        onConfirmReject={confirmReject}
+        deletingPayment={deletingPayment}
+        deleteComment={deleteComment}
+        onDeleteCommentChange={setDeleteComment}
+        onCancelDelete={() => setDeletingPayment(null)}
+        onConfirmDelete={confirmDelete}
+        isPending={isPending}
+      />
 
       {/* Details & History Modal */}
       {detailsPaymentId && (

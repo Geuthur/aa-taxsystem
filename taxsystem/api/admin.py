@@ -269,6 +269,86 @@ class AdminApiEndpoints:
             return 200, {"success": True, "message": msg}
 
         @api.post(
+            "owner/{owner_id}/manage/settings/",
+            response={200: dict, 403: dict, 404: dict, 400: dict},
+            tags=self.tags,
+        )
+        def update_owner_settings(
+            request: WSGIRequest,
+            owner_id: int,
+            payload: schema.UpdateOwnerSettingsRequest,
+        ):
+            """
+            Handle a request to update owner settings (tax amount and/or tax period).
+            """
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # pylint: disable=duplicate-code
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            messages_list = []
+            if payload.tax_amount is not None:
+                value = Decimal(payload.tax_amount)
+                if value < 0:
+                    return 400, {
+                        "success": False,
+                        "message": _("Please enter a valid number"),
+                    }
+                owner.tax_amount = value
+                messages_list.append(
+                    format_lazy(
+                        _("Tax Amount from {owner} changed to {value}"),
+                        owner=owner,
+                        value=value,
+                    )
+                )
+
+            if payload.tax_period is not None:
+                value = payload.tax_period
+                if value < 0:
+                    return 400, {
+                        "success": False,
+                        "message": _("Please enter a valid number"),
+                    }
+                owner.tax_period = value
+                messages_list.append(
+                    format_lazy(
+                        _("Tax Period from {owner} changed to {value}"),
+                        owner=owner,
+                        value=value,
+                    )
+                )
+
+            if not messages_list:
+                return 400, {
+                    "success": False,
+                    "message": _("No settings provided to update."),
+                }
+
+            owner.save()
+            msg = (
+                str(messages_list[0])
+                if len(messages_list) == 1
+                else "; ".join(str(m) for m in messages_list)
+            )
+
+            owner.admin_log_model(
+                user=request.user,
+                owner=owner,
+                target=ActionType.SETTINGS,
+                action=AdminActions.CHANGE,
+                comment=msg,
+            ).save()
+
+            return 200, {"success": True, "message": msg}
+
+        @api.post(
             "owner/{owner_id}/manage/update-tax/",
             response={200: dict, 403: dict, 404: dict, 400: dict},
             tags=self.tags,
@@ -278,61 +358,12 @@ class AdminApiEndpoints:
             owner_id: int,
             payload: schema.UpdateTaxAmountRequest,
         ):
-            """
-            Handle an Request to Update Tax Amount
-
-            This Endpoint updates the tax amount for an associated owner.
-            It validates the request, checks permissions, and updates the tax amount accordingly.
-
-            Args:
-                request (WSGIRequest): The HTTP request object.
-                owner_id (int): The ID of the owner whose filter set is to be retrieved.
-                payload (UpdateTaxAmountRequest): The update tax amount request payload.
-            Returns:
-                dict: A dictionary containing the success status and message.
-            """
-            # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
-
-            # Check if owner exists
-            if owner is None:
-                return 404, {"error": _("Owner not Found.")}
-
-            # Check permissions
-            if perms is False:
-                return 403, {"error": _("Permission Denied.")}
-
-            value = Decimal(payload.tax_amount)
-
-            if value < 0:
-                msg = _("Please enter a valid number")
-                return 400, {"success": False, "message": msg}
-
-            logger.debug(
-                f"Updating tax amount for owner ID {owner_id} to {value}. Permissions: {perms}"
+            """Legacy wrapper delegating to update_owner_settings."""
+            return update_owner_settings(
+                request,
+                owner_id,
+                schema.UpdateOwnerSettingsRequest(tax_amount=payload.tax_amount),
             )
-
-            owner.tax_amount = value
-            owner.save()
-
-            # Create log message
-            msg = format_lazy(
-                _("Tax Period from {owner} changed to {value}"),
-                owner=owner,
-                value=value,
-            )
-
-            # Log Action in Admin History
-            owner.admin_log_model(
-                user=request.user,
-                owner=owner,
-                target=ActionType.SETTINGS,
-                action=AdminActions.CHANGE,
-                comment=msg,
-            ).save()
-
-            # Return success response
-            return 200, {"success": True, "message": msg}
 
         @api.post(
             "owner/{owner_id}/manage/update-period/",
@@ -344,139 +375,12 @@ class AdminApiEndpoints:
             owner_id: int,
             payload: schema.UpdateTaxPeriodRequest,
         ):
-            """
-            Handle an Request to Update Tax Period
-
-            This Endpoint updates the tax period for an associated owner.
-            It validates the request, checks permissions, and updates the tax period accordingly.
-
-            Args:
-                request (WSGIRequest): The HTTP request object.
-                owner_id (int): The ID of the owner whose filter set is to be retrieved.
-                payload (UpdateTaxPeriodRequest): The update tax period request payload.
-            Returns:
-                dict: A dictionary containing the success status and message.
-            """
-            # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
-
-            # Check if owner exists
-            if owner is None:
-                return 404, {"error": _("Owner not Found.")}
-
-            # Check permissions
-            if perms is False:
-                return 403, {"error": _("Permission Denied.")}
-
-            value = payload.tax_period
-
-            if value < 0:
-                msg = _("Please enter a valid number")
-                return 400, {"success": False, "message": msg}
-
-            logger.debug(
-                f"Updating tax period for owner ID {owner_id} to {value}. Permissions: {perms}"
+            """Legacy wrapper delegating to update_owner_settings."""
+            return update_owner_settings(
+                request,
+                owner_id,
+                schema.UpdateOwnerSettingsRequest(tax_period=payload.tax_period),
             )
-
-            owner.tax_period = value
-            owner.save()
-
-            # Create log message
-            msg = format_lazy(
-                _("Tax Period from {owner} changed to {value}"),
-                owner=owner,
-                value=value,
-            )
-
-            # Log Action in Admin History
-            owner.admin_log_model(
-                user=request.user,
-                owner=owner,
-                target=ActionType.SETTINGS,
-                action=AdminActions.CHANGE,
-                comment=msg,
-            ).save()
-
-            # Return success response
-            return 200, {"success": True, "message": msg}
-
-        @api.post(
-            "owner/{owner_id}/manage/bulk-actions/",
-            response={200: dict, 403: dict, 404: dict, 400: dict},
-            tags=self.tags,
-        )
-        def perform_bulk_actions_tax_accounts(
-            request: WSGIRequest,
-            owner_id: int,
-            payload: schema.BulkActionAccountsRequest,
-        ):
-            """
-            Handle an Request to Bulk Actions
-
-            This Endpoint performs bulk actions for an associated owner.
-            It validates the request, checks permissions, and performs the bulk actions accordingly.
-
-            Args:
-                request (WSGIRequest): The HTTP request object.
-                owner_id (int): The ID of the owner whose filter set is to be retrieved.
-                payload (BulkActionAccountsRequest): The bulk actions request payload.
-            Returns:
-                dict: A dictionary containing the success status and message.
-            """
-            # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
-
-            # Check if owner exists
-            if owner is None:
-                return 404, {"error": _("Owner not Found.")}
-
-            # Check permissions
-            if perms is False:
-                return 403, {"error": _("Permission Denied.")}
-
-            pks_ids = payload.pks
-            action = payload.action
-
-            if len(pks_ids) == 0:
-                msg = _("Please select at least one account to perform bulk actions.")
-                return 400, {"success": False, "message": msg}
-
-            if action == "activate":
-                status = AccountStatus.ACTIVE
-                items = owner.account_model.objects.filter(
-                    owner=owner,
-                    pk__in=pks_ids,
-                ).update(status=status)
-            elif action == "deactivate":
-                status = AccountStatus.DEACTIVATED
-                items = owner.account_model.objects.filter(
-                    owner=owner,
-                    pk__in=pks_ids,
-                ).update(status=status)
-            else:
-                msg = _("Please select a valid action")
-                return 400, {"success": False, "message": msg}
-
-            # Create log message
-            msg = format_lazy(
-                _("Bulk '{status}' performed for {items} accounts({pks}) for {owner}"),
-                items=items,
-                status=status,
-                owner=owner,
-                pks=pks_ids,
-            )
-
-            # Log Action in Admin History
-            owner.admin_log_model(
-                user=request.user,
-                owner=owner,
-                target=ActionType.TAX_ACCOUNT,
-                action=AdminActions.CHANGE,
-                comment=msg,
-            ).save()
-
-            # Return success response
-            return 200, {"success": True, "message": msg}
 
         @api.post(
             "admin/tasks/run/",

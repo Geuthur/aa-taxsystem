@@ -128,7 +128,10 @@ def send_user_notification(
         )
         return
 
-    if UserSettings.objects.filter(user=user, disable_notifications=True).exists():
+    user_pk = getattr(user, "pk", user_id)
+    if UserSettings.objects.filter(
+        user_id=user_pk, disable_notifications=True
+    ).exists():
         logger.info("Notifications are disabled for user %s; skipping delivery.", user)
         return
 

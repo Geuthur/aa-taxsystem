@@ -3,9 +3,8 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
-import { CheckCircle2, DollarSign, History, RefreshCw, Search, UserCheck, XCircle } from "lucide-react";
-import { Badge, Button, Form, InputGroup, Spinner } from "react-bootstrap";
+import { CheckCircle2, DollarSign, Search, UserCheck, XCircle } from "lucide-react";
+import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -14,9 +13,11 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
+import { getAccountColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
 import { MemberPaymentsModal } from "@/Pages/Manage/Modals/MemberPaymentsModal";
-import { formatNumber, renderTooltip } from "@/Utils";
+import { formatNumber } from "@/Utils";
 
 interface AccountsTabProps {
   ownerId: number;
@@ -98,167 +99,29 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
     );
   }, [accounts, search, paidFilter]);
 
-  const columns = useMemo<ColumnDef<AccountRow>[]>(
-    () => [
-      {
-        id: "character",
-        header: t("Character"),
-        accessorFn: (row) => row.account?.character_name,
-        cell: ({ row }) => {
-          const openInvoices = row.original.open_invoices ?? 0;
-          return (
-            <div className="d-flex align-items-center gap-2">
-              {row.original.account?.character_portrait && (
-                <img
-                  src={row.original.account.character_portrait}
-                  alt={row.original.account.character_name}
-                  width={32}
-                  height={32}
-                  className="rounded-circle"
-                />
-              )}
-              <span className="fw-semibold">{row.original.account?.character_name}</span>
-              {openInvoices > 0 &&
-                renderTooltip(
-                  t("{{count}} pending payment(s) to review/approve", {
-                    count: openInvoices,
-                  }),
-                  <Button
-                    className="aa-btn aa-btn-sm aa-btn-warning aa-btn-pulse"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (row.original.account?.character_id) {
-                        setHistoryMember({
-                          characterId: row.original.account.character_id,
-                          characterName: row.original.account.character_name || "",
-                          characterPortrait: row.original.account.character_portrait,
-                        });
-                      }
-                    }}
-                  >
-                    <span className="aa-pending-dot-container">
-                      <span className="aa-pending-dot-ping" />
-                      <span className="aa-pending-dot-core" />
-                    </span>
-                    <span>
-                      {openInvoices} {t("Pending")}
-                    </span>
-                  </Button>,
-                )}
-            </div>
-          );
+  const columns = useMemo(
+    () =>
+      getAccountColumns({
+        t,
+        onHistory: (acc) => {
+          if (acc.account?.character_id) {
+            setHistoryMember({
+              characterId: acc.account.character_id,
+              characterName: acc.account.character_name || "",
+              characterPortrait: acc.account.character_portrait,
+            });
+          }
         },
-      },
-      {
-        id: "status",
-        header: t("Status"),
-        accessorKey: "status",
-        cell: ({ getValue }) => {
-          const val = String(getValue() || "");
-          const isOk = val.toLowerCase().includes("ok") || val.toLowerCase().includes("active");
-          return (
-            <Badge bg={isOk ? "success" : "warning"} className="text-uppercase">
-              {val}
-            </Badge>
-          );
+        onAddPayment: (acc) => {
+          setPaymentAccount(acc);
+          setPaymentAmount("");
+          setPaymentComment("");
         },
-      },
-      {
-        id: "deposit",
-        header: t("Deposit"),
-        accessorKey: "deposit",
-        cell: ({ getValue }) => {
-          const val = Number(getValue() || 0);
-          return (
-            <span className={`fw-mono ${val < 0 ? "text-danger" : "text-light"}`}>
-              {formatNumber(val)}
-            </span>
-          );
+        onSwitchStatus: (acc) => {
+          setSelectedAccount(acc);
+          setNewStatus(acc.is_active ? "inactive" : "active");
         },
-      },
-      {
-        id: "has_paid",
-        header: t("Paid"),
-        accessorKey: "has_paid",
-        cell: ({ getValue }) => {
-          const isPaid = Boolean(getValue());
-          return isPaid ? (
-            <Badge bg="success" className="d-inline-flex align-items-center gap-1">
-              <CheckCircle2 size={12} />
-              {t("Paid")}
-            </Badge>
-          ) : (
-            <Badge bg="danger" className="d-inline-flex align-items-center gap-1">
-              <XCircle size={12} />
-              {t("Unpaid")}
-            </Badge>
-          );
-        },
-      },
-      {
-        id: "next_due",
-        header: t("Next Due"),
-        accessorKey: "next_due",
-        cell: ({ getValue }) => {
-          const val = getValue();
-          if (!val) return <span className="text-muted">—</span>;
-          return <span className="small text-muted">{new Date(String(val)).toLocaleDateString()}</span>;
-        },
-      },
-      {
-        id: "actions",
-        header: t("Actions"),
-        cell: ({ row }) => (
-          <div className="d-flex align-items-center gap-1">
-            {renderTooltip(
-              t("Payment History & Activities"),
-              <Button
-                className="aa-btn aa-btn-sm aa-btn-info"
-                onClick={() => {
-                  if (row.original.account?.character_id) {
-                    setHistoryMember({
-                      characterId: row.original.account.character_id,
-                      characterName: row.original.account.character_name || "",
-                      characterPortrait: row.original.account.character_portrait,
-                    });
-                  }
-                }}
-              >
-                <History size={12} />
-                {t("History")}
-              </Button>,
-            )}
-            {renderTooltip(
-              t("Add Custom Payment"),
-              <Button
-                className="aa-btn aa-btn-sm aa-btn-success"
-                onClick={() => {
-                  setPaymentAccount(row.original);
-                  setPaymentAmount("");
-                  setPaymentComment("");
-                }}
-              >
-                <DollarSign size={12} />
-                {t("Add Payment")}
-              </Button>,
-            )}
-            {renderTooltip(
-              t("Switch Account Status"),
-              <Button
-                className="aa-btn aa-btn-sm aa-btn-secondary"
-                onClick={() => {
-                  setSelectedAccount(row.original);
-                  setNewStatus(row.original.is_active ? "inactive" : "active");
-                }}
-              >
-                <RefreshCw size={12} />
-                {t("Switch")}
-              </Button>,
-            )}
-          </div>
-        ),
-      },
-    ],
+      }),
     [t],
   );
 
@@ -279,28 +142,26 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
             />
           </InputGroup>
 
-          <div className="btn-group" role="group">
-            <Button
-              className={`aa-btn aa-btn-sm ${paidFilter === "all" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-              onClick={() => setPaidFilter("all")}
-            >
-              {t("All")}
-            </Button>
-            <Button
-              className={`aa-btn aa-btn-sm ${paidFilter === "paid" ? "aa-btn-success" : "aa-btn-secondary"}`}
-              onClick={() => setPaidFilter("paid")}
-            >
-              <CheckCircle2 size={13} className="me-1" />
-              {t("Paid")}
-            </Button>
-            <Button
-              className={`aa-btn aa-btn-sm ${paidFilter === "unpaid" ? "aa-btn-danger" : "aa-btn-secondary"}`}
-              onClick={() => setPaidFilter("unpaid")}
-            >
-              <XCircle size={13} className="me-1" />
-              {t("Unpaid")}
-            </Button>
-          </div>
+          <ButtonGroupFilter<PaidFilter>
+            value={paidFilter}
+            onChange={(val) => setPaidFilter(val)}
+            options={[
+              { value: "all", label: t("All"), activeVariant: "aa-btn-primary" },
+              {
+                value: "paid",
+                label: t("Paid"),
+                icon: <CheckCircle2 size={13} />,
+                activeVariant: "aa-btn-success",
+              },
+              {
+                value: "unpaid",
+                label: t("Unpaid"),
+                icon: <XCircle size={13} />,
+                activeVariant: "aa-btn-danger",
+              },
+            ]}
+            ariaLabel="Filter accounts by payment status"
+          />
         </div>
       </div>
 

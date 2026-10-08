@@ -38,6 +38,12 @@ Section Order:
 - Quick payment status filters (All, Paid, Unpaid) in the tax accounts table
 - Alt character modal in members table grouped by main character
 - Complete German localization
+- Unified payment action API endpoint (`manage_payment_action`) supporting approve, reject, undo, and delete actions
+- Unified payments query API endpoint supporting `scope` and `character_id` parameter filtering
+- Unified owner settings API endpoint (`update_owner_settings`) for tax amount and period configuration
+- Centralized TanStack Table column definitions (`src/Components/Tables/`) for accounts, members, alts, groups, filters, history, and payments
+- Reusable `ButtonGroupFilter` component for consistent filter button styling across accounts, payments, and overview
+- Reusable `PaymentActionButtons` and `PaymentActionModals` components with shared `usePaymentActions` hook
 
 ### Fixed
 
@@ -48,6 +54,15 @@ Section Order:
 
 - Automatic reactivation of tax accounts when switching main character
 - Standardized ISK formatting and improved history status badges
+- Consolidated duplicate payment action and query implementations in backend while preserving backward-compatible route wrappers
+- Consolidated and streamlined frontend components, reducing duplication across payments and management views
+
+### Removed
+
+- Unused bulk action endpoints for tax accounts and payments
+- Redundant payments history route in logs API
+- Legacy jQuery/DataTables scripts, styles, and server-rendered action buttons
+- Unused template boilerplate components and dead code (security badges, asteroid mining ore columns, live query pings)
 
 ## [4.0.2] - 2026-09-06
 

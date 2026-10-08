@@ -3,9 +3,8 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Trash2, Users2 } from "lucide-react";
-import { Badge, Button, Card, Form, Spinner } from "react-bootstrap";
+import { Button, Card, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -19,6 +18,7 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { getGroupColumns } from "@/Components/Tables";
 
 interface GroupsTabProps {
   ownerId: number;
@@ -89,45 +89,15 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
     return availableGroups.filter((g) => g.name.toLowerCase().includes(q));
   }, [availableGroups, authGroupSearch]);
 
-  const columns = useMemo<ColumnDef<GroupManagementRow>[]>(
-    () => [
-      {
-        id: "name",
-        header: t("Name"),
-        accessorKey: "name",
-        cell: ({ getValue }) => <span className="fw-semibold">{String(getValue() || "")}</span>,
-      },
-      {
-        id: "groups",
-        header: t("Assigned Groups"),
-        cell: ({ row }) => (
-          <div className="d-flex flex-wrap gap-1">
-            {row.original.groups?.map((g) => (
-              <Badge key={g.id} bg="primary">
-                {g.name}
-              </Badge>
-            )) || <span className="text-muted">—</span>}
-          </div>
-        ),
-      },
-      {
-        id: "actions",
-        header: t("Actions"),
-        cell: ({ row }) =>
-          row.original.id ? (
-            <Button
-              className="aa-btn aa-btn-sm aa-btn-danger"
-              onClick={() => {
-                setGroupToDelete(row.original);
-                setDeleteComment(t("Deleted via Tax System"));
-              }}
-            >
-              <Trash2 size={12} />
-              {t("Delete")}
-            </Button>
-          ) : null,
-      },
-    ],
+  const columns = useMemo(
+    () =>
+      getGroupColumns({
+        t,
+        onDelete: (group) => {
+          setGroupToDelete(group);
+          setDeleteComment(t("Deleted via Tax System"));
+        },
+      }),
     [t],
   );
 

@@ -14,9 +14,6 @@ from allianceauth.services.hooks import get_extension_logger
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.icons import (
-    get_members_delete_button,
-)
 from taxsystem.api.schema import (
     ActionCommentRequest,
     CharacterSchema,
@@ -28,7 +25,6 @@ from taxsystem.models.alliance import (
     AllianceOwner,
 )
 from taxsystem.models.corporation import (
-    CorporationOwner,
     Members,
 )
 from taxsystem.models.helpers.textchoices import (
@@ -150,11 +146,6 @@ class CorporationApiEndpoints:
 
             response_members_list: list[MembersSchema] = []
             for member in members:
-                actions = ""
-                # Create the delete button if member is missing and is Corporation Owner
-                if perms and member.is_missing and isinstance(owner, CorporationOwner):
-                    actions = get_members_delete_button(member=member)
-
                 co = char_to_ownership.get(member.character_id)
                 member_is_alt = member.character_id in alt_member_ids or (
                     member.is_alt and member.character_id not in primary_member_ids
@@ -189,7 +180,6 @@ class CorporationApiEndpoints:
                     is_noaccount=member.is_noaccount,
                     status=member.get_status_display(),
                     joined=member.joined,
-                    actions=actions,
                     open_invoices=open_char_invoices_map.get(member.character_id, 0),
                     is_alt=member_is_alt,
                     alts=member_alts,

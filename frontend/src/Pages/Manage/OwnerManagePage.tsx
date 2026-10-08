@@ -24,8 +24,7 @@ import { useTranslation } from "react-i18next";
 // AA TaxSystem
 import {
   loadDashboard,
-  updateTaxAmount,
-  updateTaxPeriod,
+  updateOwnerSettings,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
@@ -59,15 +58,9 @@ export function OwnerManagePage() {
     enabled: numericOwnerId > 0,
   });
 
-  const taxAmountMutation = useMutation({
-    mutationFn: (val: number) => updateTaxAmount(numericOwnerId, val),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Dashboard(numericOwnerId) });
-    },
-  });
-
-  const taxPeriodMutation = useMutation({
-    mutationFn: (val: number) => updateTaxPeriod(numericOwnerId, val),
+  const settingsMutation = useMutation({
+    mutationFn: (settings: { tax_amount?: number; tax_period?: number }) =>
+      updateOwnerSettings(numericOwnerId, settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.Dashboard(numericOwnerId) });
     },
@@ -82,11 +75,15 @@ export function OwnerManagePage() {
   };
 
   const handleSaveSettings = async () => {
+    const payload: { tax_amount?: number; tax_period?: number } = {};
     if (newTaxAmount !== dashboard?.tax_amount) {
-      await taxAmountMutation.mutateAsync(newTaxAmount);
+      payload.tax_amount = newTaxAmount;
     }
     if (newTaxPeriod !== dashboard?.tax_period) {
-      await taxPeriodMutation.mutateAsync(newTaxPeriod);
+      payload.tax_period = newTaxPeriod;
+    }
+    if (Object.keys(payload).length > 0) {
+      await settingsMutation.mutateAsync(payload);
     }
     setShowSettingsModal(false);
   };
@@ -373,10 +370,10 @@ export function OwnerManagePage() {
             </Button>
             <Button
               variant="primary"
-              disabled={taxAmountMutation.isPending || taxPeriodMutation.isPending}
+              disabled={settingsMutation.isPending}
               onClick={handleSaveSettings}
             >
-              {(taxAmountMutation.isPending || taxPeriodMutation.isPending) && (
+              {settingsMutation.isPending && (
                 <Spinner size="sm" animation="border" className="me-1" />
               )}
               {t("Save Settings")}

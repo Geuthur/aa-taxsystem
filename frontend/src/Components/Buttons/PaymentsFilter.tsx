@@ -1,5 +1,5 @@
-// Third Party
-import { Button } from "react-bootstrap";
+// AA TaxSystem
+import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 
 export interface PaymentsFilterProps {
   statusFilter: string;
@@ -8,32 +8,22 @@ export interface PaymentsFilterProps {
 }
 
 export function PaymentsFilter({ statusFilter, setStatusFilter, t }: PaymentsFilterProps) {
+  const options = [
+    { value: "all", label: t("All"), activeVariant: "aa-btn-primary" },
+    { value: "pending", label: t("Pending"), activeVariant: "aa-btn-warning" },
+    { value: "approved", label: t("Approved"), activeVariant: "aa-btn-success" },
+    { value: "rejected", label: t("Rejected"), activeVariant: "aa-btn-danger" },
+  ];
+
   return (
-    <div className="btn-group" role="group">
-      <Button
-        className={`aa-btn aa-btn-sm ${statusFilter === "all" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-        onClick={() => setStatusFilter("all")}
-      >
-        {t("All")}
-      </Button>
-      <Button
-        className={`aa-btn aa-btn-sm ${statusFilter === "pending" ? "aa-btn-warning" : "aa-btn-secondary"}`}
-        onClick={() => setStatusFilter("pending")}
-      >
-        {t("Pending")}
-      </Button>
-      <Button
-        className={`aa-btn aa-btn-sm ${statusFilter === "approved" ? "aa-btn-success" : "aa-btn-secondary"}`}
-        onClick={() => setStatusFilter("approved")}
-      >
-        {t("Approved")}
-      </Button>
-      <Button
-        className={`aa-btn aa-btn-sm ${statusFilter === "rejected" ? "aa-btn-danger" : "aa-btn-secondary"}`}
-        onClick={() => setStatusFilter("rejected")}
-      >
-        {t("Rejected")}
-      </Button>
-    </div>
+    <ButtonGroupFilter
+      value={statusFilter}
+      onChange={setStatusFilter}
+      options={options}
+      ariaLabel="Filter payments by status"
+    />
   );
 }
+
+export default PaymentsFilter;
+

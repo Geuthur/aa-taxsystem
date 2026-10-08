@@ -3,9 +3,8 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
-import { AlertCircle, History, Search, Trash2, Users } from "lucide-react";
-import { Badge, Button, Form, InputGroup, Spinner } from "react-bootstrap";
+import { AlertCircle, Search } from "lucide-react";
+import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -14,10 +13,10 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { getMemberColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
 import { MemberAltsModal } from "@/Pages/Manage/Modals/MemberAltsModal";
 import { MemberPaymentsModal } from "@/Pages/Manage/Modals/MemberPaymentsModal";
-import { renderTooltip } from "@/Utils";
 
 interface MembersTabProps {
   ownerId: number;
@@ -65,143 +64,22 @@ export function MembersTab({ ownerId }: MembersTabProps) {
     );
   }, [members, search]);
 
-  const columns = useMemo<ColumnDef<MemberRow>[]>(
-    () => [
-      {
-        id: "character",
-        header: t("Character"),
-        accessorFn: (row) => row.character?.character_name,
-        cell: ({ row }) => {
-          const openInvoices = row.original.open_invoices ?? 0;
-          const alts = row.original.alts ?? [];
-          return (
-            <div className="d-flex align-items-center gap-2">
-              {row.original.character?.character_portrait && (
-                <img
-                  src={row.original.character.character_portrait}
-                  alt={row.original.character.character_name}
-                  width={32}
-                  height={32}
-                  className="rounded-circle"
-                />
-              )}
-              <span className="fw-semibold">{row.original.character?.character_name}</span>
-              {alts.length > 0 &&
-                renderTooltip(
-                  t("Show {{count}} alt character(s)", {
-                    count: alts.length,
-                  }),
-                  <Button
-                    className="aa-btn aa-btn-sm aa-btn-secondary d-inline-flex align-items-center gap-1 py-0 px-2"
-                    style={{ fontSize: "0.75rem", height: "24px" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setAltsMember(row.original);
-                    }}
-                  >
-                    <Users size={12} />
-                    <span>
-                      {alts.length} {t("Alts")}
-                    </span>
-                  </Button>,
-                )}
-              {openInvoices > 0 &&
-                renderTooltip(
-                  t("{{count}} pending payment(s) to review/approve", {
-                    count: openInvoices,
-                  }),
-                  <Button
-                    className="aa-btn aa-btn-sm aa-btn-warning aa-btn-pulse"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (row.original.character?.character_id) {
-                        setHistoryMember({
-                          characterId: row.original.character.character_id,
-                          characterName: row.original.character?.character_name || "",
-                          characterPortrait: row.original.character?.character_portrait,
-                        });
-                      }
-                    }}
-                  >
-                    <span className="aa-pending-dot-container">
-                      <span className="aa-pending-dot-ping" />
-                      <span className="aa-pending-dot-core" />
-                    </span>
-                    <span>
-                      {openInvoices} {t("Pending")}
-                    </span>
-                  </Button>,
-                )}
-            </div>
-          );
+  const columns = useMemo(
+    () =>
+      getMemberColumns({
+        t,
+        onOpenAlts: (member) => setAltsMember(member),
+        onHistory: (member) => {
+          if (member.character?.character_id) {
+            setHistoryMember({
+              characterId: member.character.character_id,
+              characterName: member.character.character_name || "",
+              characterPortrait: member.character.character_portrait,
+            });
+          }
         },
-      },
-      {
-        id: "status",
-        header: t("Status"),
-        accessorKey: "status",
-        cell: ({ getValue }) => (
-          <Badge bg="secondary">{String(getValue() || "")}</Badge>
-        ),
-      },
-      {
-        id: "missing",
-        header: t("Missing"),
-        accessorKey: "is_missing",
-        cell: ({ getValue }) => {
-          const isMissing = Boolean(getValue());
-          return isMissing ? (
-            <Badge bg="danger">{t("Missing")}</Badge>
-          ) : (
-            <Badge bg="success">{t("Active")}</Badge>
-          );
-        },
-      },
-      {
-        id: "joined",
-        header: t("Joined"),
-        accessorKey: "joined",
-        cell: ({ getValue }) => {
-          const val = getValue();
-          if (!val) return "—";
-          return new Date(String(val)).toLocaleDateString();
-        },
-      },
-      {
-        id: "actions",
-        header: t("Actions"),
-        cell: ({ row }) => (
-          <div className="d-flex align-items-center gap-1">
-            {row.original.character?.character_id &&
-              renderTooltip(
-                t("Payment History & Activities"),
-                <Button
-                  className="aa-btn aa-btn-sm aa-btn-info"
-                  onClick={() => {
-                    setHistoryMember({
-                      characterId: row.original.character!.character_id!,
-                      characterName: row.original.character?.character_name || "",
-                      characterPortrait: row.original.character?.character_portrait,
-                    });
-                  }}
-                >
-                  <History size={12} />
-                  {t("History")}
-                </Button>,
-              )}
-            {row.original.is_missing && row.original.character?.character_id && (
-              <Button
-                className="aa-btn aa-btn-sm aa-btn-danger"
-                onClick={() => setMemberToDelete(row.original)}
-              >
-                <Trash2 size={12} />
-                {t("Delete")}
-              </Button>
-            )}
-          </div>
-        ),
-      },
-    ],
+        onDeleteMissing: (member) => setMemberToDelete(member),
+      }),
     [t],
   );
 

@@ -3,22 +3,19 @@ import { useMemo } from "react";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
 import { History } from "lucide-react";
-import { Badge, Card } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import { loadAdminLogs } from "@/Api/ApiCalls";
-import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { getHistoryColumns } from "@/Components/Tables";
 
 interface HistoryTabProps {
   ownerId: number;
 }
-
-type AdminLogRow = components["schemas"]["AdminHistorySchema"];
 
 export function HistoryTab({ ownerId }: HistoryTabProps) {
   const { t } = useTranslation();
@@ -28,58 +25,7 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
     queryFn: () => loadAdminLogs(ownerId),
   });
 
-  const columns = useMemo<ColumnDef<AdminLogRow>[]>(
-    () => [
-      {
-        id: "date",
-        header: t("Date"),
-        accessorKey: "date",
-        cell: ({ getValue }) => <span className="small text-muted">{String(getValue() || "")}</span>,
-      },
-      {
-        id: "user_name",
-        header: t("Admin"),
-        accessorKey: "user_name",
-        cell: ({ getValue }) => <span className="fw-semibold">{String(getValue() || "")}</span>,
-      },
-      {
-        id: "target",
-        header: t("Target"),
-        accessorKey: "target",
-        cell: ({ getValue }) => <Badge bg="secondary">{String(getValue() || "")}</Badge>,
-      },
-      {
-        id: "action",
-        header: t("Action"),
-        accessorKey: "action",
-        cell: ({ row }) => {
-          const raw = String(row.original.action ?? "").toLowerCase().trim();
-          const label = String(row.original.action_display || row.original.action || "");
-
-          if (raw.includes("deleted")) {
-            return <Badge bg="danger">{label}</Badge>;
-          }
-          if (raw.includes("added")) {
-            return <Badge bg="success">{label}</Badge>;
-          }
-          if (raw.includes("changed")) {
-            return (
-              <Badge bg="warning" className="text-dark">
-                {label}
-              </Badge>
-            );
-          }
-          return <Badge bg="secondary">{label}</Badge>;
-        },
-      },
-      {
-        id: "comment",
-        header: t("Comment"),
-        accessorKey: "comment",
-      },
-    ],
-    [t],
-  );
+  const columns = useMemo(() => getHistoryColumns({ t }), [t]);
 
   return (
     <div className="mt-3">

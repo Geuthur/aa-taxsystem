@@ -2,7 +2,6 @@
 import { useMemo } from "react";
 
 // Third Party
-import { type ColumnDef } from "@tanstack/react-table";
 import { Users } from "lucide-react";
 import { Badge, Button, Image } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -11,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import type { components } from "@/Api/OpenApi";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { getAltColumns } from "@/Components/Tables";
 
 type AltCharacter = components["schemas"]["CharacterSchema"];
 
@@ -31,50 +31,7 @@ export function MemberAltsModal({
 }: MemberAltsModalProps) {
   const { t } = useTranslation();
 
-  const columns = useMemo<ColumnDef<AltCharacter>[]>(
-    () => [
-      {
-        id: "character",
-        header: t("Character"),
-        accessorKey: "character_name",
-        cell: ({ row }) => (
-          <div className="d-flex align-items-center gap-2">
-            {row.original.character_portrait && (
-              <Image
-                src={row.original.character_portrait}
-                alt={row.original.character_name}
-                roundedCircle
-                width={32}
-                height={32}
-              />
-            )}
-            <span className="fw-semibold text-light">
-              {row.original.character_name}
-            </span>
-          </div>
-        ),
-      },
-      {
-        id: "corporation",
-        header: t("Corporation"),
-        accessorKey: "corporation_name",
-        cell: ({ row }) => {
-          const corpName = row.original.corporation_name;
-          const allianceName = row.original.alliance_name;
-          if (!corpName && !allianceName) {
-            return <span className="text-muted">—</span>;
-          }
-          return (
-            <div className="d-flex align-items-center gap-1">
-              {corpName && <Badge bg="secondary">{corpName}</Badge>}
-              {allianceName && <span className="small text-muted">{allianceName}</span>}
-            </div>
-          );
-        },
-      },
-    ],
-    [t],
-  );
+  const columns = useMemo(() => getAltColumns({ t }), [t]);
 
   return (
     <BaseModal
@@ -101,22 +58,19 @@ export function MemberAltsModal({
           </Badge>
         </div>
       }
+      bodyClassName="aa-panel"
       footer={
-        <Button className="aa-btn aa-btn-sm aa-btn-secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={onClose}>
           {t("Close")}
         </Button>
       }
     >
-      <div className="mb-2">
-        <BaseTable
-          data={alts}
-          columns={columns}
-          isFetching={false}
-          isError={false}
-          emptyText={t("No alt characters found.")}
-          variant="vowra-light"
-        />
-      </div>
+      <BaseTable
+        variant="vowra-light"
+        data={alts || []}
+        columns={columns}
+        emptyText={t("No alt characters recorded.")}
+      />
     </BaseModal>
   );
 }

@@ -13,10 +13,6 @@ from allianceauth.services.hooks import get_extension_logger
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.icons import (
-    get_filter_delete_button,
-    get_filter_set_action_icons,
-)
 from taxsystem.api.schema import (
     ActionCommentRequest,
     CreateFilterRequest,
@@ -95,7 +91,6 @@ class FilterApiEndpoints:
                     match_type_display=str(filter_obj.get_match_type_display()),
                     value=str(filter_obj.value),
                     value_display=display,
-                    actions=get_filter_delete_button(filter_obj=filter_obj),
                 )
                 response_filter_list.append(response_filter)
 
@@ -206,9 +201,6 @@ class FilterApiEndpoints:
                     name=filter_set.name,
                     description=filter_set.description,
                     enabled=filter_set.enabled,
-                    actions=get_filter_set_action_icons(
-                        request=request, filter_set=filter_set
-                    ),
                 )
                 response_filter_list.append(response_filter)
 

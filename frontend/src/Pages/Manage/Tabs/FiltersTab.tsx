@@ -3,9 +3,8 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowRight, Filter, Layers, Plus, Trash2 } from "lucide-react";
-import { Badge, Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
+import { Filter, Layers, Plus } from "lucide-react";
+import { Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -17,17 +16,14 @@ import {
   loadFilters,
   loadFilterSets,
 } from "@/Api/ApiCalls";
-import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { getFilterRuleColumns, getFilterSetColumns } from "@/Components/Tables";
 
 interface FiltersTabProps {
   ownerId: number;
 }
-
-type FilterSetRow = components["schemas"]["FilterSetModelSchema"];
-type FilterRow = components["schemas"]["FilterModelSchema"];
 
 export function FiltersTab({ ownerId }: FiltersTabProps) {
   const { t } = useTranslation();
@@ -111,58 +107,14 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
     },
   });
 
-  const setColumns = useMemo<ColumnDef<FilterSetRow>[]>(
-    () => [
-      {
-        id: "name",
-        header: t("Name"),
-        accessorKey: "name",
-        cell: ({ row }) => (
-          <div className="d-flex align-items-center gap-2">
-            {row.original.id === activeSetId && <ArrowRight />}
-            <Button
-              variant="link"
-              className={`fw-semibold text-decoration-none`}
-              onClick={() => row.original.id && setSelectedFilterSetId(row.original.id)}
-            >
-              <span className={`${row.original.id === activeSetId ? "text-primary" : "text-light"}`}>
-                {row.original.name}
-              </span>
-            </Button>
-          </div>
-        ),
-      },
-      {
-        id: "description",
-        header: t("Description"),
-        accessorKey: "description",
-      },
-      {
-        id: "enabled",
-        header: t("Status"),
-        accessorKey: "enabled",
-        cell: ({ getValue }) =>
-          getValue() ? (
-            <Badge bg="success">{t("Enabled")}</Badge>
-          ) : (
-            <Badge bg="secondary">{t("Disabled")}</Badge>
-          ),
-      },
-      {
-        id: "actions",
-        header: t("Actions"),
-        cell: ({ row }) =>
-          row.original.id ? (
-            <Button
-              className="aa-btn aa-btn-sm aa-btn-danger"
-              onClick={() => setFilterSetToDelete(row.original.id!)}
-            >
-              <Trash2 size={12} />
-              {t("Delete")}
-            </Button>
-          ) : null,
-      },
-    ],
+  const setColumns = useMemo(
+    () =>
+      getFilterSetColumns({
+        t,
+        activeSetId,
+        onSelect: (id) => setSelectedFilterSetId(id),
+        onDelete: (id) => setFilterSetToDelete(id),
+      }),
     [t, activeSetId],
   );
 
@@ -181,48 +133,14 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
     [t],
   );
 
-  const filterColumns = useMemo<ColumnDef<FilterRow>[]>(
-    () => [
-      {
-        id: "filter_set",
-        header: t("Filter Set"),
-        accessorFn: (row) => row.filter_set?.name,
-      },
-      {
-        id: "filter_type",
-        header: t("Type"),
-        accessorKey: "filter_type",
-        cell: ({ row }) => row.original.filter_type_display,
-        meta: { filterOptionLabel: (v: string) => filterTypeLabels[v] ?? v },
-      },
-      {
-        id: "match_type",
-        header: t("Match"),
-        accessorKey: "match_type",
-        cell: ({ row }) => row.original.match_type_display,
-        meta: { filterOptionLabel: (v: string) => matchTypeLabels[v] ?? v },
-      },
-      {
-        id: "value",
-        header: t("Value"),
-        accessorKey: "value",
-        cell: ({ row }) => row.original.value_display,
-      },
-      {
-        id: "actions",
-        header: t("Actions"),
-        cell: ({ row }) =>
-          row.original.id ? (
-            <Button
-              className="aa-btn aa-btn-sm aa-btn-danger"
-              onClick={() => setFilterToDelete(row.original.id!)}
-            >
-              <Trash2 size={12} />
-              {t("Delete")}
-            </Button>
-          ) : null,
-      },
-    ],
+  const filterColumns = useMemo(
+    () =>
+      getFilterRuleColumns({
+        t,
+        filterTypeLabels,
+        matchTypeLabels,
+        onDelete: (id) => setFilterToDelete(id),
+      }),
     [t, filterTypeLabels, matchTypeLabels],
   );
 

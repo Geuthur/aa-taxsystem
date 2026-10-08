@@ -160,7 +160,6 @@ class MembersSchema(Schema):
     is_noaccount: bool
     status: str
     joined: datetime | None = None
-    actions: str | None = None
     open_invoices: int = 0
     is_alt: bool = False
     alts: list[CharacterSchema] = []
@@ -183,7 +182,6 @@ class PaymentSchema(Schema):
     can_approve: bool = False
     can_reject: bool = False
     can_undo: bool = False
-    actions: str | None = None
 
 
 class PaymentCorporationSchema(PaymentSchema):
@@ -199,7 +197,6 @@ class PaymentSystemSchema(Schema):
     last_paid: datetime | None = None
     next_due: datetime | None = None
     is_active: bool
-    actions: str | None = None
     open_invoices: int = 0
 
 
@@ -238,7 +235,6 @@ class FilterSetModelSchema(Schema):
     name: str
     description: str
     enabled: bool
-    actions: str | None = None
 
 
 class FilterModelSchema(Schema):
@@ -250,7 +246,6 @@ class FilterModelSchema(Schema):
     match_type_display: str
     value: str
     value_display: str
-    actions: str | None = None
 
 
 class GroupSchema(Schema):
@@ -262,7 +257,6 @@ class GroupManagementSchema(Schema):
     id: int | None = None
     name: str
     groups: list[GroupSchema] | None = None
-    actions: str | None = None
 
 
 class TaxAccountSchema(Schema):
@@ -331,16 +325,14 @@ class ActionCommentRequest(Schema):
     comment: str = ""
 
 
-class BulkActionPaymentsRequest(Schema):
-    pks: list[int]
-    action: Literal["approve", "reject"]
+class PaymentActionRequest(Schema):
+    action: Literal["approve", "reject", "undo", "delete"]
     comment: str = ""
 
 
-class BulkActionAccountsRequest(Schema):
-    pks: list[int]
-    action: Literal["activate", "deactivate"]
-    comment: str = ""
+class UpdateOwnerSettingsRequest(Schema):
+    tax_amount: float | None = None
+    tax_period: int | None = None
 
 
 class UpdateTaxAmountRequest(Schema):

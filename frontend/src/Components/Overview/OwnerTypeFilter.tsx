@@ -1,6 +1,8 @@
 // Third Party
 import { Building2, Shield, Users } from "lucide-react";
-import { Button } from "react-bootstrap";
+
+// AA TaxSystem
+import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 
 export interface OwnerTypeFilterProps {
   ownerType: string;
@@ -13,31 +15,21 @@ export function OwnerTypeFilter({
   setOwnerType,
   t,
 }: OwnerTypeFilterProps) {
+  const options = [
+    { value: "all", label: t("All"), icon: <Users size={13} /> },
+    { value: "corporation", label: t("Corporations"), icon: <Building2 size={13} /> },
+    { value: "alliance", label: t("Alliances"), icon: <Shield size={13} /> },
+  ];
+
   return (
-    <div className="btn-group" role="group">
-      <Button
-        className={`aa-btn aa-btn-sm ${ownerType === "all" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-        onClick={() => setOwnerType("all")}
-      >
-        <Users size={13} className="me-1" />
-        {t("All")}
-      </Button>
-      <Button
-        className={`aa-btn aa-btn-sm ${ownerType === "corporation" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-        onClick={() => setOwnerType("corporation")}
-      >
-        <Building2 size={13} className="me-1" />
-        {t("Corporations")}
-      </Button>
-      <Button
-        className={`aa-btn aa-btn-sm ${ownerType === "alliance" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-        onClick={() => setOwnerType("alliance")}
-      >
-        <Shield size={13} className="me-1" />
-        {t("Alliances")}
-      </Button>
-    </div>
+    <ButtonGroupFilter
+      value={ownerType}
+      onChange={setOwnerType}
+      options={options}
+      ariaLabel="Filter owners by type"
+    />
   );
 }
 
 export default OwnerTypeFilter;
+

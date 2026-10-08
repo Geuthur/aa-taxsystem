@@ -18,7 +18,7 @@ urlpatterns = [
     # -- React Frontend
     path("", views.react_base, name="index"),
     re_path(
-        r"^(?!api/|corporation/add/|alliance/add/|owner/\d+/view/|owner/view/).*$",
+        r"^(?!api/|corporation/add/|alliance/add/).*$",
         views.react_base,
         name="react_base",
     ),

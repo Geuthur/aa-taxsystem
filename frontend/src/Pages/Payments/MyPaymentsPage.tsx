@@ -4,9 +4,8 @@ import { Link, useParams } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowLeft, Search } from "lucide-react";
-import { Badge, Form, InputGroup } from "react-bootstrap";
+import { Form, InputGroup } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -15,8 +14,8 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { getPaymentColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { formatNumber } from "@/Utils";
 
 type MyPaymentRow = components["schemas"]["PaymentSchema"];
 
@@ -44,52 +43,13 @@ export function MyPaymentsPage() {
     );
   }, [payments, search]);
 
-  const columns = useMemo<ColumnDef<MyPaymentRow>[]>(
-    () => [
-      {
-        id: "date",
-        header: t("Date"),
-        accessorKey: "date",
-        cell: ({ getValue }) => <span className="small text-muted">{String(getValue() || "")}</span>,
-      },
-      {
-        id: "amount",
-        header: t("Amount"),
-        accessorKey: "amount",
-        cell: ({ getValue }) => {
-          const val = Number(getValue() || 0);
-          return <span className="fw-mono text-light">{formatNumber(val)}</span>;
-        },
-      },
-      {
-        id: "division",
-        header: t("Target Division"),
-        accessorKey: "division_name",
-      },
-      {
-        id: "status",
-        header: t("Status"),
-        cell: ({ row }) => {
-          const s = row.original.request_status;
-          return (
-            <Badge bg={s?.color || "secondary"}>
-              {s?.status}
-            </Badge>
-          );
-        },
-      },
-      {
-        id: "reason",
-        header: t("Reason"),
-        accessorKey: "reason",
-      },
-      {
-        id: "reviser",
-        header: t("Reviser"),
-        accessorKey: "reviser",
-        cell: ({ getValue }) => <span className="text-muted">{String(getValue() || "—")}</span>,
-      },
-    ],
+  const columns = useMemo(
+    () =>
+      getPaymentColumns<MyPaymentRow>({
+        t,
+        showCharacter: false,
+        showReviser: true,
+      }),
     [t],
   );
 
@@ -110,7 +70,7 @@ export function MyPaymentsPage() {
             </InputGroup.Text>
             <Form.Control
               type="text"
-              placeholder={t("Filter by reason or division...")}
+              placeholder={t("Filter by division or reason...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-dark text-light border-secondary"
@@ -123,7 +83,7 @@ export function MyPaymentsPage() {
           columns={columns}
           isFetching={isLoading}
           isError={isError}
-          emptyText={t("No payments found for this owner.")}
+          emptyText={t("No payments found.")}
           variant="vowra-light"
         />
       </div>

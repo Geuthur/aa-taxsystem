@@ -24,10 +24,6 @@ export const AuthLeftMenuAsync = () => {
     return <></>;
   }
 
-  if (!menuRoot || !menuData?.left_links) {
-    return <></>;
-  }
-
   return ReactDOM.createPortal(
     <AuthLeftMenu
       error={isError}

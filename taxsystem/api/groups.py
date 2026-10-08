@@ -15,9 +15,6 @@ from allianceauth.services.hooks import get_extension_logger
 from taxsystem import __title__
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.icons import (
-    get_groups_delete_button,
-)
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.helpers.textchoices import (
     ActionType,
@@ -67,7 +64,6 @@ class GroupsApiEndpoints:
                         id=group.pk,
                         name=group.name,
                         groups=group_list,
-                        actions=get_groups_delete_button(group),
                     )
                 )
 

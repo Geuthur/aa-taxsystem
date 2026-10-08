@@ -92,6 +92,23 @@ export async function switchTaxAccount(
   return data as { success: boolean; message: string };
 }
 
+export async function updateOwnerSettings(
+  ownerId: number,
+  settings: components["schemas"]["UpdateOwnerSettingsRequest"],
+): Promise<{ success: boolean; message: string }> {
+  const { data, error } = await apiClient.POST(
+    `/${ProjectName}/api/owner/{owner_id}/manage/settings/`,
+    {
+      params: { path: { owner_id: ownerId } },
+      body: settings,
+    },
+  );
+  if (error || !data) {
+    throw new Error("Failed to update owner settings");
+  }
+  return data as { success: boolean; message: string };
+}
+
 export async function updateTaxAmount(
   ownerId: number,
   taxAmount: number,
@@ -122,25 +139,6 @@ export async function updateTaxPeriod(
   );
   if (error || !data) {
     throw new Error("Failed to update tax period");
-  }
-  return data as { success: boolean; message: string };
-}
-
-export async function performBulkActions(
-  ownerId: number,
-  pks: number[],
-  action: "activate" | "deactivate",
-  comment?: string,
-): Promise<{ success: boolean; message: string }> {
-  const { data, error } = await apiClient.POST(
-    `/${ProjectName}/api/owner/{owner_id}/manage/bulk-actions/`,
-    {
-      params: { path: { owner_id: ownerId } },
-      body: { pks, action, comment: comment ?? "" },
-    },
-  );
-  if (error || !data) {
-    throw new Error("Failed to perform bulk actions");
   }
   return data as { success: boolean; message: string };
 }
@@ -180,11 +178,22 @@ export async function deleteMember(
 
 export async function loadPayments(
   ownerId: number,
+  options?: { scope?: "all" | "mine"; characterId?: number },
 ): Promise<components["schemas"]["PaymentCorporationSchema"][]> {
+  const queryParams: Record<string, string | number> = {};
+  if (options?.scope) {
+    queryParams.scope = options.scope;
+  }
+  if (options?.characterId !== undefined) {
+    queryParams.character_id = options.characterId;
+  }
   const { data, error } = await apiClient.GET(
-    `/${ProjectName}/api/owner/{owner_id}/view/payments/`,
+    `/${ProjectName}/api/owner/{owner_id}/payments/`,
     {
-      params: { path: { owner_id: ownerId } },
+      params: {
+        path: { owner_id: ownerId },
+        query: queryParams as never,
+      },
     },
   );
   if (error || !data) {
@@ -222,6 +231,25 @@ export async function loadPaymentDetails(
     throw new Error("Failed to load payment details");
   }
   return data;
+}
+
+export async function managePaymentAction(
+  ownerId: number,
+  paymentPk: number,
+  action: "approve" | "reject" | "undo" | "delete",
+  comment?: string,
+): Promise<{ success: boolean; message: string }> {
+  const { data, error } = await apiClient.POST(
+    `/${ProjectName}/api/owner/{owner_id}/payment/{payment_pk}/manage/action/`,
+    {
+      params: { path: { owner_id: ownerId, payment_pk: paymentPk } },
+      body: { action, comment: comment ?? "" },
+    },
+  );
+  if (error || !data) {
+    throw new Error(`Failed to ${action} payment`);
+  }
+  return data as { success: boolean; message: string };
 }
 
 export async function approvePayment(
@@ -414,25 +442,6 @@ export async function deleteGroup(
   return data as { success?: boolean; message?: string };
 }
 
-export async function performBulkPaymentActions(
-  ownerId: number,
-  pks: number[],
-  action: "approve" | "reject",
-  comment?: string,
-): Promise<{ success: boolean; message: string }> {
-  const { data, error } = await apiClient.POST(
-    `/${ProjectName}/api/owner/{owner_id}/payment/manage/bulk-actions/`,
-    {
-      params: { path: { owner_id: ownerId } },
-      body: { pks, action, comment: comment ?? "" },
-    },
-  );
-  if (error || !data) {
-    throw new Error("Failed to perform bulk payment actions");
-  }
-  return data as { success: boolean; message: string };
-}
-
 export async function loadAdminLogs(
   ownerId: number,
 ): Promise<components["schemas"]["AdminHistorySchema"][]> {
@@ -448,20 +457,6 @@ export async function loadAdminLogs(
   return data as unknown as components["schemas"]["AdminHistorySchema"][];
 }
 
-export async function loadPaymentHistory(
-  ownerId: number,
-): Promise<components["schemas"]["PaymentHistorySchema"][]> {
-  const { data, error } = await apiClient.GET(
-    `/${ProjectName}/api/owner/{owner_id}/view/payment-history/`,
-    {
-      params: { path: { owner_id: ownerId } },
-    },
-  );
-  if (error || !data) {
-    throw new Error("Failed to load payment history");
-  }
-  return data as unknown as components["schemas"]["PaymentHistorySchema"][];
-}
 
 export async function runAdminTasks(
   payload: components["schemas"]["AdminUpdateRequest"],

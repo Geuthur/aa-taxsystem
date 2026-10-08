@@ -228,6 +228,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/taxsystem/api/owner/{owner_id}/manage/settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Update Owner Settings
+         * @description Handle a request to update owner settings (tax amount and/or tax period).
+         */
+        post: operations["taxsystem_api_admin_update_owner_settings"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxsystem/api/owner/{owner_id}/manage/update-tax/": {
         parameters: {
             query?: never;
@@ -239,17 +259,7 @@ export interface paths {
         put?: never;
         /**
          * Update Tax Amount
-         * @description Handle an Request to Update Tax Amount
-         *
-         *     This Endpoint updates the tax amount for an associated owner.
-         *     It validates the request, checks permissions, and updates the tax amount accordingly.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payload (UpdateTaxAmountRequest): The update tax amount request payload.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
+         * @description Legacy wrapper delegating to update_owner_settings.
          */
         post: operations["taxsystem_api_admin_update_tax_amount"];
         delete?: never;
@@ -269,49 +279,9 @@ export interface paths {
         put?: never;
         /**
          * Update Tax Period
-         * @description Handle an Request to Update Tax Period
-         *
-         *     This Endpoint updates the tax period for an associated owner.
-         *     It validates the request, checks permissions, and updates the tax period accordingly.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payload (UpdateTaxPeriodRequest): The update tax period request payload.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
+         * @description Legacy wrapper delegating to update_owner_settings.
          */
         post: operations["taxsystem_api_admin_update_tax_period"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/taxsystem/api/owner/{owner_id}/manage/bulk-actions/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Perform Bulk Actions Tax Accounts
-         * @description Handle an Request to Bulk Actions
-         *
-         *     This Endpoint performs bulk actions for an associated owner.
-         *     It validates the request, checks permissions, and performs the bulk actions accordingly.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payload (BulkActionAccountsRequest): The bulk actions request payload.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
-         */
-        post: operations["taxsystem_api_admin_perform_bulk_actions_tax_accounts"];
         delete?: never;
         options?: never;
         head?: never;
@@ -335,6 +305,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/taxsystem/api/owner/{owner_id}/payments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get payments for an owner with optional scope/character filtering */
+        get: operations["taxsystem_api_payments_get_payments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxsystem/api/owner/{owner_id}/view/payments/": {
         parameters: {
             query?: never;
@@ -343,18 +330,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get Payments
-         * @description This Endpoint retrieves all payments to the accordicng owner.
-         *     It checks for the owner's existence and the user's permissions
-         *     before fetching and returning the payment data.
-         *
-         *     Args:
-         *         request (WSGIRequest): The incoming HTTP request.
-         *         owner_id (int): The ID of the owner whose payments are to be retrieved.
-         *     Returns:
-         *         A list of payment data if successful, or an error message with appropriate status code.
+         * Get Payments Legacy
+         * @description Legacy route delegating to get_payments with scope='all'.
          */
-        get: operations["taxsystem_api_payments_get_payments"];
+        get: operations["taxsystem_api_payments_get_payments_legacy"];
         put?: never;
         post?: never;
         delete?: never;
@@ -372,14 +351,7 @@ export interface paths {
         };
         /**
          * Get My Payments
-         * @description This Endpoint retrieves all payments made by the requesting user
-         *     according to the owner. It checks for the owner's existence
-         *     before fetching and returning the payment data.
-         *     Args:
-         *         request (WSGIRequest): The incoming HTTP request.
-         *         owner_id (int): The ID of the owner whose payments are to be retrieved.
-         *     Returns:
-         *         A list of payment data if successful, or an error message with appropriate status code.
+         * @description Legacy route delegating to get_payments with scope='mine'.
          */
         get: operations["taxsystem_api_payments_get_my_payments"];
         put?: never;
@@ -414,7 +386,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Member Payments */
+        /** Get member payments (legacy wrapper) */
         get: operations["taxsystem_api_payments_get_member_payments"];
         put?: never;
         post?: never;
@@ -455,6 +427,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/action/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Manage payment actions (approve, reject, undo, delete)
+         * @description Manage payment actions via unified action endpoint.
+         */
+        post: operations["taxsystem_api_payments_manage_payment_action"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/approve-payment/": {
         parameters: {
             query?: never;
@@ -465,19 +457,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Approve Payment
-         * @description Handle an Request to Approve a Payment
-         *
-         *     This Endpoint approves a payment from an associated tax account.
-         *     It validates the request, checks permissions, and approves the payment to the according tax account.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payment_pk (int): The ID of the payment to be approved.
-         *         payload (ActionCommentRequest): Optional action comment payload.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
+         * Approve payment (legacy wrapper)
+         * @description Legacy wrapper to approve a payment.
          */
         post: operations["taxsystem_api_payments_approve_payment"];
         delete?: never;
@@ -496,19 +477,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Undo Payment
-         * @description Handle an Request to Undo a Payment
-         *
-         *     This Endpoint undoes a payment from an associated tax account.
-         *     It validates the request, checks permissions, and undoes the payment to the according tax account.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payment_pk (int): The ID of the payment to be approved.
-         *         payload (ActionCommentRequest): Optional action comment payload.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
+         * Undo payment (legacy wrapper)
+         * @description Legacy wrapper to undo a payment.
          */
         post: operations["taxsystem_api_payments_undo_payment"];
         delete?: never;
@@ -527,19 +497,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Delete Payment
-         * @description Handle an Request to Delete a Payment
-         *
-         *     This Endpoint deletes a payment from an associated tax account.
-         *     It validates the request, checks permissions, and deletes the payment to the according tax account.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payment_pk (int): The ID of the payment to be approved.
-         *         payload (DeletePaymentRequest, optional): Delete payload with comment.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
+         * Delete payment (legacy wrapper)
+         * @description Legacy wrapper to delete a payment.
          */
         post: operations["taxsystem_api_payments_delete_payment"];
         delete?: never;
@@ -558,77 +517,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Reject Payment
-         * @description Handle an Request to Reject a Payment
-         *
-         *     This Endpoint rejects a payment from an associated tax account.
-         *     It validates the request, checks permissions, and rejects the payment to the according tax account.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payment_pk (int): The ID of the payment to be approved.
-         *         payload (ActionCommentRequest): Optional action comment payload.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
+         * Reject payment (legacy wrapper)
+         * @description Legacy wrapper to reject a payment.
          */
         post: operations["taxsystem_api_payments_reject_payment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/taxsystem/api/owner/{owner_id}/payment/manage/bulk-actions/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Perform Bulk Actions Payments
-         * @description Handle an Request to Bulk Actions
-         *
-         *     This Endpoint performs bulk actions for an associated owner.
-         *     It validates the request, checks permissions, and performs the bulk actions accordingly.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose filter set is to be retrieved.
-         *         payload (BulkActionPaymentsRequest): Bulk actions payload with pks and action.
-         *     Returns:
-         *         dict: A dictionary containing the success status and message.
-         */
-        post: operations["taxsystem_api_payments_perform_bulk_actions_payments"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/taxsystem/api/owner/{owner_id}/view/payment-history/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Payments History
-         * @description This Endpoint retrieves the payments logs associated with a specific owner.
-         *
-         *     Args:
-         *         request (WSGIRequest): The HTTP request object.
-         *         owner_id (int): The ID of the owner whose payments logs are to be retrieved.
-         *     Returns:
-         *         list[PaymentHistorySchema]: A response object containing the list of payments logs.
-         */
-        get: operations["taxsystem_api_logs_get_payments_history"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1150,8 +1042,6 @@ export interface components {
             status: string;
             /** Joined */
             joined?: string | null;
-            /** Actions */
-            actions?: string | null;
             /**
              * Open Invoices
              * @default 0
@@ -1319,13 +1209,18 @@ export interface components {
             next_due?: string | null;
             /** Is Active */
             is_active: boolean;
-            /** Actions */
-            actions?: string | null;
             /**
              * Open Invoices
              * @default 0
              */
             open_invoices: number;
+        };
+        /** UpdateOwnerSettingsRequest */
+        UpdateOwnerSettingsRequest: {
+            /** Tax Amount */
+            tax_amount?: number | null;
+            /** Tax Period */
+            tax_period?: number | null;
         };
         /** UpdateTaxAmountRequest */
         UpdateTaxAmountRequest: {
@@ -1336,21 +1231,6 @@ export interface components {
         UpdateTaxPeriodRequest: {
             /** Tax Period */
             tax_period: number;
-        };
-        /** BulkActionAccountsRequest */
-        BulkActionAccountsRequest: {
-            /** Pks */
-            pks: number[];
-            /**
-             * Action
-             * @enum {string}
-             */
-            action: "activate" | "deactivate";
-            /**
-             * Comment
-             * @default
-             */
-            comment: string;
         };
         /**
          * MessageSchema
@@ -1418,8 +1298,6 @@ export interface components {
              * @default false
              */
             can_undo: boolean;
-            /** Actions */
-            actions?: string | null;
             character: components["schemas"]["CharacterSchema"];
         };
         /** RequestStatusSchema */
@@ -1490,8 +1368,6 @@ export interface components {
              * @default false
              */
             can_undo: boolean;
-            /** Actions */
-            actions?: string | null;
         };
         /** PaymentsDetailsResponse */
         PaymentsDetailsResponse: {
@@ -1520,26 +1396,24 @@ export interface components {
             /** Comment */
             comment: string;
         };
+        /** PaymentActionRequest */
+        PaymentActionRequest: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "approve" | "reject" | "undo" | "delete";
+            /**
+             * Comment
+             * @default
+             */
+            comment: string;
+        };
         /** DeletePaymentRequest */
         DeletePaymentRequest: {
             /**
              * Comment
              * @default Deleted via TaxSystem
-             */
-            comment: string;
-        };
-        /** BulkActionPaymentsRequest */
-        BulkActionPaymentsRequest: {
-            /** Pks */
-            pks: number[];
-            /**
-             * Action
-             * @enum {string}
-             */
-            action: "approve" | "reject";
-            /**
-             * Comment
-             * @default
              */
             comment: string;
         };
@@ -1577,8 +1451,6 @@ export interface components {
             value: string;
             /** Value Display */
             value_display: string;
-            /** Actions */
-            actions?: string | null;
         };
         /** FilterSetModelSchema */
         FilterSetModelSchema: {
@@ -1592,8 +1464,6 @@ export interface components {
             description: string;
             /** Enabled */
             enabled: boolean;
-            /** Actions */
-            actions?: string | null;
         };
         /** CreateFilterSetRequest */
         CreateFilterSetRequest: {
@@ -1630,8 +1500,6 @@ export interface components {
             name: string;
             /** Groups */
             groups?: components["schemas"]["GroupSchema"][] | null;
-            /** Actions */
-            actions?: string | null;
         };
         /** GroupSchema */
         GroupSchema: {
@@ -2067,6 +1935,67 @@ export interface operations {
             };
         };
     };
+    taxsystem_api_admin_update_owner_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOwnerSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     taxsystem_api_admin_update_tax_amount: {
         parameters: {
             query?: never;
@@ -2189,67 +2118,6 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_admin_perform_bulk_actions_tax_accounts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                owner_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BulkActionAccountsRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
     taxsystem_api_admin_run_update_tasks: {
         parameters: {
             query?: never;
@@ -2293,6 +2161,49 @@ export interface operations {
         };
     };
     taxsystem_api_payments_get_payments: {
+        parameters: {
+            query?: {
+                scope?: "all" | "mine";
+                character_id?: number | null;
+            };
+            header?: never;
+            path: {
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentCorporationSchema"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_payments_get_payments_legacy: {
         parameters: {
             query?: never;
             header?: never;
@@ -2426,7 +2337,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentSchema"][];
+                    "application/json": components["schemas"]["PaymentCorporationSchema"][];
                 };
             };
             /** @description Forbidden */
@@ -2462,6 +2373,68 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["AddPaymentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    taxsystem_api_payments_manage_payment_action: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_id: number;
+                payment_pk: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentActionRequest"];
             };
         };
         responses: {
@@ -2733,100 +2706,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
-    taxsystem_api_payments_perform_bulk_actions_payments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                owner_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BulkActionPaymentsRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
-    taxsystem_api_logs_get_payments_history: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                owner_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentHistorySchema"][];
                 };
             };
             /** @description Forbidden */
