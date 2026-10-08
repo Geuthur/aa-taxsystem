@@ -28,6 +28,8 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [5.0.0] - 2026-10-08
+
 ### Added
 
 - Modern React user interface
@@ -989,5 +991,6 @@ python manage.py taxsystem_migrate_payments
 [4.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v3.0.4...v4.0.0 "4.0.0"
 [4.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.0...v4.0.1 "4.0.1"
 [4.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.1...v4.0.2 "4.0.2"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.2...HEAD "In Development"
+[5.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.2...v5.0.0 "v5.0.0"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
