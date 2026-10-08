@@ -103,16 +103,6 @@ class OverviewSchema(Schema):
     total_count: int
 
 
-class DataTableSchema(Schema):
-    """Legacy DataTable wrapper schema (kept for backwards compatibility)."""
-
-    raw: str | int | float | bool
-    display: str
-    sort: str | None = None
-    translation: str | None = None
-    dropdown_text: str | None = None
-
-
 class RequestStatusSchema(Schema):
     status: str
     code: str | None = None
@@ -202,7 +192,7 @@ class PaymentSystemSchema(Schema):
     account: AccountSchema
     status: str
     deposit: int
-    has_paid: bool | DataTableSchema
+    has_paid: bool
     last_paid: datetime | None = None
     next_due: datetime | None = None
     is_active: bool
@@ -233,7 +223,8 @@ class AdminHistorySchema(Schema):
     user_name: str
     date: str
     target: str
-    action: str | DataTableSchema
+    action: str
+    action_display: str
     comment: str
 
 
@@ -243,7 +234,6 @@ class FilterSetModelSchema(Schema):
     name: str
     description: str
     enabled: bool
-    status: bool | DataTableSchema | None = None
     actions: str | None = None
 
 
@@ -251,8 +241,11 @@ class FilterModelSchema(Schema):
     id: int | None = None
     filter_set: FilterSetModelSchema
     filter_type: str
+    filter_type_display: str
     match_type: str
-    value: str | DataTableSchema
+    match_type_display: str
+    value: str
+    value_display: str
     actions: str | None = None
 
 

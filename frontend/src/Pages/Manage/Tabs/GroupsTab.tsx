@@ -93,13 +93,13 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
     () => [
       {
         id: "name",
-        header: t("Name", "Name"),
+        header: t("Name"),
         accessorKey: "name",
         cell: ({ getValue }) => <span className="fw-semibold">{String(getValue() || "")}</span>,
       },
       {
         id: "groups",
-        header: t("Assigned Groups", "Assigned Groups"),
+        header: t("Assigned Groups"),
         cell: ({ row }) => (
           <div className="d-flex flex-wrap gap-1">
             {row.original.groups?.map((g) => (
@@ -112,7 +112,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
       },
       {
         id: "actions",
-        header: t("Actions", "Actions"),
+        header: t("Actions"),
         cell: ({ row }) =>
           row.original.id ? (
             <Button
@@ -120,11 +120,11 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
               size="sm"
               onClick={() => {
                 setGroupToDelete(row.original);
-                setDeleteComment("Deleted via Tax System");
+                setDeleteComment(t("Deleted via Tax System"));
               }}
             >
               <Trash2 size={12} className="me-1" />
-              {t("Delete", "Delete")}
+              {t("Delete")}
             </Button>
           ) : null,
       },
@@ -138,7 +138,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
         <Card.Header className="d-flex align-items-center justify-content-between border-secondary">
           <h5 className="mb-0 d-flex align-items-center gap-2">
             <Users2 size={18} className="text-primary" />
-            {t("Tax Groups", "Tax Groups")}
+            {t("Tax Groups")}
           </h5>
           <Button
             variant="outline-primary"
@@ -146,7 +146,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
             onClick={() => setShowCreateModal(true)}
           >
             <Plus size={14} className="me-1" />
-            {t("Add Tax-Free Group", "Add Tax-Free Group")}
+            {t("Add Tax-Free Group")}
           </Button>
         </Card.Header>
         <Card.Body className="p-0">
@@ -155,7 +155,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
             columns={columns}
             isFetching={isLoading}
             isError={isError}
-            emptyText={t("No tax groups assigned.", "No tax groups assigned.")}
+            emptyText={t("No tax groups assigned.")}
           />
         </Card.Body>
       </Card>
@@ -169,13 +169,13 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
           title={
             <div className="h5 text-primary d-flex align-items-center gap-2 mb-0">
               <Users2 size={18} />
-              {t("Add Tax-Free Group", "Add Tax-Free Group")}
+              {t("Add Tax-Free Group")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="primary"
@@ -183,16 +183,16 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
                 onClick={() => createMutation.mutate()}
               >
                 {createMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Create", "Create")}
+                {t("Create")}
               </Button>
             </>
           }
         >
           <Form.Group className="mb-3">
-            <Form.Label>{t("Group Name", "Group Name")}</Form.Label>
+            <Form.Label>{t("Group Name")}</Form.Label>
             <Form.Control
               type="text"
-              placeholder={t("e.g. Leadership, Logistics", "e.g. Leadership, Logistics")}
+              placeholder={t("e.g. Leadership, Logistics")}
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
               className="bg-dark text-light border-secondary"
@@ -201,10 +201,10 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>{t("Select Auth Groups", "Select Auth Groups")}</Form.Label>
+            <Form.Label>{t("Select Auth Groups")}</Form.Label>
             <Form.Control
               type="text"
-              placeholder={t("Search groups...", "Search groups...")}
+              placeholder={t("Search groups...")}
               value={authGroupSearch}
               onChange={(e) => setAuthGroupSearch(e.target.value)}
               size="sm"
@@ -220,7 +220,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
                 </div>
               ) : filteredAvailableGroups.length === 0 ? (
                 <div className="text-muted small text-center py-2">
-                  {t("No auth groups found.", "No auth groups found.")}
+                  {t("No auth groups found.")}
                 </div>
               ) : (
                 filteredAvailableGroups.map((g) => {
@@ -242,7 +242,6 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
             <Form.Text className="text-muted">
               {t(
                 "Members belonging to any selected group will be exempt from taxes.",
-                "Members belonging to any selected group will be exempt from taxes.",
               )}
             </Form.Text>
           </Form.Group>
@@ -258,13 +257,13 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
           title={
             <div className="h5 text-danger d-flex align-items-center gap-2 mb-0">
               <Trash2 size={18} />
-              {t("Delete Tax-Free Group", "Delete Tax-Free Group")}
+              {t("Delete Tax-Free Group")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setGroupToDelete(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -273,29 +272,29 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
                   if (groupToDelete.id) {
                     deleteMutation.mutate({
                       groupPk: groupToDelete.id,
-                      comment: deleteComment.trim() || "Deleted via Tax System",
+                      comment: deleteComment.trim() || t("Deleted via Tax System"),
                     });
                   }
                 }}
               >
                 {deleteMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Confirm Delete", "Confirm Delete")}
+                {t("Confirm Delete")}
               </Button>
             </>
           }
         >
           <p>
-            {t("Are you sure you want to delete:", "Are you sure you want to delete:")}{" "}
+            {t("Are you sure you want to delete:")}{" "}
             <strong>{groupToDelete.name}</strong>?
           </p>
           <Form.Group className="mb-3">
-            <Form.Label>{t("Reason / Comment", "Reason / Comment")}</Form.Label>
+            <Form.Label>{t("Reason / Comment")}</Form.Label>
             <Form.Control
               as="textarea"
               rows={2}
               value={deleteComment}
               onChange={(e) => setDeleteComment(e.target.value)}
-              placeholder={t("Reason for deletion...", "Reason for deletion...")}
+              placeholder={t("Reason for deletion...")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>

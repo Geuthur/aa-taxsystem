@@ -27,7 +27,7 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
   const modalTitle: ReactNode = (
     <div className="d-flex align-items-center gap-2 text-success">
       <Wallet size={22} />
-      <span>{t("Corporate Wallet Divisions", "Corporate Wallet Divisions")}</span>
+      <span>{t("Corporate Wallet Divisions")}</span>
     </div>
   );
 
@@ -37,19 +37,19 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
       onHide={onHide}
       title={modalTitle}
       size={ModalSize.large}
-      closeText={t("Close", "Close")}
+      closeText={t("Close")}
     >
       <div className="mb-3">
         <Card className="bg-dark border-secondary">
           <Card.Body className="p-3">
             <Row className="align-items-center">
               <Col xs={12} sm={6}>
-                <div className="text-muted small mb-1">{t("Total Wallet Balance", "Total Wallet Balance")}</div>
+                <div className="text-muted small mb-1">{t("Total Wallet Balance")}</div>
                 <h4 className="text-success fw-bold mb-0">{formatNumber(total)} ISK</h4>
               </Col>
               <Col xs={12} sm={6} className="text-sm-end mt-2 mt-sm-0">
                 <Badge bg="secondary" className="px-3 py-2">
-                  {list.length} {t("Divisions", "Divisions")}
+                  {list.length} {t("Divisions")}
                 </Badge>
               </Col>
             </Row>
@@ -59,7 +59,7 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
 
       {list.length === 0 ? (
         <div className="text-center text-muted py-4">
-          {t("No wallet divisions found.", "No wallet divisions found.")}
+          {t("No wallet divisions found.")}
         </div>
       ) : (
         <div className="table-responsive">
@@ -67,10 +67,10 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
             <thead className="text-muted small border-secondary">
               <tr>
                 <th style={{ width: "60px" }}>#</th>
-                <th>{t("Division Name", "Division Name")}</th>
-                <th className="text-end">{t("Balance", "Balance")}</th>
+                <th>{t("Division Name")}</th>
+                <th className="text-end">{t("Balance")}</th>
                 <th style={{ width: "120px" }} className="text-end">
-                  {t("Share", "Share")}
+                  {t("Share")}
                 </th>
               </tr>
             </thead>

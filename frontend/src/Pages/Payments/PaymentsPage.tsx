@@ -32,9 +32,9 @@ import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
 import { formatNumber } from "@/Utils";
-import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 
@@ -111,10 +111,13 @@ export function PaymentsPage() {
         !search ||
         p.character?.character_name?.toLowerCase().includes(search.toLowerCase()) ||
         p.reason?.toLowerCase().includes(search.toLowerCase());
-      const statusText = p.request_status?.status?.toLowerCase() || "";
-      const matchesStatus =
-        statusFilter === "all" ||
-        statusText.includes(statusFilter.toLowerCase());
+      // `status` is translated (e.g. "Genehmigt"), `code` is the stable key.
+      const statusCode = (
+        p.request_status?.code ||
+        p.request_status?.status ||
+        ""
+      ).toLowerCase();
+      const matchesStatus = statusFilter === "all" || statusCode === statusFilter.toLowerCase();
       return matchesSearch && matchesStatus;
     });
   }, [payments, search, statusFilter]);
@@ -123,7 +126,7 @@ export function PaymentsPage() {
     () => [
       {
         id: "character",
-        header: t("Character", "Character"),
+        header: t("Character"),
         accessorFn: (row) => row.character?.character_name,
         cell: ({ row }) => (
           <div className="d-flex align-items-center gap-2">
@@ -142,13 +145,13 @@ export function PaymentsPage() {
       },
       {
         id: "date",
-        header: t("Date", "Date"),
+        header: t("Date"),
         accessorKey: "date",
         cell: ({ getValue }) => <span className="small text-muted">{String(getValue() || "")}</span>,
       },
       {
         id: "amount",
-        header: t("Amount", "Amount"),
+        header: t("Amount"),
         accessorKey: "amount",
         cell: ({ getValue }) => {
           const val = Number(getValue() || 0);
@@ -157,16 +160,16 @@ export function PaymentsPage() {
       },
       {
         id: "division",
-        header: t("Division", "Division"),
+        header: t("Division"),
         accessorKey: "division_name",
       },
       {
         id: "status",
-        header: t("Status", "Status"),
+        header: t("Status"),
         cell: ({ row }) => {
           const s = row.original.request_status;
           return (
-            <Badge bg={s?.color === "green" ? "success" : s?.color === "red" ? "danger" : "warning"}>
+            <Badge bg={s?.color || "secondary"}>
               {s?.status}
             </Badge>
           );
@@ -174,12 +177,12 @@ export function PaymentsPage() {
       },
       {
         id: "reason",
-        header: t("Reason", "Reason"),
+        header: t("Reason"),
         accessorKey: "reason",
       },
       {
         id: "actions",
-        header: t("Actions", "Actions"),
+        header: t("Actions"),
         cell: ({ row }) => {
           const p = row.original;
           const statusCode = p.request_status?.code?.toLowerCase() || "";
@@ -196,7 +199,7 @@ export function PaymentsPage() {
               <Button
                 variant="outline-info"
                 size="sm"
-                title={t("View Details", "View Details")}
+                title={t("View Details")}
                 onClick={() => setDetailsPaymentId(p.payment_id)}
               >
                 <Eye size={12} />
@@ -206,7 +209,7 @@ export function PaymentsPage() {
                   <Button
                     variant="outline-success"
                     size="sm"
-                    title={t("Accept Payment", "Accept Payment")}
+                    title={t("Accept Payment")}
                     disabled={acceptMutation.isPending}
                     onClick={() => acceptMutation.mutate(p.payment_id)}
                   >
@@ -215,7 +218,7 @@ export function PaymentsPage() {
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    title={t("Reject Payment", "Reject Payment")}
+                    title={t("Reject Payment")}
                     onClick={() => setRejectingPayment(p)}
                   >
                     <X size={12} />
@@ -226,7 +229,7 @@ export function PaymentsPage() {
                 <Button
                   variant="outline-secondary"
                   size="sm"
-                  title={t("Undo Payment", "Undo Payment")}
+                  title={t("Undo Payment")}
                   disabled={undoMutation.isPending}
                   onClick={() => undoMutation.mutate(p.payment_id)}
                 >
@@ -237,7 +240,7 @@ export function PaymentsPage() {
                 <Button
                   variant="outline-danger"
                   size="sm"
-                  title={t("Delete Custom Payment", "Delete Custom Payment")}
+                  title={t("Delete Custom Payment")}
                   disabled={deleteMutation.isPending}
                   onClick={() => {
                     setDeletingPayment(p);
@@ -257,10 +260,10 @@ export function PaymentsPage() {
 
   return (
     <main>
-      <BaseSectionHeader name={t("Payments Management", "Payments Management")}>
+      <BaseSectionHeader name={t("Payments Management")}>
         <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
-          {t("Overview", "Overview")}
+          {t("Overview")}
         </Link>
       </BaseSectionHeader>
 
@@ -272,7 +275,7 @@ export function PaymentsPage() {
             </InputGroup.Text>
             <Form.Control
               type="text"
-              placeholder={t("Filter by character or reason...", "Filter by character or reason...")}
+              placeholder={t("Filter by character or reason...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-dark text-light border-secondary"
@@ -289,7 +292,7 @@ export function PaymentsPage() {
           columns={columns}
           isFetching={isLoading}
           isError={isError}
-          emptyText={t("No payments found.", "No payments found.")}
+          emptyText={t("No payments found.")}
         />
       </div>
 
@@ -302,13 +305,13 @@ export function PaymentsPage() {
           title={
             <div className="h5 text-danger d-flex align-items-center gap-2 mb-0">
               <X size={18} />
-              {t("Reject Payment", "Reject Payment")}
+              {t("Reject Payment")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setRejectingPayment(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -321,24 +324,24 @@ export function PaymentsPage() {
                 }
               >
                 {rejectMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Confirm Rejection", "Confirm Rejection")}
+                {t("Confirm Rejection")}
               </Button>
             </>
           }
         >
           <p>
-            {t("Rejecting payment of", "Rejecting payment of")}{" "}
+            {t("Rejecting payment of")}{" "}
             <strong>{formatNumber(Number(rejectingPayment.amount || 0))}</strong>{" "}
-            {t("from", "from")} <strong>{rejectingPayment.character?.character_name}</strong>.
+            {t("from")} <strong>{rejectingPayment.character?.character_name}</strong>.
           </p>
           <Form.Group className="mb-3">
-            <Form.Label>{t("Rejection Reason / Comment", "Rejection Reason / Comment")}</Form.Label>
+            <Form.Label>{t("Rejection Reason / Comment")}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={rejectComment}
               onChange={(e) => setRejectComment(e.target.value)}
-              placeholder={t("Reason for rejecting payment...", "Reason for rejecting payment...")}
+              placeholder={t("Reason for rejecting payment...")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -354,13 +357,13 @@ export function PaymentsPage() {
           title={
             <div className="h5 d-flex align-items-center gap-2 text-danger mb-0">
               <Trash2 size={18} />
-              {t("Delete Custom Payment", "Delete Custom Payment")}
+              {t("Delete Custom Payment")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setDeletingPayment(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -368,47 +371,40 @@ export function PaymentsPage() {
                 onClick={() =>
                   deleteMutation.mutate({
                     paymentPk: deletingPayment.payment_id,
-                    comment: deleteComment || "Deleted via TaxSystem",
+                    comment: deleteComment || t("Deleted via Tax System"),
                   })
                 }
               >
                 {deleteMutation.isPending && (
                   <Spinner size="sm" animation="border" className="me-1" />
                 )}
-                {t("Confirm Deletion", "Confirm Deletion")}
+                {t("Confirm Deletion")}
               </Button>
             </>
           }
         >
           <p>
-            {t(
-              "Are you sure you want to permanently delete this custom payment of",
-              "Are you sure you want to permanently delete this custom payment of",
-            )}{" "}
+            {t("Are you sure you want to permanently delete this custom payment of")}{" "}
             <strong className="text-danger">
               {formatNumber(Number(deletingPayment.amount || 0))}
             </strong>{" "}
-            {t("from", "from")} <strong>{deletingPayment.character?.character_name}</strong>?
+            {t("from")} <strong>{deletingPayment.character?.character_name}</strong>?
           </p>
           {deletingPayment.request_status?.code === "approved" && (
             <div className="alert alert-warning small mb-3">
               {t(
                 "This payment was already approved. Deleting it will automatically deduct this amount from the member's account deposit.",
-                "This payment was already approved. Deleting it will automatically deduct this amount from the member's account deposit.",
               )}
             </div>
           )}
           <Form.Group className="mb-3">
-            <Form.Label>{t("Deletion Reason / Comment", "Deletion Reason / Comment")}</Form.Label>
+            <Form.Label>{t("Deletion Reason / Comment")}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={deleteComment}
               onChange={(e) => setDeleteComment(e.target.value)}
-              placeholder={t(
-                "Reason for deleting this custom payment...",
-                "Reason for deleting this custom payment...",
-              )}
+              placeholder={t("Reason for deleting this custom payment...")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -424,12 +420,12 @@ export function PaymentsPage() {
           title={
             <div className="h5 d-flex align-items-center gap-2 mb-0">
               <CreditCard size={18} className="text-info" />
-              {t("Payment Details & History", "Payment Details & History")}
+              {t("Payment Details & History")}
             </div>
           }
           footer={
             <Button variant="secondary" onClick={() => setDetailsPaymentId(null)}>
-              {t("Close", "Close")}
+              {t("Close")}
             </Button>
           }
         >
@@ -443,7 +439,7 @@ export function PaymentsPage() {
                 <div>
                   <h6 className="mb-1 text-light">{paymentDetails.account?.character?.character_name}</h6>
                   <div className="text-muted small">
-                    {t("Payment Pool", "Payment Pool")}: {formatNumber(Number(paymentDetails.account?.payment_pool || 0))}
+                    {t("Payment Pool")}: {formatNumber(Number(paymentDetails.account?.payment_pool || 0))}
                   </div>
                 </div>
                 <div className="text-end">
@@ -454,7 +450,7 @@ export function PaymentsPage() {
                 </div>
               </div>
 
-              <h6 className="mt-4 mb-2">{t("Audit History", "Audit History")}</h6>
+              <h6 className="mt-4 mb-2">{t("Audit History")}</h6>
               <div className="border border-secondary rounded p-2">
                 {paymentDetails.payment_histories?.length ? (
                   paymentDetails.payment_histories.map((h) => (
@@ -467,7 +463,7 @@ export function PaymentsPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-muted small text-center py-2">{t("No audit history for this payment.", "No audit history for this payment.")}</div>
+                  <div className="text-muted small text-center py-2">{t("No audit history for this payment.")}</div>
                 )}
               </div>
             </div>

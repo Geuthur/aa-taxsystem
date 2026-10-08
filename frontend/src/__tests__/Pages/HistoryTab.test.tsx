@@ -23,11 +23,8 @@ const mockLogs: AdminLogRow[] = [
     date: "2026-10-01 12:00",
     user_name: "Admin Alice",
     target: "Tax Account",
-    action: {
-      raw: "Added",
-      display: "Added",
-      sort: "Added",
-    },
+    action: "Added",
+    action_display: "Added",
     comment: "Added account",
   },
   {
@@ -35,11 +32,8 @@ const mockLogs: AdminLogRow[] = [
     date: "2026-10-02 14:00",
     user_name: "Admin Bob",
     target: "Settings",
-    action: {
-      raw: "Changed",
-      display: "Changed",
-      sort: "Changed",
-    },
+    action: "Changed",
+    action_display: "Changed",
     comment: "Changed tax rate",
   },
   {
@@ -47,11 +41,8 @@ const mockLogs: AdminLogRow[] = [
     date: "2026-10-03 16:00",
     user_name: "Admin Charlie",
     target: "Filter",
-    action: {
-      raw: "Deleted",
-      display: "Deleted",
-      sort: "Deleted",
-    },
+    action: "Deleted",
+    action_display: "Deleted",
     comment: "Deleted obsolete filter",
   },
 ];

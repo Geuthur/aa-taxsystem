@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 // AA TaxSystem
-// Voices of War
 import { LiveStatusIndicator } from '@/Components/Badges/LiveStatusIndicator';
 
 vi.mock('react-i18next', () => ({
@@ -51,7 +50,7 @@ describe('LiveStatusIndicator', () => {
         render(<LiveStatusIndicator isError={true} showTimestamp={true} />);
 
         // Test Action
-        const errorText = screen.getByText(/Fehler/i);
+        const errorText = screen.getByText(/Error/i);
 
         // Expected Result
         expect(errorText).toBeTruthy();

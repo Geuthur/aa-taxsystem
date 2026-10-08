@@ -13,7 +13,6 @@ from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.schema import (
     AdminHistorySchema,
-    DataTableSchema,
     PaymentHistorySchema,
 )
 from taxsystem.providers import AppLogger
@@ -106,11 +105,8 @@ class LogsApiEndpoints:
                     user_name=log.user.username,
                     date=timezone.localtime(log.date).strftime("%Y-%m-%d %H:%M"),
                     target=log.get_target_display(),
-                    action=DataTableSchema(
-                        raw=log.action,
-                        display=log.get_action_display(),
-                        sort=log.get_action_display(),
-                    ),
+                    action=log.action,
+                    action_display=str(log.get_action_display()),
                     comment=log.comment,
                 )
                 response_admin_logs_list.append(response_log)

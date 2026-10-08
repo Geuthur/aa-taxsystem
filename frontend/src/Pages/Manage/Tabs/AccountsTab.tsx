@@ -94,7 +94,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
     () => [
       {
         id: "character",
-        header: t("Character", "Character"),
+        header: t("Character"),
         accessorFn: (row) => row.account?.character_name,
         cell: ({ row }) => (
           <div className="d-flex align-items-center gap-2">
@@ -113,7 +113,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
       },
       {
         id: "status",
-        header: t("Status", "Status"),
+        header: t("Status"),
         accessorKey: "status",
         cell: ({ getValue }) => {
           const val = String(getValue() || "");
@@ -127,7 +127,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
       },
       {
         id: "deposit",
-        header: t("Deposit", "Deposit"),
+        header: t("Deposit"),
         accessorKey: "deposit",
         cell: ({ getValue }) => {
           const val = Number(getValue() || 0);
@@ -140,26 +140,26 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
       },
       {
         id: "has_paid",
-        header: t("Paid", "Paid"),
+        header: t("Paid"),
         accessorKey: "has_paid",
         cell: ({ getValue }) => {
           const isPaid = Boolean(getValue());
           return isPaid ? (
             <Badge bg="success" className="d-inline-flex align-items-center gap-1">
               <CheckCircle2 size={12} />
-              {t("Paid", "Paid")}
+              {t("Paid")}
             </Badge>
           ) : (
             <Badge bg="danger" className="d-inline-flex align-items-center gap-1">
               <XCircle size={12} />
-              {t("Unpaid", "Unpaid")}
+              {t("Unpaid")}
             </Badge>
           );
         },
       },
       {
         id: "next_due",
-        header: t("Next Due", "Next Due"),
+        header: t("Next Due"),
         accessorKey: "next_due",
         cell: ({ getValue }) => {
           const val = getValue();
@@ -169,13 +169,13 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
       },
       {
         id: "actions",
-        header: t("Actions", "Actions"),
+        header: t("Actions"),
         cell: ({ row }) => (
           <div className="d-flex align-items-center gap-1">
             <Button
               variant="outline-info"
               size="sm"
-              title={t("Payment History & Activities", "Payment History & Activities")}
+              title={t("Payment History & Activities")}
               onClick={() => {
                 if (row.original.account?.character_id) {
                   setHistoryMember({
@@ -187,12 +187,12 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
               }}
             >
               <History size={12} className="me-1" />
-              {t("History", "History")}
+              {t("History")}
             </Button>
             <Button
               variant="outline-success"
               size="sm"
-              title={t("Add Custom Payment", "Add Custom Payment")}
+              title={t("Add Custom Payment")}
               onClick={() => {
                 setPaymentAccount(row.original);
                 setPaymentAmount("");
@@ -200,19 +200,19 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
               }}
             >
               <DollarSign size={12} className="me-1" />
-              {t("Add Payment", "Add Payment")}
+              {t("Add Payment")}
             </Button>
             <Button
               variant="outline-secondary"
               size="sm"
-              title={t("Switch Account Status", "Switch Account Status")}
+              title={t("Switch Account Status")}
               onClick={() => {
                 setSelectedAccount(row.original);
                 setNewStatus(row.original.is_active ? "inactive" : "active");
               }}
             >
               <RefreshCw size={12} className="me-1" />
-              {t("Switch", "Switch")}
+              {t("Switch")}
             </Button>
           </div>
         ),
@@ -230,7 +230,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
           </InputGroup.Text>
           <Form.Control
             type="text"
-            placeholder={t("Filter accounts by name or status...", "Filter accounts by name or status...")}
+            placeholder={t("Filter accounts by name or status...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="bg-dark text-light border-secondary"
@@ -243,7 +243,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
         columns={columns}
         isFetching={isLoading}
         isError={isError}
-        emptyText={t("No tax accounts found.", "No tax accounts found.")}
+        emptyText={t("No tax accounts found.")}
       />
 
       {/* Switch Account Modal */}
@@ -255,13 +255,13 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
           title={
             <>
               <UserCheck size={18} className="me-2 text-primary" />
-              {t("Switch Tax Account", "Switch Tax Account")}: {selectedAccount.account?.character_name}
+              {t("Switch Tax Account")}: {selectedAccount.account?.character_name}
             </>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setSelectedAccount(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="primary"
@@ -275,31 +275,31 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
                 }}
               >
                 {switchMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Save Changes", "Save Changes")}
+                {t("Save Changes")}
               </Button>
             </>
           }
         >
           <Form.Group className="mb-3">
-            <Form.Label>{t("New Status", "New Status")}</Form.Label>
+            <Form.Label>{t("New Status")}</Form.Label>
             <Form.Select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
               className="bg-dark text-light border-secondary"
             >
-              <option value="active">{t("Active", "Active")}</option>
-              <option value="inactive">{t("Inactive", "Inactive")}</option>
-              <option value="exempt">{t("Exempt", "Exempt")}</option>
+              <option value="active">{t("Active")}</option>
+              <option value="inactive">{t("Inactive")}</option>
+              <option value="exempt">{t("Exempt")}</option>
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>{t("Comment / Reason", "Comment / Reason")}</Form.Label>
+            <Form.Label>{t("Comment / Reason")}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder={t("Optional comment for admin history...", "Optional comment for admin history...")}
+              placeholder={t("Optional comment for admin history...")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -315,13 +315,13 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
           title={
             <div className="d-flex align-items-center gap-2 text-success">
               <DollarSign size={18} />
-              {t("Add Custom Payment", "Add Custom Payment")}
+              {t("Add Custom Payment")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setPaymentAccount(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="success"
@@ -334,7 +334,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
                 onClick={() => addPaymentMutation.mutate()}
               >
                 {addPaymentMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Add Payment", "Add Payment")}
+                {t("Add Payment")}
               </Button>
             </>
           }
@@ -352,21 +352,21 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
             <div>
               <div className="fw-semibold text-light">{paymentAccount.account?.character_name}</div>
               <div className="small text-muted">
-                {t("Current Balance", "Current Balance")}:{" "}
+                {t("Current Balance")}:{" "}
                 <span className="text-info">{formatNumber(Number(paymentAccount.deposit || 0))}</span>
               </div>
             </div>
           </div>
 
           <Form.Group className="mb-3">
-            <Form.Label>{t("Amount (ISK)", "Amount (ISK)")}</Form.Label>
+            <Form.Label>{t("Amount (ISK)")}</Form.Label>
             <Form.Control
               type="number"
               min="1"
               step="1"
               value={paymentAmount}
               onChange={(e) => setPaymentAmount(e.target.value === "" ? "" : Number(e.target.value))}
-              placeholder={t("e.g. 10000000", "e.g. 10000000")}
+              placeholder={t("e.g. 10000000")}
               className="bg-dark text-light border-secondary"
               autoFocus
             />
@@ -378,13 +378,13 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>{t("Reason / Comment", "Reason / Comment")}</Form.Label>
+            <Form.Label>{t("Reason / Comment")}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={paymentComment}
               onChange={(e) => setPaymentComment(e.target.value)}
-              placeholder={t("Reason for manual payment addition...", "Reason for manual payment addition...")}
+              placeholder={t("Reason for manual payment addition...")}
               className="bg-dark text-light border-secondary"
               required
             />

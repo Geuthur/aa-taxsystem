@@ -47,12 +47,16 @@ Section Order:
 
 ### Fixed
 
+- Fixed payment status filter breakdown in German and other locales by decoupling raw filter state/API values from translated display text
+- Replaced legacy template view references in celery notification tasks with direct React SPA route paths
+- Modernized `taxsystem.tests.test_access` for the React SPA base view and route resolution
 - Payment action buttons on the Payments page and Member Payments modal now conditionally reflect the payment state (`Accept`/`Reject` only for pending payments, `Undo` only for processed payments)
 - Prevented deletion of ESI imported payments: the delete action is strictly restricted to custom payments (`is_custom === true`, `payment.journal is None`) both on the backend and frontend
 - Fixed Internal Server Error (`JSONDecodeError`) when approving, rejecting, undoing, or deleting payments/members/groups/filters with an empty request body via safe body parsing (`parse_json_body`)
 
 ### Changed
 
+- Comprehensive frontend translation coverage: eliminated redundant fallback strings (`t("Key", "Key")` -> `t("Key")`), wrapped all hardcoded UI strings in `t()`, and completed full German translations in `i18n/de/translation.json`
 - Standardized all ISK values across tables, cards, modals, and overview pages to use the frontend `formatNumber` utility
 - Corrected Tax Configuration unit display and form input labels from percentage (`%`) to `ISK`
 - Modernized Ninja API schemas and responses (clean typed fields, removal of redundant DataTable wrappers and raw HTML actions)

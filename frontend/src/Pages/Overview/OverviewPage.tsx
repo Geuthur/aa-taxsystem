@@ -46,10 +46,10 @@ export function OverviewPage() {
 
   return (
     <main>
-      <BaseSectionHeader name={t("Tax System Overview", "Tax System Overview")}>
+      <BaseSectionHeader name={t("Tax System Overview")}>
         <div className="d-flex align-items-center gap-2">
           <Badge bg="secondary" className="px-3 py-2">
-            {filteredOwners.length} {t("Owners", "Owners")}
+            {filteredOwners.length} {t("Owners")}
           </Badge>
         </div>
       </BaseSectionHeader>
@@ -63,7 +63,7 @@ export function OverviewPage() {
               </InputGroup.Text>
               <Form.Control
                 type="text"
-                placeholder={t("Search corporations & alliances...", "Search corporations & alliances...")}
+                placeholder={t("Search corporations & alliances...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="bg-dark text-light border-secondary"
@@ -80,24 +80,22 @@ export function OverviewPage() {
         {isLoading && (
           <div className="text-center py-5">
             <Spinner animation="border" variant="primary" />
-            <div className="mt-2 text-muted">{t("Loading tax system owners...", "Loading tax system owners...")}</div>
+            <div className="mt-2 text-muted">{t("Loading tax system owners...")}</div>
           </div>
         )}
 
         {isError && (
           <div className="alert alert-danger" role="alert">
-            {error instanceof Error ? error.message : t("Failed to load overview", "Failed to load overview")}
+            {error instanceof Error ? error.message : t("Failed to load overview")}
           </div>
         )}
 
         {!isLoading && !isError && filteredOwners.length === 0 && (
           <div className="text-center py-5 text-muted">
             <Shield size={48} className="mb-3 opacity-50" />
-            <h5>{t("No tax system owners found", "No tax system owners found")}</h5>
+            <h5>{t("No tax system owners found")}</h5>
             <p className="small">
-              {search
-                ? t("No owners match your search query.", "No owners match your search query.")
-                : t("You do not have access to any tax system corporations or alliances.", "You do not have access to any tax system corporations or alliances.")}
+              {t("No owners match your search query.")}
             </p>
           </div>
         )}
@@ -132,14 +130,14 @@ export function OverviewPage() {
                             {owner.type_display}
                           </Badge>
                           <Badge bg={owner.active ? "success" : "secondary"}>
-                            {owner.active ? t("Active", "Active") : t("Inactive", "Inactive")}
+                            {owner.active ? t("Active") : t("Inactive")}
                           </Badge>
                         </div>
                       </div>
                     </div>
 
                     <div className="d-flex align-items-center justify-content-between mb-3 p-2 rounded bg-dark border border-secondary small">
-                      <span className="text-muted">{t("Open Invoices", "Open Invoices")}</span>
+                      <span className="text-muted">{t("Open Invoices")}</span>
                       <Badge bg={owner.open_invoices > 0 ? "danger" : "secondary"} pill>
                         {owner.open_invoices}
                       </Badge>
@@ -152,21 +150,21 @@ export function OverviewPage() {
                       className="aa-btn aa-btn-sm aa-btn-success flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <UserCheck size={14} />
-                      {t("Account", "Account")}
+                      {t("Account")}
                     </Link>
                     <Link
                       to={`payments/${owner.id}/`}
                       className="aa-btn aa-btn-sm aa-btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <CreditCard size={14} />
-                      {t("Payments", "Payments")}
+                      {t("Payments")}
                     </Link>
                     <Link
                       to={`my-payments/${owner.id}/`}
                       className="aa-btn aa-btn-sm aa-btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <FileText size={14} />
-                      {t("My Payments", "My Payments")}
+                      {t("My Payments")}
                     </Link>
                     {owner.can_manage && (
                       <Link
@@ -174,7 +172,7 @@ export function OverviewPage() {
                         className="aa-btn aa-btn-sm aa-btn-warning flex-fill d-flex align-items-center justify-content-center gap-1"
                       >
                         <Settings size={14} />
-                        {t("Manage", "Manage")}
+                        {t("Manage")}
                       </Link>
                     )}
                   </div>

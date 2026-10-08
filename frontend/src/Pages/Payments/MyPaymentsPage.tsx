@@ -48,13 +48,13 @@ export function MyPaymentsPage() {
     () => [
       {
         id: "date",
-        header: t("Date", "Date"),
+        header: t("Date"),
         accessorKey: "date",
         cell: ({ getValue }) => <span className="small text-muted">{String(getValue() || "")}</span>,
       },
       {
         id: "amount",
-        header: t("Amount", "Amount"),
+        header: t("Amount"),
         accessorKey: "amount",
         cell: ({ getValue }) => {
           const val = Number(getValue() || 0);
@@ -63,16 +63,16 @@ export function MyPaymentsPage() {
       },
       {
         id: "division",
-        header: t("Target Division", "Target Division"),
+        header: t("Target Division"),
         accessorKey: "division_name",
       },
       {
         id: "status",
-        header: t("Status", "Status"),
+        header: t("Status"),
         cell: ({ row }) => {
           const s = row.original.request_status;
           return (
-            <Badge bg={s?.color === "green" ? "success" : s?.color === "red" ? "danger" : "warning"}>
+            <Badge bg={s?.color || "secondary"}>
               {s?.status}
             </Badge>
           );
@@ -80,12 +80,12 @@ export function MyPaymentsPage() {
       },
       {
         id: "reason",
-        header: t("Reason", "Reason"),
+        header: t("Reason"),
         accessorKey: "reason",
       },
       {
         id: "reviser",
-        header: t("Reviser", "Reviser"),
+        header: t("Reviser"),
         accessorKey: "reviser",
         cell: ({ getValue }) => <span className="text-muted">{String(getValue() || "—")}</span>,
       },
@@ -95,10 +95,10 @@ export function MyPaymentsPage() {
 
   return (
     <main>
-      <BaseSectionHeader name={t("My Invoices & Payments", "My Invoices & Payments")}>
+      <BaseSectionHeader name={t("My Invoices & Payments")}>
         <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
-          {t("Overview", "Overview")}
+          {t("Overview")}
         </Link>
       </BaseSectionHeader>
 
@@ -110,7 +110,7 @@ export function MyPaymentsPage() {
             </InputGroup.Text>
             <Form.Control
               type="text"
-              placeholder={t("Filter by reason or division...", "Filter by reason or division...")}
+              placeholder={t("Filter by reason or division...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-dark text-light border-secondary"
@@ -123,7 +123,7 @@ export function MyPaymentsPage() {
           columns={columns}
           isFetching={isLoading}
           isError={isError}
-          emptyText={t("No payments found for this owner.", "No payments found for this owner.")}
+          emptyText={t("No payments found for this owner.")}
         />
       </div>
     </main>

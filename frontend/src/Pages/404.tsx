@@ -2,7 +2,6 @@
 import { useTranslation } from 'react-i18next';
 
 // AA TaxSystem
-// Voices of War
 import { ErrorLoader } from '@/Components/Base/Loader';
 export function ErrorPage() {
     const { t } = useTranslation();

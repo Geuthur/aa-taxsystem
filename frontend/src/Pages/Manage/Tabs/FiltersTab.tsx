@@ -115,7 +115,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
     () => [
       {
         id: "name",
-        header: t("Name", "Name"),
+        header: t("Name"),
         accessorKey: "name",
         cell: ({ row }) => (
           <Button
@@ -129,23 +129,23 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
       },
       {
         id: "description",
-        header: t("Description", "Description"),
+        header: t("Description"),
         accessorKey: "description",
       },
       {
         id: "enabled",
-        header: t("Status", "Status"),
+        header: t("Status"),
         accessorKey: "enabled",
         cell: ({ getValue }) =>
           getValue() ? (
-            <Badge bg="success">{t("Enabled", "Enabled")}</Badge>
+            <Badge bg="success">{t("Enabled")}</Badge>
           ) : (
-            <Badge bg="secondary">{t("Disabled", "Disabled")}</Badge>
+            <Badge bg="secondary">{t("Disabled")}</Badge>
           ),
       },
       {
         id: "actions",
-        header: t("Actions", "Actions"),
+        header: t("Actions"),
         cell: ({ row }) =>
           row.original.id ? (
             <Button
@@ -154,7 +154,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
               onClick={() => setFilterSetToDelete(row.original.id!)}
             >
               <Trash2 size={12} className="me-1" />
-              {t("Delete", "Delete")}
+              {t("Delete")}
             </Button>
           ) : null,
       },
@@ -162,37 +162,51 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
     [t, activeSetId],
   );
 
+  const filterTypeLabels = useMemo<Record<string, string>>(
+    () => ({
+      reason: t("Reason (Text)"),
+      amount: t("Amount (Number)"),
+    }),
+    [t],
+  );
+  const matchTypeLabels = useMemo<Record<string, string>>(
+    () => ({
+      exact: t("Exact Match"),
+      contains: t("Contains"),
+    }),
+    [t],
+  );
+
   const filterColumns = useMemo<ColumnDef<FilterRow>[]>(
     () => [
       {
         id: "filter_set",
-        header: t("Filter Set", "Filter Set"),
+        header: t("Filter Set"),
         accessorFn: (row) => row.filter_set?.name,
       },
       {
         id: "filter_type",
-        header: t("Type", "Type"),
+        header: t("Type"),
         accessorKey: "filter_type",
+        cell: ({ row }) => row.original.filter_type_display,
+        meta: { filterOptionLabel: (v: string) => filterTypeLabels[v] ?? v },
       },
       {
         id: "match_type",
-        header: t("Match", "Match"),
+        header: t("Match"),
         accessorKey: "match_type",
+        cell: ({ row }) => row.original.match_type_display,
+        meta: { filterOptionLabel: (v: string) => matchTypeLabels[v] ?? v },
       },
       {
         id: "value",
-        header: t("Value", "Value"),
-        cell: ({ row }) => {
-          const v = row.original.value;
-          if (typeof v === "object" && v !== null && "display" in v) {
-            return String(v.display);
-          }
-          return String(v ?? "");
-        },
+        header: t("Value"),
+        accessorKey: "value",
+        cell: ({ row }) => row.original.value_display,
       },
       {
         id: "actions",
-        header: t("Actions", "Actions"),
+        header: t("Actions"),
         cell: ({ row }) =>
           row.original.id ? (
             <Button
@@ -201,12 +215,12 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
               onClick={() => setFilterToDelete(row.original.id!)}
             >
               <Trash2 size={12} className="me-1" />
-              {t("Delete", "Delete")}
+              {t("Delete")}
             </Button>
           ) : null,
       },
     ],
-    [t],
+    [t, filterTypeLabels, matchTypeLabels],
   );
 
   return (
@@ -217,7 +231,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
             <Card.Header className="d-flex align-items-center justify-content-between border-secondary">
               <h5 className="mb-0 d-flex align-items-center gap-2">
                 <Layers size={18} className="text-primary" />
-                {t("Filter Sets", "Filter Sets")}
+                {t("Filter Sets")}
               </h5>
               <Button
                 variant="outline-primary"
@@ -225,7 +239,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 onClick={() => setShowCreateSetModal(true)}
               >
                 <Plus size={14} className="me-1" />
-                {t("Add Filter Set", "Add Filter Set")}
+                {t("Add Filter Set")}
               </Button>
             </Card.Header>
             <Card.Body className="p-0">
@@ -233,7 +247,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 data={filterSets || []}
                 columns={setColumns}
                 isFetching={setsLoading}
-                emptyText={t("No filter sets defined.", "No filter sets defined.")}
+                emptyText={t("No filter sets defined.")}
               />
             </Card.Body>
           </Card>
@@ -244,7 +258,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
             <Card.Header className="d-flex align-items-center justify-content-between border-secondary">
               <h5 className="mb-0 d-flex align-items-center gap-2">
                 <Filter size={18} className="text-info" />
-                {t("Active Filters", "Active Filters")}
+                {t("Active Filters")}
               </h5>
               <Button
                 variant="outline-info"
@@ -256,7 +270,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 }}
               >
                 <Plus size={14} className="me-1" />
-                {t("Add Filter", "Add Filter")}
+                {t("Add Filter")}
               </Button>
             </Card.Header>
             <Card.Body className="p-0">
@@ -264,7 +278,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 data={filters || []}
                 columns={filterColumns}
                 isFetching={filtersLoading}
-                emptyText={t("No active filters found.", "No active filters found.")}
+                emptyText={t("No active filters found.")}
               />
             </Card.Body>
           </Card>
@@ -280,13 +294,13 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           title={
             <div className="h5 text-primary d-flex align-items-center gap-2 mb-0">
               <Layers size={18} />
-              {t("Add Filter Set", "Add Filter Set")}
+              {t("Add Filter Set")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setShowCreateSetModal(false)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="primary"
@@ -294,29 +308,29 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 onClick={() => createSetMutation.mutate()}
               >
                 {createSetMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Create", "Create")}
+                {t("Create")}
               </Button>
             </>
           }
         >
           <Form.Group className="mb-3">
-            <Form.Label>{t("Name", "Name")}</Form.Label>
+            <Form.Label>{t("Name")}</Form.Label>
             <Form.Control
               type="text"
               value={newSetName}
               onChange={(e) => setNewSetName(e.target.value)}
-              placeholder={t("e.g. Corp Tax Exemption", "e.g. Corp Tax Exemption")}
+              placeholder={t("e.g. Corp Tax Exemption")}
               className="bg-dark text-light border-secondary"
               autoFocus
             />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>{t("Description", "Description")}</Form.Label>
+            <Form.Label>{t("Description")}</Form.Label>
             <Form.Control
               type="text"
               value={newSetDescription}
               onChange={(e) => setNewSetDescription(e.target.value)}
-              placeholder={t("Optional description", "Optional description")}
+              placeholder={t("Optional description")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -332,13 +346,13 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           title={
             <div className="h5 text-info d-flex align-items-center gap-2 mb-0">
               <Filter size={18} />
-              {t("Add Filter", "Add Filter")}
+              {t("Add Filter")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setShowCreateFilterModal(false)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="info"
@@ -346,54 +360,54 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 onClick={() => createFilterMutation.mutate()}
               >
                 {createFilterMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Create", "Create")}
+                {t("Create")}
               </Button>
             </>
           }
         >
           <Form.Group className="mb-3">
-            <Form.Label>{t("Filter Set", "Filter Set")}</Form.Label>
+            <Form.Label>{t("Filter Set")}</Form.Label>
             <Form.Select
               value={newFilterSetId ?? activeSetId ?? ""}
               onChange={(e) => setNewFilterSetId(Number(e.target.value))}
               className="bg-dark text-light border-secondary"
             >
               {filterSets?.map((fs) => (
-                <option key={fs.id} value={fs.id || 0}>
+				<option key={fs.id} value={fs.id || 0}>
                   {fs.name}
                 </option>
               ))}
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>{t("Filter Type", "Filter Type")}</Form.Label>
+            <Form.Label>{t("Filter Type")}</Form.Label>
             <Form.Select
               value={newFilterType}
               onChange={(e) => setNewFilterType(e.target.value as "reason" | "amount")}
               className="bg-dark text-light border-secondary"
             >
-              <option value="reason">{t("Reason (Text)", "Reason (Text)")}</option>
-              <option value="amount">{t("Amount (Number)", "Amount (Number)")}</option>
+              <option value="reason">{t("Reason (Text)")}</option>
+              <option value="amount">{t("Amount (Number)")}</option>
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>{t("Match Type", "Match Type")}</Form.Label>
+            <Form.Label>{t("Match Type")}</Form.Label>
             <Form.Select
               value={newMatchType}
               onChange={(e) => setNewMatchType(e.target.value as "exact" | "contains")}
               className="bg-dark text-light border-secondary"
             >
-              <option value="exact">{t("Exact Match", "Exact Match")}</option>
-              <option value="contains">{t("Contains", "Contains")}</option>
+              <option value="exact">{t("Exact Match")}</option>
+              <option value="contains">{t("Contains")}</option>
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>{t("Value", "Value")}</Form.Label>
+            <Form.Label>{t("Value")}</Form.Label>
             <Form.Control
               type={newFilterType === "amount" ? "number" : "text"}
               value={newFilterValue}
               onChange={(e) => setNewFilterValue(e.target.value)}
-              placeholder={newFilterType === "amount" ? "10000000" : t("e.g. SRP or Reimbursement", "e.g. SRP or Reimbursement")}
+              placeholder={newFilterType === "amount" ? "10000000" : t("e.g. SRP or Reimbursement")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -406,11 +420,11 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           show={filterSetToDelete !== null}
           onHide={() => setFilterSetToDelete(null)}
           size={ModalSize.medium}
-          title={<span className="h5 text-danger mb-0">{t("Delete Filter Set", "Delete Filter Set")}</span>}
+          title={<span className="h5 text-danger mb-0">{t("Delete Filter Set")}</span>}
           footer={
             <>
               <Button variant="secondary" onClick={() => setFilterSetToDelete(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -418,12 +432,12 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 onClick={() => deleteSetMutation.mutate(filterSetToDelete)}
               >
                 {deleteSetMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Delete", "Delete")}
+                {t("Delete")}
               </Button>
             </>
           }
         >
-          <p className="mb-0">{t("Are you sure you want to delete this filter set?", "Are you sure you want to delete this filter set?")}</p>
+          <p className="mb-0">{t("Are you sure you want to delete this filter set?")}</p>
         </BaseModal>
       )}
 
@@ -432,11 +446,11 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
           show={filterToDelete !== null}
           onHide={() => setFilterToDelete(null)}
           size={ModalSize.medium}
-          title={<span className="h5 text-danger mb-0">{t("Delete Filter", "Delete Filter")}</span>}
+          title={<span className="h5 text-danger mb-0">{t("Delete Filter")}</span>}
           footer={
             <>
               <Button variant="secondary" onClick={() => setFilterToDelete(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -444,12 +458,12 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 onClick={() => deleteFilterMutation.mutate(filterToDelete)}
               >
                 {deleteFilterMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Delete", "Delete")}
+                {t("Delete")}
               </Button>
             </>
           }
         >
-          <p className="mb-0">{t("Are you sure you want to delete this filter?", "Are you sure you want to delete this filter?")}</p>
+          <p className="mb-0">{t("Are you sure you want to delete this filter?")}</p>
         </BaseModal>
       )}
     </div>

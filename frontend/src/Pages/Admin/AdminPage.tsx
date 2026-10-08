@@ -34,10 +34,10 @@ export function AdminPage() {
 
   return (
     <main>
-      <BaseSectionHeader name={t("Superuser Task Administration", "Superuser Task Administration")}>
+      <BaseSectionHeader name={t("Superuser Task Administration")}>
         <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
-          {t("Overview", "Overview")}
+          {t("Overview")}
         </Link>
       </BaseSectionHeader>
 
@@ -57,7 +57,7 @@ export function AdminPage() {
           <Form.Check
             type="checkbox"
             id="force-refresh"
-            label={t("Force Refresh ESI (Bypass cache)", "Force Refresh ESI (Bypass cache)")}
+            label={t("Force Refresh ESI (Bypass cache)")}
             checked={forceRefresh}
             onChange={(e) => setForceRefresh(e.target.checked)}
             className="text-light"
@@ -69,12 +69,11 @@ export function AdminPage() {
             <Card className="bg-dark border-secondary h-100 shadow-sm">
               <Card.Header className="border-secondary d-flex align-items-center gap-2">
                 <RefreshCw size={18} className="text-primary" />
-                <h6 className="mb-0">{t("All Tax Systems", "All Tax Systems")}</h6>
+                <h6 className="mb-0">{t("All Tax Systems")}</h6>
               </Card.Header>
               <Card.Body className="d-flex flex-column justify-content-between">
                 <p className="text-muted small">
                   {t(
-                    "Queue background tasks to synchronize all active corporations and alliances.",
                     "Queue background tasks to synchronize all active corporations and alliances.",
                   )}
                 </p>
@@ -90,7 +89,7 @@ export function AdminPage() {
                   className="w-100 d-flex align-items-center justify-content-center gap-1"
                 >
                   {taskMutation.isPending ? <Spinner size="sm" animation="border" /> : <Play size={16} />}
-                  {t("Update All", "Update All")}
+                  {t("Update All")}
                 </Button>
               </Card.Body>
             </Card>
@@ -100,20 +99,19 @@ export function AdminPage() {
             <Card className="bg-dark border-secondary h-100 shadow-sm">
               <Card.Header className="border-secondary d-flex align-items-center gap-2">
                 <Building2 size={18} className="text-info" />
-                <h6 className="mb-0">{t("Corporation Updates", "Corporation Updates")}</h6>
+                <h6 className="mb-0">{t("Corporation Updates")}</h6>
               </Card.Header>
               <Card.Body className="d-flex flex-column justify-content-between">
                 <div>
                   <p className="text-muted small">
                     {t(
                       "Synchronize all corporations or enter a specific Corporation ID.",
-                      "Synchronize all corporations or enter a specific Corporation ID.",
                     )}
                   </p>
                   <Form.Group className="mb-3">
                     <Form.Control
                       type="number"
-                      placeholder={t("Optional Corporation ID", "Optional Corporation ID")}
+                      placeholder={t("Optional Corporation ID")}
                       value={corpIdInput}
                       onChange={(e) => setCorpIdInput(e.target.value)}
                       className="bg-dark text-light border-secondary"
@@ -133,7 +131,7 @@ export function AdminPage() {
                   className="w-100 d-flex align-items-center justify-content-center gap-1 text-dark"
                 >
                   {taskMutation.isPending ? <Spinner size="sm" animation="border" /> : <Play size={16} />}
-                  {t("Update Corporation(s)", "Update Corporation(s)")}
+                  {t("Update Corporation(s)")}
                 </Button>
               </Card.Body>
             </Card>
@@ -143,20 +141,19 @@ export function AdminPage() {
             <Card className="bg-dark border-secondary h-100 shadow-sm">
               <Card.Header className="border-secondary d-flex align-items-center gap-2">
                 <Shield size={18} className="text-warning" />
-                <h6 className="mb-0">{t("Alliance Updates", "Alliance Updates")}</h6>
+                <h6 className="mb-0">{t("Alliance Updates")}</h6>
               </Card.Header>
               <Card.Body className="d-flex flex-column justify-content-between">
                 <div>
                   <p className="text-muted small">
                     {t(
                       "Synchronize all alliances or enter a specific Alliance ID.",
-                      "Synchronize all alliances or enter a specific Alliance ID.",
                     )}
                   </p>
                   <Form.Group className="mb-3">
                     <Form.Control
                       type="number"
-                      placeholder={t("Optional Alliance ID", "Optional Alliance ID")}
+                      placeholder={t("Optional Alliance ID")}
                       value={allyIdInput}
                       onChange={(e) => setAllyIdInput(e.target.value)}
                       className="bg-dark text-light border-secondary"
@@ -176,7 +173,7 @@ export function AdminPage() {
                   className="w-100 d-flex align-items-center justify-content-center gap-1 text-dark"
                 >
                   {taskMutation.isPending ? <Spinner size="sm" animation="border" /> : <Play size={16} />}
-                  {t("Update Alliance(s)", "Update Alliance(s)")}
+                  {t("Update Alliance(s)")}
                 </Button>
               </Card.Body>
             </Card>

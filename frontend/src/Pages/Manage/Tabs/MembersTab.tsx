@@ -60,7 +60,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
     () => [
       {
         id: "character",
-        header: t("Character", "Character"),
+        header: t("Character"),
         accessorFn: (row) => row.character?.character_name,
         cell: ({ row }) => (
           <div className="d-flex align-items-center gap-2">
@@ -79,7 +79,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
       },
       {
         id: "status",
-        header: t("Status", "Status"),
+        header: t("Status"),
         accessorKey: "status",
         cell: ({ getValue }) => (
           <Badge bg="secondary">{String(getValue() || "")}</Badge>
@@ -87,20 +87,20 @@ export function MembersTab({ ownerId }: MembersTabProps) {
       },
       {
         id: "missing",
-        header: t("Missing", "Missing"),
+        header: t("Missing"),
         accessorKey: "is_missing",
         cell: ({ getValue }) => {
           const isMissing = Boolean(getValue());
           return isMissing ? (
-            <Badge bg="danger">{t("Missing", "Missing")}</Badge>
+            <Badge bg="danger">{t("Missing")}</Badge>
           ) : (
-            <Badge bg="success">{t("Active", "Active")}</Badge>
+            <Badge bg="success">{t("Active")}</Badge>
           );
         },
       },
       {
         id: "joined",
-        header: t("Joined", "Joined"),
+        header: t("Joined"),
         accessorKey: "joined",
         cell: ({ getValue }) => {
           const val = getValue();
@@ -110,14 +110,14 @@ export function MembersTab({ ownerId }: MembersTabProps) {
       },
       {
         id: "actions",
-        header: t("Actions", "Actions"),
+        header: t("Actions"),
         cell: ({ row }) => (
           <div className="d-flex align-items-center gap-1">
             {row.original.character?.character_id && (
               <Button
                 variant="outline-info"
                 size="sm"
-                title={t("Payment History & Activities", "Payment History & Activities")}
+                title={t("Payment History & Activities")}
                 onClick={() => {
                   setHistoryMember({
                     characterId: row.original.character!.character_id!,
@@ -127,7 +127,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
                 }}
               >
                 <History size={12} className="me-1" />
-                {t("History", "History")}
+                {t("History")}
               </Button>
             )}
             {row.original.is_missing && row.original.character?.character_id && (
@@ -137,7 +137,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
                 onClick={() => setMemberToDelete(row.original)}
               >
                 <Trash2 size={12} className="me-1" />
-                {t("Delete", "Delete")}
+                {t("Delete")}
               </Button>
             )}
           </div>
@@ -156,7 +156,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
           </InputGroup.Text>
           <Form.Control
             type="text"
-            placeholder={t("Filter members by name...", "Filter members by name...")}
+            placeholder={t("Filter members by name...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="bg-dark text-light border-secondary"
@@ -169,7 +169,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
         columns={columns}
         isFetching={isLoading}
         isError={isError}
-        emptyText={t("No corporation members found.", "No corporation members found.")}
+        emptyText={t("No corporation members found.")}
       />
 
       {/* Delete Member Confirmation Modal */}
@@ -181,13 +181,13 @@ export function MembersTab({ ownerId }: MembersTabProps) {
           title={
             <div className="h5 text-danger d-flex align-items-center gap-2 mb-0">
               <AlertCircle size={18} />
-              {t("Delete Missing Member", "Delete Missing Member")}
+              {t("Delete Missing Member")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setMemberToDelete(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -199,14 +199,13 @@ export function MembersTab({ ownerId }: MembersTabProps) {
                 }}
               >
                 {deleteMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
-                {t("Confirm Delete", "Confirm Delete")}
+                {t("Confirm Delete")}
               </Button>
             </>
           }
         >
           <p className="mb-0">
             {t(
-              "Are you sure you want to remove the missing member records for:",
               "Are you sure you want to remove the missing member records for:",
             )}{" "}
             <strong>{memberToDelete.character?.character_name}</strong>?

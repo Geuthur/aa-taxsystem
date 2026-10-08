@@ -32,49 +32,37 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
     () => [
       {
         id: "date",
-        header: t("Date", "Date"),
+        header: t("Date"),
         accessorKey: "date",
         cell: ({ getValue }) => <span className="small text-muted">{String(getValue() || "")}</span>,
       },
       {
         id: "user_name",
-        header: t("Admin", "Admin"),
+        header: t("Admin"),
         accessorKey: "user_name",
         cell: ({ getValue }) => <span className="fw-semibold">{String(getValue() || "")}</span>,
       },
       {
         id: "target",
-        header: t("Target", "Target"),
+        header: t("Target"),
         accessorKey: "target",
         cell: ({ getValue }) => <Badge bg="secondary">{String(getValue() || "")}</Badge>,
       },
       {
         id: "action",
-        header: t("Action", "Action"),
+        header: t("Action"),
+        accessorKey: "action",
         cell: ({ row }) => {
-          const act = row.original.action;
-          let raw = "";
-          let display = "";
+          const raw = (row.original.action ?? "").toLowerCase().trim();
+          const label = row.original.action_display || row.original.action || "";
 
-          if (typeof act === "object" && act !== null) {
-            const dt = act as { raw?: unknown; display?: unknown };
-            raw = typeof dt.raw === "string" ? dt.raw.toLowerCase().trim() : "";
-            display = typeof dt.display === "string" ? dt.display : "";
-          } else if (typeof act === "string") {
-            raw = act.toLowerCase().trim();
-            display = act;
-          }
-
-          const label = display || raw || "";
-          const key = raw || label.toLowerCase();
-
-          if (key.includes("deleted")) {
+          if (raw.includes("deleted")) {
             return <Badge bg="danger">{label}</Badge>;
           }
-          if (key.includes("added")) {
+          if (raw.includes("added")) {
             return <Badge bg="success">{label}</Badge>;
           }
-          if (key.includes("changed")) {
+          if (raw.includes("changed")) {
             return (
               <Badge bg="warning" className="text-dark">
                 {label}
@@ -86,7 +74,7 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
       },
       {
         id: "comment",
-        header: t("Comment", "Comment"),
+        header: t("Comment"),
         accessorKey: "comment",
       },
     ],
@@ -99,7 +87,7 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
         <Card.Header className="d-flex align-items-center justify-content-between border-secondary">
           <h5 className="mb-0 d-flex align-items-center gap-2">
             <History size={18} className="text-warning" />
-            {t("Admin History", "Admin History")}
+            {t("Admin History")}
           </h5>
         </Card.Header>
         <Card.Body className="p-0">
@@ -108,7 +96,7 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
             columns={columns}
             isFetching={isLoading}
             isError={isError}
-            emptyText={t("No admin logs found.", "No admin logs found.")}
+            emptyText={t("No admin logs found.")}
           />
         </Card.Body>
       </Card>

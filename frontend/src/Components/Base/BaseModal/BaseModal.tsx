@@ -192,7 +192,7 @@ function ConfirmModal({
       // Erfolgreich: Modal schließen, Reset erfolgt in onExited
       setShowModal(false);
     } catch (error: unknown) {
-      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred.');
+      setErrorMessage(error instanceof Error ? error.message : t("An unexpected error occurred."));
     }
   };
 

@@ -3689,71 +3689,6 @@
         "title": "AccountSchema",
         "type": "object"
       },
-      "DataTableSchema": {
-        "description": "Legacy DataTable wrapper schema (kept for backwards compatibility).",
-        "properties": {
-          "raw": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "integer"
-              },
-              {
-                "type": "number"
-              },
-              {
-                "type": "boolean"
-              }
-            ],
-            "title": "Raw"
-          },
-          "display": {
-            "title": "Display",
-            "type": "string"
-          },
-          "sort": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Sort"
-          },
-          "translation": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Translation"
-          },
-          "dropdown_text": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Dropdown Text"
-          }
-        },
-        "required": [
-          "raw",
-          "display"
-        ],
-        "title": "DataTableSchema",
-        "type": "object"
-      },
       "PaymentSystemSchema": {
         "properties": {
           "account_id": {
@@ -3779,15 +3714,8 @@
             "type": "integer"
           },
           "has_paid": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "$ref": "#/components/schemas/DataTableSchema"
-              }
-            ],
-            "title": "Has Paid"
+            "title": "Has Paid",
+            "type": "boolean"
           },
           "last_paid": {
             "anyOf": [
@@ -4337,15 +4265,12 @@
             "type": "string"
           },
           "action": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/DataTableSchema"
-              }
-            ],
-            "title": "Action"
+            "title": "Action",
+            "type": "string"
+          },
+          "action_display": {
+            "title": "Action Display",
+            "type": "string"
           },
           "comment": {
             "title": "Comment",
@@ -4358,6 +4283,7 @@
           "date",
           "target",
           "action",
+          "action_display",
           "comment"
         ],
         "title": "AdminHistorySchema",
@@ -4383,20 +4309,25 @@
             "title": "Filter Type",
             "type": "string"
           },
+          "filter_type_display": {
+            "title": "Filter Type Display",
+            "type": "string"
+          },
           "match_type": {
             "title": "Match Type",
             "type": "string"
           },
+          "match_type_display": {
+            "title": "Match Type Display",
+            "type": "string"
+          },
           "value": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/DataTableSchema"
-              }
-            ],
-            "title": "Value"
+            "title": "Value",
+            "type": "string"
+          },
+          "value_display": {
+            "title": "Value Display",
+            "type": "string"
           },
           "actions": {
             "anyOf": [
@@ -4413,8 +4344,11 @@
         "required": [
           "filter_set",
           "filter_type",
+          "filter_type_display",
           "match_type",
-          "value"
+          "match_type_display",
+          "value",
+          "value_display"
         ],
         "title": "FilterModelSchema",
         "type": "object"
@@ -4447,20 +4381,6 @@
           "enabled": {
             "title": "Enabled",
             "type": "boolean"
-          },
-          "status": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "$ref": "#/components/schemas/DataTableSchema"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Status"
           },
           "actions": {
             "anyOf": [

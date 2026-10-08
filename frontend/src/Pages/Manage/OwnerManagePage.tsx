@@ -95,7 +95,7 @@ export function OwnerManagePage() {
     return (
       <main className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <div className="mt-2 text-muted">{t("Loading dashboard...", "Loading dashboard...")}</div>
+        <div className="mt-2 text-muted">{t("Loading dashboard...")}</div>
       </main>
     );
   }
@@ -103,7 +103,7 @@ export function OwnerManagePage() {
   if (isError || !dashboard) {
     return (
       <main className="alert alert-danger" role="alert">
-        {error instanceof Error ? error.message : t("Failed to load dashboard", "Failed to load dashboard")}
+        {error instanceof Error ? error.message : t("Failed to load dashboard")}
       </main>
     );
   }
@@ -116,7 +116,7 @@ export function OwnerManagePage() {
         <div className="d-flex align-items-center gap-2">
           <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
             <ArrowLeft size={14} />
-            {t("Overview", "Overview")}
+            {t("Overview")}
           </Link>
           <Button
             variant="outline-warning"
@@ -125,7 +125,7 @@ export function OwnerManagePage() {
             onClick={handleOpenSettings}
           >
             <Settings size={14} />
-            {t("Tax Settings", "Tax Settings")}
+            {t("Tax Settings")}
           </Button>
         </div>
       </BaseSectionHeader>
@@ -137,16 +137,16 @@ export function OwnerManagePage() {
             <Card.Body className="p-3 d-flex flex-column justify-content-between">
               <div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small fw-semibold">{t("Tax Configuration", "Tax Configuration")}</span>
+                  <span className="text-muted small fw-semibold">{t("Tax Configuration")}</span>
                   <div className="p-2 rounded-3 bg-primary bg-opacity-10 text-primary">
                     <DollarSign size={24} />
                   </div>
                 </div>
                 <h4 className="mb-1 text-light fw-bold">
-                  {formatNumber(dashboard.tax_amount)} / {dashboard.tax_period} {t("Days", "Days")}
+                  {formatNumber(dashboard.tax_amount)} / {dashboard.tax_period} {t("Days")}
                 </h4>
                 <div className="text-muted small">
-                  {t("Fixed tax amount & billing period", "Fixed tax amount & billing period")}
+                  {t("Fixed tax amount & billing period")}
                 </div>
               </div>
             </Card.Body>
@@ -158,7 +158,7 @@ export function OwnerManagePage() {
             <Card.Body className="p-3 d-flex flex-column justify-content-between">
               <div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small fw-semibold">{t("Total Wallet Balance", "Total Wallet Balance")}</span>
+                  <span className="text-muted small fw-semibold">{t("Total Wallet Balance")}</span>
                   <div className="p-2 rounded-3 bg-success bg-opacity-10 text-success">
                     <Wallet size={24} />
                   </div>
@@ -167,7 +167,7 @@ export function OwnerManagePage() {
                   {formatNumber(dashboard.divisions.total_balance)}
                 </h4>
                 <div className="text-muted small">
-                  {dashboard.divisions.divisions.length} {t("divisions monitored", "divisions monitored")}
+                  {dashboard.divisions.divisions.length} {t("divisions monitored")}
                 </div>
               </div>
               <Button
@@ -177,7 +177,7 @@ export function OwnerManagePage() {
                 onClick={() => setShowDivisionsModal(true)}
               >
                 <Layers size={14} />
-                {t("View Divisions", "View Divisions")}
+                {t("View Divisions")}
               </Button>
             </Card.Body>
           </Card>
@@ -188,7 +188,7 @@ export function OwnerManagePage() {
             <Card.Body className="p-3 d-flex flex-column justify-content-between">
               <div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small fw-semibold">{t("30-Day Activity", "30-Day Activity")}</span>
+                  <span className="text-muted small fw-semibold">{t("30-Day Activity")}</span>
                   <div className="p-2 rounded-3 bg-info bg-opacity-10 text-info">
                     <Activity size={24} />
                   </div>
@@ -197,7 +197,7 @@ export function OwnerManagePage() {
                   {formatNumber(dashboard.activity)}
                 </h4>
                 <div className="text-muted small">
-                  {t("Total journal volume (30d)", "Total journal volume (30d)")}
+                  {t("Total journal volume (30d)")}
                 </div>
               </div>
             </Card.Body>
@@ -209,18 +209,18 @@ export function OwnerManagePage() {
             <Card.Body className="p-3 d-flex flex-column justify-content-between">
               <div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small fw-semibold">{t("Update Status", "Update Status")}</span>
+                  <span className="text-muted small fw-semibold">{t("Update Status")}</span>
                   <div className="p-2 rounded-3 bg-warning bg-opacity-10 text-warning">
                     <Calendar size={24} />
                   </div>
                 </div>
                 <h5 className="mb-1">
                   <Badge bg="success" className="text-uppercase">
-                    {dashboard.update_status.status ? t("Synchronized", "Synchronized") : t("Pending", "Pending")}
+                    {dashboard.update_status.status ? t("Synchronized") : t("Pending")}
                   </Badge>
                 </h5>
                 <div className="text-muted small">
-                  {t("ESI synchronization status", "ESI synchronization status")}
+                  {t("ESI synchronization status")}
                 </div>
               </div>
             </Card.Body>
@@ -234,14 +234,14 @@ export function OwnerManagePage() {
           <Card.Header className="border-secondary py-2 bg-transparent">
             <h6 className="mb-0 text-light fw-bold d-flex align-items-center gap-2">
               <BarChart3 size={18} className="text-primary" />
-              {t("System Statistics", "System Statistics")}
+              {t("System Statistics")}
             </h6>
           </Card.Header>
           <Card.Body className="p-3">
             <Row className="g-3">
               <Col xs={6} sm={4} md={2}>
                 <div className="p-2 rounded bg-black bg-opacity-25 border border-secondary text-center">
-                  <div className="text-muted small mb-1">{t("Pending", "Pending")}</div>
+                  <div className="text-muted small mb-1">{t("Pending")}</div>
                   <h4 className="text-warning fw-bold mb-0">
                     {dashboard.statistics.payments?.payments_pending ?? 0}
                   </h4>
@@ -249,7 +249,7 @@ export function OwnerManagePage() {
               </Col>
               <Col xs={6} sm={4} md={2}>
                 <div className="p-2 rounded bg-black bg-opacity-25 border border-secondary text-center">
-                  <div className="text-muted small mb-1">{t("Approved", "Approved")}</div>
+                  <div className="text-muted small mb-1">{t("Approved")}</div>
                   <h4 className="text-success fw-bold mb-0">
                     {dashboard.statistics.payments?.payments_approved ?? 0}
                   </h4>
@@ -257,7 +257,7 @@ export function OwnerManagePage() {
               </Col>
               <Col xs={6} sm={4} md={2}>
                 <div className="p-2 rounded bg-black bg-opacity-25 border border-secondary text-center">
-                  <div className="text-muted small mb-1">{t("Automatic", "Automatic")}</div>
+                  <div className="text-muted small mb-1">{t("Automatic")}</div>
                   <h4 className="text-info fw-bold mb-0">
                     {dashboard.statistics.payments?.payments_automatic ?? 0}
                   </h4>
@@ -265,7 +265,7 @@ export function OwnerManagePage() {
               </Col>
               <Col xs={6} sm={4} md={2}>
                 <div className="p-2 rounded bg-black bg-opacity-25 border border-secondary text-center">
-                  <div className="text-muted small mb-1">{t("Manual", "Manual")}</div>
+                  <div className="text-muted small mb-1">{t("Manual")}</div>
                   <h4 className="text-light fw-bold mb-0">
                     {dashboard.statistics.payments?.payments_manual ?? 0}
                   </h4>
@@ -273,7 +273,7 @@ export function OwnerManagePage() {
               </Col>
               <Col xs={6} sm={4} md={2}>
                 <div className="p-2 rounded bg-black bg-opacity-25 border border-secondary text-center">
-                  <div className="text-muted small mb-1">{t("Active Accounts", "Active Accounts")}</div>
+                  <div className="text-muted small mb-1">{t("Active Accounts")}</div>
                   <h4 className="text-success fw-bold mb-0">
                     {dashboard.statistics.tax_account?.accounts_active ?? 0}
                   </h4>
@@ -281,7 +281,7 @@ export function OwnerManagePage() {
               </Col>
               <Col xs={6} sm={4} md={2}>
                 <div className="p-2 rounded bg-black bg-opacity-25 border border-secondary text-center">
-                  <div className="text-muted small mb-1">{t("Unpaid Accounts", "Unpaid Accounts")}</div>
+                  <div className="text-muted small mb-1">{t("Unpaid Accounts")}</div>
                   <h4 className="text-danger fw-bold mb-0">
                     {dashboard.statistics.tax_account?.accounts_unpaid ?? 0}
                   </h4>
@@ -302,7 +302,7 @@ export function OwnerManagePage() {
               className="d-flex align-items-center gap-2"
             >
               <Users size={16} />
-              {t("Tax Accounts", "Tax Accounts")}
+              {t("Tax Accounts")}
             </Nav.Link>
           </Nav.Item>
           {isCorp && (
@@ -313,7 +313,7 @@ export function OwnerManagePage() {
                 className="d-flex align-items-center gap-2"
               >
                 <Layers size={16} />
-                {t("Members", "Members")}
+                {t("Members")}
               </Nav.Link>
             </Nav.Item>
           )}
@@ -324,7 +324,7 @@ export function OwnerManagePage() {
               className="d-flex align-items-center gap-2"
             >
               <Filter size={16} />
-              {t("Filters", "Filters")}
+              {t("Filters")}
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
@@ -334,7 +334,7 @@ export function OwnerManagePage() {
               className="d-flex align-items-center gap-2"
             >
               <Settings size={16} />
-              {t("Groups", "Groups")}
+              {t("Groups")}
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
@@ -344,7 +344,7 @@ export function OwnerManagePage() {
               className="d-flex align-items-center gap-2"
             >
               <History size={16} />
-              {t("History", "History")}
+              {t("History")}
             </Nav.Link>
           </Nav.Item>
         </Nav>
@@ -364,13 +364,13 @@ export function OwnerManagePage() {
         title={
           <div className="d-flex align-items-center gap-2 text-warning">
             <Edit size={20} />
-            <span>{t("Edit Tax Settings", "Edit Tax Settings")}</span>
+            <span>{t("Edit Tax Settings")}</span>
           </div>
         }
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowSettingsModal(false)}>
-              {t("Cancel", "Cancel")}
+              {t("Cancel")}
             </Button>
             <Button
               variant="primary"
@@ -380,13 +380,13 @@ export function OwnerManagePage() {
               {(taxAmountMutation.isPending || taxPeriodMutation.isPending) && (
                 <Spinner size="sm" animation="border" className="me-1" />
               )}
-              {t("Save Settings", "Save Settings")}
+              {t("Save Settings")}
             </Button>
           </>
         }
       >
         <Form.Group className="mb-3">
-          <Form.Label>{t("Tax Amount (ISK)", "Tax Amount (ISK)")}</Form.Label>
+          <Form.Label>{t("Tax Amount (ISK)")}</Form.Label>
           <Form.Control
             type="number"
             step="0.01"
@@ -397,7 +397,7 @@ export function OwnerManagePage() {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>{t("Tax Period (Days)", "Tax Period (Days)")}</Form.Label>
+          <Form.Label>{t("Tax Period (Days)")}</Form.Label>
           <Form.Control
             type="number"
             min="1"

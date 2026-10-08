@@ -57,8 +57,9 @@ class TestFilterApiEndpoints(TaxSystemTestCase):
         # Expected Result
         data = json.loads(response.content)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(data[0]["value"]["raw"], "1000")
-        self.assertEqual(data[0]["filter_type"], "Amount")
+        self.assertEqual(data[0]["value"], "1000")
+        self.assertEqual(data[0]["filter_type"], "amount")
+        self.assertEqual(data[0]["filter_type_display"], "Amount")
 
         # Test Scenario 2: Permission Denied
         url = reverse(

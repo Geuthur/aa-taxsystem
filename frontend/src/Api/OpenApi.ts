@@ -1285,22 +1285,6 @@ export interface components {
             /** Alt Ids */
             alt_ids?: number[] | null;
         };
-        /**
-         * DataTableSchema
-         * @description Legacy DataTable wrapper schema (kept for backwards compatibility).
-         */
-        DataTableSchema: {
-            /** Raw */
-            raw: string | number | boolean;
-            /** Display */
-            display: string;
-            /** Sort */
-            sort?: string | null;
-            /** Translation */
-            translation?: string | null;
-            /** Dropdown Text */
-            dropdown_text?: string | null;
-        };
         /** PaymentSystemSchema */
         PaymentSystemSchema: {
             /** Account Id */
@@ -1311,7 +1295,7 @@ export interface components {
             /** Deposit */
             deposit: number;
             /** Has Paid */
-            has_paid: boolean | components["schemas"]["DataTableSchema"];
+            has_paid: boolean;
             /** Last Paid */
             last_paid?: string | null;
             /** Next Due */
@@ -1548,7 +1532,9 @@ export interface components {
             /** Target */
             target: string;
             /** Action */
-            action: string | components["schemas"]["DataTableSchema"];
+            action: string;
+            /** Action Display */
+            action_display: string;
             /** Comment */
             comment: string;
         };
@@ -1559,10 +1545,16 @@ export interface components {
             filter_set: components["schemas"]["FilterSetModelSchema"];
             /** Filter Type */
             filter_type: string;
+            /** Filter Type Display */
+            filter_type_display: string;
             /** Match Type */
             match_type: string;
+            /** Match Type Display */
+            match_type_display: string;
             /** Value */
-            value: string | components["schemas"]["DataTableSchema"];
+            value: string;
+            /** Value Display */
+            value_display: string;
             /** Actions */
             actions?: string | null;
         };
@@ -1578,8 +1570,6 @@ export interface components {
             description: string;
             /** Enabled */
             enabled: boolean;
-            /** Status */
-            status?: boolean | components["schemas"]["DataTableSchema"] | null;
             /** Actions */
             actions?: string | null;
         };

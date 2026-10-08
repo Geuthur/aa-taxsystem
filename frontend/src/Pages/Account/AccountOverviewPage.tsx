@@ -24,6 +24,7 @@ import { loadUserAccounts } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
 import {
   allianceImageUrl,
@@ -32,7 +33,6 @@ import {
   formatNumber,
   formatRelativeTime,
 } from "@/Utils";
-import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";
 
 type UserAccount = components["schemas"]["UserAccountSchema"];
 
@@ -76,7 +76,7 @@ export function AccountOverviewPage() {
 
   return (
     <main className="d-flex flex-column gap-3">
-      <BaseSectionHeader name={t("Member Account Overview", "Member Account Overview")}>
+      <BaseSectionHeader name={t("Member Account Overview")}>
         <div className="d-flex align-items-center gap-2">
           {filterOwnerId && (
             <Link
@@ -84,7 +84,7 @@ export function AccountOverviewPage() {
               className="aa-btn aa-btn-sm aa-btn-secondary"
             >
               <ArrowRight size={14} />
-              {t("Show All Owners", "Show All Owners")}
+              {t("Show All Owners")}
             </Link>
           )}
         </div>
@@ -99,10 +99,7 @@ export function AccountOverviewPage() {
               </InputGroup.Text>
               <Form.Control
                 type="text"
-                placeholder={t(
-                  "Filter accounts by character or owner...",
-                  "Filter accounts by character or owner...",
-                )}
+                placeholder={t("Filter accounts by character or owner...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="bg-dark text-light border-secondary"
@@ -120,16 +117,16 @@ export function AccountOverviewPage() {
           <div className="text-center py-5">
             <Spinner animation="border" variant="primary" />
             <div className="mt-2 text-muted">
-              {t("Loading account details...", "Loading account details...")}
+              {t("Loading account details...")}
             </div>
           </div>
         )}
 
         {isError && (
           <div className="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
-            <div>{error instanceof Error ? error.message : t("Failed to load accounts", "Failed to load accounts")}</div>
+            <div>{error instanceof Error ? error.message : t("Failed to load accounts")}</div>
             <Button variant="outline-danger" size="sm" onClick={() => void refetch()}>
-              {t("Retry", "Retry")}
+              {t("Retry")}
             </Button>
           </div>
         )}
@@ -137,14 +134,11 @@ export function AccountOverviewPage() {
         {!isLoading && !isError && filteredAccounts.length === 0 && (
           <div className="text-center py-5 text-muted">
             <User size={48} className="mb-3 opacity-50" />
-            <h5>{t("No tax accounts found", "No tax accounts found")}</h5>
+            <h5>{t("No tax accounts found")}</h5>
             <p className="small mb-0">
               {search
-                ? t("No accounts match your search query.", "No accounts match your search query.")
-                : t(
-                  "You do not have any registered tax accounts for this entity.",
-                  "You do not have any registered tax accounts for this entity.",
-                )}
+                ? t("No accounts match your search query.")
+                : t("You do not have any registered tax accounts for this entity.")}
             </p>
           </div>
         )}
@@ -184,8 +178,8 @@ export function AccountOverviewPage() {
                           <div className="d-flex align-items-center gap-2 mt-1">
                             <span className="aa-badge aa-badge-secondary">
                               {account.owner_type === "corporation"
-                                ? t("Corporation", "Corporation")
-                                : t("Alliance", "Alliance")}
+                                ? t("Corporation")
+                                : t("Alliance")}
                             </span>
                             <span className="aa-badge aa-badge-secondary">
                               {account.status_display}
@@ -198,12 +192,12 @@ export function AccountOverviewPage() {
                         {isPaid ? (
                           <span className="aa-badge aa-badge-success d-inline-flex align-items-center gap-1">
                             <CheckCircle size={14} />
-                            {t("Paid", "Paid")}
+                            {t("Paid")}
                           </span>
                         ) : (
                           <span className="aa-badge aa-badge-danger d-inline-flex align-items-center gap-1">
                             <AlertCircle size={14} />
-                            {t("Unpaid / Due", "Unpaid / Due")}
+                            {t("Unpaid / Due")}
                           </span>
                         )}
                       </div>
@@ -228,7 +222,7 @@ export function AccountOverviewPage() {
                         </div>
                       )}
                       <div>
-                        <div className="small text-muted">{t("Linked Character", "Linked Character")}</div>
+                        <div className="small text-muted">{t("Linked Character")}</div>
                         <div className="fw-semibold text-light">
                           {account.character_name || account.name}
                         </div>
@@ -241,7 +235,7 @@ export function AccountOverviewPage() {
                         <div className="p-2 rounded bg-dark border border-secondary">
                           <div className="d-flex align-items-center gap-1 small text-muted mb-1">
                             <Wallet size={14} />
-                            <span>{t("Current Balance", "Current Balance")}</span>
+                            <span>{t("Current Balance")}</span>
                           </div>
                           <div className={`fs-5 fw-mono ${account.deposit > 0 ? "text-success" : "text-light"}`}>
                             {formatNumber(account.deposit)}
@@ -253,12 +247,12 @@ export function AccountOverviewPage() {
                         <div className="p-2 rounded bg-dark border border-secondary">
                           <div className="d-flex align-items-center gap-1 small text-muted mb-1">
                             <CreditCard size={14} />
-                            <span>{t("Tax Rate", "Tax Rate")}</span>
+                            <span>{t("Tax Rate")}</span>
                           </div>
                           <div className="fs-5 fw-mono text-light">
                             {formatNumber(account.tax_amount)}
                             <span className="fs-6 text-muted ms-1">
-                              / {account.tax_period} {t("Days", "Days")}
+                              / {account.tax_period} {t("Days")}
                             </span>
                           </div>
                         </div>
@@ -268,7 +262,7 @@ export function AccountOverviewPage() {
                         <div className="p-2 rounded bg-dark border border-secondary">
                           <div className="d-flex align-items-center gap-1 small text-muted mb-1">
                             <Calendar size={14} />
-                            <span>{t("Next Due", "Next Due")}</span>
+                            <span>{t("Next Due")}</span>
                           </div>
                           <div className={`fw-semibold ${isPaid ? "text-light" : "text-danger"}`}>
                             {account.next_due ? (
@@ -287,7 +281,7 @@ export function AccountOverviewPage() {
                         <div className="p-2 rounded bg-dark border border-secondary">
                           <div className="d-flex align-items-center gap-1 small text-muted mb-1">
                             <Clock size={14} />
-                            <span>{t("Last Payment", "Last Payment")}</span>
+                            <span>{t("Last Payment")}</span>
                           </div>
                           <div className="fw-semibold text-light">
                             {account.last_paid ? (
@@ -296,7 +290,7 @@ export function AccountOverviewPage() {
                                 <div className="small text-muted">{formatRelativeTime(account.last_paid)}</div>
                               </>
                             ) : (
-                              <span className="text-muted">{t("Never", "Never")}</span>
+                              <span className="text-muted">{t("Never")}</span>
                             )}
                           </div>
                         </div>
@@ -309,20 +303,20 @@ export function AccountOverviewPage() {
                         <div className="d-flex flex-wrap gap-3">
                           {account.joined && (
                             <div>
-                              <span className="text-secondary">{t("Joined", "Joined")}:</span>{" "}
+                              <span className="text-secondary">{t("Joined")}:</span>{" "}
                               <span className="text-light">{formatRelativeTime(account.joined)}</span>
                             </div>
                           )}
                           {account.last_login && (
                             <div>
-                              <span className="text-secondary">{t("Last Login", "Last Login")}:</span>{" "}
+                              <span className="text-secondary">{t("Last Login")}:</span>{" "}
                               <span className="text-light">{formatRelativeTime(account.last_login)}</span>
                             </div>
                           )}
                         </div>
                         {account.notice && (
                           <div className="mt-1 pt-1 border-top border-secondary text-info">
-                            <strong>{t("Notice", "Notice")}:</strong> {account.notice}
+                            <strong>{t("Notice")}:</strong> {account.notice}
                           </div>
                         )}
                       </div>
@@ -336,18 +330,18 @@ export function AccountOverviewPage() {
                       className="aa-btn aa-btn-sm aa-btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <FileText size={14} />
-                      {t("My Payments", "My Payments")}
+                      {t("My Payments")}
                     </Link>
                     <Link
                       to={`/taxsystem/payments/${account.owner_id}/`}
                       className="aa-btn aa-btn-sm aa-btn-primary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <CreditCard size={14} />
-                      {t("Payments", "Payments")}
+                      {t("Payments")}
                     </Link>
                     {account.open_invoices > 0 && (
                       <Badge bg="danger" className="d-flex align-items-center px-2">
-                        {account.open_invoices} {t("Open", "Open")}
+                        {account.open_invoices} {t("Open")}
                       </Badge>
                     )}
                   </div>

@@ -115,25 +115,25 @@ export function MemberPaymentsModal({
     () => [
       {
         id: "date",
-        header: t("Date", "Date"),
+        header: t("Date"),
         accessorKey: "date",
         cell: ({ getValue }) => <span className="text-secondary small">{String(getValue())}</span>,
       },
       {
         id: "division_name",
-        header: t("Division", "Division"),
+        header: t("Division"),
         accessorKey: "division_name",
         cell: ({ getValue }) => <span>{String(getValue() || "—")}</span>,
       },
       {
         id: "reason",
-        header: t("Reason", "Reason"),
+        header: t("Reason"),
         accessorKey: "reason",
         cell: ({ getValue }) => <span>{String(getValue() || "—")}</span>,
       },
       {
         id: "amount",
-        header: t("Amount", "Amount"),
+        header: t("Amount"),
         accessorKey: "amount",
         cell: ({ getValue }) => {
           const val = Number(getValue() || 0);
@@ -142,16 +142,16 @@ export function MemberPaymentsModal({
       },
       {
         id: "request_status",
-        header: t("Status", "Status"),
+        header: t("Status"),
         accessorFn: (row) => row.request_status?.status,
         cell: ({ row }) => {
           const status = row.original.request_status;
-          return <Badge bg={status?.color || "secondary"}>{status?.status || "Unknown"}</Badge>;
+          return <Badge bg={status?.color || "secondary"}>{status?.status || t("Unknown")}</Badge>;
         },
       },
       {
         id: "reviser",
-        header: t("Reviser", "Reviser"),
+        header: t("Reviser"),
         accessorKey: "reviser",
         cell: ({ getValue }) => (
           <span className="small text-muted">{String(getValue() || "—")}</span>
@@ -159,7 +159,7 @@ export function MemberPaymentsModal({
       },
       {
         id: "actions",
-        header: t("Actions", "Actions"),
+        header: t("Actions"),
         cell: ({ row }) => {
           const p = row.original;
           const statusCode = p.request_status?.code?.toLowerCase() || "";
@@ -178,7 +178,7 @@ export function MemberPaymentsModal({
                   <Button
                     variant="outline-success"
                     size="sm"
-                    title={t("Approve Payment", "Approve Payment")}
+                    title={t("Approve Payment")}
                     disabled={approveMutation.isPending}
                     onClick={() => approveMutation.mutate(p.payment_id)}
                   >
@@ -187,7 +187,7 @@ export function MemberPaymentsModal({
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    title={t("Reject Payment", "Reject Payment")}
+                    title={t("Reject Payment")}
                     disabled={rejectMutation.isPending}
                     onClick={() => {
                       setRejectingPaymentId(p.payment_id);
@@ -202,7 +202,7 @@ export function MemberPaymentsModal({
                 <Button
                   variant="outline-warning"
                   size="sm"
-                  title={t("Undo Payment", "Undo Payment")}
+                  title={t("Undo Payment")}
                   disabled={undoMutation.isPending}
                   onClick={() => undoMutation.mutate(p.payment_id)}
                 >
@@ -213,7 +213,7 @@ export function MemberPaymentsModal({
                 <Button
                   variant="outline-danger"
                   size="sm"
-                  title={t("Delete Custom Payment", "Delete Custom Payment")}
+                  title={t("Delete Custom Payment")}
                   disabled={deleteMutation.isPending}
                   onClick={() => {
                     setDeletingPayment(p);
@@ -251,7 +251,7 @@ export function MemberPaymentsModal({
             <div>
               <div className="h5 mb-0">{characterName}</div>
               <small className="text-secondary">
-                {t("Payment History & Activities", "Payment History & Activities")}
+                {t("Payment History & Activities")}
               </small>
             </div>
           </div>
@@ -259,20 +259,20 @@ export function MemberPaymentsModal({
         bodyClassName="p-0"
         footer={
           <Button variant="secondary" onClick={onClose}>
-            {t("Close", "Close")}
+            {t("Close")}
           </Button>
         }
       >
         {isError ? (
           <div className="p-4 text-center text-danger">
-            {t("Failed to load member payments.", "Failed to load member payments.")}
+            {t("Failed to load member payments.")}
           </div>
         ) : (
           <BaseTable
             data={payments || []}
             columns={columns}
             isFetching={isLoading}
-            emptyText={t("No payments found for this member.", "No payments found for this member.")}
+            emptyText={t("No payments found for this member.")}
           />
         )}
       </BaseModal>
@@ -283,11 +283,11 @@ export function MemberPaymentsModal({
           show={rejectingPaymentId !== null}
           onHide={() => setRejectingPaymentId(null)}
           size={ModalSize.medium}
-          title={<span className="h5 text-danger mb-0">{t("Reject Payment", "Reject Payment")}</span>}
+          title={<span className="h5 text-danger mb-0">{t("Reject Payment")}</span>}
           footer={
             <>
               <Button variant="secondary" onClick={() => setRejectingPaymentId(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -302,18 +302,18 @@ export function MemberPaymentsModal({
                 {rejectMutation.isPending && (
                   <Spinner size="sm" animation="border" className="me-1" />
                 )}
-                {t("Confirm Reject", "Confirm Reject")}
+                {t("Confirm Reject")}
               </Button>
             </>
           }
         >
           <Form.Group>
-            <Form.Label>{t("Reason / Comment", "Reason / Comment")}</Form.Label>
+            <Form.Label>{t("Reason / Comment")}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               className="bg-black text-light border-secondary"
-              placeholder={t("Optional rejection reason", "Optional rejection reason")}
+              placeholder={t("Optional rejection reason")}
               value={rejectComment}
               onChange={(e) => setRejectComment(e.target.value)}
             />
@@ -330,13 +330,13 @@ export function MemberPaymentsModal({
           title={
             <div className="h5 d-flex align-items-center gap-2 text-danger mb-0">
               <Trash2 size={18} />
-              {t("Delete Custom Payment", "Delete Custom Payment")}
+              {t("Delete Custom Payment")}
             </div>
           }
           footer={
             <>
               <Button variant="secondary" onClick={() => setDeletingPayment(null)}>
-                {t("Cancel", "Cancel")}
+                {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
@@ -344,23 +344,20 @@ export function MemberPaymentsModal({
                 onClick={() =>
                   deleteMutation.mutate({
                     paymentPk: deletingPayment.payment_id,
-                    comment: deleteComment || "Deleted via TaxSystem",
+                    comment: deleteComment || t("Deleted via Tax System"),
                   })
                 }
               >
                 {deleteMutation.isPending && (
                   <Spinner size="sm" animation="border" className="me-1" />
                 )}
-                {t("Confirm Deletion", "Confirm Deletion")}
+                {t("Confirm Deletion")}
               </Button>
             </>
           }
         >
           <p>
-            {t(
-              "Are you sure you want to permanently delete this custom payment of",
-              "Are you sure you want to permanently delete this custom payment of",
-            )}{" "}
+            {t("Are you sure you want to permanently delete this custom payment of")}{" "}
             <strong className="text-danger">
               {formatNumber(Number(deletingPayment.amount || 0))}
             </strong>?
@@ -369,21 +366,17 @@ export function MemberPaymentsModal({
             <div className="alert alert-warning small mb-3">
               {t(
                 "This payment was already approved. Deleting it will automatically deduct this amount from the member's account deposit.",
-                "This payment was already approved. Deleting it will automatically deduct this amount from the member's account deposit.",
               )}
             </div>
           )}
           <Form.Group className="mb-3">
-            <Form.Label>{t("Deletion Reason / Comment", "Deletion Reason / Comment")}</Form.Label>
+            <Form.Label>{t("Deletion Reason / Comment")}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={deleteComment}
               onChange={(e) => setDeleteComment(e.target.value)}
-              placeholder={t(
-                "Reason for deleting this custom payment...",
-                "Reason for deleting this custom payment...",
-              )}
+              placeholder={t("Reason for deleting this custom payment...")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
