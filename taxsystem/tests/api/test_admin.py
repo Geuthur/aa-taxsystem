@@ -188,8 +188,8 @@ class TestAdminApiEndpoints(TaxSystemTestCase):
 
         # Expected Result
         owner = CorporationOwner.objects.get(pk=self.audit.pk)
-        result = "Tax Period from {owner} changed to {value}".format(
-            owner=owner, value=float(owner.tax_amount)
+        result = "Tax Amount from {owner} changed to {value}".format(
+            owner=owner, value=owner.tax_amount
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.json().get("message"), result)
@@ -259,25 +259,22 @@ class TestAdminApiEndpoints(TaxSystemTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
-    def test_perform_bulk_actions_tax_accounts(self):
+    def test_update_owner_settings(self):
         """
-        Test 'api:perform_bulk_actions_tax_accounts' Endpoint.
+        Test 'api:update_owner_settings' Endpoint.
 
         # Test Scenarios:
-            1. Bulk Action is performed successfully.
-            2. Permission Denied for users without access.
+            1. Update both tax_amount and tax_period successfully.
+            2. Validation error on negative values.
+            3. Permission denied.
         """
         # Test Data
         url = reverse(
-            f"{API_URL}:perform_bulk_actions_tax_accounts",
+            f"{API_URL}:update_owner_settings",
             kwargs={"owner_id": self.audit.eve_id},
         )
         self.client.force_login(self.superuser)
-        data = {
-            "pks": [self.tax_account.pk],
-            "action": "deactivate",
-            "comment": "Bulk action via API test.",
-        }
+        data = {"tax_amount": 7500, "tax_period": 21}
 
         # Test Action
         response = self.client.post(
@@ -285,33 +282,24 @@ class TestAdminApiEndpoints(TaxSystemTestCase):
         )
 
         # Expected Result
-        pks_str = str(data["pks"])
-        result = (
-            "Bulk '{status}' performed for {items} accounts({pks}) for {owner}".format(
-                status=AccountStatus.DEACTIVATED, items=1, pks=pks_str, owner=self.audit
-            )
-        )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(response.json().get("message"), result)
+        owner = CorporationOwner.objects.get(pk=self.audit.pk)
+        self.assertEqual(owner.tax_amount, 7500)
+        self.assertEqual(owner.tax_period, 21)
 
-        # Test Scenario 2: Permission Denied
-        url = reverse(
-            f"{API_URL}:perform_bulk_actions_tax_accounts",
-            kwargs={"owner_id": self.audit.eve_id},
+        # Negative value validation
+        bad_response = self.client.post(
+            path=url,
+            data=json.dumps({"tax_amount": -1}),
+            content_type="application/json",
         )
+        self.assertEqual(bad_response.status_code, HTTPStatus.BAD_REQUEST)
+
+        # Permission Denied
         self.client.force_login(self.user)
-        data = {
-            "pks": [self.tax_account.pk],
-            "action": "activate",
-            "comment": "Bulk action via API test.",
-        }
-
-        # Test Action
-        response = self.client.post(
-            path=url, data=json.dumps(data), content_type="application/json"
+        denied_response = self.client.post(
+            path=url,
+            data=json.dumps({"tax_amount": 1000}),
+            content_type="application/json",
         )
-
-        # Expected Result
-        result = "Permission Denied."
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-        self.assertEqual(response.json().get("error"), result)
+        self.assertEqual(denied_response.status_code, HTTPStatus.FORBIDDEN)

@@ -382,10 +382,7 @@ def _send_alliance_notification(
             if account.has_paid is False:
                 url = urljoin(
                     settings.SITE_URL,
-                    reverse(
-                        "taxsystem:account",
-                        args=[account.owner.eve_alliance.alliance_id],
-                    ),
+                    f"{reverse('taxsystem:index')}account/{account.owner.eve_alliance.alliance_id}/",
                 )
                 msg = account.owner.tax_message
                 msg += f"\n__**`{account.owner.name}`**__: __**`{account.deposit}`**__ ISK.\n\n"
@@ -429,10 +426,7 @@ def _send_corporation_notification(
             if account.has_paid is False:
                 url = urljoin(
                     settings.SITE_URL,
-                    reverse(
-                        "taxsystem:account",
-                        args=[account.owner.eve_corporation.corporation_id],
-                    ),
+                    f"{reverse('taxsystem:index')}account/{account.owner.eve_corporation.corporation_id}/",
                 )
                 msg = account.owner.tax_message
                 msg += f"\n__**`{account.owner.name}`**__: __**`{account.deposit}`**__ ISK.\n\n"

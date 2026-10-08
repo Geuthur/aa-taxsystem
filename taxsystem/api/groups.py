@@ -1,6 +1,3 @@
-# Standard Library
-import json
-
 # Third Party
 from ninja import NinjaAPI
 
@@ -11,15 +8,14 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
+from allianceauth.groupmanagement.models import Group
 from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
-from taxsystem import __title__, forms
+from taxsystem import __title__
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
-from taxsystem.api.helpers.icons import (
-    get_groups_delete_button,
-)
+from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.helpers.textchoices import (
     ActionType,
     AdminActions,
@@ -36,7 +32,11 @@ class GroupsApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "owner/{owner_id}/groups/",
-            response={200: list, 403: dict, 404: dict},
+            response={
+                200: list[schema.GroupManagementSchema],
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         def get_groups(request: WSGIRequest, owner_id: int):
@@ -61,9 +61,9 @@ class GroupsApiEndpoints:
                     )
                 response_groups.append(
                     schema.GroupManagementSchema(
+                        id=group.pk,
                         name=group.name,
                         groups=group_list,
-                        actions=get_groups_delete_button(group),
                     )
                 )
 
@@ -71,10 +71,15 @@ class GroupsApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/groups/{group_pk}/manage/delete/",
-            response={200: dict, 403: dict, 404: dict, 400: dict},
+            response={200: dict, 403: dict, 404: dict},
             tags=self.tags,
         )
-        def delete_group(request: WSGIRequest, owner_id: int, group_pk: int):
+        def delete_group(
+            request: WSGIRequest,
+            owner_id: int,
+            group_pk: int,
+            payload: schema.ActionCommentRequest = schema.ActionCommentRequest(),
+        ):
             """
             Delete a specific group for the given owner.
 
@@ -82,12 +87,13 @@ class GroupsApiEndpoints:
                 request (WSGIRequest): The HTTP request object.
                 owner_id (int): The ID of the owner.
                 group_pk (int): The primary key of the group to be deleted.
+                payload (ActionCommentRequest): The action comment request payload.
             Returns:
                 200: A success message indicating the group was deleted successfully.
                 403: An error message if the user does not have permission or the group is not found.
                 404: An error message if the group does not exist.
-                400: An error message if the form data is invalid.
             """
+            # pylint: disable=duplicate-code
             owner, perms = core.get_manage_owner(request, owner_id)
 
             # pylint: disable=duplicate-code
@@ -98,12 +104,6 @@ class GroupsApiEndpoints:
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
 
-            # Validate the form data
-            form = forms.DeleteGroupForm(data=json.loads(request.body))
-            if not form.is_valid():
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
-
             try:
                 group = owner.ts_corporation_groups.get(pk=group_pk)
                 group.delete()
@@ -112,7 +112,7 @@ class GroupsApiEndpoints:
                 msg = format_lazy(
                     _("{group_obj} deleted - Reason: {reason}"),
                     group_obj=group,
-                    reason=form.cleaned_data["comment"],
+                    reason=payload.comment,
                 )
                 # Log the deletion in Admin History
                 owner.admin_log_model(
@@ -126,3 +126,78 @@ class GroupsApiEndpoints:
                 return 200, {"success": True, "message": msg}
             except ObjectDoesNotExist:
                 return 404, {"error": _("Group not Found.")}
+
+        @api.get(
+            "owner/{owner_id}/groups/available/",
+            response={
+                200: list[schema.GroupSchema],
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
+            tags=self.tags,
+        )
+        def get_available_groups(request: WSGIRequest, owner_id: int):
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # pylint: disable=duplicate-code
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            groups = Group.objects.order_by("name")
+            return 200, [schema.GroupSchema(id=g.pk, name=g.name) for g in groups]
+
+        @api.post(
+            "owner/{owner_id}/groups/create/",
+            response={
+                200: schema.MessageSchema,
+                400: schema.ErrorSchema,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
+            tags=self.tags,
+        )
+        def create_group(
+            request: WSGIRequest, owner_id: int, payload: schema.CreateGroupRequest
+        ):
+            # pylint: disable=duplicate-code
+            owner, perms = core.get_manage_owner(request, owner_id)
+
+            # pylint: disable=duplicate-code
+            if owner is None:
+                return 404, {"error": _("Owner not Found.")}
+
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return 403, {"error": _("Permission Denied.")}
+
+            if not isinstance(owner, CorporationOwner):
+                return 400, {
+                    "error": _("Groups are only supported for Corporation owners.")
+                }
+
+            name = payload.name.strip()
+            if not name:
+                return 400, {"error": _("Group name is required.")}
+
+            if owner.ts_corporation_groups.filter(name=name).exists():
+                return 400, {"error": _("A group with this name already exists.")}
+
+            group = owner.ts_corporation_groups.create(name=name)
+            if payload.group_ids:
+                group.groups.set(payload.group_ids)
+
+            msg = format_lazy(_('Tax free group "{name}" created.'), name=group.name)
+            owner.admin_log_model(
+                user=request.user,
+                owner=owner,
+                target=ActionType.GROUP,
+                action=AdminActions.ADD,
+                comment=msg,
+            ).save()
+
+            return 200, schema.MessageSchema(message=str(msg))

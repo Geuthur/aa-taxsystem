@@ -1,475 +1,81 @@
-"""TestView class."""
+"""TestViewAccess class."""
 
 # Standard Library
 from http import HTTPStatus
-from unittest.mock import Mock, patch
 
 # Django
-from django.contrib.messages.middleware import MessageMiddleware
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.urls import reverse
+from django.urls import resolve, reverse
 
 # AA TaxSystem
 from taxsystem import views
-
-# AA Taxsystem
-from taxsystem.models.helpers.textchoices import AccountStatus
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.factory import (
-    CorporationOwnerFactory,
-    CorporationTaxAccountFactory,
-    UserMainFactory,
-)
+from taxsystem.tests.testdata.factory import UserFactory
 
-INDEX_PATH = "taxsystem.views"
+MODULE_PATH = "taxsystem.views"
 
 
 class TestViewAccess(TaxSystemTestCase):
-    """Test View General Access Permissions."""
+    """Test View General Access Permissions for React SPA."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.audit = CorporationOwnerFactory(user=cls.user)
-        cls.audit_2 = CorporationOwnerFactory(user=cls.superuser)
-
-        cls.manage_own_user = UserMainFactory(
-            permissions__=["taxsystem.manage_own_corp"]
-        )
-        cls.manage_audit = CorporationOwnerFactory(user=cls.manage_own_user)
-
-        cls.tax_account = CorporationTaxAccountFactory(
-            name=cls.user_character.character_name,
-            owner=cls.audit,
-            user=cls.user,
-            status=AccountStatus.ACTIVE,
-            deposit=500,
-        )
-
-    def test_should_access_index(self):
-        """Test that a user with 'basic_access' can see the index page."""
-        # given
+    def test_react_base_view_should_return_200_when_has_basic_access(self):
+        """Test that a user with 'basic_access' can access react_base view directly."""
+        # Test Data
         request = self.factory.get(reverse("taxsystem:index"))
         request.user = self.user
-        # when
-        response = views.index(request)
-        # then
+
+        # Test Action
+        response = views.react_base(request)
+
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_should_access_manage_owner(self):
-        """Test that a user with 'manage_own_corp' can manage own corporation."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:manage_owner",
-                args=[self.manage_audit.eve_corporation.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_user
-        # when
-        response = views.manage_owner(
-            request, self.manage_audit.eve_corporation.corporation_id
-        )
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Accounts")
+    def test_spa_catch_all_route_resolution_should_resolve_to_react_base(self):
+        """Test that arbitrary client-side paths resolve to react_base."""
+        # Test Data
+        url = "/taxsystem/arbitrary/frontend/route/"
 
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_access_manage_owner(self, mock_messages):
-        """Test that a user without 'manage_own_corp' cannot access manage owner."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:manage_owner",
-                args=[self.audit.eve_corporation.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.manage_owner(
-            request, self.audit.eve_corporation.corporation_id
-        )
-        # then
+        # Test Action
+        match = resolve(url)
+
+        # Expected Result
+        self.assertEqual(match.url_name, "react_base")
+
+    def test_client_access_index_and_spa_should_return_200(self):
+        """Test client GET on index and SPA routes returns 200 OK for authorized user."""
+        # Test Data
+        self.client.force_login(self.user)
+
+        # Test Action
+        resp_index = self.client.get(reverse("taxsystem:index"))
+        resp_spa = self.client.get("/taxsystem/payments/")
+
+        # Expected Result
+        self.assertEqual(resp_index.status_code, HTTPStatus.OK)
+        self.assertEqual(resp_spa.status_code, HTTPStatus.OK)
+
+    def test_client_access_index_should_redirect_when_user_has_no_permission(self):
+        """Test client GET redirects when user lacks basic_access permission."""
+        # Test Data
+        user_no_perms = UserFactory()
+        self.client.force_login(user_no_perms)
+
+        # Test Action
+        response = self.client.get(reverse("taxsystem:index"))
+
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied.")
 
-    def test_should_access_payments(self):
-        """Test that a user with 'basic_access' can view payments."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:payments",
-                args=[self.user_character.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.payments(request, self.user_character.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Payments")
+    def test_client_access_index_should_redirect_when_user_not_authenticated(self):
+        """Test client GET redirects when user is not logged in."""
+        # Test Data
+        # Anonymous client request (no login)
 
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_payments_when_owner_not_found(self, mock_messages):
-        """Test that a user with 'basic_access' is redirected when owner not found."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:payments",
-                args=[999999],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.payments(request, 999999)
-        # then
+        # Test Action
+        response = self.client.get(reverse("taxsystem:index"))
+
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_payments_when_no_permission(self, mock_messages):
-        """Test that a user with 'basic_access' can not access foreign owner."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:payments",
-                args=[self.audit_2.eve_corporation.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.payments(request, self.audit_2.eve_corporation.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied.")
-
-    def test_should_access_my_payments(self):
-        """Test that a user with 'basic_access' can view own payments."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:my_payments",
-                args=[self.user_character.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.my_payments(request, self.user_character.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Own Payments")
-
-    def test_should_access_faq(self):
-        """Test that a user with 'basic_access' can view FAQ."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:faq",
-                args=[self.user_character.corporation_id],
-            )
-        )
-        request.user = self.user
-        # when
-        response = views.faq(request, self.user_character.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "FAQ")
-        self.assertContains(response, "FAQ")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_access_account(self, mock_messages):
-        """Test that a user with 'basic_access' can view account."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:account",
-                args=[
-                    self.user_character.corporation_id,
-                    self.user_character.character_id,
-                ],
-            )
-        )
-        request.user = self.user
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-
-        # when
-        response = views.account(
-            request,
-            self.user_character.corporation_id,
-            self.user_character.character_id,
-        )
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertFalse(mock_messages.error.called)
-
-    def test_should_access_manage_filters(self):
-        """Test that a user with 'manage_own_corporation' can access manage filters."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:manage_filter",
-                args=[self.manage_audit.eve_corporation.corporation_id],
-            )
-        )
-        request.user = self.manage_own_user
-        # when
-        response = views.manage_filter(
-            request, owner_id=self.manage_audit.eve_corporation.corporation_id
-        )
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Manage Filters")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_my_payments_when_owner_not_found(self, mock_messages):
-        """Test that a user with 'basic_access' is redirected when owner not found."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:my_payments",
-                args=[self.user_character.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.my_payments(request, 999999)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_my_payments_when_no_permission(self, mock_messages):
-        """Test that a user with 'basic_access' can not access foreign owner."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:my_payments",
-                args=[self.audit_2.eve_corporation.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.my_payments(
-            request, self.audit_2.eve_corporation.corporation_id
-        )
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_faq_when_owner_not_found(self, mock_messages):
-        """Test that a user with 'basic_access' is redirected when owner not found."""
-        # given
-        request = self.factory.get(reverse("taxsystem:faq", args=[999999]))
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.faq(request, 999999)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_account_when_owner_not_found(self, mock_messages):
-        """Test that a user with 'basic_access' is redirected when owner not found."""
-        # given
-        request = self.factory.get(reverse("taxsystem:account", args=[999999]))
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.account(request, 999999, self.user_character.character_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_account_when_no_permission(self, mock_messages):
-        """Test that a user with 'basic_access' can not access foreign corporation."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:account",
-                args=[
-                    self.user_character.corporation_id,
-                    self.user_character.character_id,
-                ],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = UserMainFactory()
-        # when
-        response = views.account(
-            request,
-            self.user_character.corporation_id,
-            self.user_character.character_id,
-        )
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_manage_owner_when_owner_not_found(self, mock_messages):
-        """Test that a user with 'basic_access' is redirected when owner not found."""
-        # given
-        request = self.factory.get(reverse("taxsystem:manage_owner", args=[999999]))
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_user
-        # when
-        response = views.manage_owner(request, 999999)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Owner not Found.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_manage_owner_when_no_permission(self, mock_messages):
-        """Test that a user with 'basic_access' can not access manage_owner."""
-        # given
-        request = self.factory.get(
-            reverse("taxsystem:manage_owner", args=[self.user_character.corporation_id])
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_user
-        # when
-        response = views.manage_owner(request, self.user_character.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        # Verify the exact error message is "Permission Denied." (not "Owner not Found")
-        mock_messages.error.assert_called_with(request, "Permission Denied.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_manage_filter_when_no_permission(self, mock_messages):
-        """Test that a user with 'basic_access' can not access manage_filter."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:manage_filter", args=[self.user_character.corporation_id]
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.manage_filter(request, self.user_character.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called()
-
-    def test_should_access_admin_history(self):
-        """Test that a user with 'manage_own_corp' can access admin history."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:admin_history",
-                args=[self.manage_audit.eve_corporation.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_user
-        # when
-        response = views.admin_history(
-            request, owner_id=self.manage_audit.eve_corporation.corporation_id
-        )
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    @patch(INDEX_PATH + ".messages")
-    def test_should_not_show_admin_history_when_no_permission(self, mock_messages):
-        """Test that a user with 'basic_access' can not access admin history."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:admin_history",
-                args=[self.user_character.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.admin_history(request, self.user_character.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(request, "Permission Denied.")
-
-    @patch(INDEX_PATH + ".messages")
-    def test_manage_groups_should_return_200(self, mock_messages):
-        """Test that a user with 'manage_own_corp' can access manage groups."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:manage_groups",
-                args=[self.manage_audit.eve_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.manage_own_user
-        # when
-        response = views.manage_groups(request, owner_id=self.manage_audit.eve_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    @patch(INDEX_PATH + ".messages")
-    def test_manage_groups_should_not_return_200_when_no_permission(
-        self, mock_messages
-    ):
-        """Test that a user with 'basic_access' can not access manage groups."""
-        # given
-        request = self.factory.get(
-            reverse(
-                "taxsystem:manage_groups",
-                args=[self.user_character.corporation_id],
-            )
-        )
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        MessageMiddleware(Mock()).process_request(request)
-        request.user = self.user
-        # when
-        response = views.manage_groups(request, self.user_character.corporation_id)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        mock_messages.error.assert_called_with(
-            request, "You do not have permission to manage this owner."
-        )

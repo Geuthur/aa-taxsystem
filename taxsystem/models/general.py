@@ -5,11 +5,25 @@ from dataclasses import dataclass
 from typing import Any, NamedTuple
 
 # Django
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
 from taxsystem.managers.eveonline_manager import EveEntityManager
+
+
+class UserSettings(models.Model):
+    """Per-user preferences."""
+
+    class Meta:
+        default_permissions = ()
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="taxsystem_settings"
+    )
+
+    disable_notifications = models.BooleanField(default=False)
 
 
 class General(models.Model):

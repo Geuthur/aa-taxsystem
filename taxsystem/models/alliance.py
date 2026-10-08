@@ -29,6 +29,7 @@ from taxsystem.models.base import (
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.general import UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
+    AccountStatus,
     ActionType,
     AdminActions,
     AllianceUpdateSection,
@@ -237,12 +238,34 @@ class AlliancePaymentAccount(PaymentAccountBaseModel):
 
     class Meta:
         default_permissions = ()
+        constraints = [
+            models.UniqueConstraint(
+                fields=["owner", "user"],
+                name="unique_alliance_payment_account_per_owner_user",
+            )
+        ]
 
     owner = models.ForeignKey(
         AllianceOwner,
         on_delete=models.CASCADE,
         related_name="ts_alliance_tax_accounts",
     )
+
+    @property
+    def is_main(self) -> bool:
+        """Return True if the user's main character belongs to this alliance."""
+        main_char = getattr(getattr(self.user, "profile", None), "main_character", None)
+        if not main_char:
+            return False
+        return (
+            getattr(main_char, "alliance_id", None)
+            == self.owner.eve_alliance.alliance_id
+        )
+
+    @property
+    def is_tax_free(self) -> bool:
+        """Return True if the account is exempt or inactive."""
+        return self.is_exempt or self.status == AccountStatus.INACTIVE
 
 
 class AlliancePayments(PaymentsBaseModel):

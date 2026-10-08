@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pook
 
 # Django
+from django.db import IntegrityError
 from django.utils import timezone
 
 # Alliance Auth
@@ -29,9 +30,11 @@ from taxsystem.tests.testdata.factory import (
     CorporationPaymentsFactory,
     CorporationTaxAccountFactory,
     DivisionFactory,
+    EveCharacterFactory,
     MembersFactory,
     UserMainFactory,
 )
+from taxsystem.tests.testdata.utils import add_character_to_user
 
 MODULE_PATH = "taxsystem.managers.corporation_manager"
 
@@ -171,20 +174,21 @@ class TestCorporationManager(TaxSystemTestCase):
         )
 
     @patch(f"{MODULE_PATH}.logger")
-    def test_update_tax_accounts_mark_as_missing_and_move_to_new_corporation(
+    def test_update_tax_accounts_mark_as_missing_when_user_moved_corporation(
         self, mock_logger
     ):
         """
-        Test should mark tax account as missing and move to new corporation.
+        Test should mark tax account as missing in old corporation and keep separate account in new corporation.
 
         Results:
-            1. Move a tax account to a new corporation when the user has changed corporation.
+            1. Old corporation account is marked as MISSING (exempt).
+            2. New corporation gets its own independent account for the user.
         """
         # Test Data
         missing_user = UserMainFactory()
         missing_user_character = missing_user.profile.main_character
         audit_2 = CorporationOwnerFactory(user=missing_user)
-        tax_account = CorporationTaxAccountFactory(
+        CorporationTaxAccountFactory(
             name=missing_user_character.character_name,
             owner=self.audit,
             user=missing_user,
@@ -195,16 +199,92 @@ class TestCorporationManager(TaxSystemTestCase):
 
         # Test Action
         self.audit.update_tax_accounts(force_refresh=False)
+        audit_2.update_tax_accounts(force_refresh=False)
 
         # Expected Results
-        tax_account = CorporationPaymentAccount.objects.get(user=missing_user)
-        self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
-        self.assertEqual(tax_account.owner, audit_2)
-        mock_logger.info.assert_any_call(
-            "Moved Tax Account %s to Corporation %s",
-            tax_account.name,
-            audit_2.eve_corporation.corporation_name,
+        old_acc = CorporationPaymentAccount.objects.get(
+            owner=self.audit, user=missing_user
         )
+        self.assertEqual(old_acc.status, AccountStatus.MISSING)
+        self.assertTrue(old_acc.is_exempt)
+        self.assertTrue(old_acc.is_tax_free)
+
+        new_acc = CorporationPaymentAccount.objects.get(
+            owner=audit_2, user=missing_user
+        )
+        self.assertEqual(new_acc.status, AccountStatus.ACTIVE)
+        self.assertEqual(new_acc.owner, audit_2)
+
+    def test_unique_constraint_prevents_duplicate_account_in_same_corporation(self):
+        """Test that a user cannot have two accounts in the same corporation."""
+        # Test Data
+        user = UserMainFactory()
+
+        # Test Action & Expected Result
+        CorporationTaxAccountFactory(owner=self.audit, user=user)
+        with self.assertRaises(IntegrityError):
+            CorporationPaymentAccount.objects.create(
+                name="Duplicate",
+                owner=self.audit,
+                user=user,
+                status=AccountStatus.ACTIVE,
+            )
+
+    def test_user_can_have_distinct_accounts_in_multiple_corporations(self):
+        """Test that a user can have independent accounts in different corporations."""
+        # Test Data
+        user = UserMainFactory()
+        audit_2 = CorporationOwnerFactory()
+
+        # Test Action
+        acc1 = CorporationTaxAccountFactory(owner=self.audit, user=user, deposit=500)
+        acc2 = CorporationTaxAccountFactory(owner=audit_2, user=user, deposit=1200)
+
+        # Expected Results
+        self.assertEqual(CorporationPaymentAccount.objects.filter(user=user).count(), 2)
+        self.assertEqual(acc1.owner, self.audit)
+        self.assertEqual(acc2.owner, audit_2)
+        self.assertEqual(acc1.deposit, 500)
+        self.assertEqual(acc2.deposit, 1200)
+
+    def test_user_with_only_alt_in_corporation_should_receive_inactive_account(self):
+        """Test that a user with only alt characters in a corporation gets an INACTIVE account."""
+        # Test Data
+        other_user = UserMainFactory()
+        alt_char = EveCharacterFactory(corporation=self.audit.eve_corporation)
+        add_character_to_user(user=other_user, character=alt_char, is_main=False)
+
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
+
+        # Expected Results
+        account = CorporationPaymentAccount.objects.get(
+            owner=self.audit, user=other_user
+        )
+        self.assertEqual(account.status, AccountStatus.INACTIVE)
+        self.assertFalse(account.is_main)
+        self.assertTrue(account.is_tax_free)
+        self.assertTrue(account.has_paid)
+
+    def test_user_changing_main_to_corporation_should_activate_account(self):
+        """Test that changing user main character to this corporation activates an INACTIVE account."""
+        # Test Data
+        user = UserMainFactory()
+        alt_char = EveCharacterFactory(corporation=self.audit.eve_corporation)
+        add_character_to_user(user=user, character=alt_char, is_main=False)
+        self.audit.update_tax_accounts(force_refresh=False)
+        account = CorporationPaymentAccount.objects.get(owner=self.audit, user=user)
+        self.assertEqual(account.status, AccountStatus.INACTIVE)
+
+        # Test Action
+        user.profile.main_character = alt_char
+        user.profile.save()
+        self.audit.update_tax_accounts(force_refresh=False)
+
+        # Expected Results
+        account.refresh_from_db()
+        self.assertEqual(account.status, AccountStatus.ACTIVE)
+        self.assertTrue(account.is_main)
 
     @patch(f"{MODULE_PATH}.logger")
     def test_update_tax_accounts_reset_a_returning_user(self, mock_logger):

@@ -232,7 +232,7 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn(str(payment.amount), str(response.json()))
         self.assertIn(payment.reason, str(response.json()))
-        self.assertIn(str(self.audit.name), str(response.json()))
+        self.assertIn(self.audit.name, str(response.json()))
 
         # Test Data for Permission Denied
         url = reverse(
@@ -658,113 +658,156 @@ class TestPaymentsApiEndpoints(TaxSystemTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
-    def test_bulk_actions(self):
-        """
-        Test bulk actions endpoint.
-
-        # Test Szenarios:
-            1. Payments are approved successfully in bulk.
-            2. Payments are rejected successfully in bulk.
-            3. Permission Denied for users without manage access.
-        """
+    def test_approve_payment_should_succeed_with_empty_body(self):
+        """Test approving payment without a request body succeeds."""
         # Test Data
         corporation_id = self.user_character.corporation_id
-
-        # Pending Payment 1
-        payment1 = CorporationPaymentsFactory(
-            name="Pending Payment 1",
+        journal_entry = CorporationJournalFactory(amount=1000)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
             owner=self.audit,
             account=self.account,
-            journal=None,
-            amount=1000,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
             request_status=PaymentRequestStatus.PENDING,
         )
-
-        # Pending Payment 2
-        payment2 = CorporationPaymentsFactory(
-            name="Pending Payment 2",
-            owner=self.audit,
-            account=self.account,
-            journal=None,
-            amount=2000,
-            request_status=PaymentRequestStatus.PENDING,
-        )
-
         url = reverse(
-            f"{API_URL}:perform_bulk_actions_payments",
-            kwargs={"owner_id": corporation_id},
+            f"{API_URL}:approve_payment",
+            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
         )
         self.client.force_login(self.superuser)
 
-        data = {
-            "pks": [payment1.pk, payment2.pk],
-            "action": "approve",
-        }
-
         # Test Action
-        response = self.client.post(
-            path=url, data=json.dumps(data), content_type="application/json"
-        )
+        response = self.client.post(path=url)
 
-        # Expected Result (match API: list-format pks and no trailing period)
-        result = (
-            "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}".format(
-                status=PaymentRequestStatus.APPROVED,
-                runs=len(data["pks"]),
-                pks=str(data["pks"]),
-                owner=self.audit.name,
-            )
-        )
+        # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(response.json().get("message"), result)
+        payment.refresh_from_db()
+        self.assertEqual(payment.request_status, PaymentRequestStatus.APPROVED)
 
-        # Test Data for Reject Action
-        payment1.request_status = PaymentRequestStatus.PENDING
-        payment1.save()
-        payment2.request_status = PaymentRequestStatus.PENDING
-        payment2.save()
-
+    def test_undo_payment_should_succeed_with_empty_body(self):
+        """Test undoing payment without a request body succeeds."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_entry = CorporationJournalFactory(amount=1000)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
+            request_status=PaymentRequestStatus.APPROVED,
+        )
         url = reverse(
-            f"{API_URL}:perform_bulk_actions_payments",
-            kwargs={"owner_id": corporation_id},
+            f"{API_URL}:undo_payment",
+            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
         )
         self.client.force_login(self.superuser)
-        data = {
-            "pks": [payment1.pk, payment2.pk],
-            "action": "reject",
-        }
+
+        # Test Action
+        response = self.client.post(path=url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        payment.refresh_from_db()
+        self.assertEqual(payment.request_status, PaymentRequestStatus.PENDING)
+
+    def test_reject_payment_should_succeed_with_empty_body(self):
+        """Test rejecting payment without a request body succeeds."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_entry = CorporationJournalFactory(amount=1000)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:reject_payment",
+            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(path=url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        payment.refresh_from_db()
+        self.assertEqual(payment.request_status, PaymentRequestStatus.REJECTED)
+
+    def test_manage_payment_action_should_approve(self):
+        """Test unified manage_payment_action endpoint approves pending payment."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_entry = CorporationJournalFactory(amount=1000)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:manage_payment_action",
+            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
+        )
+        self.client.force_login(self.superuser)
 
         # Test Action
         response = self.client.post(
-            path=url, data=json.dumps(data), content_type="application/json"
+            path=url,
+            data=json.dumps({"action": "approve", "comment": "Approved via action"}),
+            content_type="application/json",
         )
-        # Expected Result (match API: list-format pks and no trailing period)
-        result = (
-            "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}".format(
-                status=PaymentRequestStatus.REJECTED,
-                runs=len(data["pks"]),
-                pks=str(data["pks"]),
-                owner=self.audit.name,
-            )
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(response.json().get("message"), result)
 
-        # Test Data for Permission Denied
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(response.json().get("success"))
+        payment.refresh_from_db()
+        self.assertEqual(payment.request_status, PaymentRequestStatus.APPROVED)
+
+    def test_get_payments_should_filter_by_scope_and_character(self):
+        """Test unified get_payments endpoint with scope and character_id query parameters."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_entry = CorporationJournalFactory(amount=1500)
+        payment = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_entry,
+            amount=journal_entry.amount,
+            date=journal_entry.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
         url = reverse(
-            f"{API_URL}:perform_bulk_actions_payments",
+            f"{API_URL}:get_payments",
             kwargs={"owner_id": corporation_id},
         )
         self.client.force_login(self.user)
-        data = {
-            "pks": [payment1.pk, payment2.pk],
-            "action": "approve",
-        }
-        # Test Action
-        response = self.client.post(
-            path=url, data=json.dumps(data), content_type="application/json"
-        )
+
+        # Test Action - scope=mine
+        response_mine = self.client.get(f"{url}?scope=mine")
+
         # Expected Result
-        result = "Permission Denied."
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-        self.assertEqual(response.json().get("error"), result)
+        self.assertEqual(response_mine.status_code, HTTPStatus.OK)
+        self.assertIn(str(payment.amount), str(response_mine.json()))
+
+        # Test Action - character_id filter
+        self.client.force_login(self.superuser)
+        response_char = self.client.get(
+            f"{url}?character_id={self.user_character.character_id}"
+        )
+
+        # Expected Result
+        self.assertEqual(response_char.status_code, HTTPStatus.OK)
+        self.assertIn(str(payment.amount), str(response_char.json()))

@@ -136,7 +136,7 @@ class PaymentAccountBaseModel(models.Model):
         max_length=100,
     )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="+")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
 
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
@@ -194,13 +194,24 @@ class PaymentAccountBaseModel(models.Model):
         return self.status == AccountStatus.MISSING
 
     @property
+    def is_exempt(self) -> bool:
+        """Return True if account is exempt from taxes (e.g. while missing)."""
+        return self.is_missing
+
+    @property
     def has_paid(self) -> bool:
         """
-        Return True if user has paid for alliance.
+        Return True if user has paid for owner or is exempt.
 
         Returns:
             bool: True if paid, False otherwise.
         """
+        if self.is_exempt or self.status in [
+            AccountStatus.INACTIVE,
+            AccountStatus.DEACTIVATED,
+        ]:
+            return True
+
         subclass = getattr(self, "owner", None)
         if not subclass:
             raise NotImplementedError(
@@ -218,10 +229,10 @@ class PaymentAccountBaseModel(models.Model):
     @property
     def next_due(self):
         """
-        Return the next due date for alliance payment.
+        Return the next due date for owner payment.
 
         Returns:
-            datetime or None: Next due date or None if inactive/deactivated or never paid.
+            datetime or None: Next due date or None if exempt/inactive/deactivated or never paid.
         """
         subclass = getattr(self, "owner", None)
         if not subclass:
@@ -229,7 +240,10 @@ class PaymentAccountBaseModel(models.Model):
                 "has_paid property must be implemented in subclass"
             )
 
-        if self.status in [AccountStatus.INACTIVE, AccountStatus.DEACTIVATED]:
+        if self.is_exempt or self.status in [
+            AccountStatus.INACTIVE,
+            AccountStatus.DEACTIVATED,
+        ]:
             return None
         if self.last_paid:
             return self.last_paid + timezone.timedelta(days=self.owner.tax_period)

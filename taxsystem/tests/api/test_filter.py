@@ -57,8 +57,9 @@ class TestFilterApiEndpoints(TaxSystemTestCase):
         # Expected Result
         data = json.loads(response.content)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(data[0]["value"]["raw"], "1000")
-        self.assertEqual(data[0]["filter_type"], "Amount")
+        self.assertEqual(data[0]["value"], "1000")
+        self.assertEqual(data[0]["filter_type"], "amount")
+        self.assertEqual(data[0]["filter_type_display"], "Amount")
 
         # Test Scenario 2: Permission Denied
         url = reverse(
@@ -247,3 +248,99 @@ class TestFilterApiEndpoints(TaxSystemTestCase):
         result = "Permission Denied."
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
+
+    def test_create_filter_set_should_200_when_has_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:create_filter_set",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.superuser)
+        payload = {"name": "New Filter Set", "description": "Description text"}
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(
+            CorporationFilterSet.objects.filter(
+                owner=self.audit, name="New Filter Set"
+            ).exists()
+        )
+
+    def test_create_filter_set_should_403_when_no_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:create_filter_set",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.user)
+        payload = {"name": "Unauthorized Set"}
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_create_filter_should_200_when_has_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:create_filter",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.superuser)
+        payload = {
+            "filter_set_id": self.filterset.pk,
+            "filter_type": "amount",
+            "match_type": "exact",
+            "value": "5000000",
+        }
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(
+            CorporationFilter.objects.filter(
+                filter_set=self.filterset, value="5000000"
+            ).exists()
+        )
+
+    def test_create_filter_should_403_when_no_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:create_filter",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.user)
+        payload = {
+            "filter_set_id": self.filterset.pk,
+            "filter_type": "amount",
+            "match_type": "exact",
+            "value": "999999",
+        }
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)

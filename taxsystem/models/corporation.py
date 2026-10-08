@@ -40,6 +40,7 @@ from taxsystem.models.general import (
     UpdateSectionResult,
 )
 from taxsystem.models.helpers.textchoices import (
+    AccountStatus,
     ActionType,
     AdminActions,
     CorporationUpdateSection,
@@ -380,6 +381,13 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
 
     class Meta:
         default_permissions = ()
+        # pylint: disable=duplicate-code
+        constraints = [
+            models.UniqueConstraint(
+                fields=["owner", "user"],
+                name="unique_corporation_payment_account_per_owner_user",
+            )
+        ]
 
     owner = models.ForeignKey(
         CorporationOwner,
@@ -388,7 +396,7 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
     )
 
     @property
-    def group_ids(self) -> list[int]:
+    def group_ids(self):
         """Return a list of group IDs the account belongs to."""
         return (
             AuthGroup.objects.filter(group__user=self.user)
@@ -397,8 +405,21 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
         )
 
     @property
+    def is_main(self) -> bool:
+        """Return True if the user's main character belongs to this corporation."""
+        main_char = getattr(getattr(self.user, "profile", None), "main_character", None)
+        if not main_char:
+            return False
+        return (
+            getattr(main_char, "corporation_id", None)
+            == self.owner.eve_corporation.corporation_id
+        )
+
+    @property
     def is_tax_free(self) -> bool:
-        """Return True if the account belongs to any tax-free group."""
+        """Return True if the account belongs to any tax-free group, is exempt, or is inactive."""
+        if self.is_exempt or self.status == AccountStatus.INACTIVE:
+            return True
         tax_free = self.owner.ts_corporation_groups.values_list(
             "groups__pk", flat=True
         ).distinct()

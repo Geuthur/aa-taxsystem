@@ -117,3 +117,73 @@ class TestGroupApiEndpoints(TaxSystemTestCase):
         result = "Permission Denied."
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
+
+    def test_get_available_groups_should_200_when_has_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:get_available_groups",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsInstance(response.json(), list)
+
+    def test_get_available_groups_should_403_when_no_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:get_available_groups",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_create_group_should_200_when_has_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:create_group",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.superuser)
+        payload = {"name": "New Tax Free Group", "group_ids": []}
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(
+            self.audit.ts_corporation_groups.filter(name="New Tax Free Group").exists()
+        )
+
+    def test_create_group_should_403_when_no_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:create_group",
+            kwargs={"owner_id": self.audit.eve_id},
+        )
+        self.client.force_login(self.user)
+        payload = {"name": "Unauthorized Group", "group_ids": []}
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
