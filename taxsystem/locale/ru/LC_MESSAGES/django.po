@@ -6,8 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
-"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-taxsystem/issues\n"
-"POT-Creation-Date: 2026-09-06 13:47+0200\n"
+"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
+"taxsystem/\n"
+"POT-Creation-Date: 2026-10-08 23:32+0200\n"
 "PO-Revision-Date: 2026-01-10 15:39+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Russian <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -59,20 +60,42 @@ msgid "Please enter a valid number"
 msgstr ""
 
 #, python-brace-format
-msgid "Tax Period from {owner} changed to {value}"
-msgstr ""
-
-msgid "Please select at least one account to perform bulk actions."
-msgstr ""
-
-msgid "Please select a valid action"
+msgid "Tax Amount from {owner} changed to {value}"
 msgstr ""
 
 #, python-brace-format
-msgid "Bulk '{status}' performed for {items} accounts({pks}) for {owner}"
+msgid "Tax Period from {owner} changed to {value}"
 msgstr ""
 
-msgid "Invalid form data."
+msgid "No settings provided to update."
+msgstr ""
+
+msgid "Queued Update All Taxsystem"
+msgstr ""
+
+#, python-format
+msgid "Queued Update for Corporation: %s"
+msgstr ""
+
+#, python-format
+msgid "Corporation with ID %s not found"
+msgstr ""
+
+msgid "Queued Update All Taxsystem Corporations"
+msgstr ""
+
+#, python-format
+msgid "Queued Update for Alliance: %s"
+msgstr ""
+
+#, python-format
+msgid "Alliance with ID %s not found"
+msgstr ""
+
+msgid "Queued Update All Taxsystem Alliances"
+msgstr ""
+
+msgid "Invalid target specified."
 msgstr ""
 
 #, python-brace-format
@@ -100,6 +123,47 @@ msgstr ""
 msgid "{filter_set} switched to {enabled}"
 msgstr ""
 
+msgid "Filter set name is required."
+msgstr ""
+
+msgid "A filter set with this name already exists."
+msgstr ""
+
+#, python-brace-format
+msgid "Filter set \"{filter_set}\" created."
+msgstr ""
+
+msgid "Filter set not found."
+msgstr ""
+
+msgid "Filter value is required."
+msgstr ""
+
+msgid "This filter already exists in the filter set."
+msgstr ""
+
+#, python-brace-format
+msgid "Filter {filter_type} \"{val}\" created in \"{filter_set}\"."
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Account Overview"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Add Corporation"
+msgstr ""
+
+msgid "Add Alliance"
+msgstr ""
+
+msgid "Superadmin"
+msgstr ""
+
 #, python-brace-format
 msgid "{group_obj} deleted - Reason: {reason}"
 msgstr ""
@@ -107,85 +171,41 @@ msgstr ""
 msgid "Group not Found."
 msgstr ""
 
-msgid "View Filter Set"
+msgid "Groups are only supported for Corporation owners."
 msgstr ""
 
-msgid "Deactivate Filter Set"
+msgid "Group name is required."
 msgstr ""
 
-msgid "Activate Filter Set"
-msgstr ""
-
-msgid "Delete Filter Set"
-msgstr ""
-
-msgid "Active"
-msgstr ""
-
-msgid "Inactive"
-msgstr ""
-
-msgid "Delete Filter"
-msgstr ""
-
-msgid "Deactivate Account"
-msgstr ""
-
-msgid "Activate Account"
-msgstr ""
-
-msgid "Add Payment"
-msgstr ""
-
-msgid "View Tax Account"
-msgstr ""
-
-msgid "Approve Payment"
-msgstr ""
-
-msgid "Undo Payment"
-msgstr ""
-
-msgid "Show Details"
-msgstr ""
-
-msgid "Delete Payment"
-msgstr ""
-
-msgid "Reject Payment"
-msgstr ""
-
-msgid "Delete Member"
-msgstr ""
-
-msgid "Delete Group"
-msgstr ""
-
-msgid "System"
-msgstr ""
-
-msgid "Corporation Not Found"
+msgid "A group with this name already exists."
 msgstr ""
 
 #, python-brace-format
-msgid "Custom Payment Added: {comment}"
+msgid "Tax free group \"{name}\" created."
 msgstr ""
 
-msgid "Transaction failed. Please try again."
+msgid "Corporation"
 msgstr ""
 
-#, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
+msgid "Alliance"
 msgstr ""
 
 msgid "Payment is not pending or does not need approval."
 msgstr ""
 
 #, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} approved"
+msgstr ""
+
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected - {reason}"
 msgstr ""
 
 msgid "Payment is approved or rejected."
+msgstr ""
+
+#, python-brace-format
+msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} undone"
 msgstr ""
 
 msgid "ESI imported payments cannot be deleted"
@@ -195,102 +215,23 @@ msgstr ""
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
 msgstr ""
 
+msgid "Payment not Found."
+msgstr ""
+
+msgid "Transaction failed. Please try again."
+msgstr ""
+
+msgid "System"
+msgstr ""
+
+msgid "Corporation Not Found"
+msgstr ""
+
+msgid "Invalid form data."
+msgstr ""
+
 #, python-brace-format
-msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected - {reason}"
-msgstr ""
-
-msgid "Please select at least one payment to perform bulk actions."
-msgstr ""
-
-msgid "Bulk Approved"
-msgstr ""
-
-#, python-brace-format
-msgid "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}"
-msgstr ""
-
-msgid "Reason for accepting the payment"
-msgstr ""
-
-msgid "Comment (optional)"
-msgstr ""
-
-msgid "Reason for rejecting the payment"
-msgstr ""
-
-msgid "Reject Reason"
-msgstr ""
-
-msgid "Reason for undoing the payment"
-msgstr ""
-
-msgid "Undo Reason"
-msgstr ""
-
-msgid "Reason for deleting the payment"
-msgstr ""
-
-msgid "Delete Reason"
-msgstr ""
-
-msgid "Amount"
-msgstr ""
-
-msgid "Amount to be added"
-msgstr ""
-
-msgid "Add Reason"
-msgstr ""
-
-msgid "Reason for adding this payment"
-msgstr ""
-
-msgid "Reason for deleting the member"
-msgstr ""
-
-msgid "Reason for deleting the filter"
-msgstr ""
-
-msgid "Reason for deleting the filter set"
-msgstr ""
-
-msgid "Filter Set"
-msgstr ""
-
-msgid "Filter Type"
-msgstr ""
-
-msgid "Match Type"
-msgstr ""
-
-msgid "Filter Value"
-msgstr ""
-
-msgid "Enter filter value"
-msgstr ""
-
-msgid "Filter Set Name"
-msgstr ""
-
-msgid "Enter filter set name"
-msgstr ""
-
-msgid "Filter Set Description"
-msgstr ""
-
-msgid "Enter filter set description"
-msgstr ""
-
-msgid "Groups"
-msgstr ""
-
-msgid "Group Name"
-msgstr ""
-
-msgid "Enter group name"
-msgstr ""
-
-msgid "Reason for deleting the group"
+msgid "Custom Payment Added: {comment}"
 msgstr ""
 
 msgid "Master Wallet"
@@ -364,6 +305,9 @@ msgstr ""
 msgid "Reason"
 msgstr ""
 
+msgid "Amount"
+msgstr ""
+
 msgid "User"
 msgstr ""
 
@@ -396,6 +340,9 @@ msgid ""
 "the deposit has fallen below zero."
 msgstr ""
 
+msgid "Active"
+msgstr ""
+
 msgid "Missing"
 msgstr ""
 
@@ -411,7 +358,13 @@ msgstr ""
 msgid "Owner of the corporation group"
 msgstr ""
 
+msgid "Group Name"
+msgstr ""
+
 msgid "Name of the corporation group"
+msgstr ""
+
+msgid "Groups"
 msgstr ""
 
 msgid "Groups that will not be taxed"
@@ -471,6 +424,9 @@ msgstr ""
 msgid "Updates completed successfully"
 msgstr ""
 
+msgid "Inactive"
+msgstr ""
+
 msgid "Deactivated"
 msgstr ""
 
@@ -501,13 +457,10 @@ msgstr ""
 msgid "Tax Account"
 msgstr ""
 
-msgid "Corporation"
-msgstr ""
-
 msgid "Filter"
 msgstr ""
 
-msgid "Settings"
+msgid "Filter Set"
 msgstr ""
 
 msgid "Group"
@@ -562,493 +515,6 @@ msgid "Exact Match"
 msgstr ""
 
 msgid "Contains"
-msgstr ""
-
-msgid "Tax System"
-msgstr ""
-
-msgid "Administration"
-msgstr ""
-
-msgid "Mark all tasks as Force Refresh"
-msgstr ""
-
-msgid "Clear all cached ETags"
-msgstr ""
-
-msgid "All Taxsystem Updates"
-msgstr ""
-
-msgid "Update Taxsystem Corporation Updates"
-msgstr ""
-
-msgid "Corporation ID (optional)"
-msgstr ""
-
-msgid "Enter Corporation ID"
-msgstr ""
-
-msgid "Leave empty to update all corporations"
-msgstr ""
-
-msgid "Update Taxsystem Alliance Updates"
-msgstr ""
-
-msgid "Alliance ID (optional)"
-msgstr ""
-
-msgid "Enter Alliance ID"
-msgstr ""
-
-msgid "Leave empty to update all alliances"
-msgstr ""
-
-msgid "Submit"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "Internal Server Error"
-msgstr ""
-
-msgid "Tax Paid"
-msgstr ""
-
-msgid "Accept Add Payment"
-msgstr ""
-
-msgid "Close"
-msgstr ""
-
-msgid "Are you sure you want to add custom payment?"
-msgstr ""
-
-msgid "This field is required"
-msgstr ""
-
-msgid "Cancel"
-msgstr ""
-
-msgid "Accept Approve Payment"
-msgstr ""
-
-msgid "Are you sure you want to approve this payment?"
-msgstr ""
-
-msgid "Accept Bulk Action"
-msgstr ""
-
-msgid "Are you sure you want to perform this bulk action?"
-msgstr ""
-
-msgid "Accept Delete Filter-Set"
-msgstr ""
-
-msgid "Are you sure you want to delete this filter set?"
-msgstr ""
-
-msgid "Accept Delete Filter"
-msgstr ""
-
-msgid "Are you sure you want to delete this filter?"
-msgstr ""
-
-msgid "Accept Delete Group"
-msgstr ""
-
-msgid "Are you sure you want to delete this group?"
-msgstr ""
-
-msgid "Accept Delete Member"
-msgstr ""
-
-msgid "Are you sure you want to delete this member?"
-msgstr ""
-
-msgid "Accept Delete Payment"
-msgstr ""
-
-msgid "Are you sure you want to delete this payment?"
-msgstr ""
-
-msgid "Accept Reject Payment"
-msgstr ""
-
-msgid "Are you sure you want to reject this payment?"
-msgstr ""
-
-msgid "Accept Switch Account"
-msgstr ""
-
-msgid "Are you sure you want to switch this account?"
-msgstr ""
-
-msgid "Accept Undo Payment"
-msgstr ""
-
-msgid "Are you sure you want to undo this payment?"
-msgstr ""
-
-msgid "Filters"
-msgstr ""
-
-msgid "Tax Account Details"
-msgstr ""
-
-msgid "Add Corporation"
-msgstr ""
-
-msgid "Add Alliance"
-msgstr ""
-
-msgid "Manage Tax System"
-msgstr ""
-
-msgid "Own Payments"
-msgstr ""
-
-msgid "FAQ"
-msgstr ""
-
-msgid "Account"
-msgstr ""
-
-msgid "Account Status"
-msgstr ""
-
-msgid "Balance"
-msgstr ""
-
-msgid "Tax Amount"
-msgstr ""
-
-msgid "Payment Status"
-msgstr ""
-
-msgid "Last Debit"
-msgstr ""
-
-msgid "Next Due"
-msgstr ""
-
-msgid "Joined"
-msgstr ""
-
-msgid "Last Login"
-msgstr ""
-
-msgid ""
-"Here you can find answers to the most common questions regarding the tax "
-"system."
-msgstr ""
-
-msgid ""
-"If you have any further questions, please contact the tax administration."
-msgstr ""
-
-msgid "How do I pay taxes?"
-msgstr ""
-
-msgid "Click Your Profile then Click the Corporation"
-msgstr ""
-
-msgid ""
-"Click on the three dots on the upper right on the Information Screen about "
-"your Corporation:"
-msgstr ""
-
-msgid "Select 'Give Money':"
-msgstr ""
-
-msgid "Enter the appropriate Amount and the Reason(case insensitive):"
-msgstr ""
-
-msgid "Actions"
-msgstr ""
-
-msgid "Accounts"
-msgstr ""
-
-msgid "Filter by Payment Status"
-msgstr ""
-
-msgid "All"
-msgstr ""
-
-msgid "Portrait"
-msgstr ""
-
-msgid "Character Name"
-msgstr ""
-
-msgid "Deposit"
-msgstr ""
-
-msgid "ID"
-msgstr ""
-
-msgid "Target"
-msgstr ""
-
-msgid "selected"
-msgstr ""
-
-msgid "Activate selected accounts"
-msgstr ""
-
-msgid "Deactivate selected tax accounts"
-msgstr ""
-
-msgid "Clear Selection"
-msgstr ""
-
-msgid "Tax Amount:"
-msgstr ""
-
-msgid "Click on the value to edit"
-msgstr ""
-
-msgid "Tax Period:"
-msgstr ""
-
-msgid "Wallet Activity:"
-msgstr ""
-
-msgid "Last 30 days"
-msgstr ""
-
-msgid "Payment Filters:"
-msgstr ""
-
-msgid "Automatic Payments Filters"
-msgstr ""
-
-msgid "Manage Filters"
-msgstr ""
-
-msgid "Tax Free Groups:"
-msgstr ""
-
-msgid "Manage Groups"
-msgstr ""
-
-msgid "Admin History:"
-msgstr ""
-
-msgid "Admin History"
-msgstr ""
-
-msgid "View Admin History"
-msgstr ""
-
-msgid "Update Information"
-msgstr ""
-
-msgid "Update Status:"
-msgstr ""
-
-msgid "Last Wallet Update:"
-msgstr ""
-
-msgid "Last Division Update:"
-msgstr ""
-
-msgid "Last Division Names Update:"
-msgstr ""
-
-msgid "Last Member Update:"
-msgstr ""
-
-msgid "Last Payments Update:"
-msgstr ""
-
-msgid "Last Tax Accounts Deadlines Update:"
-msgstr ""
-
-msgid "Divisions"
-msgstr ""
-
-msgid "Division"
-msgstr ""
-
-msgid "Total"
-msgstr ""
-
-msgid "Statistics"
-msgstr ""
-
-msgid "Pending Payments"
-msgstr ""
-
-msgid "Automated Payments"
-msgstr ""
-
-msgid "Edited Payments"
-msgstr ""
-
-msgid "Mains"
-msgstr ""
-
-msgid "Alts"
-msgstr ""
-
-msgid "Active Accounts"
-msgstr ""
-
-msgid "Inactive Accounts"
-msgstr ""
-
-msgid "Deactivated Accounts"
-msgstr ""
-
-msgid "Tax Unpaid"
-msgstr ""
-
-msgid "Name"
-msgstr ""
-
-msgid "Descriptions"
-msgstr ""
-
-msgid "Account Name"
-msgstr ""
-
-msgid "Filter by Member Status"
-msgstr ""
-
-msgid "Payment Information"
-msgstr ""
-
-msgid "Payment History"
-msgstr ""
-
-msgid "ISK"
-msgstr ""
-
-msgid "Edited by"
-msgstr ""
-
-msgid "Approve selected Payments"
-msgstr ""
-
-msgid "Reject selected Payments"
-msgstr ""
-
-msgid "Open Invoices"
-msgstr ""
-
-msgid "inactive"
-msgstr ""
-
-msgid "No Open Invoices"
-msgstr ""
-
-msgid "Manage"
-msgstr ""
-
-msgid "Overview"
-msgstr ""
-
-msgid "Frequently Asked Questions"
-msgstr ""
-
-msgid "Filter Sets"
-msgstr ""
-
-msgid "Filter Setup"
-msgstr ""
-
-msgid "Add Filter"
-msgstr ""
-
-msgid "Add Filter Set"
-msgstr ""
-
-msgid "Tax Free Groups"
-msgstr ""
-
-msgid "Group Setup"
-msgstr ""
-
-msgid "Add Group"
-msgstr ""
-
-msgid "Enter tax amount"
-msgstr ""
-
-msgid "Enter tax period in days"
-msgstr ""
-
-msgid "This field is required."
-msgstr ""
-
-msgid "Please enter a valid number."
-msgstr ""
-
-msgid "Value must be at least 0."
-msgstr ""
-
-msgid "You do not have permission to access this page."
-msgstr ""
-
-msgid "Queued Update All Taxsystem"
-msgstr ""
-
-#, python-format
-msgid "Queued Update for Corporation: %s"
-msgstr ""
-
-#, python-format
-msgid "Corporation with ID %s not found"
-msgstr ""
-
-msgid "Queued Update All Taxsystem Corporations"
-msgstr ""
-
-#, python-format
-msgid "Queued Update for Alliance: %s"
-msgstr ""
-
-#, python-format
-msgid "Alliance with ID %s not found"
-msgstr ""
-
-msgid "Queued Update All Taxsystem Alliances"
-msgstr ""
-
-msgid "Tax System Superuser Administration"
-msgstr ""
-
-msgid "Alliance"
-msgstr ""
-
-msgid "TaxSystem Overview"
-msgstr ""
-
-msgid "My Payments"
-msgstr ""
-
-msgid "No User found."
-msgstr ""
-
-msgid "No Tax Account found."
-msgstr ""
-
-msgid "You do not have permission to manage this owner."
-msgstr ""
-
-#, python-brace-format
-msgid "A Filter with {filter} already exists."
-msgstr ""
-
-msgid "Something went wrong, please try again later."
-msgstr ""
-
-msgid "A filter set with this name already exists."
-msgstr ""
-
-msgid "Tax free group added."
 msgstr ""
 
 msgid "Added to Tax System"
