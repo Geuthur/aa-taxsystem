@@ -13,7 +13,7 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
-from allianceauth.groupmanagement.models import AuthGroup, Group
+from allianceauth.groupmanagement.models import Group
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
@@ -43,11 +43,13 @@ from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     ActionType,
     AdminActions,
-    CorporationUpdateSection,
     PaymentRequestStatus,
+)
+from taxsystem.models.helpers.update_manager import (
+    CorporationUpdateSection,
+    UpdateManagerMixin,
     UpdateStatus,
 )
-from taxsystem.models.helpers.updater import UpdateManager
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
@@ -77,8 +79,11 @@ class CorporationUpdateStatus(UpdateStatusBaseModel):
         return f"{self.owner} - {self.section}"
 
 
-class CorporationOwner(models.Model):
+class CorporationOwner(UpdateManagerMixin, models.Model):
     """Model representing a corporation owner in the tax system."""
+
+    update_section_class = CorporationUpdateSection
+    update_status_model = CorporationUpdateStatus
 
     if TYPE_CHECKING:
         ts_corporation_groups: models.QuerySet["CorporationGroup"]
@@ -163,13 +168,9 @@ class CorporationOwner(models.Model):
         return CorporationFilter
 
     @property
-    def update_manager(self):
-        """Return the Update Manager helper for this owner."""
-        return UpdateManager(
-            owner=self,
-            update_section=CorporationUpdateSection,
-            update_status=CorporationUpdateStatus,
-        )
+    def group_model(self):
+        """Return the Group Model for this owner."""
+        return CorporationGroup
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -396,15 +397,6 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
     )
 
     @property
-    def group_ids(self):
-        """Return a list of group IDs the account belongs to."""
-        return (
-            AuthGroup.objects.filter(group__user=self.user)
-            .values_list("pk", flat=True)
-            .distinct()
-        )
-
-    @property
     def is_main(self) -> bool:
         """Return True if the user's main character belongs to this corporation."""
         main_char = getattr(getattr(self.user, "profile", None), "main_character", None)
@@ -416,13 +408,18 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
         )
 
     @property
+    # pylint: disable=duplicate-code
     def is_tax_free(self) -> bool:
         """Return True if the account belongs to any tax-free group, is exempt, or is inactive."""
         if self.is_exempt or self.status == AccountStatus.INACTIVE:
             return True
-        tax_free = self.owner.ts_corporation_groups.values_list(
-            "groups__pk", flat=True
-        ).distinct()
+        tax_free = (
+            self.owner.group_model.objects.filter(
+                owner=self.owner, groups__pk__in=self.group_ids
+            )
+            .values_list("groups__pk", flat=True)
+            .distinct()
+        )
         return any(group_id in tax_free for group_id in self.group_ids)
 
 

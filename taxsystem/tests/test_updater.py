@@ -10,15 +10,19 @@ import pydantic
 from django.test import override_settings
 
 # Alliance Auth
+from esi.errors import TokenError
 from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationUpdateStatus
 from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
-from taxsystem.models.helpers.textchoices import (
+from taxsystem.models.helpers.update_manager import (
+    AllianceUpdateSection,
     CorporationUpdateSection,
+    UpdateManager,
+    UpdateSection,
+    UpdateStatus,
 )
-from taxsystem.models.helpers.updater import UpdateManager
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
@@ -336,31 +340,27 @@ class TestUpdateManager(TaxSystemTestCase):
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
-        status_obj = CorporationUpdateStatusFactory(
+        CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
         )
 
         def mock_update_method(owner, force_refresh=False):
-            raise ValueError("Token error occurred.")
+            raise TokenError("Token error occurred.")
 
-        # Test Action: perform_update_status should persist an error and re-raise
-        with self.assertRaises(ValueError):
-            manager.perform_update_status(
-                section=CorporationUpdateSection.WALLET,
-                method=mock_update_method,
-                owner=self.audit,
-                force_refresh=False,
-            )
-
-        # Expected Results: status object updated due to the exception
-        status_obj = CorporationUpdateStatus.objects.get(
-            owner=self.audit,
+        # Test Action
+        result = manager.perform_update_status(
             section=CorporationUpdateSection.WALLET,
+            method=mock_update_method,
+            owner=self.audit,
+            force_refresh=False,
         )
-        self.assertFalse(status_obj.is_success)
-        self.assertFalse(status_obj.has_token_error)
-        self.assertIn("ValueError: Token error occurred.", status_obj.error_message)
+
+        # Expected Results
+        self.assertFalse(result.is_changed)
+        self.assertFalse(result.is_updated)
+        self.assertTrue(result.has_token_error)
+        self.assertIn("TokenError: Token error occurred.", result.error_message)
 
     def test_perform_update_Status_httpserver_error(self):
         """
@@ -376,26 +376,190 @@ class TestUpdateManager(TaxSystemTestCase):
         CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
-            has_token_error=False,  # State should not change after error
-            is_success=False,  # State should not change after error
+            has_token_error=False,
+            is_success=False,
         )
 
         def mock_update_method(owner, force_refresh=False):
             raise HTTPServerError(status_code=500, headers={}, data=None)
 
-        # Test Action: perform_update_status should persist an error and re-raise
-        with self.assertRaises(HTTPServerError):
-            manager.perform_update_status(
-                section=CorporationUpdateSection.WALLET,
-                method=mock_update_method,
-                owner=self.audit,
-                force_refresh=False,
-            )
+        # Test Action
+        result = manager.perform_update_status(
+            section=CorporationUpdateSection.WALLET,
+            method=mock_update_method,
+            owner=self.audit,
+            force_refresh=False,
+        )
 
-        # Expected Results: status object updated due to the exception
-        status_obj = CorporationUpdateStatus.objects.get(
+        # Expected Results
+        self.assertFalse(result.is_changed)
+        self.assertFalse(result.is_updated)
+        self.assertFalse(result.has_token_error)
+        self.assertIn("500", result.error_message)
+
+    def test_get_sections_to_update_when_force_refresh_should_return_all(self):
+        """Test that get_sections_to_update returns all sections on force refresh."""
+        # Test Data
+        self.audit = CorporationOwnerFactory(user=self.user)
+        manager = self.updater(
+            owner=self.audit,
+            update_section=CorporationUpdateSection,
+            update_status=CorporationUpdateStatus,
+        )
+        CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
+            has_token_error=True,
         )
-        self.assertFalse(status_obj.is_success)
-        self.assertFalse(status_obj.has_token_error)
+
+        # Test Action
+        sections = manager.get_sections_to_update(force_refresh=True)
+
+        # Expected Result
+        self.assertEqual(sections, list(CorporationUpdateSection.get_sections()))
+        status = CorporationUpdateStatus.objects.get(
+            owner=self.audit, section=CorporationUpdateSection.WALLET
+        )
+        self.assertFalse(status.has_token_error)
+
+    def test_get_sections_to_update_when_needed_should_return_stale_sections(self):
+        """Test that get_sections_to_update returns sections needing update."""
+        # Test Data
+        self.audit = CorporationOwnerFactory(user=self.user)
+        manager = self.updater(
+            owner=self.audit,
+            update_section=CorporationUpdateSection,
+            update_status=CorporationUpdateStatus,
+        )
+
+        # Test Action
+        sections = manager.get_sections_to_update(force_refresh=False)
+
+        # Expected Result
+        self.assertEqual(len(sections), len(CorporationUpdateSection.get_sections()))
+
+    def test_execute_section_should_call_owner_method_and_log_success(self):
+        """Test that execute_section successfully runs owner method and records log."""
+        # Test Data
+        self.audit = CorporationOwnerFactory(user=self.user)
+        manager = self.updater(
+            owner=self.audit,
+            update_section=CorporationUpdateSection,
+            update_status=CorporationUpdateStatus,
+        )
+        expected_result = UpdateSectionResult(
+            is_changed=True,
+            is_updated=True,
+            has_token_error=False,
+            error_message="",
+            data={"test": "data"},
+        )
+        self.audit.update_wallet = MagicMock(return_value=expected_result)
+
+        # Test Action
+        result = manager.execute_section(
+            CorporationUpdateSection.WALLET, force_refresh=True
+        )
+
+        # Expected Result
+        self.assertEqual(result, expected_result)
+        self.audit.update_wallet.assert_called_once()
+        status = CorporationUpdateStatus.objects.get(
+            owner=self.audit, section=CorporationUpdateSection.WALLET
+        )
+        self.assertTrue(status.is_success)
+        self.assertFalse(status.has_token_error)
+
+
+class TestUpdateStatusAndSections(TaxSystemTestCase):
+    """Tests for UpdateSection, CorporationUpdateSection, AllianceUpdateSection, and UpdateStatus."""
+
+    def test_update_section_should_return_sections_and_method_names(self):
+        # Test Data
+        corp_sections = CorporationUpdateSection
+        alliance_sections = AllianceUpdateSection
+
+        # Test Action
+        corp_list = corp_sections.get_sections()
+        alliance_list = alliance_sections.get_sections()
+
+        # Expected Result
+        self.assertIn("wallet", corp_list)
+        self.assertIn("divisions", corp_list)
+        self.assertIn("members", corp_list)
+        self.assertEqual(corp_sections.WALLET.method_name, "update_wallet")
+        self.assertEqual(corp_sections.DIVISIONS.method_name, "update_divisions")
+
+        self.assertIn("tax_accounts", alliance_list)
+        self.assertIn("payments", alliance_list)
+        self.assertIn("deadlines", alliance_list)
+        self.assertEqual(alliance_sections.PAYMENTS.method_name, "update_payments")
+
+    def test_update_status_bootstrap_icon_should_render_html_span(self):
+        # Test Data
+        statuses = [
+            (UpdateStatus.DISABLED, "text-muted", "Update is disabled"),
+            (
+                UpdateStatus.TOKEN_ERROR,
+                "text-warning",
+                "One section has a token error during update",
+            ),
+            (UpdateStatus.ERROR, "text-danger", "An error occurred during update"),
+            (UpdateStatus.OK, "text-success", "Updates completed successfully"),
+            (
+                UpdateStatus.INCOMPLETE,
+                "text-warning",
+                "One or more sections have not been updated",
+            ),
+            (UpdateStatus.IN_PROGRESS, "text-info", "Update is in progress"),
+        ]
+
+        # Test Action & Expected Result
+        for status, expected_class, expected_desc in statuses:
+            # Test Action
+            icon_html = status.bootstrap_icon()
+
+            # Expected Result
+            self.assertIn(f"class='{expected_class}'", icon_html)
+            self.assertIn(f"title='{expected_desc}'", icon_html)
+            self.assertIn("data-bs-tooltip='aa-taxsystem'", icon_html)
+            self.assertIn("⬤", icon_html)
+
+    def test_update_status_bootstrap_text_style_class_should_return_correct_class(self):
+        # Test Data
+        expected_styles = {
+            UpdateStatus.DISABLED: "text-muted",
+            UpdateStatus.TOKEN_ERROR: "text-warning",
+            UpdateStatus.INCOMPLETE: "text-warning",
+            UpdateStatus.IN_PROGRESS: "text-info",
+            UpdateStatus.ERROR: "text-danger",
+            UpdateStatus.OK: "text-success",
+        }
+
+        # Test Action & Expected Result
+        for status, expected_style in expected_styles.items():
+            # Test Action
+            style = status.bootstrap_text_style_class()
+
+            # Expected Result
+            self.assertEqual(style, expected_style)
+
+    def test_update_status_description_should_return_human_readable_string(self):
+        # Test Data
+        statuses = [
+            UpdateStatus.DISABLED,
+            UpdateStatus.TOKEN_ERROR,
+            UpdateStatus.ERROR,
+            UpdateStatus.OK,
+            UpdateStatus.INCOMPLETE,
+            UpdateStatus.IN_PROGRESS,
+        ]
+
+        # Test Action & Expected Result
+        for status in statuses:
+            # Test Action
+            desc = status.description()
+
+            # Expected Result
+            self.assertIsInstance(desc, str)
+            self.assertTrue(len(desc) > 0)

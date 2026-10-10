@@ -42,10 +42,12 @@ from taxsystem.models import (
 from taxsystem.models.corporation import CorporationGroup
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
-    AllianceUpdateSection,
-    CorporationUpdateSection,
     PaymentActions,
     PaymentRequestStatus,
+)
+from taxsystem.models.helpers.update_manager import (
+    AllianceUpdateSection,
+    CorporationUpdateSection,
 )
 from taxsystem.tests.testdata.utils import add_character_to_user
 
