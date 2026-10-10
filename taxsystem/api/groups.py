@@ -50,7 +50,7 @@ class GroupsApiEndpoints:
                 return 403, {"error": _("Permission Denied.")}
 
             response_groups: list[schema.GroupManagementSchema] = []
-            for group in owner.ts_corporation_groups.all():
+            for group in owner.group_model.objects.filter(owner=owner):
                 group_list: list[schema.GroupSchema] = []
                 for aa_group in group.groups.all():
                     group_list.append(
@@ -105,7 +105,7 @@ class GroupsApiEndpoints:
                 return 403, {"error": _("Permission Denied.")}
 
             try:
-                group = owner.ts_corporation_groups.get(pk=group_pk)
+                group = owner.group_model.objects.get(pk=group_pk, owner=owner)
                 group.delete()
 
                 # Create log message
@@ -184,10 +184,10 @@ class GroupsApiEndpoints:
             if not name:
                 return 400, {"error": _("Group name is required.")}
 
-            if owner.ts_corporation_groups.filter(name=name).exists():
+            if owner.group_model.objects.filter(name=name, owner=owner).exists():
                 return 400, {"error": _("A group with this name already exists.")}
 
-            group = owner.ts_corporation_groups.create(name=name)
+            group = owner.group_model.objects.create(name=name, owner=owner)
             if payload.group_ids:
                 group.groups.set(payload.group_ids)
 

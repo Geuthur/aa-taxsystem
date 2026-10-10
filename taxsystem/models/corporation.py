@@ -13,7 +13,7 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
-from allianceauth.groupmanagement.models import AuthGroup, Group
+from allianceauth.groupmanagement.models import Group
 from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
@@ -166,6 +166,11 @@ class CorporationOwner(UpdateManagerMixin, models.Model):
     def filter_model(self):
         """Return the Filter Model for this owner."""
         return CorporationFilter
+
+    @property
+    def group_model(self):
+        """Return the Group Model for this owner."""
+        return CorporationGroup
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:
@@ -392,15 +397,6 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
     )
 
     @property
-    def group_ids(self):
-        """Return a list of group IDs the account belongs to."""
-        return (
-            AuthGroup.objects.filter(group__user=self.user)
-            .values_list("pk", flat=True)
-            .distinct()
-        )
-
-    @property
     def is_main(self) -> bool:
         """Return True if the user's main character belongs to this corporation."""
         main_char = getattr(getattr(self.user, "profile", None), "main_character", None)
@@ -412,13 +408,18 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
         )
 
     @property
+    # pylint: disable=duplicate-code
     def is_tax_free(self) -> bool:
         """Return True if the account belongs to any tax-free group, is exempt, or is inactive."""
         if self.is_exempt or self.status == AccountStatus.INACTIVE:
             return True
-        tax_free = self.owner.ts_corporation_groups.values_list(
-            "groups__pk", flat=True
-        ).distinct()
+        tax_free = (
+            self.owner.group_model.objects.filter(
+                owner=self.owner, groups__pk__in=self.group_ids
+            )
+            .values_list("groups__pk", flat=True)
+            .distinct()
+        )
         return any(group_id in tax_free for group_id in self.group_ids)
 
 

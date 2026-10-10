@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import User
+from allianceauth.groupmanagement.models import AuthGroup
 from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
@@ -298,6 +299,15 @@ class PaymentAccountBaseModel(models.Model):
         if badge:
             html = mark_safe(f"<span class='badge bg-{color}'>{html}</span>")
         return html
+
+    @property
+    def group_ids(self):
+        """Return a list of group IDs the account belongs to."""
+        return (
+            AuthGroup.objects.filter(group__user=self.user)
+            .values_list("pk", flat=True)
+            .distinct()
+        )
 
 
 class UpdateStatusBaseModel(models.Model):

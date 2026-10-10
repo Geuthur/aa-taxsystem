@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.eveonline.models import (
     EveAllianceInfo,
 )
+from allianceauth.groupmanagement.models import Group
 from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
@@ -195,6 +196,11 @@ class AllianceOwner(UpdateManagerMixin, models.Model):
         return AllianceFilter
 
     @property
+    def group_model(self):
+        """Return the Group Model for this owner."""
+        return AllianceGroup
+
+    @property
     def get_status(self) -> UpdateStatus:
         """Get the update status of this owner.
 
@@ -260,8 +266,17 @@ class AlliancePaymentAccount(PaymentAccountBaseModel):
 
     @property
     def is_tax_free(self) -> bool:
-        """Return True if the account is exempt or inactive."""
-        return self.is_exempt or self.status == AccountStatus.INACTIVE
+        """Return True if the account belongs to any tax-free group, is exempt, or is inactive."""
+        if self.is_exempt or self.status == AccountStatus.INACTIVE:
+            return True
+        tax_free = (
+            self.owner.group_model.objects.filter(
+                owner=self.owner, groups__pk__in=self.group_ids
+            )
+            .values_list("groups__pk", flat=True)
+            .distinct()
+        )
+        return any(group_id in tax_free for group_id in self.group_ids)
 
 
 class AlliancePayments(PaymentsBaseModel):
@@ -412,3 +427,34 @@ class AllianceAdminHistory(HistoryBaseModel):
         verbose_name=_("Action"),
         help_text=_("Action performed"),
     )
+
+
+class AllianceGroup(models.Model):
+    """Model representing a group of alliances in the tax system."""
+
+    class Meta:
+        default_permissions = ()
+
+    owner = models.ForeignKey(
+        AllianceOwner,
+        on_delete=models.CASCADE,
+        related_name="ts_alliance_groups",
+        verbose_name=_("Owner"),
+        help_text=_("Owner of the alliance group"),
+    )
+
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("Group Name"),
+        help_text=_("Name of the alliance group"),
+    )
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name="ts_alliance_aa_groups",
+        verbose_name=_("Groups"),
+        help_text=_("Groups that will not be taxed"),
+    )
+
+    def __str__(self) -> str:
+        return f"Alliance Group: {self.name}"
