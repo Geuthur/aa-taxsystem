@@ -153,7 +153,6 @@ class TestTasks(TaxSystemTestCase):
 
         # Test Action
         _update_corp_section(
-            task=MagicMock(),
             owner_eve_id=owner.eve_id,
             section="wallet",
             force_refresh=False,
@@ -255,7 +254,6 @@ class TestTasks(TaxSystemTestCase):
         mock_update_manager.update_section_log.side_effect = _mock_update_section_log
         # Test Action
         _update_ally_section(
-            task=MagicMock(),
             owner_eve_id=owner.eve_id,
             section="deadlines",
             force_refresh=False,

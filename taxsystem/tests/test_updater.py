@@ -10,6 +10,7 @@ import pydantic
 from django.test import override_settings
 
 # Alliance Auth
+from esi.errors import TokenError
 from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA TaxSystem
@@ -18,7 +19,7 @@ from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
 from taxsystem.models.helpers.textchoices import (
     CorporationUpdateSection,
 )
-from taxsystem.models.helpers.updater import UpdateManager
+from taxsystem.models.helpers.update_manager import UpdateManager
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
@@ -336,31 +337,27 @@ class TestUpdateManager(TaxSystemTestCase):
             update_section=CorporationUpdateSection,
             update_status=CorporationUpdateStatus,
         )
-        status_obj = CorporationUpdateStatusFactory(
+        CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
         )
 
         def mock_update_method(owner, force_refresh=False):
-            raise ValueError("Token error occurred.")
+            raise TokenError("Token error occurred.")
 
-        # Test Action: perform_update_status should persist an error and re-raise
-        with self.assertRaises(ValueError):
-            manager.perform_update_status(
-                section=CorporationUpdateSection.WALLET,
-                method=mock_update_method,
-                owner=self.audit,
-                force_refresh=False,
-            )
-
-        # Expected Results: status object updated due to the exception
-        status_obj = CorporationUpdateStatus.objects.get(
-            owner=self.audit,
+        # Test Action
+        result = manager.perform_update_status(
             section=CorporationUpdateSection.WALLET,
+            method=mock_update_method,
+            owner=self.audit,
+            force_refresh=False,
         )
-        self.assertFalse(status_obj.is_success)
-        self.assertFalse(status_obj.has_token_error)
-        self.assertIn("ValueError: Token error occurred.", status_obj.error_message)
+
+        # Expected Results
+        self.assertFalse(result.is_changed)
+        self.assertFalse(result.is_updated)
+        self.assertTrue(result.has_token_error)
+        self.assertIn("TokenError: Token error occurred.", result.error_message)
 
     def test_perform_update_Status_httpserver_error(self):
         """
@@ -376,26 +373,23 @@ class TestUpdateManager(TaxSystemTestCase):
         CorporationUpdateStatusFactory(
             owner=self.audit,
             section=CorporationUpdateSection.WALLET,
-            has_token_error=False,  # State should not change after error
-            is_success=False,  # State should not change after error
+            has_token_error=False,
+            is_success=False,
         )
 
         def mock_update_method(owner, force_refresh=False):
             raise HTTPServerError(status_code=500, headers={}, data=None)
 
-        # Test Action: perform_update_status should persist an error and re-raise
-        with self.assertRaises(HTTPServerError):
-            manager.perform_update_status(
-                section=CorporationUpdateSection.WALLET,
-                method=mock_update_method,
-                owner=self.audit,
-                force_refresh=False,
-            )
-
-        # Expected Results: status object updated due to the exception
-        status_obj = CorporationUpdateStatus.objects.get(
-            owner=self.audit,
+        # Test Action
+        result = manager.perform_update_status(
             section=CorporationUpdateSection.WALLET,
+            method=mock_update_method,
+            owner=self.audit,
+            force_refresh=False,
         )
-        self.assertFalse(status_obj.is_success)
-        self.assertFalse(status_obj.has_token_error)
+
+        # Expected Results
+        self.assertFalse(result.is_changed)
+        self.assertFalse(result.is_updated)
+        self.assertFalse(result.has_token_error)
+        self.assertIn("500", result.error_message)

@@ -47,7 +47,7 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
     UpdateStatus,
 )
-from taxsystem.models.helpers.updater import UpdateManager
+from taxsystem.models.helpers.update_manager import UpdateManager
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,

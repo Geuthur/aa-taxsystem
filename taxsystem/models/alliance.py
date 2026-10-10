@@ -36,7 +36,7 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
     UpdateStatus,
 )
-from taxsystem.models.helpers.updater import UpdateManager
+from taxsystem.models.helpers.update_manager import UpdateManager
 from taxsystem.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
