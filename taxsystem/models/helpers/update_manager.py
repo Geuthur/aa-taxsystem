@@ -1,6 +1,8 @@
 # Standard Library
+import inspect
+from collections.abc import Callable
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Union
+from typing import Any
 
 # Third Party
 from aiopenapi3 import RequestError
@@ -8,6 +10,8 @@ from aiopenapi3 import RequestError
 # Django
 from django.db import models
 from django.utils import timezone
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -20,20 +24,91 @@ from taxsystem.models.general import (
     UpdateSectionResult,
     _NeedsUpdate,
 )
-
-if TYPE_CHECKING:
-    # AA TaxSystem
-    from taxsystem.models.alliance import AllianceOwner, AllianceUpdateStatus
-    from taxsystem.models.corporation import CorporationOwner, CorporationUpdateStatus
-    from taxsystem.models.helpers.textchoices import (
-        AllianceUpdateSection,
-        CorporationUpdateSection,
-    )
-
-# AA TaxSystem
 from taxsystem.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+
+class UpdateSection(models.TextChoices):
+    """
+    Base Class for Update Sections.
+    """
+
+    @classmethod
+    def get_sections(cls) -> list[str]:
+        """Return list of section values."""
+        return [choice.value for choice in cls]
+
+    @property
+    def method_name(self) -> str:
+        """Return method name for this section."""
+        return f"update_{self.value}"
+
+
+class CorporationUpdateSection(UpdateSection):
+    """Sections for corporation updates."""
+
+    DIVISION_NAMES = "division_names", _("Wallet Division Names")
+    DIVISIONS = "divisions", _("Wallet Divisions")
+    WALLET = "wallet", _("Wallet Journal")
+    MEMBERS = "members", _("Members")
+    TAX_ACCOUNTS = "tax_accounts", _("Tax Accounts")
+    PAYMENTS = "payments", _("Payments")
+    DEADLINES = "deadlines", _("Deadlines")
+
+
+class AllianceUpdateSection(UpdateSection):
+    """Sections for alliance updates."""
+
+    TAX_ACCOUNTS = "tax_accounts", _("Tax Accounts")
+    PAYMENTS = "payments", _("Payments")
+    DEADLINES = "deadlines", _("Deadlines")
+
+
+class UpdateStatus(models.TextChoices):
+    """Status for ESI data updates.
+    Used to indicate the overall status of an Owner.
+    """
+
+    DISABLED = "disabled", _("Disabled")
+    TOKEN_ERROR = "token_error", _("Token Error")
+    ERROR = "error", _("Error")
+    OK = "ok", _("OK")
+    INCOMPLETE = "incomplete", _("Incomplete")
+    IN_PROGRESS = "in_progress", _("In Progress")
+
+    def bootstrap_icon(self) -> str:
+        """Return bootstrap corresponding icon class."""
+        style_class = self.bootstrap_text_style_class()
+        if not style_class:
+            return ""
+        return mark_safe(
+            f"<span class='{style_class}' data-bs-tooltip='aa-taxsystem' title='{self.description()}'>⬤</span>"
+        )
+
+    def bootstrap_text_style_class(self) -> str:
+        """Return bootstrap corresponding bootstrap text style class."""
+        update_map = {
+            self.DISABLED: "text-muted",
+            self.TOKEN_ERROR: "text-warning",
+            self.INCOMPLETE: "text-warning",
+            self.IN_PROGRESS: "text-info",
+            self.ERROR: "text-danger",
+            self.OK: "text-success",
+        }
+        return update_map.get(self, "")
+
+    def description(self) -> str:
+        """Return description for an enum object."""
+        update_map = {
+            self.DISABLED: _("Update is disabled"),
+            self.TOKEN_ERROR: _("One section has a token error during update"),
+            self.INCOMPLETE: _("One or more sections have not been updated"),
+            self.IN_PROGRESS: _("Update is in progress"),
+            self.ERROR: _("An error occurred during update"),
+            self.OK: _("Updates completed successfully"),
+        }
+        return str(update_map.get(self, ""))
 
 
 class UpdateManager:
@@ -48,16 +123,16 @@ class UpdateManager:
 
     def __init__(
         self,
-        owner: Union["CorporationOwner", "AllianceOwner"],
-        update_section: Union["CorporationUpdateSection", "AllianceUpdateSection"],
-        update_status: Union["CorporationUpdateStatus", "AllianceUpdateStatus"],
+        owner: Any,
+        update_section: Any,
+        update_status: Any,
     ):
         self.owner = owner
         self.update_section = update_section
         self.update_status = update_status
 
     # Shared methods
-    def calc_update_needed(self):
+    def calc_update_needed(self) -> _NeedsUpdate:
         """
         Calculate which sections need an update and save the results in a _NeedsUpdate object.
 
@@ -76,7 +151,7 @@ class UpdateManager:
         sections_needs_update.update(needs_update)
         return _NeedsUpdate(section_map=sections_needs_update)
 
-    def reset_update_status(self, section):
+    def reset_update_status(self, section: models.TextChoices):
         """
         Create or Reset the update status for a specific section.
 
@@ -100,6 +175,7 @@ class UpdateManager:
             None
         """
         self.update_status.objects.filter(
+            owner=self.owner,
             has_token_error=True,
         ).update(
             has_token_error=False,
@@ -284,3 +360,113 @@ class UpdateManager:
                 error_message=error_message,
             )
         return result
+
+    def get_sections_to_update(self, force_refresh: bool = False) -> list[str]:
+        """
+        Determine which sections need to be updated.
+
+        Args:
+            force_refresh (bool): If True, reset token errors and return all sections.
+
+        Returns:
+            list[str]: The list of section values to update.
+        """
+        if force_refresh:
+            self.reset_has_token_error()
+            return list(self.update_section.get_sections())
+
+        needs_update = self.calc_update_needed()
+        if not needs_update:
+            return []
+
+        return [
+            sec
+            for sec in self.update_section.get_sections()
+            if needs_update.for_section(sec)
+        ]
+
+    # pylint: disable=keyword-arg-before-vararg
+    def execute_section(
+        self, section: Any, force_refresh: bool = False, *args, **kwargs
+    ) -> UpdateSectionResult:
+        """
+        Execute an update for a specific section end-to-end.
+
+        This method:
+        1. Resets the status for the section.
+        2. Resolves the corresponding update method on self.owner.
+        3. Inspects the method's parameters and injects force_refresh if accepted.
+        4. Calls perform_update_status with full ESI exception handling.
+        5. Updates and logs the section status log.
+
+        Args:
+            section (Any): The section to update (enum or string value).
+            force_refresh (bool): Whether to force a refresh.
+            *args: Additional positional arguments for the update method.
+            **kwargs: Additional keyword arguments for the update method.
+
+        Returns:
+            UpdateSectionResult: The result of the update operation.
+        """
+        section_enum = (
+            self.update_section(section)
+            if not isinstance(section, self.update_section)
+            else section
+        )
+
+        self.reset_update_status(section_enum)
+
+        method: Callable = getattr(self.owner, section_enum.method_name)
+        method_signature = inspect.signature(method)
+
+        if (
+            "force_refresh" in method_signature.parameters
+            and "force_refresh" not in kwargs
+        ):
+            kwargs["force_refresh"] = force_refresh
+
+        result = self.perform_update_status(section_enum, method, *args, **kwargs)
+        self.update_section_log(section_enum, result)
+        return result
+
+
+class UpdateManagerMixin:
+    """
+    Mixin for Django models that support section-based updates via UpdateManager.
+
+    Subclasses must define:
+        update_section_class: The TextChoices enum class defining update sections.
+        update_status_model: The Model class tracking section update statuses.
+    """
+
+    update_section_class: Any = None
+    update_status_model: Any = None
+
+    @property
+    def update_manager(self) -> UpdateManager:
+        """Return the initialized UpdateManager instance for this owner."""
+        if not hasattr(self, "_update_manager"):
+            if self.update_section_class is None or self.update_status_model is None:
+                raise AttributeError(
+                    f"{self.__class__.__name__} must define 'update_section_class' "
+                    "and 'update_status_model' to use UpdateManagerMixin."
+                )
+            self._update_manager = UpdateManager(
+                owner=self,
+                update_section=self.update_section_class,
+                update_status=self.update_status_model,
+            )
+        return self._update_manager
+
+    # pylint: disable=keyword-arg-before-vararg
+    def execute_section(
+        self, section: Any, force_refresh: bool = False, *args, **kwargs
+    ) -> UpdateSectionResult:
+        """Shortcut to execute a section update via the update_manager."""
+        return self.update_manager.execute_section(
+            section, force_refresh=force_refresh, *args, **kwargs
+        )
+
+    def get_sections_to_update(self, force_refresh: bool = False) -> list[str]:
+        """Shortcut to get sections needing update via the update_manager."""
+        return self.update_manager.get_sections_to_update(force_refresh=force_refresh)

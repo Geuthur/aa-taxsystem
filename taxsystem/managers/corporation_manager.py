@@ -16,11 +16,11 @@ from taxsystem.decorators import log_timing
 from taxsystem.models.general import EveEntity, UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
-    CorporationUpdateSection,
     PaymentActions,
     PaymentRequestStatus,
     PaymentSystemText,
 )
+from taxsystem.models.helpers.update_manager import CorporationUpdateSection
 from taxsystem.providers import AppLogger, esi
 
 logger = AppLogger(get_extension_logger(__name__), __title__)

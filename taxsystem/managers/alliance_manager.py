@@ -15,11 +15,11 @@ from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
-    AllianceUpdateSection,
     PaymentActions,
     PaymentRequestStatus,
     PaymentSystemText,
 )
+from taxsystem.models.helpers.update_manager import AllianceUpdateSection
 from taxsystem.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)

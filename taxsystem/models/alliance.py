@@ -32,11 +32,13 @@ from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     ActionType,
     AdminActions,
-    AllianceUpdateSection,
     PaymentRequestStatus,
+)
+from taxsystem.models.helpers.update_manager import (
+    AllianceUpdateSection,
+    UpdateManagerMixin,
     UpdateStatus,
 )
-from taxsystem.models.helpers.update_manager import UpdateManager
 from taxsystem.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -63,8 +65,11 @@ class AllianceUpdateStatus(UpdateStatusBaseModel):
         return f"{self.owner.name} - {self.section}"
 
 
-class AllianceOwner(models.Model):
+class AllianceOwner(UpdateManagerMixin, models.Model):
     """Model representing an alliance owner in the tax system."""
+
+    update_section_class = AllianceUpdateSection
+    update_status_model = AllianceUpdateStatus
 
     class Meta:
         default_permissions = ()
@@ -188,15 +193,6 @@ class AllianceOwner(models.Model):
     def filter_model(self):
         """Return the Filter Model for this owner."""
         return AllianceFilter
-
-    @property
-    def update_manager(self):
-        """Return the Update Manager helper for this owner."""
-        return UpdateManager(
-            owner=self,
-            update_section=AllianceUpdateSection,
-            update_status=AllianceUpdateStatus,
-        )
 
     @property
     def get_status(self) -> UpdateStatus:

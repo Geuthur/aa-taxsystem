@@ -1,8 +1,6 @@
 """App Tasks"""
 
 # Standard Library
-import inspect
-from collections.abc import Callable
 from urllib.parse import urljoin
 
 # Third Party
@@ -23,8 +21,8 @@ from taxsystem import __title__, app_settings
 from taxsystem.helpers.discord import send_user_notification
 from taxsystem.models.alliance import AllianceOwner, AlliancePaymentAccount
 from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
-from taxsystem.models.helpers.textchoices import (
-    AccountStatus,
+from taxsystem.models.helpers.textchoices import AccountStatus
+from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
@@ -95,29 +93,13 @@ def update_corporation(owner_eve_id: int, force_refresh: bool = False) -> bool:
         format(owner.name),
     )
 
-    if force_refresh:
-        # Reset Token Error if we are forcing a refresh
-        owner.update_manager.reset_has_token_error()
-
-    needs_update = owner.update_manager.calc_update_needed()
-
-    if not needs_update and not force_refresh:
+    sections = owner.update_manager.get_sections_to_update(force_refresh=force_refresh)
+    if not sections:
         logger.info("No updates needed for %s", owner.name)
         return False
 
-    sections = CorporationUpdateSection.get_sections()
     runs = 0
-
     for section in sections:
-        # Skip sections that are not in the needs_update list
-        if not force_refresh and not needs_update.for_section(section):
-            logger.debug(
-                "No updates needed for %s (%s)",
-                owner.name,
-                section,
-            )
-            continue
-
         task_name = f"update_corp_{section}"
         task = globals().get(task_name)
         if task:
@@ -203,7 +185,6 @@ def update_corp_deadlines(owner_eve_id: int, force_refresh: bool):
 
 def _update_corp_section(owner_eve_id: int, section: str, force_refresh: bool):
     """Update a specific section of the corporation."""
-    section = CorporationUpdateSection(section)
     try:
         owner = CorporationOwner.objects.get(
             eve_corporation__corporation_id=owner_eve_id
@@ -214,21 +195,7 @@ def _update_corp_section(owner_eve_id: int, section: str, force_refresh: bool):
         )
         return None
 
-    logger.debug("Updating %s for %s", section.label, owner.name)
-
-    owner.update_manager.reset_update_status(section)
-
-    method: Callable = getattr(owner, section.method_name)
-    method_signature = inspect.signature(method)
-
-    if "force_refresh" in method_signature.parameters:
-        kwargs = {"force_refresh": force_refresh}
-    else:
-        kwargs = {}
-
-    result = owner.update_manager.perform_update_status(section, method, **kwargs)
-    owner.update_manager.update_section_log(section, result)
-    return result
+    return owner.update_manager.execute_section(section, force_refresh=force_refresh)
 
 
 # Alliance Tasks
@@ -253,29 +220,13 @@ def update_alliance(
         format(owner.name),
     )
 
-    if force_refresh:
-        # Reset Token Error if we are forcing a refresh
-        owner.update_manager.reset_has_token_error()
-
-    needs_update = owner.update_manager.calc_update_needed()
-
-    if not needs_update and not force_refresh:
+    sections = owner.update_manager.get_sections_to_update(force_refresh=force_refresh)
+    if not sections:
         logger.info("No updates needed for %s", owner.name)
         return False
 
-    sections = AllianceUpdateSection.get_sections()
     runs = 0
-
     for section in sections:
-        # Skip sections that are not in the needs_update list
-        if not force_refresh and not needs_update.for_section(section):
-            logger.debug(
-                "No updates needed for %s (%s)",
-                owner.name,
-                section,
-            )
-            continue
-
         task_name = f"update_ally_{section}"
         task = globals().get(task_name)
         if task:
@@ -325,27 +276,13 @@ def update_ally_deadlines(owner_eve_id: int, force_refresh: bool):
 
 def _update_ally_section(owner_eve_id: int, section: str, force_refresh: bool):
     """Update a specific section of the alliance."""
-    section = AllianceUpdateSection(section)
     try:
         alliance = AllianceOwner.objects.get(eve_alliance__alliance_id=owner_eve_id)
     except AllianceOwner.DoesNotExist:
         logger.warning("AllianceOwner for alliance_id %s not found.", owner_eve_id)
         return None
 
-    logger.debug("Updating %s for %s", section.label, alliance.name)
-    alliance.update_manager.reset_update_status(section)
-
-    method: Callable = getattr(alliance, section.method_name)
-    method_signature = inspect.signature(method)
-
-    if "force_refresh" in method_signature.parameters:
-        kwargs = {"force_refresh": force_refresh}
-    else:
-        kwargs = {}
-
-    result = alliance.update_manager.perform_update_status(section, method, **kwargs)
-    alliance.update_manager.update_section_log(section, result)
-    return result
+    return alliance.update_manager.execute_section(section, force_refresh=force_refresh)
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)

@@ -43,11 +43,13 @@ from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     ActionType,
     AdminActions,
-    CorporationUpdateSection,
     PaymentRequestStatus,
+)
+from taxsystem.models.helpers.update_manager import (
+    CorporationUpdateSection,
+    UpdateManagerMixin,
     UpdateStatus,
 )
-from taxsystem.models.helpers.update_manager import UpdateManager
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
@@ -77,8 +79,11 @@ class CorporationUpdateStatus(UpdateStatusBaseModel):
         return f"{self.owner} - {self.section}"
 
 
-class CorporationOwner(models.Model):
+class CorporationOwner(UpdateManagerMixin, models.Model):
     """Model representing a corporation owner in the tax system."""
+
+    update_section_class = CorporationUpdateSection
+    update_status_model = CorporationUpdateStatus
 
     if TYPE_CHECKING:
         ts_corporation_groups: models.QuerySet["CorporationGroup"]
@@ -161,15 +166,6 @@ class CorporationOwner(models.Model):
     def filter_model(self):
         """Return the Filter Model for this owner."""
         return CorporationFilter
-
-    @property
-    def update_manager(self):
-        """Return the Update Manager helper for this owner."""
-        return UpdateManager(
-            owner=self,
-            update_section=CorporationUpdateSection,
-            update_status=CorporationUpdateStatus,
-        )
 
     @classmethod
     def get_esi_scopes(cls) -> list[str]:

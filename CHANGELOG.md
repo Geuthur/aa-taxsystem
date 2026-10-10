@@ -28,14 +28,21 @@ Section Order:
 
 ### Added
 
+- Autonomous UpdateManager: Added `get_sections_to_update` and `execute_section` to encapsulate the complete section lifecycle.
 - Bulk payment actions in Payments Management (multi-select rows to bulk approve, reject, undo, or delete payments)
 - Dedicated backend API endpoint for bulk payment actions (`/taxsystem/api/owner/{owner_id}/manage/payments/bulk-action/`)
 
 ### Changed
 
+- Relocated `CorporationUpdateSection`, `AllianceUpdateSection`, `UpdateSection`, and `UpdateStatus` from `taxsystem.models.helpers.textchoices` to `taxsystem.models.helpers.update_manager` and updated all related imports.
+- Modularized `UpdateManager` with standardized `owner` queries, removing dynamic reflection methods (`_get_owner_field_name`, `_owner_filter`).
 - **Direct Task Execution**: Executed corporation and alliance update sections sequentially and directly in-process instead of subtask chaining.
 - **Graceful ESI 304 & 5xx Handling**: Handled HTTP 304 Not Modified without raising errors and gracefully caught ESI 5xx/RequestError without flagging false token errors.
 - **Freshness Evaluation**: Evaluated `need_update` based on `last_run_finished_at` to prevent repeated polling when ESI responses are not modified.
+
+### Removed
+
+- Removed `UpdateSection`, `CorporationUpdateSection`, `AllianceUpdateSection`, and `UpdateStatus` from `taxsystem.models.helpers.textchoices`.
 
 ## [5.0.0] - 2026-10-08
 
