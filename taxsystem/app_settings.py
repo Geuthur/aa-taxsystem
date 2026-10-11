@@ -21,8 +21,8 @@ TAXSYSTEM_STALE_TYPES = getattr(
         "division_names": 60,
         "divisions": 30,
         "members": 60,
-        "payments": 60,
-        "tax_accounts": 60,
+        "payments": 15,
+        "tax_accounts": 15,
         "deadlines": 1440,
     },
 )

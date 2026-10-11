@@ -138,28 +138,30 @@ class TestTasks(TaxSystemTestCase):
         mock_corp_owner_get.return_value = owner
         mock_update_manager = MagicMock()
         mock_update_manager_property.return_value = mock_update_manager
-        mock_update_manager.perform_update_status.return_value = dummy_result
 
-        def _mock_update_section_log(section, result):
+        def _mock_execute_section(section, force_refresh=False):
             CorporationUpdateStatusFactory(
                 owner=owner,
                 section=section,
-                has_token_error=result.has_token_error,
-                is_success=not result.has_token_error,
-                error_message=result.error_message,
+                has_token_error=dummy_result.has_token_error,
+                is_success=not dummy_result.has_token_error,
+                error_message=dummy_result.error_message,
             )
+            return dummy_result
 
-        mock_update_manager.update_section_log.side_effect = _mock_update_section_log
+        mock_update_manager.execute_section.side_effect = _mock_execute_section
 
         # Test Action
         _update_corp_section(
-            task=MagicMock(),
             owner_eve_id=owner.eve_id,
             section="wallet",
             force_refresh=False,
         )
 
         # Expected Results
+        mock_update_manager.execute_section.assert_called_once_with(
+            "wallet", force_refresh=False
+        )
         new_update_status = CorporationUpdateStatus.objects.get(
             owner=owner, section="wallet"
         )
@@ -241,27 +243,29 @@ class TestTasks(TaxSystemTestCase):
         mock_owner_get.return_value = owner
         mock_update_manager = MagicMock()
         mock_update_manager_property.return_value = mock_update_manager
-        mock_update_manager.perform_update_status.return_value = dummy_result
 
-        def _mock_update_section_log(section, result):
+        def _mock_execute_section(section, force_refresh=False):
             AllianceUpdateStatusFactory(
                 owner=owner,
                 section=section,
-                has_token_error=result.has_token_error,
-                is_success=not result.has_token_error,
-                error_message=result.error_message,
+                has_token_error=dummy_result.has_token_error,
+                is_success=not dummy_result.has_token_error,
+                error_message=dummy_result.error_message,
             )
+            return dummy_result
 
-        mock_update_manager.update_section_log.side_effect = _mock_update_section_log
+        mock_update_manager.execute_section.side_effect = _mock_execute_section
         # Test Action
         _update_ally_section(
-            task=MagicMock(),
             owner_eve_id=owner.eve_id,
             section="deadlines",
             force_refresh=False,
         )
 
         # Expected Results
+        mock_update_manager.execute_section.assert_called_once_with(
+            "deadlines", force_refresh=False
+        )
         new_update_status = AllianceUpdateStatus.objects.get(
             owner=owner, section="deadlines"
         )

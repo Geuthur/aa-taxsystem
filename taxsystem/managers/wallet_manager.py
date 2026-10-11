@@ -15,7 +15,7 @@ from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
 from taxsystem.models.general import EveEntity
-from taxsystem.models.helpers.textchoices import CorporationUpdateSection
+from taxsystem.models.helpers.update_manager import CorporationUpdateSection
 from taxsystem.providers import AppLogger, esi
 
 if TYPE_CHECKING:

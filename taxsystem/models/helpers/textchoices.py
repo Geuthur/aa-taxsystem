@@ -5,76 +5,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 
-class UpdateSection(models.TextChoices):
-    """
-    Base Class for Update Sections.
-    """
-
-    @classmethod
-    def get_sections(cls) -> list[str]:
-        """Return list of section values."""
-        return [choice.value for choice in cls]
-
-    @property
-    def method_name(self) -> str:
-        """Return method name for this section."""
-        return f"update_{self.value}"
-
-
-class UpdateStatus(models.TextChoices):
-    """Status for ESI data updates.
-    Used to indicate the overall status of an Owner.
-    """
-
-    DISABLED = "disabled", _("Disabled")
-    TOKEN_ERROR = "token_error", _("Token Error")
-    ERROR = "error", _("Error")
-    OK = "ok", _("OK")
-    INCOMPLETE = "incomplete", _("Incomplete")
-    IN_PROGRESS = "in_progress", _("In Progress")
-
-    def bootstrap_icon(self) -> str:
-        """Return bootstrap corresponding icon class."""
-        update_map = {
-            status: mark_safe(
-                f"<span class='{self.bootstrap_text_style_class()}' data-bs-tooltip='aa-taxsystem' title='{self.description()}'>⬤</span>"
-            )
-            for status in [
-                self.DISABLED,
-                self.TOKEN_ERROR,
-                self.ERROR,
-                self.INCOMPLETE,
-                self.IN_PROGRESS,
-                self.OK,
-            ]
-        }
-        return update_map.get(self, "")
-
-    def bootstrap_text_style_class(self) -> str:
-        """Return bootstrap corresponding bootstrap text style class."""
-        update_map = {
-            self.DISABLED: "text-muted",
-            self.TOKEN_ERROR: "text-warning",
-            self.INCOMPLETE: "text-warning",
-            self.IN_PROGRESS: "text-info",
-            self.ERROR: "text-danger",
-            self.OK: "text-success",
-        }
-        return update_map.get(self, "")
-
-    def description(self) -> str:
-        """Return description for an enum object."""
-        update_map = {
-            self.DISABLED: _("Update is disabled"),
-            self.TOKEN_ERROR: _("One section has a token error during update"),
-            self.INCOMPLETE: _("One or more sections have not been updated"),
-            self.IN_PROGRESS: _("Update is in progress"),
-            self.ERROR: _("An error occurred during update"),
-            self.OK: _("Updates completed successfully"),
-        }
-        return update_map.get(self, "")
-
-
 class AccountStatus(models.TextChoices):
     """Status for Tax Accounts.
     This indicates the current status of a tax account.
@@ -191,26 +121,6 @@ class PaymentSystemText(models.TextChoices):
     REVISER = "Payment must be approved by an reviser", _(
         "Payment must be approved by an reviser"
     )
-
-
-class CorporationUpdateSection(UpdateSection):
-    """Sections for corporation updates."""
-
-    DIVISION_NAMES = "division_names", _("Wallet Division Names")
-    DIVISIONS = "divisions", _("Wallet Divisions")
-    WALLET = "wallet", _("Wallet Journal")
-    MEMBERS = "members", _("Members")
-    TAX_ACCOUNTS = "tax_accounts", _("Tax Accounts")
-    PAYMENTS = "payments", _("Payments")
-    DEADLINES = "deadlines", _("Deadlines")
-
-
-class AllianceUpdateSection(UpdateSection):
-    """Sections for alliance updates."""
-
-    TAX_ACCOUNTS = "tax_accounts", _("Tax Accounts")
-    PAYMENTS = "payments", _("Payments")
-    DEADLINES = "deadlines", _("Deadlines")
 
 
 class AdminActions(models.TextChoices):

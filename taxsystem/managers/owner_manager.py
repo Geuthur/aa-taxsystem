@@ -10,7 +10,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
 from taxsystem import __title__
-from taxsystem.models.helpers.textchoices import (
+from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
     UpdateStatus,
