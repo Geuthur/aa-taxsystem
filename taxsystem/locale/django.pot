@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Taxsystem\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-taxsystem/\n"
-"POT-Creation-Date: 2026-10-08 23:32+0200\n"
+"POT-Creation-Date: 2026-10-11 20:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,9 +49,9 @@ msgstr ""
 #: taxsystem/api/groups.py:101 taxsystem/api/groups.py:145
 #: taxsystem/api/groups.py:172 taxsystem/api/logs.py:46
 #: taxsystem/api/payments.py:338 taxsystem/api/payments.py:485
-#: taxsystem/api/payments.py:563 taxsystem/api/payments.py:589
-#: taxsystem/api/payments.py:616 taxsystem/api/payments.py:643
-#: taxsystem/api/payments.py:674
+#: taxsystem/api/payments.py:563 taxsystem/api/payments.py:593
+#: taxsystem/api/payments.py:655 taxsystem/api/payments.py:682
+#: taxsystem/api/payments.py:709 taxsystem/api/payments.py:740
 msgid "Owner not Found."
 msgstr ""
 
@@ -69,9 +69,9 @@ msgstr ""
 #: taxsystem/api/groups.py:176 taxsystem/api/logs.py:49
 #: taxsystem/api/overview.py:34 taxsystem/api/payments.py:347
 #: taxsystem/api/payments.py:453 taxsystem/api/payments.py:489
-#: taxsystem/api/payments.py:565 taxsystem/api/payments.py:591
-#: taxsystem/api/payments.py:618 taxsystem/api/payments.py:645
-#: taxsystem/api/payments.py:676
+#: taxsystem/api/payments.py:565 taxsystem/api/payments.py:595
+#: taxsystem/api/payments.py:657 taxsystem/api/payments.py:684
+#: taxsystem/api/payments.py:711 taxsystem/api/payments.py:742
 msgid "Permission Denied."
 msgstr ""
 
@@ -208,7 +208,7 @@ msgstr ""
 msgid "Account Overview"
 msgstr ""
 
-#: taxsystem/api/general.py:45 taxsystem/models/helpers/textchoices.py:162
+#: taxsystem/api/general.py:45 taxsystem/models/helpers/textchoices.py:92
 msgid "Settings"
 msgstr ""
 
@@ -250,7 +250,7 @@ msgstr ""
 msgid "Tax free group \"{name}\" created."
 msgstr ""
 
-#: taxsystem/api/overview.py:51 taxsystem/models/helpers/textchoices.py:158
+#: taxsystem/api/overview.py:51 taxsystem/models/helpers/textchoices.py:88
 msgid "Corporation"
 msgstr ""
 
@@ -315,6 +315,31 @@ msgstr ""
 msgid "Custom Payment Added: {comment}"
 msgstr ""
 
+#: taxsystem/api/payments.py:603
+msgid "No payment IDs provided."
+msgstr ""
+
+#: taxsystem/api/payments.py:619
+msgid "approved"
+msgstr ""
+
+#: taxsystem/api/payments.py:620
+msgid "rejected"
+msgstr ""
+
+#: taxsystem/api/payments.py:621
+msgid "undone"
+msgstr ""
+
+#: taxsystem/api/payments.py:622
+msgid "deleted"
+msgstr ""
+
+#: taxsystem/api/payments.py:627
+#, python-brace-format
+msgid "{processed} of {total} payments successfully {action}."
+msgstr ""
+
 #: taxsystem/managers/wallet_manager.py:266
 msgid "Master Wallet"
 msgstr ""
@@ -324,178 +349,186 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: taxsystem/models/alliance.py:88
+#: taxsystem/models/alliance.py:94
 msgid "The corporation that owns this alliance tax system."
 msgstr ""
 
-#: taxsystem/models/alliance.py:93
+#: taxsystem/models/alliance.py:99
 msgid "Designates whether this alliance owner is active."
 msgstr ""
 
-#: taxsystem/models/alliance.py:99
+#: taxsystem/models/alliance.py:105
 msgid "Tax Amount in ISK that is set for the alliance. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/alliance.py:106
+#: taxsystem/models/alliance.py:112
 msgid "Tax Period in days for the alliance. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/alliance.py:115
+#: taxsystem/models/alliance.py:121
 msgid "Message that is sent to alliance members when a tax payment is overdue or the deposit has fallen below zero."
 msgstr ""
 
-#: taxsystem/models/alliance.py:289 taxsystem/models/corporation.py:447
+#: taxsystem/models/alliance.py:300 taxsystem/models/corporation.py:444
 msgid "Owner of this payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:376 taxsystem/models/corporation.py:538
-#: taxsystem/models/helpers/textchoices.py:161
+#: taxsystem/models/alliance.py:387 taxsystem/models/corporation.py:535
+#: taxsystem/models/helpers/textchoices.py:91
 msgid "Payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:377 taxsystem/models/corporation.py:539
+#: taxsystem/models/alliance.py:388 taxsystem/models/corporation.py:536
 msgid "Payment that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:383 taxsystem/models/corporation.py:546
+#: taxsystem/models/alliance.py:394 taxsystem/models/corporation.py:543
 msgid "New Status"
 msgstr ""
 
-#: taxsystem/models/alliance.py:384 taxsystem/models/corporation.py:547
+#: taxsystem/models/alliance.py:395 taxsystem/models/corporation.py:544
 msgid "New Status of the action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:398 taxsystem/models/corporation.py:562
-#: taxsystem/models/corporation.py:596
+#: taxsystem/models/alliance.py:409 taxsystem/models/alliance.py:442
+#: taxsystem/models/corporation.py:559 taxsystem/models/corporation.py:593
 msgid "Owner"
 msgstr ""
 
-#: taxsystem/models/alliance.py:399 taxsystem/models/corporation.py:563
+#: taxsystem/models/alliance.py:410 taxsystem/models/corporation.py:560
 msgid "Owner that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:408 taxsystem/models/corporation.py:572
+#: taxsystem/models/alliance.py:419 taxsystem/models/corporation.py:569
 msgid "Type"
 msgstr ""
 
-#: taxsystem/models/alliance.py:409 taxsystem/models/corporation.py:573
+#: taxsystem/models/alliance.py:420 taxsystem/models/corporation.py:570
 msgid "Type of the action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:416 taxsystem/models/base.py:455
-#: taxsystem/models/corporation.py:581
+#: taxsystem/models/alliance.py:427 taxsystem/models/base.py:464
+#: taxsystem/models/corporation.py:578
 msgid "Action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:417 taxsystem/models/base.py:456
-#: taxsystem/models/corporation.py:582
+#: taxsystem/models/alliance.py:428 taxsystem/models/base.py:465
+#: taxsystem/models/corporation.py:579
 msgid "Action performed"
 msgstr ""
 
-#: taxsystem/models/base.py:64
-msgid "Request Status"
+#: taxsystem/models/alliance.py:443
+msgid "Owner of the alliance group"
 msgstr ""
 
-#: taxsystem/models/base.py:71
-msgid "Reviser that approved or rejected the payment"
-msgstr ""
-
-#: taxsystem/models/base.py:125
-msgid "No date"
-msgstr ""
-
-#: taxsystem/models/base.py:154
-msgid "Deposit Pool in ISK. Max 16 Digits"
-msgstr ""
-
-#: taxsystem/models/base.py:376
-msgid "Reason"
-msgstr ""
-
-#: taxsystem/models/base.py:377
-msgid "Amount"
-msgstr ""
-
-#: taxsystem/models/base.py:441
-msgid "User"
-msgstr ""
-
-#: taxsystem/models/base.py:442
-msgid "User that performed the action"
-msgstr ""
-
-#: taxsystem/models/base.py:447
-msgid "Date"
-msgstr ""
-
-#: taxsystem/models/base.py:448
-msgid "Date of the action"
-msgstr ""
-
-#: taxsystem/models/base.py:462
-msgid "Comment"
-msgstr ""
-
-#: taxsystem/models/base.py:463
-msgid "Comment of the action"
-msgstr ""
-
-#: taxsystem/models/corporation.py:104
-msgid "Designates whether this corporation owner is active."
-msgstr ""
-
-#: taxsystem/models/corporation.py:110
-msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr ""
-
-#: taxsystem/models/corporation.py:117
-msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
-msgstr ""
-
-#: taxsystem/models/corporation.py:126
-msgid "Message that is sent to corporation members when a tax payment is overdue or the deposit has fallen below zero."
-msgstr ""
-
-#: taxsystem/models/corporation.py:328
-#: taxsystem/models/helpers/textchoices.py:83
-msgid "Active"
-msgstr ""
-
-#: taxsystem/models/corporation.py:329
-#: taxsystem/models/helpers/textchoices.py:86
-msgid "Missing"
-msgstr ""
-
-#: taxsystem/models/corporation.py:330
-msgid "Unregistered"
-msgstr ""
-
-#: taxsystem/models/corporation.py:331
-msgid "is alt"
-msgstr ""
-
-#: taxsystem/models/corporation.py:342
-msgid "Status"
-msgstr ""
-
-#: taxsystem/models/corporation.py:597
-msgid "Owner of the corporation group"
-msgstr ""
-
-#: taxsystem/models/corporation.py:602
+#: taxsystem/models/alliance.py:448 taxsystem/models/corporation.py:599
 msgid "Group Name"
 msgstr ""
 
-#: taxsystem/models/corporation.py:603
-msgid "Name of the corporation group"
+#: taxsystem/models/alliance.py:449
+msgid "Name of the alliance group"
 msgstr ""
 
-#: taxsystem/models/corporation.py:609
+#: taxsystem/models/alliance.py:455 taxsystem/models/corporation.py:606
 msgid "Groups"
 msgstr ""
 
-#: taxsystem/models/corporation.py:610
+#: taxsystem/models/alliance.py:456 taxsystem/models/corporation.py:607
 msgid "Groups that will not be taxed"
+msgstr ""
+
+#: taxsystem/models/base.py:65
+msgid "Request Status"
+msgstr ""
+
+#: taxsystem/models/base.py:72
+msgid "Reviser that approved or rejected the payment"
+msgstr ""
+
+#: taxsystem/models/base.py:126
+msgid "No date"
+msgstr ""
+
+#: taxsystem/models/base.py:155
+msgid "Deposit Pool in ISK. Max 16 Digits"
+msgstr ""
+
+#: taxsystem/models/base.py:385
+msgid "Reason"
+msgstr ""
+
+#: taxsystem/models/base.py:386
+msgid "Amount"
+msgstr ""
+
+#: taxsystem/models/base.py:450
+msgid "User"
+msgstr ""
+
+#: taxsystem/models/base.py:451
+msgid "User that performed the action"
+msgstr ""
+
+#: taxsystem/models/base.py:456
+msgid "Date"
+msgstr ""
+
+#: taxsystem/models/base.py:457
+msgid "Date of the action"
+msgstr ""
+
+#: taxsystem/models/base.py:471
+msgid "Comment"
+msgstr ""
+
+#: taxsystem/models/base.py:472
+msgid "Comment of the action"
+msgstr ""
+
+#: taxsystem/models/corporation.py:109
+msgid "Designates whether this corporation owner is active."
+msgstr ""
+
+#: taxsystem/models/corporation.py:115
+msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
+msgstr ""
+
+#: taxsystem/models/corporation.py:122
+msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
+msgstr ""
+
+#: taxsystem/models/corporation.py:131
+msgid "Message that is sent to corporation members when a tax payment is overdue or the deposit has fallen below zero."
+msgstr ""
+
+#: taxsystem/models/corporation.py:329
+#: taxsystem/models/helpers/textchoices.py:13
+msgid "Active"
+msgstr ""
+
+#: taxsystem/models/corporation.py:330
+#: taxsystem/models/helpers/textchoices.py:16
+msgid "Missing"
+msgstr ""
+
+#: taxsystem/models/corporation.py:331
+msgid "Unregistered"
+msgstr ""
+
+#: taxsystem/models/corporation.py:332
+msgid "is alt"
+msgstr ""
+
+#: taxsystem/models/corporation.py:343
+msgid "Status"
+msgstr ""
+
+#: taxsystem/models/corporation.py:594
+msgid "Owner of the corporation group"
+msgstr ""
+
+#: taxsystem/models/corporation.py:600
+msgid "Name of the corporation group"
 msgstr ""
 
 #: taxsystem/models/general.py:37
@@ -522,179 +555,179 @@ msgstr ""
 msgid "Can manage all Alliances"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:29
-msgid "Disabled"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:30
-msgid "Token Error"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:31
-msgid "Error"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:32
-msgid "OK"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:33
-msgid "Incomplete"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:34
-msgid "In Progress"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:68
-msgid "Update is disabled"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:69
-msgid "One section has a token error during update"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:70
-msgid "One or more sections have not been updated"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:71
-msgid "Update is in progress"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:72
-msgid "An error occurred during update"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:73
-msgid "Updates completed successfully"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:84
+#: taxsystem/models/helpers/textchoices.py:14
 msgid "Inactive"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:85
+#: taxsystem/models/helpers/textchoices.py:15
 msgid "Deactivated"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:120
+#: taxsystem/models/helpers/textchoices.py:50
 msgid "Approved"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:121
+#: taxsystem/models/helpers/textchoices.py:51
 msgid "Pending"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:122
+#: taxsystem/models/helpers/textchoices.py:52
 msgid "Rejected"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:123
+#: taxsystem/models/helpers/textchoices.py:53
 msgid "Requires Auditor"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:149
+#: taxsystem/models/helpers/textchoices.py:79
 msgid "Status Changed"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:150
+#: taxsystem/models/helpers/textchoices.py:80
 msgid "Payment Added"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:151
+#: taxsystem/models/helpers/textchoices.py:81
 msgid "Custom Payment Added"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:152
+#: taxsystem/models/helpers/textchoices.py:82
 msgid "Reviser Comment"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:157
+#: taxsystem/models/helpers/textchoices.py:87
 msgid "Tax Account"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:159
+#: taxsystem/models/helpers/textchoices.py:89
 msgid "Filter"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:160
+#: taxsystem/models/helpers/textchoices.py:90
 msgid "Filter Set"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:163
+#: taxsystem/models/helpers/textchoices.py:93
 msgid "Group"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:171
+#: taxsystem/models/helpers/textchoices.py:101
 msgid "Paid"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:172
+#: taxsystem/models/helpers/textchoices.py:102
 msgid "Unpaid"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:189
+#: taxsystem/models/helpers/textchoices.py:119
 msgid "Payment added to system"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:190
+#: taxsystem/models/helpers/textchoices.py:120
 msgid "Automated approved Payment"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:192
+#: taxsystem/models/helpers/textchoices.py:122
 msgid "Payment must be approved by an reviser"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:199
-msgid "Wallet Division Names"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:200
-msgid "Wallet Divisions"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:201
-msgid "Wallet Journal"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:202
-msgid "Members"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:203
-#: taxsystem/models/helpers/textchoices.py:211
-msgid "Tax Accounts"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:204
-#: taxsystem/models/helpers/textchoices.py:212
-msgid "Payments"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:205
-#: taxsystem/models/helpers/textchoices.py:213
-msgid "Deadlines"
-msgstr ""
-
-#: taxsystem/models/helpers/textchoices.py:218
+#: taxsystem/models/helpers/textchoices.py:128
 msgid "Added"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:219
+#: taxsystem/models/helpers/textchoices.py:129
 msgid "Changed"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:220
+#: taxsystem/models/helpers/textchoices.py:130
 msgid "Deleted"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:224
+#: taxsystem/models/helpers/textchoices.py:134
 msgid "Exact Match"
 msgstr ""
 
-#: taxsystem/models/helpers/textchoices.py:225
+#: taxsystem/models/helpers/textchoices.py:135
 msgid "Contains"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:51
+msgid "Wallet Division Names"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:52
+msgid "Wallet Divisions"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:53
+msgid "Wallet Journal"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:54
+msgid "Members"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:55
+#: taxsystem/models/helpers/update_manager.py:63
+msgid "Tax Accounts"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:56
+#: taxsystem/models/helpers/update_manager.py:64
+msgid "Payments"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:57
+#: taxsystem/models/helpers/update_manager.py:65
+msgid "Deadlines"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:73
+msgid "Disabled"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:74
+msgid "Token Error"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:75
+msgid "Error"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:76
+msgid "OK"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:77
+msgid "Incomplete"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:78
+msgid "In Progress"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:104
+msgid "Update is disabled"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:105
+msgid "One section has a token error during update"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:106
+msgid "One or more sections have not been updated"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:107
+msgid "Update is in progress"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:108
+msgid "An error occurred during update"
+msgstr ""
+
+#: taxsystem/models/helpers/update_manager.py:109
+msgid "Updates completed successfully"
 msgstr ""
 
 #: taxsystem/views.py:66

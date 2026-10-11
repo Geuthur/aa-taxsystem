@@ -26,11 +26,17 @@ Section Order:
 ### Removed
 -->
 
+## [5.0.1] - 2026-10-11
+
 ### Added
 
 - Autonomous UpdateManager: Added `get_sections_to_update` and `execute_section` to encapsulate the complete section lifecycle.
 - Bulk payment actions in Payments Management (multi-select rows to bulk approve, reject, undo, or delete payments)
 - Dedicated backend API endpoint for bulk payment actions (`/taxsystem/api/owner/{owner_id}/manage/payments/bulk-action/`)
+
+### Fixed
+
+- Unintended token error
 
 ### Changed
 
@@ -1008,5 +1014,6 @@ python manage.py taxsystem_migrate_payments
 [4.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.0...v4.0.1 "4.0.1"
 [4.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.1...v4.0.2 "4.0.2"
 [5.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.2...v5.0.0 "v5.0.0"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.0...HEAD "In Development"
+[5.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.0...v5.0.1 "v5.0.1"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.1...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
