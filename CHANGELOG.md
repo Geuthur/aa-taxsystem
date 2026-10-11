@@ -26,6 +26,14 @@ Section Order:
 ### Removed
 -->
 
+<!-- Your changes go here -->
+
+## [5.0.4] - 2026-10-11
+
+### Fixed
+
+- **Missing Migration**: Fixed issue where users updating from 4.x to 5.x were missing the required database migration for `alliance_group`.
+
 ## [5.0.3] - 2026-10-11
 
 ### Added
@@ -1029,5 +1037,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.0...v5.0.1 "v5.0.1"
 [5.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.1...v5.0.2 "v5.0.2"
 [5.0.3]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.2...v5.0.3 "v5.0.3"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.3...HEAD "In Development"
+[5.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.3...v5.0.4 "v5.0.4"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.4...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
