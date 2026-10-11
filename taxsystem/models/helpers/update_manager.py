@@ -182,7 +182,7 @@ class UpdateManager:
         )
 
     def update_section_if_changed(
-        self, section, fetch_func, force_refresh: bool = False
+        self, section: models.TextChoices, fetch_func, force_refresh: bool = False
     ):
         """
         Handle updating a specific section if there are changes.
