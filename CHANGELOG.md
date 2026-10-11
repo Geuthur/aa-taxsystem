@@ -26,6 +26,12 @@ Section Order:
 ### Removed
 -->
 
+## [5.0.2] - 2026-10-11
+
+### Fixed
+
+- **Unintended token error**: Resolved an issue where HTTP 404 errors were incorrectly flagged as token errors, causing unnecessary "token_error" status flags.
+
 ## [5.0.1] - 2026-10-11
 
 ### Added
@@ -36,7 +42,7 @@ Section Order:
 
 ### Fixed
 
-- Unintended token error
+- **Unintended token error**: Resolved an issue where HTTP 404 errors were incorrectly flagged as token errors, causing unnecessary "token_error" status flags.
 
 ### Changed
 
@@ -1015,5 +1021,6 @@ python manage.py taxsystem_migrate_payments
 [4.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.1...v4.0.2 "4.0.2"
 [5.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.2...v5.0.0 "v5.0.0"
 [5.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.0...v5.0.1 "v5.0.1"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.1...HEAD "In Development"
+[5.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.1...v5.0.2 "v5.0.2"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.2...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
