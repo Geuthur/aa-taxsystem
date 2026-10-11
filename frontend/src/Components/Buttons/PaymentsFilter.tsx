@@ -11,6 +11,7 @@ export function PaymentsFilter({ statusFilter, setStatusFilter, t }: PaymentsFil
   const options = [
     { value: "all", label: t("All"), activeVariant: "aa-btn-primary" },
     { value: "pending", label: t("Pending"), activeVariant: "aa-btn-warning" },
+    { value: "needs_approval", label: t("Needs Approval"), activeVariant: "aa-btn-warning" },
     { value: "approved", label: t("Approved"), activeVariant: "aa-btn-success" },
     { value: "rejected", label: t("Rejected"), activeVariant: "aa-btn-danger" },
   ];

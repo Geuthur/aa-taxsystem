@@ -28,6 +28,10 @@ Section Order:
 
 ## [5.0.2] - 2026-10-11
 
+### Added
+
+- **Needs Approval Option**: Added "Needs Approval" option to payments filter.
+
 ### Fixed
 
 - **Unintended token error**: Resolved an issue where HTTP 404 errors were incorrectly flagged as token errors, causing unnecessary "token_error" status flags.
