@@ -26,11 +26,13 @@ Section Order:
 ### Removed
 -->
 
-## [5.0.2] - 2026-10-11
+## [5.0.3] - 2026-10-11
 
 ### Added
 
 - **Needs Approval Option**: Added "Needs Approval" option to payments filter.
+
+## [5.0.2] - 2026-10-11
 
 ### Fixed
 
@@ -1026,5 +1028,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.0]: https://github.com/Geuthur/aa-taxsystem/compare/v4.0.2...v5.0.0 "v5.0.0"
 [5.0.1]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.0...v5.0.1 "v5.0.1"
 [5.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.1...v5.0.2 "v5.0.2"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.2...HEAD "In Development"
+[5.0.3]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.2...v5.0.3 "v5.0.3"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.3...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
