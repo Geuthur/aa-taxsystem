@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Taxsystem\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-taxsystem/\n"
-"POT-Creation-Date: 2026-10-11 22:46+0200\n"
+"POT-Creation-Date: 2026-10-17 08:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,9 +45,9 @@ msgstr ""
 #: taxsystem/api/filters.py:62 taxsystem/api/filters.py:129
 #: taxsystem/api/filters.py:187 taxsystem/api/filters.py:239
 #: taxsystem/api/filters.py:299 taxsystem/api/filters.py:353
-#: taxsystem/api/filters.py:404 taxsystem/api/groups.py:47
-#: taxsystem/api/groups.py:101 taxsystem/api/groups.py:145
-#: taxsystem/api/groups.py:172 taxsystem/api/logs.py:46
+#: taxsystem/api/filters.py:404 taxsystem/api/groups.py:46
+#: taxsystem/api/groups.py:100 taxsystem/api/groups.py:144
+#: taxsystem/api/groups.py:171 taxsystem/api/logs.py:46
 #: taxsystem/api/payments.py:338 taxsystem/api/payments.py:485
 #: taxsystem/api/payments.py:563 taxsystem/api/payments.py:593
 #: taxsystem/api/payments.py:655 taxsystem/api/payments.py:682
@@ -64,9 +64,9 @@ msgstr ""
 #: taxsystem/api/filters.py:357 taxsystem/api/filters.py:408
 #: taxsystem/api/general.py:40 taxsystem/api/general.py:82
 #: taxsystem/api/general.py:133 taxsystem/api/general.py:153
-#: taxsystem/api/general.py:174 taxsystem/api/groups.py:50
-#: taxsystem/api/groups.py:105 taxsystem/api/groups.py:149
-#: taxsystem/api/groups.py:176 taxsystem/api/logs.py:49
+#: taxsystem/api/general.py:174 taxsystem/api/groups.py:49
+#: taxsystem/api/groups.py:104 taxsystem/api/groups.py:148
+#: taxsystem/api/groups.py:175 taxsystem/api/logs.py:49
 #: taxsystem/api/overview.py:34 taxsystem/api/payments.py:347
 #: taxsystem/api/payments.py:453 taxsystem/api/payments.py:489
 #: taxsystem/api/payments.py:565 taxsystem/api/payments.py:595
@@ -224,28 +224,24 @@ msgstr ""
 msgid "Superadmin"
 msgstr ""
 
-#: taxsystem/api/groups.py:113
+#: taxsystem/api/groups.py:112
 #, python-brace-format
 msgid "{group_obj} deleted - Reason: {reason}"
 msgstr ""
 
-#: taxsystem/api/groups.py:128
+#: taxsystem/api/groups.py:127
 msgid "Group not Found."
 msgstr ""
 
-#: taxsystem/api/groups.py:180
-msgid "Groups are only supported for Corporation owners."
-msgstr ""
-
-#: taxsystem/api/groups.py:185
+#: taxsystem/api/groups.py:179
 msgid "Group name is required."
 msgstr ""
 
-#: taxsystem/api/groups.py:188
+#: taxsystem/api/groups.py:182
 msgid "A group with this name already exists."
 msgstr ""
 
-#: taxsystem/api/groups.py:194
+#: taxsystem/api/groups.py:188
 #, python-brace-format
 msgid "Tax free group \"{name}\" created."
 msgstr ""

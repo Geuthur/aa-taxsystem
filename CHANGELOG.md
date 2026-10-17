@@ -28,6 +28,12 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [5.0.5] - 2026-10-17
+
+### Fixed
+
+- **Alliance Groups in Groups API**: Removed corporation owner restriction for group creation in the groups API, enabling alliance owners to create and manage tax-free groups.
+
 ## [5.0.4] - 2026-10-11
 
 ### Fixed
@@ -1038,5 +1044,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.2]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.1...v5.0.2 "v5.0.2"
 [5.0.3]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.2...v5.0.3 "v5.0.3"
 [5.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.3...v5.0.4 "v5.0.4"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.4...HEAD "In Development"
+[5.0.5]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.4...v5.0.5 "v5.0.5"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.5...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
