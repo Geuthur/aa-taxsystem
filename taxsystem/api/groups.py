@@ -15,7 +15,6 @@ from allianceauth.services.hooks import get_extension_logger
 from taxsystem import __title__
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
-from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.helpers.textchoices import (
     ActionType,
     AdminActions,
@@ -174,11 +173,6 @@ class GroupsApiEndpoints:
             # pylint: disable=duplicate-code
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
-
-            if not isinstance(owner, CorporationOwner):
-                return 400, {
-                    "error": _("Groups are only supported for Corporation owners.")
-                }
 
             name = payload.name.strip()
             if not name:

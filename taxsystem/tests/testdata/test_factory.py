@@ -3,7 +3,9 @@
 # AA TaxSystem
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
+    AllianceGroupFactory,
     AllianceOwnerFactory,
+    CorporationGroupFactory,
     CorporationOwnerFactory,
     EveCorporationInfoFactory,
     EveEntityFactory,
@@ -54,3 +56,15 @@ class TestFactory(TaxSystemTestCase):
         entity = EveEntityFactory(name="Test Corp", category="corporation")
         self.assertEqual(entity.name, "Test Corp")
         self.assertEqual(entity.category, "corporation")
+
+    def test_can_create_corporation_group(self):
+        """Test that a corporation group can be created."""
+        group = CorporationGroupFactory()
+        self.assertTrue(group.name)
+        self.assertTrue(group.owner)
+
+    def test_can_create_alliance_group(self):
+        """Test that an alliance group can be created."""
+        group = AllianceGroupFactory()
+        self.assertTrue(group.name)
+        self.assertTrue(group.owner)

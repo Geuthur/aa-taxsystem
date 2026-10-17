@@ -22,6 +22,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from taxsystem.models import (
     AllianceFilter,
     AllianceFilterSet,
+    AllianceGroup,
     AllianceOwner,
     AlliancePaymentAccount,
     AlliancePaymentHistory,
@@ -723,6 +724,27 @@ class CorporationGroupFactory(
         django_get_or_create = ("owner", "name")
 
     owner = factory.SubFactory(CorporationOwnerFactory)
+    name = factory.Faker("company")
+
+    @factory.post_generation
+    def groups(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for group in extracted:
+                obj.groups.add(group)
+
+
+class AllianceGroupFactory(
+    factory.django.DjangoModelFactory, metaclass=BaseMetaFactory[AllianceGroup]
+):
+    """Generate an AllianceGroup object for testing."""
+
+    class Meta:
+        model = AllianceGroup
+        django_get_or_create = ("owner", "name")
+
+    owner = factory.SubFactory(AllianceOwnerFactory)
     name = factory.Faker("company")
 
     @factory.post_generation

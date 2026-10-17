@@ -5,9 +5,14 @@ from http import HTTPStatus
 # Django
 from django.urls import reverse
 
+# Alliance Auth
+from allianceauth.groupmanagement.models import Group
+
 # AA TaxSystem
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
+    AllianceGroupFactory,
+    AllianceOwnerFactory,
     CorporationGroupFactory,
     CorporationOwnerFactory,
 )
@@ -17,13 +22,14 @@ API_URL = "taxsystem:api"
 
 
 class TestGroupApiEndpoints(TaxSystemTestCase):
-    """Test Filter API Endpoints."""
+    """Test Group API Endpoints."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
         cls.audit = CorporationOwnerFactory(user=cls.user)
+        cls.alliance_audit = AllianceOwnerFactory(user=cls.user)
 
     def test_get_filters(self):
         """
@@ -177,6 +183,106 @@ class TestGroupApiEndpoints(TaxSystemTestCase):
         )
         self.client.force_login(self.user)
         payload = {"name": "Unauthorized Group", "group_ids": []}
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_get_groups_alliance_should_return_groups(self):
+        # Test Data
+        auth_group = Group.objects.create(name="Alliance Auth Group")
+        group = AllianceGroupFactory(
+            owner=self.alliance_audit,
+            name="Alliance Test Group",
+        )
+        group.groups.add(auth_group)
+
+        url = reverse(
+            f"{API_URL}:get_groups",
+            kwargs={"owner_id": self.alliance_audit.eve_id},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
+        data = json.loads(response.content)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(data[0]["name"], "Alliance Test Group")
+        self.assertEqual(data[0]["groups"][0]["name"], "Alliance Auth Group")
+
+    def test_delete_group_alliance_should_delete_group(self):
+        # Test Data
+        group = AllianceGroupFactory(
+            owner=self.alliance_audit,
+            name="Alliance Delete Group",
+        )
+        url = reverse(
+            f"{API_URL}:delete_group",
+            kwargs={"owner_id": self.alliance_audit.eve_id, "group_pk": group.pk},
+        )
+        self.client.force_login(self.superuser)
+        data = {"comment": "Delete alliance group via API test."}
+
+        # Test Action
+        response = self.client.post(
+            path=url, data=json.dumps(data), content_type="application/json"
+        )
+
+        # Expected Result
+        result = "{group} deleted - Reason: {reason}".format(
+            group=group,
+            reason=data["comment"],
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.json().get("message"), result)
+        self.assertFalse(
+            self.alliance_audit.ts_alliance_groups.filter(pk=group.pk).exists()
+        )
+
+    def test_create_group_alliance_should_200_when_has_perm(self):
+        # Test Data
+        auth_group = Group.objects.create(name="Alliance Assigned Group")
+        url = reverse(
+            f"{API_URL}:create_group",
+            kwargs={"owner_id": self.alliance_audit.eve_id},
+        )
+        self.client.force_login(self.superuser)
+        payload = {
+            "name": "New Alliance Tax Free Group",
+            "group_ids": [auth_group.pk],
+        }
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        created_group = self.alliance_audit.ts_alliance_groups.filter(
+            name="New Alliance Tax Free Group"
+        ).first()
+        self.assertIsNotNone(created_group)
+        self.assertTrue(created_group.groups.filter(pk=auth_group.pk).exists())
+
+    def test_create_group_alliance_should_403_when_no_perm(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:create_group",
+            kwargs={"owner_id": self.alliance_audit.eve_id},
+        )
+        self.client.force_login(self.user)
+        payload = {"name": "Unauthorized Alliance Group", "group_ids": []}
 
         # Test Action
         response = self.client.post(
