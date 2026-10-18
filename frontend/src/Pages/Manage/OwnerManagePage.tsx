@@ -90,25 +90,25 @@ export function OwnerManagePage() {
 
   if (isLoading) {
     return (
-      <main className="text-center py-5">
+      <Card className="text-center py-5 border-0 bg-transparent">
         <Spinner animation="border" variant="primary" />
         <div className="mt-2 text-muted">{t("Loading dashboard...")}</div>
-      </main>
+      </Card>
     );
   }
 
   if (isError || !dashboard) {
     return (
-      <main className="alert alert-danger" role="alert">
+      <Card className="alert alert-danger border-0" role="alert">
         {error instanceof Error ? error.message : t("Failed to load dashboard")}
-      </main>
+      </Card>
     );
   }
 
   const isCorp = dashboard.owner.owner_type === "corporation";
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={dashboard.owner.owner_name}>
         <div className="d-flex align-items-center gap-2">
           <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
@@ -410,7 +410,7 @@ export function OwnerManagePage() {
         onHide={() => setShowDivisionsModal(false)}
         divisions={dashboard.divisions}
       />
-    </main>
+    </Card>
   );
 }
 

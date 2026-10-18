@@ -33,7 +33,7 @@ export function AdminPage() {
   });
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("Superuser Task Administration")}>
         <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
@@ -180,7 +180,7 @@ export function AdminPage() {
           </Col>
         </Row>
       </div>
-    </main>
+    </Card>
   );
 }
 

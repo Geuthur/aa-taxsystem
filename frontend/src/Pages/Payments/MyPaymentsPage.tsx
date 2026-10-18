@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router-dom";
 // Third Party
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Search } from "lucide-react";
-import { Form, InputGroup } from "react-bootstrap";
+import { Card, Form, InputGroup } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -54,7 +54,7 @@ export function MyPaymentsPage() {
   );
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("My Invoices & Payments")}>
         <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
@@ -87,7 +87,7 @@ export function MyPaymentsPage() {
           variant="vowra-light"
         />
       </div>
-    </main>
+    </Card>
   );
 }
 

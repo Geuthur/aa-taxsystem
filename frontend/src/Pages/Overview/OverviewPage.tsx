@@ -45,7 +45,7 @@ export function OverviewPage() {
   }, [data, search, ownerType]);
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("Tax System Overview")}>
         <div className="d-flex align-items-center gap-2">
           <Badge bg="secondary" className="px-3 py-2">
@@ -183,7 +183,7 @@ export function OverviewPage() {
           ))}
         </Row>
       </div>
-    </main>
+    </Card>
   );
 }
 

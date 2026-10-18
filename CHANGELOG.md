@@ -28,6 +28,11 @@ Section Order:
 
 <!-- Your changes go here -->
 
+### Changed
+
+- **Alliance Auth Flatly & Darkly Theme Compatibility**: Updated CSS design tokens and theme-specific overrides (`html[data-theme="flatly"]`, `html[data-theme="darkly"]`) in `index.css` and `SettingsPage.module.css` for full theme compatibility with light and dark themes. Modernized inputs, dropdowns, table shells, and status indicators.
+- **Card-Based UI Architecture**: Replaced all `<main>` and `<section>` HTML elements across headers, overview, admin, member accounts, owner management, settings, payments, my payments, and 404 pages with `react-bootstrap` `Card`, `Card.Body`, and `Card.Header` components.
+
 ## [5.0.5] - 2026-10-17
 
 ### Fixed
