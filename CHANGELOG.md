@@ -28,6 +28,8 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [5.0.6] - 2026-10-18
+
 ### Changed
 
 - **Alliance Auth Flatly & Darkly Theme Compatibility**: Updated CSS design tokens and theme-specific overrides (`html[data-theme="flatly"]`, `html[data-theme="darkly"]`) in `index.css` and `SettingsPage.module.css` for full theme compatibility with light and dark themes. Modernized inputs, dropdowns, table shells, and status indicators.
@@ -1050,5 +1052,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.3]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.2...v5.0.3 "v5.0.3"
 [5.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.3...v5.0.4 "v5.0.4"
 [5.0.5]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.4...v5.0.5 "v5.0.5"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.5...HEAD "In Development"
+[5.0.6]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.5...v5.0.6 "v5.0.6"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.6...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
