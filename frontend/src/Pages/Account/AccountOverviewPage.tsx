@@ -16,7 +16,7 @@ import {
   User,
   Wallet,
 } from "lucide-react";
-import { Badge, Button, Col, Form, InputGroup, Row, Spinner } from "react-bootstrap";
+import { Badge, Button, Card, Col, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -75,7 +75,7 @@ export function AccountOverviewPage() {
   }, [accounts, filterOwnerId, search, ownerType]);
 
   return (
-    <main className="d-flex flex-column gap-3">
+    <Card className="d-flex flex-column gap-3 border-0 bg-transparent">
       <BaseSectionHeader name={t("Member Account Overview")}>
         <div className="d-flex align-items-center gap-2">
           {filterOwnerId && (
@@ -352,7 +352,7 @@ export function AccountOverviewPage() {
           })}
         </Row>
       </div>
-    </main>
+    </Card>
   );
 }
 

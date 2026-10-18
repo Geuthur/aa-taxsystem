@@ -6,7 +6,7 @@ import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { RowSelectionState } from "@tanstack/react-table";
 import { ArrowLeft, Check, CreditCard, RotateCcw, Search, Trash2, X } from "lucide-react";
-import { Badge, Button, Form, InputGroup, Spinner } from "react-bootstrap";
+import { Badge, Button, Card, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -131,7 +131,7 @@ export function PaymentsPage() {
   );
 
   return (
-    <main>
+    <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("Payments Management")}>
         <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
@@ -312,7 +312,7 @@ export function PaymentsPage() {
           ) : null}
         </BaseModal>
       )}
-    </main>
+    </Card>
   );
 }
 
