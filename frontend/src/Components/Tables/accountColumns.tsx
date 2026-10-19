@@ -133,6 +133,7 @@ export function getAccountColumns({
           {renderTooltip(
             t("Payment History & Activities"),
             <Button
+              variant="info"
               className="aa-btn aa-btn-sm aa-btn-info"
               onClick={() => onHistory(row.original)}
             >
@@ -143,6 +144,7 @@ export function getAccountColumns({
           {renderTooltip(
             t("Add Custom Payment"),
             <Button
+              variant="success"
               className="aa-btn aa-btn-sm aa-btn-success"
               onClick={() => onAddPayment(row.original)}
             >
@@ -153,6 +155,7 @@ export function getAccountColumns({
           {renderTooltip(
             t("Switch Account Status"),
             <Button
+              variant="secondary"
               className="aa-btn aa-btn-sm aa-btn-secondary"
               onClick={() => onSwitchStatus(row.original)}
             >

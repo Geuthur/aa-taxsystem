@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
 import type { SuperuserTaxOwnerSchema } from "@/Api/schema";
-import { SuperuserPage } from "@/Pages/Superuser/SuperuserPage";
+import { SuperuserPage } from "@/Pages/SuperuserPage";
 
 vi.mock("@/Api/ApiCalls", () => ({
   loadSuperuserOwners: vi.fn(),

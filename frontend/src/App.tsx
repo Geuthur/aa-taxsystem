@@ -19,7 +19,7 @@ import OverviewPage from "@/Pages/Overview/OverviewPage";
 import MyPaymentsPage from "@/Pages/Payments/MyPaymentsPage";
 import PaymentsPage from "@/Pages/Payments/PaymentsPage";
 import SettingsPage from "@/Pages/SettingsPage";
-import SuperuserPage from "@/Pages/Superuser/SuperuserPage";
+import SuperuserPage from "@/Pages/SuperuserPage";
 
 export { AppName, ProjectName };
 
