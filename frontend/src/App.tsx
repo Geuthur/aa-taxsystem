@@ -13,13 +13,13 @@ import { initReactI18next } from "react-i18next";
 import { AppName, ProjectName } from "../configuration";
 import { ErrorPage } from "@/Pages/404";
 import AccountOverviewPage from "@/Pages/Account/AccountOverviewPage";
-import AdminPage from "@/Pages/Admin/AdminPage";
 import AuthBase from "@/Pages/Base";
 import OwnerManagePage from "@/Pages/Manage/OwnerManagePage";
 import OverviewPage from "@/Pages/Overview/OverviewPage";
 import MyPaymentsPage from "@/Pages/Payments/MyPaymentsPage";
 import PaymentsPage from "@/Pages/Payments/PaymentsPage";
 import SettingsPage from "@/Pages/SettingsPage";
+import SuperuserPage from "@/Pages/Superuser/SuperuserPage";
 
 export { AppName, ProjectName };
 
@@ -64,7 +64,8 @@ function App() {
                 <Route path="owner/:ownerId/" element={<OwnerManagePage />} />
                 <Route path="payments/:ownerId/" element={<PaymentsPage />} />
                 <Route path="my-payments/:ownerId/" element={<MyPaymentsPage />} />
-                <Route path="admin/" element={<AdminPage />} />
+                <Route path="superuser/" element={<SuperuserPage />} />
+                <Route path="admin/" element={<Navigate to={`/${ProjectName}/superuser/`} replace />} />
                 <Route path="settings/" element={<SettingsPage />} />
                 <Route path="*" element={<ErrorPage />} />
               </Route>

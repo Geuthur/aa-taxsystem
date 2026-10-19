@@ -28,6 +28,22 @@ Section Order:
 
 <!-- Your changes go here -->
 
+### Added
+
+- **Superuser Administration**: Standardized Superuser management page (`/superuser/`) and backend endpoints (`superuser/owners/`, `superuser/owners/{owner_type}/{owner_id}/update/`, `superuser/owners/{owner_type}/{owner_id}/`, `superuser/owners/{owner_type}/{owner_id}/inspect/`).
+- **Superuser Navbar Navigation**: Added distinct red Superuser navigation item (`.aa-nav-danger`) with `ShieldAlert` icon visible exclusively to superusers.
+- **Deep-linking & Inspection Support with `nuqs`**: Enabled URL-driven owner inspection (`?inspect=<id>&type=<corporation|alliance>`) with seamless browser Back/Forward navigation.
+- **Owner Action Dropdown**: Added individual owner action menus for manual update, force refresh, deep inspection, and safe deletion with confirmation modal.
+
+### Fixed
+
+- Switchting Account to Inactive instead of Deactivated
+- Deactivated User was not path of is_tax_free
+
+### Changed
+
+- **Terminology Standardization**: Renamed "Superadmin" menu item and administrative references to "Superuser" across navigation and API schema.
+
 ## [5.0.6] - 2026-10-18
 
 ### Changed

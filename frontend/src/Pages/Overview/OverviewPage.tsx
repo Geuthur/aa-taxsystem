@@ -131,7 +131,7 @@ export function OverviewPage() {
                             {owner.type_display}
                           </Badge>
                           <Badge bg={owner.active ? "success" : "secondary"}>
-                            {owner.active ? t("Active") : t("Inactive")}
+                            {owner.active ? t("Active") : t("Deactivated")}
                           </Badge>
                         </div>
                       </div>

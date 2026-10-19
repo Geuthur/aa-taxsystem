@@ -604,3 +604,66 @@ export async function addCustomPayment(
   }
   return data as { success?: boolean; message?: string };
 }
+
+export async function loadSuperuserOwners(): Promise<
+  components["schemas"]["SuperuserTaxOwnerSchema"][]
+> {
+  const { data, error } = await apiClient.GET(
+    `/${ProjectName}/api/superuser/owners/`,
+  );
+  if (error || !data) {
+    throw new Error("Failed to load superuser owners");
+  }
+  return data;
+}
+
+export async function triggerSuperuserOwnerUpdate(params: {
+  ownerType: "corporation" | "alliance";
+  ownerId: number;
+  payload?: components["schemas"]["SuperuserTaxOwnerUpdateRequest"];
+}): Promise<components["schemas"]["MessageSchema"]> {
+  const { data, error } = await apiClient.POST(
+    `/${ProjectName}/api/superuser/owners/{owner_type}/{owner_id}/update/`,
+    {
+      params: { path: { owner_type: params.ownerType, owner_id: params.ownerId } },
+      body: params.payload ?? { force_refresh: false },
+    },
+  );
+  if (error || !data) {
+    throw new Error("Failed to trigger update");
+  }
+  return data;
+}
+
+export async function deleteSuperuserOwner(params: {
+  ownerType: "corporation" | "alliance";
+  ownerId: number;
+}): Promise<components["schemas"]["MessageSchema"]> {
+  const { data, error } = await apiClient.DELETE(
+    `/${ProjectName}/api/superuser/owners/{owner_type}/{owner_id}/`,
+    {
+      params: { path: { owner_type: params.ownerType, owner_id: params.ownerId } },
+    },
+  );
+  if (error || !data) {
+    throw new Error("Failed to delete owner");
+  }
+  return data;
+}
+
+export async function loadSuperuserOwnerInspect(params: {
+  ownerType: "corporation" | "alliance";
+  ownerId: number;
+}): Promise<components["schemas"]["DashboardResponse"]> {
+  const { data, error } = await apiClient.GET(
+    `/${ProjectName}/api/superuser/owners/{owner_type}/{owner_id}/inspect/`,
+    {
+      params: { path: { owner_type: params.ownerType, owner_id: params.ownerId } },
+    },
+  );
+  if (error || !data) {
+    throw new Error("Failed to inspect owner dashboard");
+  }
+  return data;
+}
+

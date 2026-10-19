@@ -38,11 +38,16 @@ import HistoryTab from "@/Pages/Manage/Tabs/HistoryTab";
 import MembersTab from "@/Pages/Manage/Tabs/MembersTab";
 import { formatNumber } from "@/Utils";
 
-export function OwnerManagePage() {
+interface OwnerManagePageProps {
+  ownerIdOverride?: number;
+  onBack?: () => void;
+}
+
+export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProps = {}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { ownerId } = useParams<{ ownerId: string }>();
-  const numericOwnerId = Number(ownerId || 0);
+  const numericOwnerId = ownerIdOverride ?? Number(ownerId || 0);
 
   const [activeTab, setActiveTab] = useOwnerTabState();
 
@@ -111,10 +116,22 @@ export function OwnerManagePage() {
     <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={dashboard.owner.owner_name}>
         <div className="d-flex align-items-center gap-2">
-          <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
-            <ArrowLeft size={14} />
-            {t("Overview")}
-          </Link>
+          {onBack ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onBack}
+              className="d-flex align-items-center gap-1 aa-btn aa-btn-secondary aa-btn-sm"
+            >
+              <ArrowLeft size={14} />
+              {t("Back to Superuser Overview")}
+            </Button>
+          ) : (
+            <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
+              <ArrowLeft size={14} />
+              {t("Overview")}
+            </Link>
+          )}
           <Button
             className="aa-btn aa-btn-sm aa-btn-warning d-flex align-items-center gap-1"
             onClick={handleOpenSettings}

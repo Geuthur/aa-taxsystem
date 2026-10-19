@@ -50,8 +50,11 @@ class TestGeneralApi(TaxSystemTestCase):
         data = response.json()
         right_links = [link["link"] for link in data["right_links"]]
         self.assertIn(reverse("taxsystem:add_corp"), right_links)
-        self.assertIn(reverse("taxsystem:add_alliance"), right_links)
-        self.assertIn("/admin/", right_links)
+        self.assertIn("/superuser/", right_links)
+        superuser_link = next(
+            link for link in data["right_links"] if link["link"] == "/superuser/"
+        )
+        self.assertEqual(superuser_link["name"], "Superuser")
 
     def test_get_menu_should_return_403_without_basic_access(self):
         # Test Data

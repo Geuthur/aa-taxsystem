@@ -354,3 +354,23 @@ class UpdateTaxAmountRequest(Schema):
 
 class UpdateTaxPeriodRequest(Schema):
     tax_period: int
+
+
+class SuperuserTaxOwnerSchema(Schema):
+    id: int
+    owner_id: int
+    owner_type: Literal["corporation", "alliance"]
+    name: str
+    icon: str | None = None
+    ticker: str | None = None
+    status: str = "ok"
+    is_active: bool = True
+    tax_amount: float = 0.0
+    tax_period: int = 0
+    open_invoices: int = 0
+    last_sync: datetime | None = None
+    error_message: str | None = None
+
+
+class SuperuserTaxOwnerUpdateRequest(Schema):
+    force_refresh: bool = False
