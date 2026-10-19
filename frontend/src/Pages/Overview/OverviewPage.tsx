@@ -170,8 +170,16 @@ export function OverviewPage() {
                     {owner.can_manage && (
                       <Link
                         to={`owner/${owner.id}/`}
-                        className="aa-btn aa-btn-sm aa-btn-warning flex-fill d-flex align-items-center justify-content-center gap-1"
+                        className={`aa-btn aa-btn-sm aa-btn-warning flex-fill d-flex align-items-center justify-content-center gap-1 ${
+                          owner.has_errors ? "aa-btn-pulse" : ""
+                        }`}
                       >
+                        {owner.has_errors && (
+                          <span className="aa-pending-dot-container me-1">
+                            <span className="aa-pending-dot-ping" />
+                            <span className="aa-pending-dot-core" />
+                          </span>
+                        )}
                         <Settings size={14} />
                         {t("Manage")}
                       </Link>

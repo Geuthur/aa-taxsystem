@@ -26,7 +26,12 @@ Section Order:
 ### Removed
 -->
 
-<!-- Your changes go here -->
+### Added
+
+- **Superuser View Unification**: Standardized the 4 top KPI metric cards (`bg-body border-secondary h-100 shadow-sm`) with dynamic "Sync Issues" indicator (Green Shield when 0 issues, Red AlertTriangle with counter badge when issues exist).
+- **Collapsible Global Task Administration**: Converted the Global Task Administration panel into a collapsible accordion card with toggle button (`data-testid="toggle-task-panel"`), "Force Refresh ESI" toggle switch, and responsive nested task cards.
+- **Filter Button Group**: Added standardized ButtonGroup for filtering owner types (`All`, `Corporations`, `Alliances`, `Sync Issues`) alongside the search input.
+- **Pulsing Error Indicator**: Added `has_errors` detection to `OwnerOverviewSchema` in `overview.py` and rendered pulsing warning indicator (`aa-btn-warning aa-btn-pulse` with `aa-pending-dot-container`) on the `Manage` button for owners with active sync errors.
 
 ## [5.0.7] - 2026-10-19
 

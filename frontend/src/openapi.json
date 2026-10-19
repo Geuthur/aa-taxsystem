@@ -3528,6 +3528,11 @@
           "can_manage": {
             "title": "Can Manage",
             "type": "boolean"
+          },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
           }
         },
         "required": [

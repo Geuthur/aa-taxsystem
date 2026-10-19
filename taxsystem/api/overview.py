@@ -42,6 +42,11 @@ class ApiEndpoints:
                 .order_by("eve_corporation__corporation_name")
             )
             manageable_corps = set(CorporationOwner.objects.manage_to(user))
+            corp_error_ids = set(
+                CorporationOwner.objects.filter(
+                    ts_corporation_update_status__is_success=False
+                ).values_list("eve_corporation__corporation_id", flat=True)
+            )
             for corporation in corporations:
                 owner_list.append(
                     schema.OwnerOverviewSchema(
@@ -58,6 +63,9 @@ class ApiEndpoints:
                             user=user, owner=corporation
                         ),
                         can_manage=corporation in manageable_corps,
+                        has_errors=(
+                            corporation.eve_corporation.corporation_id in corp_error_ids
+                        ),
                     )
                 )
 
@@ -68,6 +76,11 @@ class ApiEndpoints:
                 .order_by("eve_alliance__alliance_name")
             )
             manageable_allies = set(AllianceOwner.objects.manage_to(user))
+            alliance_error_ids = set(
+                AllianceOwner.objects.filter(
+                    ts_alliance_update_status__is_success=False
+                ).values_list("eve_alliance__alliance_id", flat=True)
+            )
             for alliance in alliances:
                 owner_list.append(
                     schema.OwnerOverviewSchema(
@@ -84,6 +97,9 @@ class ApiEndpoints:
                             user=user, owner=alliance
                         ),
                         can_manage=alliance in manageable_allies,
+                        has_errors=(
+                            alliance.eve_alliance.alliance_id in alliance_error_ids
+                        ),
                     )
                 )
 

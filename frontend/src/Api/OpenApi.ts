@@ -1099,6 +1099,11 @@ export interface components {
             open_invoices: number;
             /** Can Manage */
             can_manage: boolean;
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
         };
         /** CharacterSchema */
         CharacterSchema: {

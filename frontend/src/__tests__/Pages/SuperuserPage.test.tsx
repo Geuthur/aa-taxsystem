@@ -138,7 +138,7 @@ describe("SuperuserPage", () => {
     });
   });
 
-  it("should toggle global task panel and trigger update all tasks", async () => {
+  it("should toggle global task panel and trigger update all tasks with force refresh switch", async () => {
     // Test Data
     const user = userEvent.setup();
     vi.mocked(ApiCalls.runAdminTasks).mockResolvedValue({
@@ -154,6 +154,9 @@ describe("SuperuserPage", () => {
     const toggle = screen.getByTestId("toggle-task-panel");
     fireEvent.click(toggle);
 
+    const forceSwitch = await screen.findByLabelText(/Force Refresh ESI/i);
+    await user.click(forceSwitch);
+
     const updateAllButton = await screen.findByRole("button", { name: /^Update All$/i });
     await user.click(updateAllButton);
 
@@ -161,7 +164,7 @@ describe("SuperuserPage", () => {
     await waitFor(() => {
       expect(ApiCalls.runAdminTasks).toHaveBeenCalledWith({
         target: "all",
-        force_refresh: false,
+        force_refresh: true,
       });
       expect(screen.getByTestId("task-feedback-message")).toHaveTextContent(
         "Queued Update All Taxsystem",
@@ -169,7 +172,7 @@ describe("SuperuserPage", () => {
     });
   });
 
-  it("should filter owners by type buttons and search", async () => {
+  it("should filter owners by type buttons, issues, and search", async () => {
     // Test Data
     const user = userEvent.setup();
     renderPage();
@@ -186,14 +189,22 @@ describe("SuperuserPage", () => {
     expect(screen.queryByText("Alpha Mining Corp")).not.toBeInTheDocument();
     expect(screen.getByText("Northern Coalition")).toBeInTheDocument();
 
-    // Test Action 2: Reset to All and Search
+    // Test Action 2: Filter by Issues
+    const issuesFilterButton = screen.getByRole("button", { name: /^Issues/i });
+    await user.click(issuesFilterButton);
+
+    // Expected Result 2
+    expect(screen.queryByText("Alpha Mining Corp")).not.toBeInTheDocument();
+    expect(screen.getByText("Northern Coalition")).toBeInTheDocument();
+
+    // Test Action 3: Reset to All and Search
     const allFilterButton = screen.getByRole("button", { name: /^All /i });
     await user.click(allFilterButton);
 
     const searchInput = screen.getByPlaceholderText(/Search by name or ticker/i);
     await user.type(searchInput, "AMC");
 
-    // Expected Result 2
+    // Expected Result 3
     expect(screen.getByText("Alpha Mining Corp")).toBeInTheDocument();
     expect(screen.queryByText("Northern Coalition")).not.toBeInTheDocument();
   });

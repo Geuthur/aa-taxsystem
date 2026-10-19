@@ -94,6 +94,7 @@ class OwnerOverviewSchema(Schema):
     active: bool
     open_invoices: int
     can_manage: bool
+    has_errors: bool = False
 
 
 class OverviewSchema(Schema):
