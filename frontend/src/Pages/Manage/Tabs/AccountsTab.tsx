@@ -119,7 +119,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
         },
         onSwitchStatus: (acc) => {
           setSelectedAccount(acc);
-          setNewStatus(acc.is_active ? "inactive" : "active");
+          setNewStatus(acc.is_active ? "deactivated" : "active");
         },
       }),
     [t],
@@ -219,8 +219,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
               className="bg-dark text-light border-secondary"
             >
               <option value="active">{t("Active")}</option>
-              <option value="inactive">{t("Inactive")}</option>
-              <option value="exempt">{t("Exempt")}</option>
+              <option value="deactivated">{t("Deactivated")}</option>
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">

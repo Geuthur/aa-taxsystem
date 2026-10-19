@@ -834,6 +834,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/taxsystem/api/superuser/owners/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all corporation and alliance owners for superuser management */
+        get: operations["taxsystem_api_superuser_list_superuser_owners"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/update/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger an update for a corporation or alliance owner */
+        post: operations["taxsystem_api_superuser_update_superuser_owner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a corporation or alliance owner */
+        delete: operations["taxsystem_api_superuser_delete_superuser_owner"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/inspect/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Inspect a corporation or alliance owner dashboard */
+        get: operations["taxsystem_api_superuser_inspect_superuser_owner"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1560,6 +1628,61 @@ export interface components {
             name: string;
             /** Group Ids */
             group_ids: number[];
+        };
+        /** SuperuserTaxOwnerSchema */
+        SuperuserTaxOwnerSchema: {
+            /** Id */
+            id: number;
+            /** Owner Id */
+            owner_id: number;
+            /**
+             * Owner Type
+             * @enum {string}
+             */
+            owner_type: "corporation" | "alliance";
+            /** Name */
+            name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /**
+             * Status
+             * @default ok
+             */
+            status: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Tax Amount
+             * @default 0
+             */
+            tax_amount: number;
+            /**
+             * Tax Period
+             * @default 0
+             */
+            tax_period: number;
+            /**
+             * Open Invoices
+             * @default 0
+             */
+            open_invoices: number;
+            /** Last Sync */
+            last_sync?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+        };
+        /** SuperuserTaxOwnerUpdateRequest */
+        SuperuserTaxOwnerUpdateRequest: {
+            /**
+             * Force Refresh
+             * @default false
+             */
+            force_refresh: boolean;
         };
     };
     responses: never;
@@ -3364,6 +3487,189 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_superuser_list_superuser_owners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuperuserTaxOwnerSchema"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_superuser_update_superuser_owner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_type: string;
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuperuserTaxOwnerUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_superuser_delete_superuser_owner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_type: string;
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_superuser_inspect_superuser_owner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_type: string;
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardResponse"];
                 };
             };
             /** @description Bad Request */

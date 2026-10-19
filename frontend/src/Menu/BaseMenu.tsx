@@ -2,6 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 
 // Third Party
+import { ShieldAlert } from "lucide-react";
 import { Nav } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +27,28 @@ export interface ToPath {
     toPath: (link: string) => string;
 }
 
+export const SuperuserMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
+    const { t } = useTranslation();
+    const path = useLocation();
+    const hit = path.pathname.includes("/superuser/");
+
+    return (
+        <Nav.Item as="li">
+            <Nav.Link
+                as={Link}
+                to={{ pathname: toPath(link.link ?? ""), search: path.search }}
+                id={link.name}
+                key={link.name}
+                active={hit}
+                className="aa-nav-danger d-flex align-items-center gap-1"
+            >
+                <ShieldAlert size={14} className="text-danger" />
+                <span className="text-danger">{t(link.name)}</span>
+            </Nav.Link>
+        </Nav.Item>
+    );
+};
+
 export const MenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
     const { t } = useTranslation();
     const path = useLocation();
@@ -35,6 +58,10 @@ export const MenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
         link.link?.startsWith("http://") ||
         link.link?.startsWith("https://")
     );
+
+    if (link.link === "/superuser/" || link.name.toLowerCase() === "superuser") {
+        return <SuperuserMenuItem link={link} toPath={toPath} />;
+    }
 
     if (isExternal) {
         return (

@@ -132,7 +132,10 @@ class TestAdminApiEndpoints(TaxSystemTestCase):
             kwargs={"owner_id": self.audit.eve_id, "account_pk": self.tax_account.pk},
         )
         self.client.force_login(self.superuser)
-        data = {"new_status": "inactive", "comment": "Switching status via API test."}
+        data = {
+            "new_status": "deactivated",
+            "comment": "Switching status via API test.",
+        }
 
         # Test Action
         response = self.client.post(

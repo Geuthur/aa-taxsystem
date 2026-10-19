@@ -244,7 +244,7 @@ class AdminApiEndpoints:
 
             # Toggle the filter set enabled state
             if account.status == AccountStatus.ACTIVE:
-                account.status = AccountStatus.INACTIVE
+                account.status = AccountStatus.DEACTIVATED
             else:
                 account.status = AccountStatus.ACTIVE
             account.save()

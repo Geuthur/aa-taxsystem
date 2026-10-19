@@ -608,6 +608,12 @@ html[data-bs-theme="dark"] {
     overflow-x: auto;
 }
 
+.aa-table-shell:has(.dropdown-menu.show),
+.aa-table-shell-light:has(.dropdown-menu.show),
+.aa-table-scroll:has(.dropdown-menu.show) {
+    overflow: visible;
+}
+
 .aa-table {
     width: 100%;
     border-collapse: collapse;
@@ -1000,4 +1006,19 @@ html[data-bs-theme="dark"] {
     50% {
         box-shadow: 0 0 10px 2px rgba(245, 158, 11, 0.5);
     }
+}
+
+/* Superuser Navigation Highlight */
+.navbar-nav .nav-link.aa-nav-danger,
+.dropdown-item.aa-nav-danger,
+.nav-link.aa-nav-danger {
+    color: var(--bs-danger, #dc3545) !important;
+    font-weight: 600;
+}
+
+.navbar-nav .nav-link.aa-nav-danger:hover,
+.dropdown-item.aa-nav-danger:hover,
+.nav-link.aa-nav-danger:hover {
+    color: #ff6b6b !important;
+    background-color: rgba(220, 53, 69, 0.1) !important;
 }

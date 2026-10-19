@@ -29,7 +29,7 @@ export function renderTooltip(
 ) {
     return (
         <OverlayTrigger
-            placement="auto"
+            placement="top"
             trigger={["hover", "focus"]}
             overlay={
                 <Tooltip id="vowra" className={styles["tooltip-z-index"]}>

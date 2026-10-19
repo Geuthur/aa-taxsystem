@@ -40,7 +40,6 @@ from taxsystem.models.general import (
     UpdateSectionResult,
 )
 from taxsystem.models.helpers.textchoices import (
-    AccountStatus,
     ActionType,
     AdminActions,
     PaymentRequestStatus,
@@ -410,8 +409,8 @@ class CorporationPaymentAccount(PaymentAccountBaseModel):
     @property
     # pylint: disable=duplicate-code
     def is_tax_free(self) -> bool:
-        """Return True if the account belongs to any tax-free group, is exempt, or is inactive."""
-        if self.is_exempt or self.status == AccountStatus.INACTIVE:
+        """Return True if the account belongs to any tax-free group, is exempt, deactivated or inactive."""
+        if self.is_exempt or self.is_deactivated or self.is_inactive:
             return True
         tax_free = (
             self.owner.group_model.objects.filter(
