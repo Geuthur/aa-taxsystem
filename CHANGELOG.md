@@ -28,6 +28,8 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [5.0.7] - 2026-10-19
+
 ### Added
 
 - **Superuser Administration**: Standardized Superuser management page (`/superuser/`) and backend endpoints (`superuser/owners/`, `superuser/owners/{owner_type}/{owner_id}/update/`, `superuser/owners/{owner_type}/{owner_id}/`, `superuser/owners/{owner_type}/{owner_id}/inspect/`).
@@ -1069,5 +1071,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.4]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.3...v5.0.4 "v5.0.4"
 [5.0.5]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.4...v5.0.5 "v5.0.5"
 [5.0.6]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.5...v5.0.6 "v5.0.6"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.6...HEAD "In Development"
+[5.0.7]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.6...v5.0.7 "v5.0.7"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.7...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
