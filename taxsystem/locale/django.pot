@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Taxsystem\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-taxsystem/\n"
-"POT-Creation-Date: 2026-10-18 20:49+0200\n"
+"POT-Creation-Date: 2026-10-19 17:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,6 +72,8 @@ msgstr ""
 #: taxsystem/api/payments.py:565 taxsystem/api/payments.py:595
 #: taxsystem/api/payments.py:657 taxsystem/api/payments.py:684
 #: taxsystem/api/payments.py:711 taxsystem/api/payments.py:742
+#: taxsystem/api/superuser.py:44 taxsystem/api/superuser.py:161
+#: taxsystem/api/superuser.py:222 taxsystem/api/superuser.py:278
 msgid "Permission Denied."
 msgstr ""
 
@@ -221,7 +223,7 @@ msgid "Add Alliance"
 msgstr ""
 
 #: taxsystem/api/general.py:65
-msgid "Superadmin"
+msgid "Superuser"
 msgstr ""
 
 #: taxsystem/api/groups.py:112
@@ -336,6 +338,38 @@ msgstr ""
 msgid "{processed} of {total} payments successfully {action}."
 msgstr ""
 
+#: taxsystem/api/superuser.py:172 taxsystem/api/superuser.py:231
+#: taxsystem/api/superuser.py:288
+#, python-format
+msgid "Corporation with ID %(id)s not found"
+msgstr ""
+
+#: taxsystem/api/superuser.py:182 taxsystem/api/superuser.py:200
+#, python-format
+msgid "Queued update for %(name)s"
+msgstr ""
+
+#: taxsystem/api/superuser.py:190 taxsystem/api/superuser.py:248
+#: taxsystem/api/superuser.py:298
+#, python-format
+msgid "Alliance with ID %(id)s not found"
+msgstr ""
+
+#: taxsystem/api/superuser.py:203 taxsystem/api/superuser.py:259
+#: taxsystem/api/superuser.py:303
+msgid "Invalid owner type specified."
+msgstr ""
+
+#: taxsystem/api/superuser.py:239
+#, python-format
+msgid "Corporation %(name)s deleted successfully."
+msgstr ""
+
+#: taxsystem/api/superuser.py:255
+#, python-format
+msgid "Alliance %(name)s deleted successfully."
+msgstr ""
+
 #: taxsystem/managers/wallet_manager.py:266
 msgid "Master Wallet"
 msgstr ""
@@ -345,91 +379,91 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: taxsystem/models/alliance.py:94
+#: taxsystem/models/alliance.py:93
 msgid "The corporation that owns this alliance tax system."
 msgstr ""
 
-#: taxsystem/models/alliance.py:99
+#: taxsystem/models/alliance.py:98
 msgid "Designates whether this alliance owner is active."
 msgstr ""
 
-#: taxsystem/models/alliance.py:105
+#: taxsystem/models/alliance.py:104
 msgid "Tax Amount in ISK that is set for the alliance. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/alliance.py:112
+#: taxsystem/models/alliance.py:111
 msgid "Tax Period in days for the alliance. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/alliance.py:121
+#: taxsystem/models/alliance.py:120
 msgid "Message that is sent to alliance members when a tax payment is overdue or the deposit has fallen below zero."
 msgstr ""
 
-#: taxsystem/models/alliance.py:300 taxsystem/models/corporation.py:444
+#: taxsystem/models/alliance.py:299 taxsystem/models/corporation.py:443
 msgid "Owner of this payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:387 taxsystem/models/corporation.py:535
+#: taxsystem/models/alliance.py:386 taxsystem/models/corporation.py:534
 #: taxsystem/models/helpers/textchoices.py:91
 msgid "Payment"
 msgstr ""
 
-#: taxsystem/models/alliance.py:388 taxsystem/models/corporation.py:536
+#: taxsystem/models/alliance.py:387 taxsystem/models/corporation.py:535
 msgid "Payment that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:394 taxsystem/models/corporation.py:543
+#: taxsystem/models/alliance.py:393 taxsystem/models/corporation.py:542
 msgid "New Status"
 msgstr ""
 
-#: taxsystem/models/alliance.py:395 taxsystem/models/corporation.py:544
+#: taxsystem/models/alliance.py:394 taxsystem/models/corporation.py:543
 msgid "New Status of the action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:409 taxsystem/models/alliance.py:442
-#: taxsystem/models/corporation.py:559 taxsystem/models/corporation.py:593
+#: taxsystem/models/alliance.py:408 taxsystem/models/alliance.py:441
+#: taxsystem/models/corporation.py:558 taxsystem/models/corporation.py:592
 msgid "Owner"
 msgstr ""
 
-#: taxsystem/models/alliance.py:410 taxsystem/models/corporation.py:560
+#: taxsystem/models/alliance.py:409 taxsystem/models/corporation.py:559
 msgid "Owner that the action was performed on"
 msgstr ""
 
-#: taxsystem/models/alliance.py:419 taxsystem/models/corporation.py:569
+#: taxsystem/models/alliance.py:418 taxsystem/models/corporation.py:568
 msgid "Type"
 msgstr ""
 
-#: taxsystem/models/alliance.py:420 taxsystem/models/corporation.py:570
+#: taxsystem/models/alliance.py:419 taxsystem/models/corporation.py:569
 msgid "Type of the action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:427 taxsystem/models/base.py:464
-#: taxsystem/models/corporation.py:578
+#: taxsystem/models/alliance.py:426 taxsystem/models/base.py:464
+#: taxsystem/models/corporation.py:577
 msgid "Action"
 msgstr ""
 
-#: taxsystem/models/alliance.py:428 taxsystem/models/base.py:465
-#: taxsystem/models/corporation.py:579
+#: taxsystem/models/alliance.py:427 taxsystem/models/base.py:465
+#: taxsystem/models/corporation.py:578
 msgid "Action performed"
 msgstr ""
 
-#: taxsystem/models/alliance.py:443
+#: taxsystem/models/alliance.py:442
 msgid "Owner of the alliance group"
 msgstr ""
 
-#: taxsystem/models/alliance.py:448 taxsystem/models/corporation.py:599
+#: taxsystem/models/alliance.py:447 taxsystem/models/corporation.py:598
 msgid "Group Name"
 msgstr ""
 
-#: taxsystem/models/alliance.py:449
+#: taxsystem/models/alliance.py:448
 msgid "Name of the alliance group"
 msgstr ""
 
-#: taxsystem/models/alliance.py:455 taxsystem/models/corporation.py:606
+#: taxsystem/models/alliance.py:454 taxsystem/models/corporation.py:605
 msgid "Groups"
 msgstr ""
 
-#: taxsystem/models/alliance.py:456 taxsystem/models/corporation.py:607
+#: taxsystem/models/alliance.py:455 taxsystem/models/corporation.py:606
 msgid "Groups that will not be taxed"
 msgstr ""
 
@@ -481,49 +515,49 @@ msgstr ""
 msgid "Comment of the action"
 msgstr ""
 
-#: taxsystem/models/corporation.py:109
+#: taxsystem/models/corporation.py:108
 msgid "Designates whether this corporation owner is active."
 msgstr ""
 
-#: taxsystem/models/corporation.py:115
+#: taxsystem/models/corporation.py:114
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
 msgstr ""
 
-#: taxsystem/models/corporation.py:122
+#: taxsystem/models/corporation.py:121
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
 msgstr ""
 
-#: taxsystem/models/corporation.py:131
+#: taxsystem/models/corporation.py:130
 msgid "Message that is sent to corporation members when a tax payment is overdue or the deposit has fallen below zero."
 msgstr ""
 
-#: taxsystem/models/corporation.py:329
+#: taxsystem/models/corporation.py:328
 #: taxsystem/models/helpers/textchoices.py:13
 msgid "Active"
 msgstr ""
 
-#: taxsystem/models/corporation.py:330
+#: taxsystem/models/corporation.py:329
 #: taxsystem/models/helpers/textchoices.py:16
 msgid "Missing"
 msgstr ""
 
-#: taxsystem/models/corporation.py:331
+#: taxsystem/models/corporation.py:330
 msgid "Unregistered"
 msgstr ""
 
-#: taxsystem/models/corporation.py:332
+#: taxsystem/models/corporation.py:331
 msgid "is alt"
 msgstr ""
 
-#: taxsystem/models/corporation.py:343
+#: taxsystem/models/corporation.py:342
 msgid "Status"
 msgstr ""
 
-#: taxsystem/models/corporation.py:594
+#: taxsystem/models/corporation.py:593
 msgid "Owner of the corporation group"
 msgstr ""
 
-#: taxsystem/models/corporation.py:600
+#: taxsystem/models/corporation.py:599
 msgid "Name of the corporation group"
 msgstr ""
 
