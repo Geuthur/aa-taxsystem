@@ -28,9 +28,24 @@ Section Order:
 
 ### Added
 
+- [ADD] Pulsing error indicator (`aa-order-nav-pulse` with danger ping dot) on the `Settings` navigation item in `BaseMenu` whenever manageable corporations or alliances have active sync/token errors.
+
+- [ADD] Settings owners endpoint `GET /taxsystem/api/settings/owners/` and update-all endpoint `POST /taxsystem/api/settings/owners/update-all/` with `force_refresh=false`.
+
+- [ADD] Owners Update Status & Management section on `SettingsPage` with individual owner cards, status badges, sync times, section details, "Update All" button, and single owner "Update" button (each with `force_refresh=false` and 60-second cooldown timer).
+
+- [ADD] Owner deletion modal with `BaseModal` on `SettingsPage`.
+
+- [CHANGE] Moved owner update and delete actions from `OwnerManagePage` header to `SettingsPage`.
+
+- [FIX] Fixed Update Status card displaying green "Synchronized" badge when ESI sync errors occurred; now dynamically shows red `Sync Error` or warning `Token Error` with pinging animation and section breakdown.
+
 - **Superuser View Unification**: Standardized the 4 top KPI metric cards (`bg-body border-secondary h-100 shadow-sm`) with dynamic "Sync Issues" indicator (Green Shield when 0 issues, Red AlertTriangle with counter badge when issues exist).
+
 - **Collapsible Global Task Administration**: Converted the Global Task Administration panel into a collapsible accordion card with toggle button (`data-testid="toggle-task-panel"`), "Force Refresh ESI" toggle switch, and responsive nested task cards.
+
 - **Filter Button Group**: Added standardized ButtonGroup for filtering owner types (`All`, `Corporations`, `Alliances`, `Sync Issues`) alongside the search input.
+
 - **Pulsing Error Indicator**: Added `has_errors` detection to `OwnerOverviewSchema` in `overview.py` and rendered pulsing warning indicator (`aa-btn-warning aa-btn-pulse` with `aa-pending-dot-container`) on the `Manage` button for owners with active sync errors.
 
 ## [5.0.7] - 2026-10-19

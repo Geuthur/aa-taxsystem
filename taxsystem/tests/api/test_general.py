@@ -35,6 +35,12 @@ class TestGeneralApi(TaxSystemTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         left_links = [link["link"] for link in response.json()["left_links"]]
         self.assertEqual(left_links, ["/", "/account/", "/settings/"])
+        settings_link = next(
+            link
+            for link in response.json()["left_links"]
+            if link["link"] == "/settings/"
+        )
+        self.assertFalse(settings_link["has_errors"])
         right_links = [link["link"] for link in response.json()["right_links"]]
         self.assertEqual(right_links, [])
 
@@ -169,3 +175,38 @@ class TestGeneralApi(TaxSystemTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_get_settings_owners_should_return_visible_owners(self):
+        # Test Data
+        corp_owner = CorporationOwnerFactory()
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/settings/owners/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        owner_ids = [o["owner_id"] for o in data]
+        self.assertIn(corp_owner.eve_corporation.corporation_id, owner_ids)
+
+    @patch(f"{TASKS_PATH}.update_corporation.apply_async")
+    def test_update_all_owners_should_queue_task_with_force_refresh_false(
+        self, mock_task
+    ):
+        # Test Data
+        CorporationOwnerFactory()
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/settings/owners/update-all/",
+            data=json.dumps({"force_refresh": False}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(mock_task.called)
+        _, kwargs = mock_task.call_args
+        self.assertEqual(kwargs.get("kwargs"), {"force_refresh": False})

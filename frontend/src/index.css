@@ -960,7 +960,8 @@ html[data-bs-theme="dark"] {
     animation: aa-pending-glow 2s infinite ease-in-out;
 }
 
-.aa-btn-pulse-danger {
+.aa-btn-pulse-danger,
+.aa-order-nav-pulse {
     animation: aa-danger-glow 2s infinite ease-in-out;
 }
 

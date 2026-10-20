@@ -6,9 +6,12 @@ import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
+  AlertCircle,
+  AlertTriangle,
   ArrowLeft,
   BarChart3,
   Calendar,
+  CheckCircle2,
   DollarSign,
   Edit,
   Filter,
@@ -18,7 +21,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { Badge, Button, Card, Col, Form, Nav, Row, Spinner } from "react-bootstrap";
+import { Alert, Badge, Button, Card, Col, Form, Nav, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -56,6 +59,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
   const [showDivisionsModal, setShowDivisionsModal] = useState(false);
   const [newTaxAmount, setNewTaxAmount] = useState<number>(0);
   const [newTaxPeriod, setNewTaxPeriod] = useState<number>(0);
+  const [feedbackMsg, setFeedbackMsg] = useState<{ variant: "success" | "danger"; text: string } | null>(null);
 
   const { data: dashboard, isLoading, isError, error } = useQuery({
     queryKey: queryKeys.Dashboard(numericOwnerId),
@@ -112,8 +116,28 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
 
   const isCorp = dashboard.owner.owner_type === "corporation";
 
+  const rawSections = (dashboard.update_status.status as Record<string, { is_success?: boolean | null; last_update_finished_at?: string }>) || {};
+  const sections = Object.entries(rawSections);
+  const hasErrors = Boolean(
+    dashboard.update_status.has_errors ||
+      sections.some(([, val]) => val?.is_success === false)
+  );
+  const isTokenError = dashboard.update_status.status_display === "token_error";
+  const isAllOk = sections.length > 0 && sections.every(([, val]) => val?.is_success === true);
+
   return (
     <Card className="border-0 bg-transparent">
+      {feedbackMsg && (
+        <Alert
+          variant={feedbackMsg.variant}
+          onClose={() => setFeedbackMsg(null)}
+          dismissible
+          className="mb-3"
+        >
+          {feedbackMsg.text}
+        </Alert>
+      )}
+
       <BaseSectionHeader name={dashboard.owner.owner_name}>
         <div className="d-flex align-items-center gap-2">
           {onBack ? (
@@ -225,13 +249,62 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
                   </div>
                 </div>
                 <h5 className="mb-1">
-                  <Badge bg="success" className="text-uppercase">
-                    {dashboard.update_status.status ? t("Synchronized") : t("Pending")}
-                  </Badge>
+                  {hasErrors ? (
+                    <Badge bg="danger" className="text-uppercase d-inline-flex align-items-center gap-1">
+                      <span className="aa-pending-dot-container me-1">
+                        <span className="aa-danger-dot-ping" />
+                        <span className="aa-danger-dot-core" />
+                      </span>
+                      <AlertCircle size={12} />
+                      <span>{t("Sync Error")}</span>
+                    </Badge>
+                  ) : isTokenError ? (
+                    <Badge bg="warning" className="text-uppercase d-inline-flex align-items-center gap-1">
+                      <span className="aa-pending-dot-container me-1">
+                        <span className="aa-pending-dot-ping" />
+                        <span className="aa-pending-dot-core" />
+                      </span>
+                      <AlertTriangle size={12} />
+                      <span>{t("Token Error")}</span>
+                    </Badge>
+                  ) : isAllOk ? (
+                    <Badge bg="success" className="text-uppercase d-inline-flex align-items-center gap-1">
+                      <CheckCircle2 size={12} />
+                      <span>{t("Synchronized")}</span>
+                    </Badge>
+                  ) : (
+                    <Badge bg="secondary" className="text-uppercase">
+                      {t("Pending")}
+                    </Badge>
+                  )}
                 </h5>
-                <div className="text-muted small">
+                <div className="text-muted small mb-2">
                   {t("ESI synchronization status")}
                 </div>
+
+                {sections.length > 0 && (
+                  <div className="pt-2 border-top border-secondary small">
+                    {sections.map(([key, val]) => (
+                      <div key={key} className="d-flex align-items-center justify-content-between text-muted my-1">
+                        <span className="d-flex align-items-center gap-1">
+                          <span
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: "50%",
+                              display: "inline-block",
+                              backgroundColor: val?.is_success ? "#34d399" : val?.is_success === false ? "#fb7185" : "#fbbf24",
+                            }}
+                          />
+                          <span className="text-capitalize">{key.replace(/_/g, " ")}</span>
+                        </span>
+                        <span className={val?.is_success ? "text-success" : val?.is_success === false ? "text-danger" : "text-warning"}>
+                          {val?.is_success ? t("OK") : val?.is_success === false ? t("Failed") : t("Pending")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </Card.Body>
           </Card>

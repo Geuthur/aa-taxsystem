@@ -10,20 +10,118 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 # AA TaxSystem
-from taxsystem import __title__
+from taxsystem import __title__, tasks
 from taxsystem.api import schema
 from taxsystem.helpers import lazy
-from taxsystem.models.alliance import AlliancePaymentAccount
+from taxsystem.models.alliance import (
+    AllianceOwner,
+    AlliancePaymentAccount,
+    AllianceUpdateStatus,
+)
 from taxsystem.models.corporation import (
+    CorporationOwner,
     CorporationPaymentAccount,
+    CorporationUpdateStatus,
     Members,
 )
 from taxsystem.models.general import UserSettings
+from taxsystem.models.helpers.update_manager import (
+    AllianceUpdateSection,
+    CorporationUpdateSection,
+    UpdateStatus,
+)
+
+
+# pylint: disable=too-many-locals
+def _build_tax_owner_setting_schema(
+    owner: CorporationOwner | AllianceOwner, user
+) -> schema.TaxOwnerSettingSchema:
+    if isinstance(owner, CorporationOwner):
+        owner_id = owner.eve_corporation.corporation_id
+        name = owner.eve_corporation.corporation_name
+        ticker = getattr(owner.eve_corporation, "ticker", None)
+        icon = lazy.get_corporation_logo_url(owner_id, size=64)
+        owner_type = "corporation"
+        sections_enum = CorporationUpdateSection
+        status_model = CorporationUpdateStatus
+    else:
+        owner_id = owner.eve_alliance.alliance_id
+        name = owner.eve_alliance.alliance_name
+        ticker = getattr(owner.eve_alliance, "ticker", None)
+        icon = lazy.get_alliance_logo_url(owner_id, size=64)
+        owner_type = "alliance"
+        sections_enum = AllianceUpdateSection
+        status_model = AllianceUpdateStatus
+
+    status_records = {s.section: s for s in status_model.objects.filter(owner=owner)}
+    section_list: list[schema.OwnerSectionSchema] = []
+    last_sync_dt = None
+    latest_err = None
+
+    for sec in sections_enum:
+        sec_record = status_records.get(sec.value)
+        if sec_record:
+            if sec_record.last_run_finished_at and (
+                last_sync_dt is None or sec_record.last_run_finished_at > last_sync_dt
+            ):
+                last_sync_dt = sec_record.last_run_finished_at
+            if sec_record.error_message and not latest_err:
+                latest_err = sec_record.error_message
+
+            section_list.append(
+                schema.OwnerSectionSchema(
+                    section=sec.value,
+                    section_name=str(sec.label),
+                    is_success=sec_record.is_success,
+                    has_token_error=sec_record.has_token_error,
+                    error_message=sec_record.error_message or None,
+                    last_update_finished_at=(
+                        sec_record.last_update_finished_at.strftime("%Y-%m-%d %H:%M")
+                        if sec_record.last_update_finished_at
+                        else None
+                    ),
+                )
+            )
+        else:
+            section_list.append(
+                schema.OwnerSectionSchema(
+                    section=sec.value,
+                    section_name=str(sec.label),
+                    is_success=None,
+                    has_token_error=False,
+                    error_message=None,
+                    last_update_finished_at=None,
+                )
+            )
+
+    open_inv = int(
+        owner.payment_model.objects.get_owner_open_invoices(user=user, owner=owner) or 0
+    )
+
+    last_sync_str = last_sync_dt.strftime("%Y-%m-%d %H:%M") if last_sync_dt else None
+
+    return schema.TaxOwnerSettingSchema(
+        id=owner.id,
+        owner_id=owner_id,
+        owner_type=owner_type,
+        name=name,
+        icon=icon,
+        ticker=ticker,
+        status=str(owner.get_status),
+        is_active=owner.active,
+        tax_amount=float(owner.tax_amount),
+        tax_period=owner.tax_period,
+        open_invoices=open_inv,
+        last_sync=last_sync_str,
+        error_message=latest_err,
+        sections=section_list,
+    )
 
 
 class ApiEndpoints:
     tags = ["General"]
 
+    # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
             "menu/",
@@ -39,10 +137,28 @@ class ApiEndpoints:
             if not user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
+            has_owner_errors = False
+            for corp in CorporationOwner.objects.manage_to(user):
+                if corp.get_status in (UpdateStatus.ERROR, UpdateStatus.TOKEN_ERROR):
+                    has_owner_errors = True
+                    break
+            if not has_owner_errors:
+                for ally in AllianceOwner.objects.manage_to(user):
+                    if ally.get_status in (
+                        UpdateStatus.ERROR,
+                        UpdateStatus.TOKEN_ERROR,
+                    ):
+                        has_owner_errors = True
+                        break
+
             left_links = [
                 schema.MenuLink(name=_("Overview"), link="/"),
                 schema.MenuLink(name=_("Account Overview"), link="/account/"),
-                schema.MenuLink(name=_("Settings"), link="/settings/"),
+                schema.MenuLink(
+                    name=_("Settings"),
+                    link="/settings/",
+                    has_errors=has_owner_errors,
+                ),
             ]
 
             right_links = []
@@ -289,3 +405,72 @@ class ApiEndpoints:
                 )
 
             return HTTPStatus.OK, accounts
+
+        @api.get(
+            "settings/owners/",
+            response={
+                HTTPStatus.OK: list[schema.TaxOwnerSettingSchema],
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+            },
+            tags=self.tags,
+            summary="Get settings update status for all manageable owners",
+        )
+        def get_settings_owners(request: WSGIRequest):
+            if not request.user.has_perm("taxsystem.basic_access"):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            owners_list: list[schema.TaxOwnerSettingSchema] = []
+            for corp in (
+                CorporationOwner.objects.manage_to(request.user)
+                .select_related("eve_corporation")
+                .order_by("eve_corporation__corporation_name")
+            ):
+                owners_list.append(_build_tax_owner_setting_schema(corp, request.user))
+
+            for ally in (
+                AllianceOwner.objects.manage_to(request.user)
+                .select_related("eve_alliance")
+                .order_by("eve_alliance__alliance_name")
+            ):
+                owners_list.append(_build_tax_owner_setting_schema(ally, request.user))
+
+            return HTTPStatus.OK, owners_list
+
+        @api.post(
+            "settings/owners/update-all/",
+            response={
+                HTTPStatus.OK: schema.MessageSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+            },
+            tags=self.tags,
+            summary="Trigger update tasks for all manageable owners with force_refresh=false",
+        )
+        def trigger_update_all_owners(
+            request: WSGIRequest,
+            payload: schema.OwnerUpdateRequest | None = None,
+        ):
+            if not request.user.has_perm("taxsystem.basic_access"):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            force_refresh = payload.force_refresh if payload else False
+            count = 0
+            for corp in CorporationOwner.objects.manage_to(request.user):
+                tasks.update_corporation.apply_async(
+                    args=[corp.eve_id],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+                count += 1
+
+            for ally in AllianceOwner.objects.manage_to(request.user):
+                tasks.update_alliance.apply_async(
+                    args=[ally.eve_id],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+                count += 1
+
+            return HTTPStatus.OK, {
+                "message": _("Queued updates for %(count)d owner(s).")
+                % {"count": count}
+            }

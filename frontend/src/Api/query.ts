@@ -21,5 +21,6 @@ export const queryKeys = {
   SuperuserOwners: ["SuperuserOwners"] as const,
   SuperuserOwnerInspect: (ownerType: string, ownerId: number) =>
     ["SuperuserOwnerInspect", ownerType, ownerId] as const,
+  SettingsOwners: ["SettingsOwners"] as const,
 };
 

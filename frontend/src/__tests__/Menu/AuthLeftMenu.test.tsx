@@ -2,6 +2,7 @@
 import { MemoryRouter } from 'react-router-dom';
 
 // Third Party
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -19,6 +20,17 @@ vi.mock('react-i18next', async (importOriginal) => {
     };
 });
 
+const renderMenu = (data: Parameters<typeof AuthLeftMenu>[0]['data']) => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    return render(
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter initialEntries={['/taxsystem/']}>
+                <AuthLeftMenu data={data} isLoading={false} error={false} />
+            </MemoryRouter>
+        </QueryClientProvider>
+    );
+};
+
 describe('AuthLeftMenu', () => {
     it('should render internal navigation links', () => {
         // Test Data
@@ -28,11 +40,7 @@ describe('AuthLeftMenu', () => {
         ];
 
         // Test Action
-        render(
-            <MemoryRouter initialEntries={['/taxsystem/']}>
-                <AuthLeftMenu data={testData} isLoading={false} error={false} />
-            </MemoryRouter>
-        );
+        renderMenu(testData);
 
         // Expected Result
         const dashboardLink = screen.getByText('Dashboard');
@@ -51,11 +59,7 @@ describe('AuthLeftMenu', () => {
         ];
 
         // Test Action
-        render(
-            <MemoryRouter>
-                <AuthLeftMenu data={testData} isLoading={false} error={false} />
-            </MemoryRouter>
-        );
+        renderMenu(testData);
 
         // Expected Result
         const externalLink = screen.getByText('External Docs');
@@ -70,13 +74,27 @@ describe('AuthLeftMenu', () => {
         ];
 
         // Test Action
-        const { container } = render(
-            <MemoryRouter>
-                <AuthLeftMenu data={testData} isLoading={false} error={false} />
-            </MemoryRouter>
-        );
+        const { container } = renderMenu(testData);
 
         // Expected Result
         expect(container.querySelectorAll('li')).toHaveLength(0);
     });
+
+    it('should render Settings link with pulse when has_errors is true or an owner has an error', async () => {
+        // Test Data
+        const testData = [
+            { name: 'Settings', link: '/settings/', has_errors: true },
+        ];
+
+        // Test Action
+        renderMenu(testData);
+
+        // Expected Result
+        const settingsLink = screen.getByTestId('settings-nav-link');
+        expect(settingsLink).toBeDefined();
+        expect(settingsLink.classList.contains('aa-order-nav-pulse')).toBe(true);
+        expect(settingsLink.querySelector('.aa-pending-dot-container')).toBeInTheDocument();
+        expect(settingsLink.querySelector('.aa-danger-dot-ping')).toBeInTheDocument();
+    });
 });
+

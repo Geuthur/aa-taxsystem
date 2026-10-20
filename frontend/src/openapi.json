@@ -203,6 +203,101 @@
         ]
       }
     },
+    "/taxsystem/api/settings/owners/": {
+      "get": {
+        "operationId": "taxsystem_api_general_get_settings_owners",
+        "summary": "Get settings update status for all manageable owners",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaxOwnerSettingSchema"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/settings/owners/update-all/": {
+      "post": {
+        "operationId": "taxsystem_api_general_trigger_update_all_owners",
+        "summary": "Trigger update tasks for all manageable owners with force_refresh=false",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "General"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/OwnerUpdateRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
     "/taxsystem/api/overview/": {
       "get": {
         "operationId": "taxsystem_api_overview_get_overview",
@@ -909,6 +1004,137 @@
           },
           "required": true
         },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/update/": {
+      "post": {
+        "operationId": "taxsystem_api_admin_trigger_owner_update",
+        "summary": "Trigger manual update for a corporation or alliance owner",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/OwnerUpdateRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          "required": false
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
+    },
+    "/taxsystem/api/owner/{owner_id}/": {
+      "delete": {
+        "operationId": "taxsystem_api_admin_delete_owner",
+        "summary": "Delete a corporation or alliance owner",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "owner_id",
+            "schema": {
+              "title": "Owner Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
         "security": [
           {
             "SessionAuth": []
@@ -3140,6 +3366,11 @@
             "default": false,
             "title": "Is External",
             "type": "boolean"
+          },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
           }
         },
         "required": [
@@ -3466,6 +3697,196 @@
           "has_paid"
         ],
         "title": "UserAccountSchema",
+        "type": "object"
+      },
+      "OwnerSectionSchema": {
+        "properties": {
+          "section": {
+            "title": "Section",
+            "type": "string"
+          },
+          "section_name": {
+            "title": "Section Name",
+            "type": "string"
+          },
+          "is_success": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Success"
+          },
+          "has_token_error": {
+            "default": false,
+            "title": "Has Token Error",
+            "type": "boolean"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "last_update_finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Update Finished At"
+          }
+        },
+        "required": [
+          "section",
+          "section_name"
+        ],
+        "title": "OwnerSectionSchema",
+        "type": "object"
+      },
+      "TaxOwnerSettingSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "owner_id": {
+            "title": "Owner Id",
+            "type": "integer"
+          },
+          "owner_type": {
+            "enum": [
+              "corporation",
+              "alliance"
+            ],
+            "title": "Owner Type",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "status": {
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "is_active": {
+            "default": true,
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "tax_amount": {
+            "default": 0.0,
+            "title": "Tax Amount",
+            "type": "number"
+          },
+          "tax_period": {
+            "default": 0,
+            "title": "Tax Period",
+            "type": "integer"
+          },
+          "open_invoices": {
+            "default": 0,
+            "title": "Open Invoices",
+            "type": "integer"
+          },
+          "last_sync": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "sections": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OwnerSectionSchema"
+            },
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "owner_id",
+          "owner_type",
+          "name"
+        ],
+        "title": "TaxOwnerSettingSchema",
+        "type": "object"
+      },
+      "MessageSchema": {
+        "description": "Schema for simple success responses.",
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "MessageSchema",
+        "type": "object"
+      },
+      "OwnerUpdateRequest": {
+        "properties": {
+          "force_refresh": {
+            "default": false,
+            "title": "Force Refresh",
+            "type": "boolean"
+          }
+        },
+        "title": "OwnerUpdateRequest",
         "type": "object"
       },
       "OverviewSchema": {
@@ -4009,6 +4430,16 @@
               }
             ],
             "title": "Html"
+          },
+          "has_errors": {
+            "default": false,
+            "title": "Has Errors",
+            "type": "boolean"
+          },
+          "status_display": {
+            "default": "ok",
+            "title": "Status Display",
+            "type": "string"
           }
         },
         "required": [
@@ -4239,20 +4670,6 @@
           "tax_period"
         ],
         "title": "UpdateTaxPeriodRequest",
-        "type": "object"
-      },
-      "MessageSchema": {
-        "description": "Schema for simple success responses.",
-        "properties": {
-          "message": {
-            "title": "Message",
-            "type": "string"
-          }
-        },
-        "required": [
-          "message"
-        ],
-        "title": "MessageSchema",
         "type": "object"
       },
       "AdminUpdateRequest": {

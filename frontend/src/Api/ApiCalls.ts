@@ -667,3 +667,59 @@ export async function loadSuperuserOwnerInspect(params: {
   return data;
 }
 
+export async function triggerOwnerUpdate(params: {
+  ownerId: number;
+  forceRefresh?: boolean;
+}): Promise<components["schemas"]["MessageSchema"]> {
+  const { data, error } = await apiClient.POST(
+    `/${ProjectName}/api/owner/{owner_id}/update/`,
+    {
+      params: { path: { owner_id: params.ownerId } },
+      body: { force_refresh: params.forceRefresh ?? false },
+    },
+  );
+  if (error || !data) {
+    throw new Error("Failed to trigger update");
+  }
+  return data;
+}
+
+export async function deleteOwner(ownerId: number): Promise<components["schemas"]["MessageSchema"]> {
+  const { data, error } = await apiClient.DELETE(
+    `/${ProjectName}/api/owner/{owner_id}/`,
+    {
+      params: { path: { owner_id: ownerId } },
+    },
+  );
+  if (error || !data) {
+    throw new Error("Failed to delete owner");
+  }
+  return data;
+}
+
+export async function loadSettingsOwners(): Promise<components["schemas"]["TaxOwnerSettingSchema"][]> {
+  const { data, error } = await apiClient.GET(
+    `/${ProjectName}/api/settings/owners/`,
+  );
+  if (error || !data) {
+    throw new Error("Failed to load settings owners");
+  }
+  return data;
+}
+
+export async function triggerUpdateAllTaxOwners(
+  forceRefresh?: boolean,
+): Promise<components["schemas"]["MessageSchema"]> {
+  const { data, error } = await apiClient.POST(
+    `/${ProjectName}/api/settings/owners/update-all/`,
+    {
+      body: { force_refresh: forceRefresh ?? false },
+    },
+  );
+  if (error || !data) {
+    throw new Error("Failed to trigger update all owners");
+  }
+  return data;
+}
+
+
