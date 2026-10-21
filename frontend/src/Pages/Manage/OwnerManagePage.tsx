@@ -120,7 +120,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
   const sections = Object.entries(rawSections);
   const hasErrors = Boolean(
     dashboard.update_status.has_errors ||
-      sections.some(([, val]) => val?.is_success === false)
+    sections.some(([, val]) => val?.is_success === false)
   );
   const isTokenError = dashboard.update_status.status_display === "token_error";
   const isAllOk = sections.length > 0 && sections.every(([, val]) => val?.is_success === true);
@@ -281,30 +281,6 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
                 <div className="text-muted small mb-2">
                   {t("ESI synchronization status")}
                 </div>
-
-                {sections.length > 0 && (
-                  <div className="pt-2 border-top border-secondary small">
-                    {sections.map(([key, val]) => (
-                      <div key={key} className="d-flex align-items-center justify-content-between text-muted my-1">
-                        <span className="d-flex align-items-center gap-1">
-                          <span
-                            style={{
-                              width: 8,
-                              height: 8,
-                              borderRadius: "50%",
-                              display: "inline-block",
-                              backgroundColor: val?.is_success ? "#34d399" : val?.is_success === false ? "#fb7185" : "#fbbf24",
-                            }}
-                          />
-                          <span className="text-capitalize">{key.replace(/_/g, " ")}</span>
-                        </span>
-                        <span className={val?.is_success ? "text-success" : val?.is_success === false ? "text-danger" : "text-warning"}>
-                          {val?.is_success ? t("OK") : val?.is_success === false ? t("Failed") : t("Pending")}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </Card.Body>
           </Card>
