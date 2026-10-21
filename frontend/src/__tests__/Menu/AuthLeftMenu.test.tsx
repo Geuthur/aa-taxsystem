@@ -92,7 +92,7 @@ describe('AuthLeftMenu', () => {
         // Expected Result
         const settingsLink = screen.getByTestId('settings-nav-link');
         expect(settingsLink).toBeDefined();
-        expect(settingsLink.classList.contains('aa-order-nav-pulse')).toBe(true);
+        expect(settingsLink.classList.contains('aa-order-nav-pulse')).toBe(false);
         expect(settingsLink.querySelector('.aa-pending-dot-container')).toBeInTheDocument();
         expect(settingsLink.querySelector('.aa-danger-dot-ping')).toBeInTheDocument();
     });

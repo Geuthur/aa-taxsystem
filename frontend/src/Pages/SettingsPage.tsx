@@ -1,21 +1,10 @@
 // React
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  AlertTriangle,
-  BellOff,
-  Building2,
-  CheckCircle2,
-  Clock,
-  RotateCw,
-  Settings2,
-  Trash2,
-  Users,
-} from "lucide-react";
-import { Alert, Button, Card, Spinner } from "react-bootstrap";
+import { BellOff, Settings2, Users } from "lucide-react";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -28,19 +17,19 @@ import {
   updateUserSettings,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import type { TaxOwnerSettingSchema, UserSettingsSchema } from "@/Api/schema";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
+import type { UserSettingsSchema } from "@/Api/schema";
+import { BaseOwnerSettingsSection } from "@/Components/Base/OwnerSettings";
+import type { BaseOwner } from "@/Components/Base/OwnerSettings";
 import styles from "@/Styles/modules/SettingsPage.module.css";
 
 export const SettingsPage: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  // Cooldown & Modal States
+  // Cooldown & Feedback States
   const [globalCooldown, setGlobalCooldown] = useState(0);
   const [updatingOwnerId, setUpdatingOwnerId] = useState<number | null>(null);
   const [ownerCooldowns, setOwnerCooldowns] = useState<Record<number, number>>({});
-  const [ownerToDelete, setOwnerToDelete] = useState<TaxOwnerSettingSchema | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState<{ variant: "success" | "danger"; text: string } | null>(null);
 
   useEffect(() => {
@@ -150,7 +139,6 @@ export const SettingsPage: React.FC = () => {
     mutationFn: (ownerId: number) => deleteOwner(ownerId),
     onSuccess: (res) => {
       setFeedbackMsg({ variant: "success", text: res.message || t("Owner removed successfully.") });
-      setOwnerToDelete(null);
       invalidateQueries();
       setTimeout(() => setFeedbackMsg(null), 5000);
     },
@@ -163,11 +151,33 @@ export const SettingsPage: React.FC = () => {
     },
   });
 
-  const handleConfirmDelete = async () => {
-    if (ownerToDelete) {
-      await deleteOwnerMutation.mutateAsync(ownerToDelete.owner_id);
-    }
-  };
+  const mappedOwners: BaseOwner[] = useMemo(() => {
+    if (!owners) return [];
+    return owners.map((owner) => {
+      const statusLower = (owner.status || "incomplete").toLowerCase();
+      const isErr = statusLower === "error";
+      const isTokErr = statusLower === "token_error";
+      return {
+        id: owner.owner_id,
+        name: owner.name,
+        owner_type: owner.owner_type,
+        avatar_url: owner.icon,
+        subtitle: owner.ticker ? `[${owner.ticker}]` : undefined,
+        status: owner.status,
+        has_error: isErr || isTokErr,
+        error_message: owner.error_message,
+        last_sync: owner.last_sync,
+        sections: owner.sections?.map((sec) => ({
+          section: sec.section,
+          section_name: sec.section_name,
+          is_success: sec.is_success,
+          has_token_error: sec.has_token_error,
+          error_message: sec.error_message,
+          last_run_finished_at: sec.last_update_finished_at,
+        })),
+      };
+    });
+  }, [owners]);
 
   if (isLoading) {
     return (
@@ -187,49 +197,6 @@ export const SettingsPage: React.FC = () => {
       </Card>
     );
   }
-
-  const renderStatusBadge = (owner: TaxOwnerSettingSchema) => {
-    const status = owner.status.toLowerCase();
-    const isError = status === "error";
-    const isTokenError = status === "token_error";
-    const isOk = status === "ok";
-    const isDisabled = status === "disabled";
-
-    let badgeClass = styles["badge-incomplete"];
-    let label = t("Incomplete");
-    let Icon = AlertTriangle;
-
-    if (isOk) {
-      badgeClass = styles["badge-ok"];
-      label = t("OK");
-      Icon = CheckCircle2;
-    } else if (isError) {
-      badgeClass = styles["badge-error"];
-      label = t("Error");
-      Icon = AlertCircle;
-    } else if (isTokenError) {
-      badgeClass = styles["badge-token-error"];
-      label = t("Token Error");
-      Icon = AlertTriangle;
-    } else if (isDisabled) {
-      badgeClass = styles["badge-disabled"];
-      label = t("Disabled");
-      Icon = AlertCircle;
-    }
-
-    return (
-      <span className={`${styles["status-badge"]} ${badgeClass}`}>
-        {(isError || isTokenError) && (
-          <span className="aa-pending-dot-container me-1" aria-hidden="true">
-            <span className={isError ? "aa-danger-dot-ping" : "aa-pending-dot-ping"} />
-            <span className={isError ? "aa-danger-dot-core" : "aa-pending-dot-core"} />
-          </span>
-        )}
-        <Icon size={12} aria-hidden="true" />
-        <span>{label}</span>
-      </span>
-    );
-  };
 
   return (
     <Card className={`${styles["page"]} border-0`}>
@@ -275,247 +242,36 @@ export const SettingsPage: React.FC = () => {
           </Card.Body>
         </Card>
 
-        {/* Added Owners Update Status & Management Section */}
-        <Card className={`${styles["section"]} border-0 shadow-sm`} aria-labelledby="owner-status-heading">
-          <Card.Body className="bg-secondary text-light">
-            <Card.Header className={`${styles["section-header"]} bg-secondary d-flex justify-content-between align-items-center flex-wrap gap-2`}>
-              <div className={styles["section-title-wrap"]}>
-                <Users size={20} aria-hidden="true" />
-                <h2 id="owner-status-heading" className={styles["section-title"]}>
-                  {t("Owners Update Status")}
-                </h2>
-                {owners && (
-                  <span className={styles["section-count"]}>
-                    ({owners.length})
-                  </span>
-                )}
-              </div>
-
-              {owners && owners.length > 0 && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="aa-btn aa-btn-secondary aa-btn-sm d-flex align-items-center gap-1"
-                  disabled={updateAllMutation.isPending || globalCooldown > 0}
-                  onClick={() => updateAllMutation.mutate()}
-                >
-                  {updateAllMutation.isPending ? (
-                    <Spinner size="sm" animation="border" />
-                  ) : (
-                    <RotateCw size={14} />
-                  )}
-                  <span>
-                    {globalCooldown > 0
-                      ? t("Update All ({{seconds}}s)", { seconds: globalCooldown })
-                      : t("Update All")}
-                  </span>
-                </Button>
-              )}
-            </Card.Header>
-
-            {feedbackMsg && (
-              <Alert
-                variant={feedbackMsg.variant}
-                className="py-2 my-3 d-flex justify-content-between align-items-center"
-                dismissible
-                onClose={() => setFeedbackMsg(null)}
-              >
-                <span>{feedbackMsg.text}</span>
-              </Alert>
-            )}
-
-            {isLoadingOwners && (
-              <div className="aa-loader-container">
-                <span className="spinner-border" />
-                <span>{t("Loading owners update status...")}</span>
-              </div>
-            )}
-
-            {isErrorOwners && (
-              <Card className="bg-secondary text-light border-0 shadow-sm" role="alert">
-                <Card.Body className={styles["error"]}>
-                  {t("Failed to load owners update status.")}
-                </Card.Body>
-              </Card>
-            )}
-
-            {!isLoadingOwners && !isErrorOwners && owners && owners.length === 0 && (
-              <Card className="bg-secondary text-light border-0 shadow-sm">
-                <Card.Body className={styles["empty-state"]}>
-                  {t("No TaxSystem owners configured.")}
-                </Card.Body>
-              </Card>
-            )}
-
-            {!isLoadingOwners && !isErrorOwners && owners && owners.length > 0 && (
-              <div className={styles["owners-grid"]}>
-                {owners.map((owner) => {
-                  const status = owner.status.toLowerCase();
-                  const isErr = status === "error";
-                  const isTokErr = status === "token_error";
-                  const cardClass = isErr
-                    ? styles["owner-card-error"]
-                    : isTokErr
-                      ? styles["owner-card-warning"]
-                      : "";
-
-                  const ownerCooldown = ownerCooldowns[owner.owner_id] ?? 0;
-                  const isUpdating = updatingOwnerId === owner.owner_id;
-
-                  return (
-                    <Card
-                      key={owner.owner_id}
-                      className={`aa-panel ${styles["owner-card"]} ${cardClass}`}
-                    >
-                      <div className={styles["owner-header"]}>
-                        {owner.icon ? (
-                          <img
-                            src={owner.icon}
-                            alt={owner.name}
-                            className={styles["portrait"]}
-                          />
-                        ) : (
-                          <div className={`${styles["portrait"]} d-flex align-items-center justify-content-center bg-dark text-muted`}>
-                            <Building2 size={24} />
-                          </div>
-                        )}
-                        <div className={styles["owner-info"]}>
-                          <h3 className={styles["owner-name"]}>{owner.name}</h3>
-                          <p className={styles["owner-ticker"]}>
-                            {owner.ticker ? `[${owner.ticker}] ` : ""}
-                            <span className="text-capitalize">{owner.owner_type}</span>
-                          </p>
-                        </div>
-                      </div>
-
-                      {owner.error_message && (
-                        <div className={styles["error-banner"]} role="alert">
-                          {owner.error_message}
-                        </div>
-                      )}
-
-                      {owner.sections && owner.sections.length > 0 && (
-                        <div className={styles["sections-list"]}>
-                          {owner.sections.map((sec) => {
-                            let dotClass = styles["dot-muted"];
-                            if (sec.is_success === true) dotClass = styles["dot-ok"];
-                            else if (sec.is_success === false) dotClass = styles["dot-error"];
-                            else if (sec.has_token_error) dotClass = styles["dot-warning"];
-
-                            return (
-                              <div key={sec.section} className={styles["section-item"]}>
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <span
-                                    className={`${styles["section-dot"]} ${dotClass}`}
-                                    aria-hidden="true"
-                                  />
-                                  <span>{sec.section_name}</span>
-                                </span>
-                                <span>
-                                  {sec.has_token_error
-                                    ? t("Token Error")
-                                    : sec.is_success === true
-                                      ? t("OK")
-                                      : sec.is_success === false
-                                        ? t("Failed")
-                                        : t("Pending")}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      <div className={styles["badge-row"]}>
-                        {renderStatusBadge(owner)}
-                        <span
-                          className={styles["last-sync"]}
-                          title={owner.last_sync ? `${t("Last sync")}: ${owner.last_sync}` : undefined}
-                        >
-                          <Clock size={12} aria-hidden="true" />
-                          <span>{owner.last_sync ? owner.last_sync.slice(5) : t("Never")}</span>
-                        </span>
-                      </div>
-
-                      {/* Owner Action Buttons: Update, Delete */}
-                      <div className="d-flex align-items-center justify-content-end mt-3 pt-2 border-top border-secondary flex-wrap gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="aa-btn aa-btn-secondary aa-btn-sm d-flex align-items-center gap-1"
-                          disabled={isUpdating || ownerCooldown > 0}
-                          onClick={() => handleTriggerOwnerUpdate(owner.owner_id)}
-                          title={t("Update owner")}
-                          aria-label={t("Update owner")}
-                        >
-                          {isUpdating ? (
-                            <Spinner size="sm" animation="border" />
-                          ) : (
-                            <RotateCw size={13} />
-                          )}
-                          <span>
-                            {ownerCooldown > 0 ? `${ownerCooldown}s` : t("Update")}
-                          </span>
-                        </Button>
-
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          className="aa-btn aa-btn-danger aa-btn-sm d-flex align-items-center gap-1"
-                          onClick={() => setOwnerToDelete(owner)}
-                          title={t("Remove from TaxSystem")}
-                          aria-label={t("Remove from TaxSystem")}
-                        >
-                          <Trash2 size={13} />
-                          <span>{t("Delete")}</span>
-                        </Button>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </Card.Body>
-        </Card>
+        {/* Modular BaseOwnerSettingsSection for Owners */}
+        <BaseOwnerSettingsSection<BaseOwner>
+          title={t("Owners Update Status")}
+          description={t("ESI synchronization status of your linked corporations and alliances.")}
+          icon={<Users size={20} aria-hidden="true" />}
+          owners={mappedOwners}
+          isLoading={isLoadingOwners}
+          isError={isErrorOwners}
+          errorMessage={t("Failed to load owners update status.")}
+          emptyMessage={t("No TaxSystem owners configured.")}
+          appName="TaxSystem"
+          onUpdateAll={() => updateAllMutation.mutate()}
+          isUpdatingAll={updateAllMutation.isPending}
+          globalCooldown={globalCooldown}
+          feedbackMessage={feedbackMsg}
+          onDismissFeedback={() => setFeedbackMsg(null)}
+          onTriggerSingleUpdate={handleTriggerOwnerUpdate}
+          updatingOwnerId={updatingOwnerId}
+          ownerCooldowns={ownerCooldowns}
+          onDeleteOwner={(owner) => deleteOwnerMutation.mutateAsync(owner.id)}
+          isDeleting={deleteOwnerMutation.isPending}
+          deleteModalTitle={t("Delete Owner")}
+          deleteModalDescription={(owner) =>
+            t(
+              "Are you sure you want to remove {{name}} from TaxSystem? All payment configurations, member records, and tax accounts for this owner will be permanently deleted.",
+              { name: owner.name },
+            )
+          }
+        />
       </Card.Body>
-
-      {/* Delete Confirmation Modal */}
-      <BaseModal
-        show={Boolean(ownerToDelete)}
-        onHide={() => setOwnerToDelete(null)}
-        title={t("Delete Owner")}
-        size={ModalSize.medium}
-        footer={
-          <>
-            <Button
-              variant="secondary"
-              onClick={() => setOwnerToDelete(null)}
-              className="aa-btn aa-btn-secondary"
-            >
-              {t("Cancel")}
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleConfirmDelete}
-              disabled={deleteOwnerMutation.isPending}
-              className="aa-btn aa-btn-danger d-flex align-items-center gap-1"
-            >
-              {deleteOwnerMutation.isPending ? (
-                <Spinner size="sm" animation="border" />
-              ) : (
-                <Trash2 size={14} />
-              )}
-              <span>{t("Confirm Delete")}</span>
-            </Button>
-          </>
-        }
-      >
-        <p className="text-light mb-0">
-          {t("Are you sure you want to delete {{name}}? All associated data and configurations will be permanently removed.", {
-            name: ownerToDelete?.name || "",
-          })}
-        </p>
-      </BaseModal>
     </Card>
   );
 };

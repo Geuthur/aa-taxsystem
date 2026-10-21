@@ -82,7 +82,6 @@ export const SettingsMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPa
                 id={link.name}
                 key={link.name}
                 active={hit}
-                className={hasStatusIssue ? "aa-order-nav-pulse" : ""}
                 data-testid="settings-nav-link"
             >
                 {hasStatusIssue && (

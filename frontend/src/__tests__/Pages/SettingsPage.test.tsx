@@ -186,7 +186,7 @@ describe("SettingsPage", () => {
 
     // Test Action
     renderPage();
-    const deleteBtn = await screen.findByRole("button", { name: /^Remove from TaxSystem/i });
+    const deleteBtn = await screen.findByRole("button", { name: /Delete Owner|Delete/i });
     await user.click(deleteBtn);
 
     // Expected Result

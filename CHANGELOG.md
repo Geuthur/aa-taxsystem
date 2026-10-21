@@ -38,6 +38,8 @@ Section Order:
 
 - [CHANGE] Moved owner update and delete actions from `OwnerManagePage` header to `SettingsPage`.
 
+- [CHANGE] Refactored `SettingsPage` to use modular `BaseOwnerSettingsSection` and `BaseOwnerCard` for unified owner settings management.
+
 - [FIX] Fixed Update Status card displaying green "Synchronized" badge when ESI sync errors occurred; now dynamically shows red `Sync Error` or warning `Token Error` with pinging animation and section breakdown.
 
 - **Superuser View Unification**: Standardized the 4 top KPI metric cards (`bg-body border-secondary h-100 shadow-sm`) with dynamic "Sync Issues" indicator (Green Shield when 0 issues, Red AlertTriangle with counter badge when issues exist).
