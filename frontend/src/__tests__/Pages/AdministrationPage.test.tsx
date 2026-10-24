@@ -10,19 +10,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
-import type { SuperuserTaxOwnerSchema } from "@/Api/schema";
-import { SuperuserPage } from "@/Pages/SuperuserPage";
+import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
+import { AdministrationPage } from "@/Pages/AdministrationPage";
 
 vi.mock("@/Api/ApiCalls", () => ({
-  loadSuperuserOwners: vi.fn(),
+  loadAdministrationOwners: vi.fn(),
+  loadUserData: vi.fn(),
   runAdminTasks: vi.fn(),
-  triggerSuperuserOwnerUpdate: vi.fn(),
-  deleteSuperuserOwner: vi.fn(),
+  triggerAdministrationOwnerUpdate: vi.fn(),
+  deleteAdministrationOwner: vi.fn(),
   loadDashboard: vi.fn(),
   updateOwnerSettings: vi.fn(),
 }));
 
-const mockOwners: SuperuserTaxOwnerSchema[] = [
+const mockOwners: AdministrationTaxOwnerSchema[] = [
   {
     id: 1,
     owner_id: 101,
@@ -107,27 +108,30 @@ const renderPage = (searchParams?: string) => {
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
         <NuqsTestingAdapter searchParams={searchParams} hasMemory>
-          <SuperuserPage />
+          <AdministrationPage />
         </NuqsTestingAdapter>
       </MemoryRouter>
     </QueryClientProvider>,
   );
 };
 
-describe("SuperuserPage", () => {
+describe("AdministrationPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(ApiCalls.loadSuperuserOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
+      user: { user_id: 1, is_admin: true, is_superuser: true },
+    } as never);
     vi.mocked(ApiCalls.loadDashboard).mockResolvedValue(mockDashboard as never);
   });
 
-  it("should render superuser overview with metrics, task panel, and owners table", async () => {
+  it("should render administration overview with metrics, task panel, and owners table", async () => {
     // Test Data
     renderPage();
 
     // Test Action
     await waitFor(() => {
-      expect(screen.getByText("Superuser Administration")).toBeInTheDocument();
+      expect(screen.getByText("Administration")).toBeInTheDocument();
     });
 
     // Expected Result
@@ -212,7 +216,7 @@ describe("SuperuserPage", () => {
   it("should trigger update for a specific owner", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.triggerSuperuserOwnerUpdate).mockResolvedValue({
+    vi.mocked(ApiCalls.triggerAdministrationOwnerUpdate).mockResolvedValue({
       message: "Queued update for Alpha Mining Corp",
     });
     renderPage();
@@ -227,7 +231,7 @@ describe("SuperuserPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerSuperuserOwnerUpdate).toHaveBeenCalledWith({
+      expect(ApiCalls.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith({
         ownerType: "corporation",
         ownerId: 101,
         payload: { force_refresh: false },
@@ -241,7 +245,7 @@ describe("SuperuserPage", () => {
   it("should open delete modal and confirm deletion of owner", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.deleteSuperuserOwner).mockResolvedValue({
+    vi.mocked(ApiCalls.deleteAdministrationOwner).mockResolvedValue({
       message: "Corporation Alpha Mining Corp deleted successfully.",
     });
     renderPage();
@@ -262,7 +266,7 @@ describe("SuperuserPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.deleteSuperuserOwner).toHaveBeenCalledWith({
+      expect(ApiCalls.deleteAdministrationOwner).toHaveBeenCalledWith({
         ownerType: "corporation",
         ownerId: 101,
       });
@@ -279,19 +283,19 @@ describe("SuperuserPage", () => {
 
     // Test Action 1: Render inspection view
     expect(
-      await screen.findByRole("button", { name: "Back to Superuser Overview" }),
+      await screen.findByRole("button", { name: "Back to Administration Overview" }),
     ).toBeInTheDocument();
 
     // Expected Result 1: Inspection view is rendered
     expect(screen.getByText("Tax Settings")).toBeInTheDocument();
 
     // Test Action 2: Click Back button
-    const backButton = screen.getByRole("button", { name: "Back to Superuser Overview" });
+    const backButton = screen.getByRole("button", { name: "Back to Administration Overview" });
     await user.click(backButton);
 
-    // Expected Result 2: Restored to Superuser Overview
+    // Expected Result 2: Restored to Administration Overview
     await waitFor(() => {
-      expect(screen.getByText("Superuser Administration")).toBeInTheDocument();
+      expect(screen.getByText("Administration")).toBeInTheDocument();
     });
   });
 
@@ -310,7 +314,46 @@ describe("SuperuserPage", () => {
 
     // Expected Result
     expect(
-      await screen.findByRole("button", { name: "Back to Superuser Overview" }),
+      await screen.findByRole("button", { name: "Back to Administration Overview" }),
     ).toBeInTheDocument();
+  });
+
+  it("should hide global tasks and force refresh for administrators without superuser", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
+      user: { user_id: 2, is_admin: true, is_superuser: false },
+    } as never);
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Alpha Mining Corp")).toBeInTheDocument();
+    });
+
+    // Test Action
+    const dropdownToggles = screen.getAllByRole("button", { name: "More update options" });
+    await user.click(dropdownToggles[0]);
+
+    // Expected Result
+    expect(screen.queryByText("Global Task Administration")).not.toBeInTheDocument();
+    expect(await screen.findByText("Update (Normal)")).toBeInTheDocument();
+    expect(screen.queryByText("Force Refresh (Bypass cache)")).not.toBeInTheDocument();
+  });
+
+  it("should show force refresh option for superusers", async () => {
+    // Test Data
+    const user = userEvent.setup();
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("Alpha Mining Corp")).toBeInTheDocument();
+    });
+
+    // Test Action
+    const dropdownToggles = screen.getAllByRole("button", { name: "More update options" });
+    await user.click(dropdownToggles[0]);
+
+    // Expected Result
+    expect(await screen.findByText("Force Refresh (Bypass cache)")).toBeInTheDocument();
   });
 });

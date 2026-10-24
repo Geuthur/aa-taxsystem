@@ -72,7 +72,7 @@ export const SettingsPage: React.FC = () => {
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.SettingsOwners });
     queryClient.invalidateQueries({ queryKey: queryKeys.Overview });
-    queryClient.invalidateQueries({ queryKey: queryKeys.SuperuserOwners });
+    queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
   };
 
   const updateMutation = useMutation({

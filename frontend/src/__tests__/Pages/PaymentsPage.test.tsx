@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { PaymentsPage } from "@/Pages/Payments/PaymentsPage";
+import { PaymentsPage } from "@/Pages/PaymentsPage";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 

@@ -32,18 +32,19 @@ import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import {
-  deleteSuperuserOwner,
-  loadSuperuserOwners,
+  deleteAdministrationOwner,
+  loadAdministrationOwners,
+  loadUserData,
   runAdminTasks,
-  triggerSuperuserOwnerUpdate,
+  triggerAdministrationOwnerUpdate,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import type { SuperuserTaxOwnerSchema } from "@/Api/schema";
-import SuperuserInspectionView from "@/Components/Superuser/SuperuserInspectionView";
-import SuperuserOwnersTable from "@/Components/Superuser/SuperuserOwnersTable";
-import styles from "@/Styles/modules/Superuser.module.css";
+import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
+import AdministrationInspectionView from "@/Components/Administration/AdministrationInspectionView";
+import AdministrationOwnersTable from "@/Components/Administration/AdministrationOwnersTable";
+import styles from "@/Styles/modules/Administration.module.css";
 
-export function SuperuserPage() {
+export function AdministrationPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -66,7 +67,14 @@ export function SuperuserPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Delete modal state
-  const [ownerToDelete, setOwnerToDelete] = useState<SuperuserTaxOwnerSchema | null>(null);
+  const [ownerToDelete, setOwnerToDelete] = useState<AdministrationTaxOwnerSchema | null>(null);
+
+  // Current user, the global tasks and force refresh are reserved for superusers
+  const { data: userData } = useQuery({
+    queryKey: queryKeys.User,
+    queryFn: loadUserData,
+  });
+  const isSuperuser = Boolean(userData?.user.is_superuser);
 
   // Queries
   const {
@@ -75,8 +83,8 @@ export function SuperuserPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.SuperuserOwners,
-    queryFn: loadSuperuserOwners,
+    queryKey: queryKeys.AdministrationOwners,
+    queryFn: loadAdministrationOwners,
   });
 
   // Global Task Mutation
@@ -94,12 +102,12 @@ export function SuperuserPage() {
 
   // Individual Owner Update Mutation
   const updateMutation = useMutation({
-    mutationFn: (vars: Parameters<typeof triggerSuperuserOwnerUpdate>[0]) =>
-      triggerSuperuserOwnerUpdate(vars),
+    mutationFn: (vars: Parameters<typeof triggerAdministrationOwnerUpdate>[0]) =>
+      triggerAdministrationOwnerUpdate(vars),
     onSuccess: (data) => {
       setMessage(data.message);
       setErrorMsg(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.SuperuserOwners });
+      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
     },
     onError: (err: Error) => {
       setErrorMsg(err.message);
@@ -109,13 +117,13 @@ export function SuperuserPage() {
 
   // Delete Owner Mutation
   const deleteMutation = useMutation({
-    mutationFn: (vars: Parameters<typeof deleteSuperuserOwner>[0]) =>
-      deleteSuperuserOwner(vars),
+    mutationFn: (vars: Parameters<typeof deleteAdministrationOwner>[0]) =>
+      deleteAdministrationOwner(vars),
     onSuccess: (data) => {
       setMessage(data.message);
       setErrorMsg(null);
       setOwnerToDelete(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.SuperuserOwners });
+      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
     },
     onError: (err: Error) => {
       setErrorMsg(err.message);
@@ -126,7 +134,7 @@ export function SuperuserPage() {
   // If inspection view active
   if (inspectId) {
     return (
-      <SuperuserInspectionView
+      <AdministrationInspectionView
         ownerId={inspectId}
         ownerType={inspectType || "corporation"}
         onBack={() => {
@@ -176,7 +184,7 @@ export function SuperuserPage() {
               <ShieldAlert size={28} />
             </div>
             <div>
-              <h1 className="h3 mb-1 fw-bold">{t("Superuser Administration")}</h1>
+              <h1 className="h3 mb-1 fw-bold">{t("Administration")}</h1>
               <p className="mb-0 small text-muted">
                 {t(
                   "System-wide tax owner administration, synchronization tasks, and compliance monitoring.",
@@ -216,7 +224,7 @@ export function SuperuserPage() {
         )}
         {isError && (
           <Alert variant="danger" className="mt-3">
-            {error instanceof Error ? error.message : t("Failed to load superuser data")}
+            {error instanceof Error ? error.message : t("Failed to load administration data")}
           </Alert>
         )}
 
@@ -285,158 +293,160 @@ export function SuperuserPage() {
         </Row>
 
         {/* Global Task Administration Panel (Collapsible) */}
-        <Card className="bg-dark border-secondary mb-4 shadow-sm">
-          <Card.Header
-            className={`border-secondary d-flex align-items-center justify-content-between py-2 ${styles.cursorPointer}`}
-            onClick={() => setShowTaskPanel((prev) => !prev)}
-          >
-            <div className="d-flex align-items-center gap-2">
-              <RefreshCw size={16} className="text-primary" />
-              <span className="fw-semibold text-light">{t("Global Task Administration")}</span>
-            </div>
-            <Button
-              variant="link"
-              size="sm"
-              className="p-0 text-muted"
-              aria-label={t("Toggle Task Administration")}
-              data-testid="toggle-task-panel"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowTaskPanel((prev) => !prev);
-              }}
+        {isSuperuser && (
+          <Card className="bg-dark border-secondary mb-4 shadow-sm">
+            <Card.Header
+              className={`border-secondary d-flex align-items-center justify-content-between py-2 ${styles.cursorPointer}`}
+              onClick={() => setShowTaskPanel((prev) => !prev)}
             >
-              {showTaskPanel ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </Button>
-          </Card.Header>
+              <div className="d-flex align-items-center gap-2">
+                <RefreshCw size={16} className="text-primary" />
+                <span className="fw-semibold text-light">{t("Global Task Administration")}</span>
+              </div>
+              <Button
+                variant="link"
+                size="sm"
+                className="p-0 text-muted"
+                aria-label={t("Toggle Task Administration")}
+                data-testid="toggle-task-panel"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowTaskPanel((prev) => !prev);
+                }}
+              >
+                {showTaskPanel ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </Button>
+            </Card.Header>
 
-          {showTaskPanel && (
-            <Card.Body className="p-3">
-              <Form.Group className="mb-3">
-                <Form.Check
-                  type="switch"
-                  id="global-force-refresh"
-                  label={<span className="small text-muted">{t("Force Refresh ESI")}</span>}
-                  checked={forceRefreshGlobal}
-                  onChange={(e) => setForceRefreshGlobal(e.target.checked)}
-                />
-              </Form.Group>
+            {showTaskPanel && (
+              <Card.Body className="p-3">
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="switch"
+                    id="global-force-refresh"
+                    label={<span className="small text-muted">{t("Force Refresh ESI")}</span>}
+                    checked={forceRefreshGlobal}
+                    onChange={(e) => setForceRefreshGlobal(e.target.checked)}
+                  />
+                </Form.Group>
 
-              <Row className="g-3">
-                <Col md={4}>
-                  <Card className="bg-dark border-secondary h-100">
-                    <Card.Header className="border-secondary py-2">
-                      <h6 className="mb-0 text-light">{t("All Tax Systems")}</h6>
-                    </Card.Header>
-                    <Card.Body className="d-flex flex-column justify-content-between p-3">
-                      <p className="text-muted small">
-                        {t("Queue background tasks to synchronize all active corporations and alliances.")}
-                      </p>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        disabled={globalTaskMutation.isPending}
-                        onClick={() =>
-                          globalTaskMutation.mutate({
-                            target: "all",
-                            force_refresh: forceRefreshGlobal,
-                          })
-                        }
-                        className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
-                      >
-                        {globalTaskMutation.isPending ? (
-                          <Spinner size="sm" animation="border" />
-                        ) : (
-                          <Play size={14} />
-                        )}
-                        {t("Update All")}
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-
-                <Col md={4}>
-                  <Card className="bg-dark border-secondary h-100">
-                    <Card.Header className="border-secondary py-2">
-                      <h6 className="mb-0 text-light">{t("Corporations")}</h6>
-                    </Card.Header>
-                    <Card.Body className="d-flex flex-column justify-content-between p-3">
-                      <Form.Group className="mb-2">
-                        <Form.Control
+                <Row className="g-3">
+                  <Col md={4}>
+                    <Card className="bg-dark border-secondary h-100">
+                      <Card.Header className="border-secondary py-2">
+                        <h6 className="mb-0 text-light">{t("All Tax Systems")}</h6>
+                      </Card.Header>
+                      <Card.Body className="d-flex flex-column justify-content-between p-3">
+                        <p className="text-muted small">
+                          {t("Queue background tasks to synchronize all active corporations and alliances.")}
+                        </p>
+                        <Button
+                          variant="primary"
                           size="sm"
-                          type="number"
-                          placeholder={t("All or specific Corp ID")}
-                          value={corpIdInput}
-                          onChange={(e) => setCorpIdInput(e.target.value)}
-                          className="bg-dark text-light border-secondary"
-                        />
-                      </Form.Group>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        disabled={globalTaskMutation.isPending}
-                        onClick={() =>
-                          globalTaskMutation.mutate({
-                            target: "corporation",
-                            eve_id: corpIdInput ? parseInt(corpIdInput, 10) : undefined,
-                            force_refresh: forceRefreshGlobal,
-                          })
-                        }
-                        className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
-                      >
-                        {globalTaskMutation.isPending ? (
-                          <Spinner size="sm" animation="border" />
-                        ) : (
-                          <Play size={14} />
-                        )}
-                        {corpIdInput ? t("Update Corp") : t("Update All Corps")}
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
+                          disabled={globalTaskMutation.isPending}
+                          onClick={() =>
+                            globalTaskMutation.mutate({
+                              target: "all",
+                              force_refresh: forceRefreshGlobal,
+                            })
+                          }
+                          className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
+                        >
+                          {globalTaskMutation.isPending ? (
+                            <Spinner size="sm" animation="border" />
+                          ) : (
+                            <Play size={14} />
+                          )}
+                          {t("Update All")}
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
 
-                <Col md={4}>
-                  <Card className="bg-dark border-secondary h-100">
-                    <Card.Header className="border-secondary py-2">
-                      <h6 className="mb-0 text-light">{t("Alliances")}</h6>
-                    </Card.Header>
-                    <Card.Body className="d-flex flex-column justify-content-between p-3">
-                      <Form.Group className="mb-2">
-                        <Form.Control
+                  <Col md={4}>
+                    <Card className="bg-dark border-secondary h-100">
+                      <Card.Header className="border-secondary py-2">
+                        <h6 className="mb-0 text-light">{t("Corporations")}</h6>
+                      </Card.Header>
+                      <Card.Body className="d-flex flex-column justify-content-between p-3">
+                        <Form.Group className="mb-2">
+                          <Form.Control
+                            size="sm"
+                            type="number"
+                            placeholder={t("All or specific Corp ID")}
+                            value={corpIdInput}
+                            onChange={(e) => setCorpIdInput(e.target.value)}
+                            className="bg-dark text-light border-secondary"
+                          />
+                        </Form.Group>
+                        <Button
+                          variant="primary"
                           size="sm"
-                          type="number"
-                          placeholder={t("All or specific Alliance ID")}
-                          value={allyIdInput}
-                          onChange={(e) => setAllyIdInput(e.target.value)}
-                          className="bg-dark text-light border-secondary"
-                        />
-                      </Form.Group>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        disabled={globalTaskMutation.isPending}
-                        onClick={() =>
-                          globalTaskMutation.mutate({
-                            target: "alliance",
-                            eve_id: allyIdInput ? parseInt(allyIdInput, 10) : undefined,
-                            force_refresh: forceRefreshGlobal,
-                          })
-                        }
-                        className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
-                      >
-                        {globalTaskMutation.isPending ? (
-                          <Spinner size="sm" animation="border" />
-                        ) : (
-                          <Play size={14} />
-                        )}
-                        {allyIdInput ? t("Update Alliance") : t("Update All Alliances")}
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
-            </Card.Body>
-          )}
-        </Card>
+                          disabled={globalTaskMutation.isPending}
+                          onClick={() =>
+                            globalTaskMutation.mutate({
+                              target: "corporation",
+                              eve_id: corpIdInput ? parseInt(corpIdInput, 10) : undefined,
+                              force_refresh: forceRefreshGlobal,
+                            })
+                          }
+                          className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
+                        >
+                          {globalTaskMutation.isPending ? (
+                            <Spinner size="sm" animation="border" />
+                          ) : (
+                            <Play size={14} />
+                          )}
+                          {corpIdInput ? t("Update Corp") : t("Update All Corps")}
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+
+                  <Col md={4}>
+                    <Card className="bg-dark border-secondary h-100">
+                      <Card.Header className="border-secondary py-2">
+                        <h6 className="mb-0 text-light">{t("Alliances")}</h6>
+                      </Card.Header>
+                      <Card.Body className="d-flex flex-column justify-content-between p-3">
+                        <Form.Group className="mb-2">
+                          <Form.Control
+                            size="sm"
+                            type="number"
+                            placeholder={t("All or specific Alliance ID")}
+                            value={allyIdInput}
+                            onChange={(e) => setAllyIdInput(e.target.value)}
+                            className="bg-dark text-light border-secondary"
+                          />
+                        </Form.Group>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          disabled={globalTaskMutation.isPending}
+                          onClick={() =>
+                            globalTaskMutation.mutate({
+                              target: "alliance",
+                              eve_id: allyIdInput ? parseInt(allyIdInput, 10) : undefined,
+                              force_refresh: forceRefreshGlobal,
+                            })
+                          }
+                          className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
+                        >
+                          {globalTaskMutation.isPending ? (
+                            <Spinner size="sm" animation="border" />
+                          ) : (
+                            <Play size={14} />
+                          )}
+                          {allyIdInput ? t("Update Alliance") : t("Update All Alliances")}
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+              </Card.Body>
+            )}
+          </Card>
+        )}
 
         {/* Filter and Search Bar */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
@@ -484,10 +494,11 @@ export function SuperuserPage() {
         </div>
 
         {/* Owners Table */}
-        <SuperuserOwnersTable
+        <AdministrationOwnersTable
           data={filteredOwners}
           isLoading={isLoading}
           isUpdating={updateMutation.isPending}
+          canForceRefresh={isSuperuser}
           onInspect={(owner) => {
             setInspectId(owner.owner_id);
             setInspectType(owner.owner_type);
@@ -560,4 +571,4 @@ export function SuperuserPage() {
   );
 }
 
-export default SuperuserPage;
+export default AdministrationPage;

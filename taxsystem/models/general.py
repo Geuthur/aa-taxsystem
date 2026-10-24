@@ -27,21 +27,47 @@ class UserSettings(models.Model):
 
 
 class General(models.Model):
-    """General model for app permissions"""
+    """A model defining commonly used permissions and helper methods for TaxSystem."""
+
+    class Permission(models.TextChoices):
+        """All permissions of the app. The value is the permission codename."""
+
+        BASIC_ACCESS = "basic_access", _("Can access the Tax System")
+        CREATE_ACCESS = "create_access", _("Can add Corporation/Alliance")
+        MANAGE_OWN_CORP = "manage_own_corp", _("Can manage own Corporation")
+        MANAGE_CORPS = "manage_corps", _("Can manage all Corporations")
+        MANAGE_OWN_ALLIANCE = "manage_own_alliance", _("Can manage own Alliance")
+        MANAGE_ALLIANCES = "manage_alliances", _("Can manage all Alliances")
+        ADMIN_ACCESS = "admin_access", _("Has access to the Administration.")
 
     class Meta:
         managed = False
         verbose_name = "AA-TaxSystem"
         verbose_name_plural = "AA-TaxSystem"
-        permissions = (
-            ("basic_access", _("Can access the Tax System")),
-            ("create_access", _("Can add Corporation/Alliance")),
-            ("manage_own_corp", _("Can manage own Corporation")),
-            ("manage_corps", _("Can manage all Corporations")),
-            ("manage_own_alliance", _("Can manage own Alliance")),
-            ("manage_alliances", _("Can manage all Alliances")),
-        )
         default_permissions = ()
+
+    # Inject dynamic permissions
+    Meta.permissions = Permission.choices
+
+    @classmethod
+    def get_perm(cls, perm: "str | Permission") -> str:
+        """Return full permission string 'taxsystem.<codename>'."""
+        codename = perm.value if isinstance(perm, cls.Permission) else perm
+        return f"taxsystem.{codename}"
+
+    @classmethod
+    def has_perm(cls, user: Any, perm: "str | General.Permission") -> bool:
+        """Check if the user has the permission."""
+        if not user or not hasattr(user, "has_perm"):
+            return False
+        return user.has_perm(cls.get_perm(perm))
+
+    @classmethod
+    def has_any_perm(cls, user: Any, *perms: "str | General.Permission") -> bool:
+        """Return True if the user has any of the specified permissions."""
+        if not user or not hasattr(user, "has_perm"):
+            return False
+        return any(user.has_perm(cls.get_perm(p)) for p in perms)
 
 
 class UpdateSectionResult(NamedTuple):

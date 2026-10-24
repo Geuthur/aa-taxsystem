@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 # AA TaxSystem
 from taxsystem import __title__, tasks
 from taxsystem.api import schema
+from taxsystem.api.helpers import core
 from taxsystem.helpers import lazy
 from taxsystem.models.alliance import (
     AllianceOwner,
@@ -24,7 +25,7 @@ from taxsystem.models.corporation import (
     CorporationUpdateStatus,
     Members,
 )
-from taxsystem.models.general import UserSettings
+from taxsystem.models.general import General, UserSettings
 from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
@@ -134,7 +135,7 @@ class ApiEndpoints:
         )
         def get_menu(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("taxsystem.basic_access"):
+            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             has_owner_errors = False
@@ -162,7 +163,7 @@ class ApiEndpoints:
             ]
 
             right_links = []
-            if user.is_superuser or user.has_perm("taxsystem.create_access"):
+            if General.has_perm(user, General.Permission.CREATE_ACCESS):
                 right_links += [
                     schema.MenuLink(
                         name=_("Add Corporation"),
@@ -176,9 +177,9 @@ class ApiEndpoints:
                     ),
                 ]
 
-            if user.is_superuser:
+            if core.has_administration_access(user):
                 right_links.append(
-                    schema.MenuLink(name=_("Superuser"), link="/superuser/")
+                    schema.MenuLink(name=_("Administration"), link="/administration/")
                 )
 
             return schema.MenuSchema(left_links=left_links, right_links=right_links)
@@ -194,26 +195,29 @@ class ApiEndpoints:
         )
         def get_user(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("taxsystem.basic_access"):
+            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             main_character = getattr(
                 getattr(user, "profile", None), "main_character", None
             )
 
-            can_manage = (
-                user.is_superuser
-                or user.has_perm("taxsystem.manage_corps")
-                or user.has_perm("taxsystem.manage_own_corp")
-                or user.has_perm("taxsystem.manage_alliances")
-                or user.has_perm("taxsystem.manage_own_alliance")
+            can_manage = General.has_any_perm(
+                user,
+                General.Permission.MANAGE_CORPS,
+                General.Permission.MANAGE_OWN_CORP,
+                General.Permission.MANAGE_ALLIANCES,
+                General.Permission.MANAGE_OWN_ALLIANCE,
             )
-            can_create = user.is_superuser or user.has_perm("taxsystem.create_access")
+            can_create = General.has_perm(user, General.Permission.CREATE_ACCESS)
+            is_admin = core.has_administration_access(user)
+            is_superuser = bool(user.is_superuser)
 
             if not main_character:
                 return schema.UserData(
                     user_id=user.id,
-                    is_admin=user.is_superuser,
+                    is_admin=is_admin,
+                    is_superuser=is_superuser,
                     can_manage=can_manage,
                     can_create=can_create,
                 )
@@ -230,7 +234,8 @@ class ApiEndpoints:
                     character_id=main_character.character_id,
                     size=64,
                 ),
-                is_admin=user.is_superuser,
+                is_admin=is_admin,
+                is_superuser=is_superuser,
                 can_manage=can_manage,
                 can_create=can_create,
             )
@@ -245,7 +250,7 @@ class ApiEndpoints:
             summary="Get the settings of the current user",
         )
         def get_user_settings(request: WSGIRequest):
-            if not request.user.has_perm("taxsystem.basic_access"):
+            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -265,7 +270,7 @@ class ApiEndpoints:
         def update_user_settings(
             request: WSGIRequest, payload: schema.UserSettingsUpdateRequest
         ):
-            if not request.user.has_perm("taxsystem.basic_access"):
+            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -286,7 +291,7 @@ class ApiEndpoints:
         )
         def get_user_accounts(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("taxsystem.basic_access"):
+            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             accounts: list[schema.UserAccountSchema] = []
@@ -416,7 +421,7 @@ class ApiEndpoints:
             summary="Get settings update status for all manageable owners",
         )
         def get_settings_owners(request: WSGIRequest):
-            if not request.user.has_perm("taxsystem.basic_access"):
+            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             owners_list: list[schema.TaxOwnerSettingSchema] = []
@@ -449,7 +454,7 @@ class ApiEndpoints:
             request: WSGIRequest,
             payload: schema.OwnerUpdateRequest | None = None,
         ):
-            if not request.user.has_perm("taxsystem.basic_access"):
+            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             force_refresh = payload.force_refresh if payload else False

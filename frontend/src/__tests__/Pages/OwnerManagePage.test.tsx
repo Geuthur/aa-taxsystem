@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
-import OwnerManagePage from "@/Pages/Manage/OwnerManagePage";
+import OwnerManagePage from "@/Pages/OwnerManagePage";
 
 vi.mock("@/Api/ApiCalls", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
@@ -104,7 +104,9 @@ describe("OwnerManagePage", () => {
     expect(await screen.findByText("Acme Corp")).toBeInTheDocument();
     expect(screen.getByText("Sync Error")).toBeInTheDocument();
     expect(screen.queryByText("Synchronized")).not.toBeInTheDocument();
-    expect(screen.getByText("Failed")).toBeInTheDocument();
+    // Per-section details are only shown on the Settings page
+    expect(screen.queryByText("Failed")).not.toBeInTheDocument();
+    expect(screen.queryByText("wallet_journal")).not.toBeInTheDocument();
   });
 
   it("does not render Update or Delete buttons in header (moved to Settings)", async () => {

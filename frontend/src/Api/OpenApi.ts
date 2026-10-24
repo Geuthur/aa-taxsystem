@@ -902,15 +902,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/": {
+    "/taxsystem/api/administration/owners/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List all corporation and alliance owners for superuser management */
-        get: operations["taxsystem_api_superuser_list_superuser_owners"];
+        /** List all corporation and alliance owners for administration management */
+        get: operations["taxsystem_api_administration_list_administration_owners"];
         put?: never;
         post?: never;
         delete?: never;
@@ -919,7 +919,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/update/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/update/": {
         parameters: {
             query?: never;
             header?: never;
@@ -929,14 +929,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Trigger an update for a corporation or alliance owner */
-        post: operations["taxsystem_api_superuser_update_superuser_owner"];
+        post: operations["taxsystem_api_administration_update_administration_owner"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -947,13 +947,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a corporation or alliance owner */
-        delete: operations["taxsystem_api_superuser_delete_superuser_owner"];
+        delete: operations["taxsystem_api_administration_delete_administration_owner"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/inspect/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
         parameters: {
             query?: never;
             header?: never;
@@ -961,7 +961,7 @@ export interface paths {
             cookie?: never;
         };
         /** Inspect a corporation or alliance owner dashboard */
-        get: operations["taxsystem_api_superuser_inspect_superuser_owner"];
+        get: operations["taxsystem_api_administration_inspect_administration_owner"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1058,6 +1058,11 @@ export interface components {
              * @default false
              */
             is_admin: boolean;
+            /**
+             * Is Superuser
+             * @default false
+             */
+            is_superuser: boolean;
             /**
              * Can Manage
              * @default false
@@ -1795,8 +1800,8 @@ export interface components {
             /** Group Ids */
             group_ids: number[];
         };
-        /** SuperuserTaxOwnerSchema */
-        SuperuserTaxOwnerSchema: {
+        /** AdministrationTaxOwnerSchema */
+        AdministrationTaxOwnerSchema: {
             /** Id */
             id: number;
             /** Owner Id */
@@ -1842,8 +1847,8 @@ export interface components {
             /** Error Message */
             error_message?: string | null;
         };
-        /** SuperuserTaxOwnerUpdateRequest */
-        SuperuserTaxOwnerUpdateRequest: {
+        /** AdministrationTaxOwnerUpdateRequest */
+        AdministrationTaxOwnerUpdateRequest: {
             /**
              * Force Refresh
              * @default false
@@ -3830,7 +3835,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_list_superuser_owners: {
+    taxsystem_api_administration_list_administration_owners: {
         parameters: {
             query?: never;
             header?: never;
@@ -3845,7 +3850,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SuperuserTaxOwnerSchema"][];
+                    "application/json": components["schemas"]["AdministrationTaxOwnerSchema"][];
                 };
             };
             /** @description Forbidden */
@@ -3859,7 +3864,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_update_superuser_owner: {
+    taxsystem_api_administration_update_administration_owner: {
         parameters: {
             query?: never;
             header?: never;
@@ -3871,7 +3876,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SuperuserTaxOwnerUpdateRequest"];
+                "application/json": components["schemas"]["AdministrationTaxOwnerUpdateRequest"];
             };
         };
         responses: {
@@ -3913,7 +3918,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_delete_superuser_owner: {
+    taxsystem_api_administration_delete_administration_owner: {
         parameters: {
             query?: never;
             header?: never;
@@ -3963,7 +3968,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_inspect_superuser_owner: {
+    taxsystem_api_administration_inspect_administration_owner: {
         parameters: {
             query?: never;
             header?: never;

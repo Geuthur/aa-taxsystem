@@ -30,10 +30,10 @@ export interface ToPath {
     toPath: (link: string) => string;
 }
 
-export const SuperuserMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
+export const AdministrationMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
     const { t } = useTranslation();
     const path = useLocation();
-    const hit = path.pathname.includes("/superuser/");
+    const hit = path.pathname.includes("/administration/");
 
     return (
         <Nav.Item as="li">
@@ -109,8 +109,8 @@ export const MenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPath) => {
         link.link?.startsWith("https://")
     );
 
-    if (link.link === "/superuser/" || link.name.toLowerCase() === "superuser") {
-        return <SuperuserMenuItem link={link} toPath={toPath} />;
+    if (link.link === "/administration/" || link.name.toLowerCase() === "administration") {
+        return <AdministrationMenuItem link={link} toPath={toPath} />;
     }
 
     if (link.link === "/settings/" || link.name.toLowerCase() === "settings") {

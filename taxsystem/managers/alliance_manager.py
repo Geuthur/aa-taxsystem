@@ -13,6 +13,7 @@ from allianceauth.services.hooks import get_extension_logger
 from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
+from taxsystem.models.general import General
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     PaymentActions,
@@ -420,15 +421,7 @@ class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
     # pylint: disable=duplicate-code
     def visible_to(self, user: User):
         """Return visible payments for the user depending on their permissions."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all payments for superuser %s.",
-                user,
-            )
-            return self
-
-        if user.has_perm("taxsystem.manage_alliances"):
+        if General.has_perm(user, General.Permission.MANAGE_ALLIANCES):
             logger.debug(
                 "Returning all alliance payments for Tax Audit Manager %s.", user
             )
@@ -438,7 +431,7 @@ class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             assert char
             queries = [models.Q(account__user=user)]
 
-            if user.has_perm("taxsystem.manage_own_alliance"):
+            if General.has_perm(user, General.Permission.MANAGE_OWN_ALLIANCE):
                 alliance_ids = user.character_ownerships.all().values_list(
                     "character__alliance_id", flat=True
                 )
@@ -496,8 +489,10 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
 
     def get_owner_open_invoices(self, user: User, owner: "OwnerContext"):
         """Get the count of open invoices for the given user and owner."""
-        if user.has_perm("taxsystem.manage_own_alliance") or user.has_perm(
-            "taxsystem.manage_alliances"
+        if General.has_any_perm(
+            user,
+            General.Permission.MANAGE_OWN_ALLIANCE,
+            General.Permission.MANAGE_ALLIANCES,
         ):
             return self.get_queryset().open_invoices(owner=owner)
         return 0

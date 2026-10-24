@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 # AA TaxSystem
 from taxsystem import tasks
 from taxsystem.api import admin, schema
+from taxsystem.api.helpers import core
 from taxsystem.api.helpers.statistics import create_dashboard_common_data
 from taxsystem.helpers import lazy
 from taxsystem.models.alliance import AllianceOwner, AllianceUpdateStatus
@@ -24,31 +25,38 @@ from taxsystem.models.corporation import (
 )
 from taxsystem.models.helpers.textchoices import PaymentRequestStatus
 
+# Corporation IDs below this value belong to NPC corporations
+MIN_PLAYER_CORPORATION_ID = 10_000_000
 
-class SuperuserApiEndpoints:
-    tags = ["Superuser"]
+
+class AdministrationApiEndpoints:
+    tags = ["Administration"]
 
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "superuser/owners/",
+            "administration/owners/",
             response={
-                HTTPStatus.OK: list[schema.SuperuserTaxOwnerSchema],
+                HTTPStatus.OK: list[schema.AdministrationTaxOwnerSchema],
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
-            summary="List all corporation and alliance owners for superuser management",
+            summary="List all corporation and alliance owners for administration management",
         )
-        def list_superuser_owners(request: WSGIRequest):
-            if not request.user.is_superuser:
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+        def list_administration_owners(request: WSGIRequest):
+            if not core.has_administration_access(request.user):
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Administration permission required.")
+                }
 
-            owners_list: list[schema.SuperuserTaxOwnerSchema] = []
+            owners_list: list[schema.AdministrationTaxOwnerSchema] = []
 
             # 1. Corporation Owners
-            for corp in CorporationOwner.objects.select_related(
+            # NPC corporations are never listed in the Administration
+            corporations = CorporationOwner.objects.select_related(
                 "eve_corporation"
-            ).all():
+            ).filter(eve_corporation__corporation_id__gte=MIN_PLAYER_CORPORATION_ID)
+            for corp in corporations:
                 last_sync = (
                     CorporationUpdateStatus.objects.filter(owner=corp)
                     .order_by("-last_run_finished_at")
@@ -75,7 +83,7 @@ class SuperuserApiEndpoints:
                 )
 
                 owners_list.append(
-                    schema.SuperuserTaxOwnerSchema(
+                    schema.AdministrationTaxOwnerSchema(
                         id=corp.id,
                         owner_id=corp.eve_id,
                         owner_type="corporation",
@@ -93,7 +101,8 @@ class SuperuserApiEndpoints:
                 )
 
             # 2. Alliance Owners
-            for ally in AllianceOwner.objects.select_related("eve_alliance").all():
+            alliances = AllianceOwner.objects.select_related("eve_alliance").all()
+            for ally in alliances:
                 last_sync = (
                     AllianceUpdateStatus.objects.filter(owner=ally)
                     .order_by("-last_run_finished_at")
@@ -120,7 +129,7 @@ class SuperuserApiEndpoints:
                 )
 
                 owners_list.append(
-                    schema.SuperuserTaxOwnerSchema(
+                    schema.AdministrationTaxOwnerSchema(
                         id=ally.id,
                         owner_id=ally.eve_id,
                         owner_type="alliance",
@@ -141,7 +150,7 @@ class SuperuserApiEndpoints:
             return HTTPStatus.OK, owners_list
 
         @api.post(
-            "superuser/owners/{str:owner_type}/{int:owner_id}/update/",
+            "administration/owners/{str:owner_type}/{int:owner_id}/update/",
             response={
                 HTTPStatus.OK: schema.MessageSchema,
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
@@ -151,21 +160,29 @@ class SuperuserApiEndpoints:
             tags=self.tags,
             summary="Trigger an update for a corporation or alliance owner",
         )
-        def update_superuser_owner(
+        # pylint: disable=too-many-return-statements
+        def update_administration_owner(
             request: WSGIRequest,
             owner_type: str,
             owner_id: int,
-            payload: schema.SuperuserTaxOwnerUpdateRequest,
+            payload: schema.AdministrationTaxOwnerUpdateRequest,
         ):
-            if not request.user.is_superuser:
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            if not core.has_administration_access(request.user):
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Administration permission required.")
+                }
 
             force_refresh = payload.force_refresh
+            if force_refresh and not request.user.is_superuser:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Superuser permission required.")
+                }
 
             if owner_type == "corporation":
                 try:
                     corp = CorporationOwner.objects.get(
-                        eve_corporation__corporation_id=owner_id
+                        eve_corporation__corporation_id=owner_id,
+                        eve_corporation__corporation_id__gte=MIN_PLAYER_CORPORATION_ID,
                     )
                 except CorporationOwner.DoesNotExist:
                     return HTTPStatus.NOT_FOUND, {
@@ -203,7 +220,7 @@ class SuperuserApiEndpoints:
             return HTTPStatus.BAD_REQUEST, {"error": _("Invalid owner type specified.")}
 
         @api.delete(
-            "superuser/owners/{str:owner_type}/{int:owner_id}/",
+            "administration/owners/{str:owner_type}/{int:owner_id}/",
             response={
                 HTTPStatus.OK: schema.MessageSchema,
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
@@ -213,18 +230,21 @@ class SuperuserApiEndpoints:
             tags=self.tags,
             summary="Delete a corporation or alliance owner",
         )
-        def delete_superuser_owner(
+        def delete_administration_owner(
             request: WSGIRequest,
             owner_type: str,
             owner_id: int,
         ):
-            if not request.user.is_superuser:
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            if not core.has_administration_access(request.user):
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Administration permission required.")
+                }
 
             if owner_type == "corporation":
                 try:
                     corp = CorporationOwner.objects.get(
-                        eve_corporation__corporation_id=owner_id
+                        eve_corporation__corporation_id=owner_id,
+                        eve_corporation__corporation_id__gte=MIN_PLAYER_CORPORATION_ID,
                     )
                 except CorporationOwner.DoesNotExist:
                     return HTTPStatus.NOT_FOUND, {
@@ -259,7 +279,7 @@ class SuperuserApiEndpoints:
             return HTTPStatus.BAD_REQUEST, {"error": _("Invalid owner type specified.")}
 
         @api.get(
-            "superuser/owners/{str:owner_type}/{int:owner_id}/inspect/",
+            "administration/owners/{str:owner_type}/{int:owner_id}/inspect/",
             response={
                 HTTPStatus.OK: admin.DashboardResponse,
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
@@ -269,19 +289,22 @@ class SuperuserApiEndpoints:
             tags=self.tags,
             summary="Inspect a corporation or alliance owner dashboard",
         )
-        def inspect_superuser_owner(
+        def inspect_administration_owner(
             request: WSGIRequest,
             owner_type: str,
             owner_id: int,
         ):
-            if not request.user.is_superuser:
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            if not core.has_administration_access(request.user):
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Administration permission required.")
+                }
 
             owner: CorporationOwner | AllianceOwner | None = None
             if owner_type == "corporation":
                 try:
                     owner = CorporationOwner.objects.get(
-                        eve_corporation__corporation_id=owner_id
+                        eve_corporation__corporation_id=owner_id,
+                        eve_corporation__corporation_id__gte=MIN_PLAYER_CORPORATION_ID,
                     )
                 except CorporationOwner.DoesNotExist:
                     return HTTPStatus.NOT_FOUND, {

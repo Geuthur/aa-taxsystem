@@ -1,7 +1,7 @@
 // AA TaxSystem
-import { ProjectName } from "../../configuration";
 import { apiClient } from "@/Api/Api";
 import type { components } from "@/Api/OpenApi";
+import { ProjectName } from "@/constants";
 
 export async function loadUserData(): Promise<{ user: components["schemas"]["UserData"] }> {
   const { data, error } = await apiClient.GET(`/${ProjectName}/api/user/`);
@@ -605,25 +605,25 @@ export async function addCustomPayment(
   return data as { success?: boolean; message?: string };
 }
 
-export async function loadSuperuserOwners(): Promise<
-  components["schemas"]["SuperuserTaxOwnerSchema"][]
+export async function loadAdministrationOwners(): Promise<
+  components["schemas"]["AdministrationTaxOwnerSchema"][]
 > {
   const { data, error } = await apiClient.GET(
-    `/${ProjectName}/api/superuser/owners/`,
+    `/${ProjectName}/api/administration/owners/`,
   );
   if (error || !data) {
-    throw new Error("Failed to load superuser owners");
+    throw new Error("Failed to load administration owners");
   }
   return data;
 }
 
-export async function triggerSuperuserOwnerUpdate(params: {
+export async function triggerAdministrationOwnerUpdate(params: {
   ownerType: "corporation" | "alliance";
   ownerId: number;
-  payload?: components["schemas"]["SuperuserTaxOwnerUpdateRequest"];
+  payload?: components["schemas"]["AdministrationTaxOwnerUpdateRequest"];
 }): Promise<components["schemas"]["MessageSchema"]> {
   const { data, error } = await apiClient.POST(
-    `/${ProjectName}/api/superuser/owners/{owner_type}/{owner_id}/update/`,
+    `/${ProjectName}/api/administration/owners/{owner_type}/{owner_id}/update/`,
     {
       params: { path: { owner_type: params.ownerType, owner_id: params.ownerId } },
       body: params.payload ?? { force_refresh: false },
@@ -635,12 +635,12 @@ export async function triggerSuperuserOwnerUpdate(params: {
   return data;
 }
 
-export async function deleteSuperuserOwner(params: {
+export async function deleteAdministrationOwner(params: {
   ownerType: "corporation" | "alliance";
   ownerId: number;
 }): Promise<components["schemas"]["MessageSchema"]> {
   const { data, error } = await apiClient.DELETE(
-    `/${ProjectName}/api/superuser/owners/{owner_type}/{owner_id}/`,
+    `/${ProjectName}/api/administration/owners/{owner_type}/{owner_id}/`,
     {
       params: { path: { owner_type: params.ownerType, owner_id: params.ownerId } },
     },
@@ -651,12 +651,12 @@ export async function deleteSuperuserOwner(params: {
   return data;
 }
 
-export async function loadSuperuserOwnerInspect(params: {
+export async function loadAdministrationOwnerInspect(params: {
   ownerType: "corporation" | "alliance";
   ownerId: number;
 }): Promise<components["schemas"]["DashboardResponse"]> {
   const { data, error } = await apiClient.GET(
-    `/${ProjectName}/api/superuser/owners/{owner_type}/{owner_id}/inspect/`,
+    `/${ProjectName}/api/administration/owners/{owner_type}/{owner_id}/inspect/`,
     {
       params: { path: { owner_type: params.ownerType, owner_id: params.ownerId } },
     },

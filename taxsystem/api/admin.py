@@ -395,7 +395,9 @@ class AdminApiEndpoints:
         # pylint: disable=too-many-return-statements
         def run_update_tasks(request: WSGIRequest, payload: schema.AdminUpdateRequest):
             if not request.user.is_superuser:
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Superuser permission required.")
+                }
 
             force_refresh = payload.force_refresh
             target = payload.target
@@ -492,6 +494,11 @@ class AdminApiEndpoints:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             force_refresh = payload.force_refresh if payload else False
+            if force_refresh and not request.user.is_superuser:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Superuser permission required.")
+                }
+
             if isinstance(owner, CorporationOwner):
                 tasks.update_corporation.apply_async(
                     args=[owner.eve_id],

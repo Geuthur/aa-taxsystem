@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 # AA TaxSystem
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
+from taxsystem.models.general import General
 
 
 def get_manage_owner(
@@ -81,3 +82,12 @@ def get_character_permissions(request, character_id) -> bool:
     if character_id not in char_ids:
         perms = False
     return perms
+
+
+def has_administration_access(user) -> bool:
+    """
+    Return True if the user may use the Administration area.
+
+    Requires the dedicated ``admin_access`` permission (superusers pass implicitly).
+    """
+    return General.has_perm(user, General.Permission.ADMIN_ACCESS)

@@ -336,7 +336,6 @@
   "Show {{count}} alt character(s)_one": "{{count}} Alt-Charakter anzeigen",
   "Show {{count}} alt character(s)_other": "{{count}} Alt-Charaktere anzeigen",
   "No alt characters recorded.": "Keine Alt-Charaktere erfasst.",
-  "Back to Superuser Overview": "Zurück zur Superuser-Übersicht",
   "Sync Error": "Synchronisationsfehler",
   "Deactivated": "Deaktiviert",
   "Filter by division or reason...": "Nach Abteilung oder Grund filtern...",
@@ -357,9 +356,7 @@
   "Update owner": "Owner aktualisieren",
   "Remove from TaxSystem": "Aus TaxSystem entfernen",
   "Are you sure you want to delete {{name}}? All associated data and configurations will be permanently removed.": "Sind Sie sicher, dass Sie {{name}} löschen möchten? Alle zugehörigen Daten und Konfigurationen werden dauerhaft entfernt.",
-  "Superuser Administration": "Superuser-Administration",
   "System-wide tax owner administration, synchronization tasks, and compliance monitoring.": "Systemweite Steuer-Owner-Administration, Synchronisationsaufgaben und Compliance-Überwachung.",
-  "Failed to load superuser data": "Superuser-Daten konnten nicht geladen werden",
   "Total Owners": "Owner gesamt",
   "Sync Issues": "Synchronisationsprobleme",
   "Global Task Administration": "Globale Aufgaben-Administration",
@@ -375,5 +372,14 @@
   "Search by name or ticker...": "Nach Name oder Ticker suchen...",
   "Confirm Owner Deletion": "Löschen des Owners bestätigen",
   "Are you sure you want to delete {{name}} ({{type}})?": "Sind Sie sicher, dass Sie {{name}} ({{type}}) löschen möchten?",
-  "This action cannot be undone. All associated tax accounts, records, and configuration will be permanently deleted from the database.": "Diese Aktion kann nicht rückgängig gemacht werden. Alle zugehörigen Steuerkonten, Einträge und Konfigurationen werden dauerhaft aus der Datenbank gelöscht."
+  "This action cannot be undone. All associated tax accounts, records, and configuration will be permanently deleted from the database.": "Diese Aktion kann nicht rückgängig gemacht werden. Alle zugehörigen Steuerkonten, Einträge und Konfigurationen werden dauerhaft aus der Datenbank gelöscht.",
+  "Administration": "Administration",
+  "Failed to load administration data": "Administrationsdaten konnten nicht geladen werden",
+  "Back to Administration Overview": "Zurück zur Administrationsübersicht",
+  "ESI synchronization status of your linked corporations and alliances.": "ESI-Synchronisationsstatus Ihrer verknüpften Corporations und Allianzen.",
+  "Are you sure you want to remove {{name}} from TaxSystem? All payment configurations, member records, and tax accounts for this owner will be permanently deleted.": "Sind Sie sicher, dass Sie {{name}} aus dem TaxSystem entfernen möchten? Alle Zahlungskonfigurationen, Mitgliedseinträge und Steuerkonten dieses Owners werden dauerhaft gelöscht.",
+  "The ESI token is invalid or expired. Re-add the character or corporation.": "Der ESI-Token ist ungültig oder abgelaufen. Füge den Charakter oder die Corporation erneut hinzu.",
+  "No error message available.": "Keine Fehlermeldung verfügbar.",
+  "Error details": "Fehlerdetails",
+  "Show error details for {{name}}": "Fehlerdetails für {{name}} anzeigen"
 }

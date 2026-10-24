@@ -1,5 +1,5 @@
 // React
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 // Third Party
 import type { ColumnDef } from "@tanstack/react-table";
@@ -8,55 +8,37 @@ import { Badge, Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import type { SuperuserTaxOwnerSchema } from "@/Api/schema";
+import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
+import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
+import { AdministrationStatusBadge } from "@/Components/Administration/AdministrationStatusBadge";
 import BaseTable from "@/Components/Base/BaseTable/BaseTable";
-import styles from "@/Styles/modules/Superuser.module.css";
+import styles from "@/Styles/modules/Administration.module.css";
 import { formatNumber, renderTooltip } from "@/Utils";
 
-interface SuperuserOwnersTableProps {
-  data: SuperuserTaxOwnerSchema[];
+export interface AdministrationOwnersTableProps {
+  data: AdministrationTaxOwnerSchema[];
   isLoading: boolean;
-  onInspect: (owner: SuperuserTaxOwnerSchema) => void;
-  onUpdate: (owner: SuperuserTaxOwnerSchema, forceRefresh: boolean) => void;
-  onDelete: (owner: SuperuserTaxOwnerSchema) => void;
+  onInspect: (owner: AdministrationTaxOwnerSchema) => void;
+  onUpdate: (owner: AdministrationTaxOwnerSchema, forceRefresh: boolean) => void;
+  onDelete: (owner: AdministrationTaxOwnerSchema) => void;
   isUpdating?: boolean;
+  canForceRefresh?: boolean;
 }
 
-export function SuperuserOwnersTable({
+export function AdministrationOwnersTable({
   data,
   isLoading,
   onInspect,
   onUpdate,
   onDelete,
   isUpdating = false,
-}: SuperuserOwnersTableProps) {
+  canForceRefresh = false,
+}: AdministrationOwnersTableProps) {
   const { t } = useTranslation();
+  const [errorOwner, setErrorOwner] = useState<AdministrationTaxOwnerSchema | null>(null);
 
-  const columns = useMemo<ColumnDef<SuperuserTaxOwnerSchema, unknown>[]>(
+  const columns = useMemo<ColumnDef<AdministrationTaxOwnerSchema, unknown>[]>(
     () => {
-      const getStatusBadge = (status: string, error?: string | null) => {
-        switch (status.toLowerCase()) {
-          case "ok":
-            return <Badge bg="success">{t("OK")}</Badge>;
-          case "error":
-            return (
-              <Badge bg="danger" title={error ?? undefined}>
-                {t("Error")}
-              </Badge>
-            );
-          case "token_error":
-            return <Badge bg="warning" text="dark">{t("Token Error")}</Badge>;
-          case "incomplete":
-            return <Badge bg="warning" text="dark">{t("Incomplete")}</Badge>;
-          case "in_progress":
-            return <Badge bg="info">{t("In Progress")}</Badge>;
-          case "disabled":
-            return <Badge bg="secondary">{t("Disabled")}</Badge>;
-          default:
-            return <Badge bg="secondary">{status}</Badge>;
-        }
-      };
-
       return [
       {
         id: "owner",
@@ -110,15 +92,18 @@ export function SuperuserOwnersTable({
         accessorKey: "status",
         cell: ({ row }) => {
           const item = row.original;
+          const hasError =
+            Boolean(item.error_message) || item.status.toLowerCase() === "token_error";
           return (
-            <div className="d-flex flex-column gap-1">
-              {getStatusBadge(item.status, item.error_message)}
-              {item.error_message && (
-                <span className={`text-danger small text-truncate ${styles.errorMessage}`} title={item.error_message}>
-                  {item.error_message}
-                </span>
-              )}
-            </div>
+            <AdministrationStatusBadge
+              status={item.status}
+              onClick={hasError ? () => setErrorOwner(item) : undefined}
+              ariaLabel={
+                hasError
+                  ? t("Show error details for {{name}}", { name: item.name })
+                  : undefined
+              }
+            />
           );
         },
       },
@@ -232,10 +217,12 @@ export function SuperuserOwnersTable({
                     <RefreshCw size={14} className="me-2 text-primary" />
                     {t("Update (Normal)")}
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={() => onUpdate(item, true)}>
-                    <RefreshCw size={14} className="me-2 text-warning" />
-                    {t("Force Refresh (Bypass cache)")}
-                  </Dropdown.Item>
+                  {canForceRefresh && (
+                    <Dropdown.Item onClick={() => onUpdate(item, true)}>
+                      <RefreshCw size={14} className="me-2 text-warning" />
+                      {t("Force Refresh (Bypass cache)")}
+                    </Dropdown.Item>
+                  )}
                 </Dropdown.Menu>
               </Dropdown>
 
@@ -258,16 +245,25 @@ export function SuperuserOwnersTable({
         },
       },
     ];
-  }, [t, onInspect, onUpdate, onDelete, isUpdating]);
+  }, [t, onInspect, onUpdate, onDelete, isUpdating, canForceRefresh]);
 
   return (
-    <BaseTable
-      data={data}
-      columns={columns}
-      isFetching={isLoading}
-      emptyText={t("No owners found.")}
-    />
+    <>
+      <BaseTable
+        data={data}
+        columns={columns}
+        isFetching={isLoading}
+        emptyText={t("No owners found.")}
+      />
+      <AdministrationErrorModal
+        show={errorOwner !== null}
+        onHide={() => setErrorOwner(null)}
+        ownerName={errorOwner?.name ?? ""}
+        status={errorOwner?.status ?? ""}
+        errorMessage={errorOwner?.error_message}
+      />
+    </>
   );
 }
 
-export default SuperuserOwnersTable;
+export default AdministrationOwnersTable;

@@ -32,13 +32,15 @@ import {
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
+import {
+  AccountsTab,
+  DivisionsModal,
+  FiltersTab,
+  GroupsTab,
+  HistoryTab,
+  MembersTab,
+} from "@/Components/OwnerManage";
 import { useOwnerTabState } from "@/Hooks/useTaxsystemState";
-import DivisionsModal from "@/Pages/Manage/Modals/DivisionsModal";
-import AccountsTab from "@/Pages/Manage/Tabs/AccountsTab";
-import FiltersTab from "@/Pages/Manage/Tabs/FiltersTab";
-import GroupsTab from "@/Pages/Manage/Tabs/GroupsTab";
-import HistoryTab from "@/Pages/Manage/Tabs/HistoryTab";
-import MembersTab from "@/Pages/Manage/Tabs/MembersTab";
 import { formatNumber } from "@/Utils";
 
 interface OwnerManagePageProps {
@@ -148,7 +150,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
               className="d-flex align-items-center gap-1 aa-btn aa-btn-secondary aa-btn-sm"
             >
               <ArrowLeft size={14} />
-              {t("Back to Superuser Overview")}
+              {t("Back to Administration Overview")}
             </Button>
           ) : (
             <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">

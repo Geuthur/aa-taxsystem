@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { OverviewPage } from "@/Pages/Overview/OverviewPage";
+import { OverviewPage } from "@/Pages/OverviewPage";
 
 type OverviewSchema = components["schemas"]["OverviewSchema"];
 

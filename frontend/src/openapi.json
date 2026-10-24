@@ -3058,10 +3058,10 @@
         ]
       }
     },
-    "/taxsystem/api/superuser/owners/": {
+    "/taxsystem/api/administration/owners/": {
       "get": {
-        "operationId": "taxsystem_api_superuser_list_superuser_owners",
-        "summary": "List all corporation and alliance owners for superuser management",
+        "operationId": "taxsystem_api_administration_list_administration_owners",
+        "summary": "List all corporation and alliance owners for administration management",
         "parameters": [],
         "responses": {
           "200": {
@@ -3070,7 +3070,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/SuperuserTaxOwnerSchema"
+                    "$ref": "#/components/schemas/AdministrationTaxOwnerSchema"
                   },
                   "title": "Response",
                   "type": "array"
@@ -3090,7 +3090,7 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "security": [
           {
@@ -3099,9 +3099,9 @@
         ]
       }
     },
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/update/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/update/": {
       "post": {
-        "operationId": "taxsystem_api_superuser_update_superuser_owner",
+        "operationId": "taxsystem_api_administration_update_administration_owner",
         "summary": "Trigger an update for a corporation or alliance owner",
         "parameters": [
           {
@@ -3166,13 +3166,13 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SuperuserTaxOwnerUpdateRequest"
+                "$ref": "#/components/schemas/AdministrationTaxOwnerUpdateRequest"
               }
             }
           },
@@ -3185,9 +3185,9 @@
         ]
       }
     },
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/": {
       "delete": {
-        "operationId": "taxsystem_api_superuser_delete_superuser_owner",
+        "operationId": "taxsystem_api_administration_delete_administration_owner",
         "summary": "Delete a corporation or alliance owner",
         "parameters": [
           {
@@ -3252,7 +3252,7 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "security": [
           {
@@ -3261,9 +3261,9 @@
         ]
       }
     },
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/inspect/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
       "get": {
-        "operationId": "taxsystem_api_superuser_inspect_superuser_owner",
+        "operationId": "taxsystem_api_administration_inspect_administration_owner",
         "summary": "Inspect a corporation or alliance owner dashboard",
         "parameters": [
           {
@@ -3328,7 +3328,7 @@
           }
         },
         "tags": [
-          "Superuser"
+          "Administration"
         ],
         "security": [
           {
@@ -3480,6 +3480,11 @@
           "is_admin": {
             "default": false,
             "title": "Is Admin",
+            "type": "boolean"
+          },
+          "is_superuser": {
+            "default": false,
+            "title": "Is Superuser",
             "type": "boolean"
           },
           "can_manage": {
@@ -5379,7 +5384,7 @@
         "title": "CreateGroupRequest",
         "type": "object"
       },
-      "SuperuserTaxOwnerSchema": {
+      "AdministrationTaxOwnerSchema": {
         "properties": {
           "id": {
             "title": "Id",
@@ -5478,10 +5483,10 @@
           "owner_type",
           "name"
         ],
-        "title": "SuperuserTaxOwnerSchema",
+        "title": "AdministrationTaxOwnerSchema",
         "type": "object"
       },
-      "SuperuserTaxOwnerUpdateRequest": {
+      "AdministrationTaxOwnerUpdateRequest": {
         "properties": {
           "force_refresh": {
             "default": false,
@@ -5489,7 +5494,7 @@
             "type": "boolean"
           }
         },
-        "title": "SuperuserTaxOwnerUpdateRequest",
+        "title": "AdministrationTaxOwnerUpdateRequest",
         "type": "object"
       }
     },

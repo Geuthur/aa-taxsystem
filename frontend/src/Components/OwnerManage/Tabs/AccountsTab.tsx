@@ -14,9 +14,9 @@ import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
+import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getAccountColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { MemberPaymentsModal } from "@/Pages/Manage/Modals/MemberPaymentsModal";
 import { formatNumber } from "@/Utils";
 
 interface AccountsTabProps {

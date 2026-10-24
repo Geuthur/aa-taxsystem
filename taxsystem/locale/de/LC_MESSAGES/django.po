@@ -451,6 +451,9 @@ msgstr "Kann eigene Allianz verwalten"
 msgid "Can manage all Alliances"
 msgstr "Kann alle Allianzen verwalten"
 
+msgid "Has access to the Administration."
+msgstr "Hat Zugriff auf die Administration."
+
 msgid "Disabled"
 msgstr "deaktiviert"
 
@@ -1089,6 +1092,12 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+
+msgid "Administration permission required."
+msgstr "Administrationsberechtigung erforderlich."
+
+msgid "Superuser permission required."
+msgstr "Superuser-Berechtigung erforderlich."
 
 #~ msgid "Edit Filter Set"
 #~ msgstr "Filtersatz bearbeiten"

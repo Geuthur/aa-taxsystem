@@ -22,6 +22,7 @@ from taxsystem.models.alliance import (
     AllianceOwner,
 )
 from taxsystem.models.corporation import CorporationOwner
+from taxsystem.models.general import General
 from taxsystem.models.helpers.textchoices import AdminActions
 from taxsystem.providers import AppLogger
 
@@ -29,7 +30,7 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 @login_required
-@permission_required("taxsystem.basic_access")
+@permission_required(General.get_perm(General.Permission.BASIC_ACCESS))
 def react_base(request: WSGIRequest):
     """Serve the React app; routing and permissions of the pages are handled by the API."""
     context = {"version": __version__, "app_name": __app_name__}
@@ -37,7 +38,7 @@ def react_base(request: WSGIRequest):
 
 
 @login_required
-@permission_required("taxsystem.create_access")
+@permission_required(General.get_perm(General.Permission.CREATE_ACCESS))
 @token_required(scopes=CorporationOwner.get_esi_scopes())
 def add_corp(request: WSGIRequest, token):
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
@@ -77,7 +78,7 @@ def add_corp(request: WSGIRequest, token):
 
 
 @login_required
-@permission_required("taxsystem.create_access")
+@permission_required(General.get_perm(General.Permission.CREATE_ACCESS))
 @token_required(scopes=CorporationOwner.get_esi_scopes())
 def add_alliance(request: WSGIRequest, token):
     # TODO Implement Alliance System

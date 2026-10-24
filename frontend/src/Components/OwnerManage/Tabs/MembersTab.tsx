@@ -13,10 +13,10 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { MemberAltsModal } from "@/Components/OwnerManage/Modals/MemberAltsModal";
+import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getMemberColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { MemberAltsModal } from "@/Pages/Manage/Modals/MemberAltsModal";
-import { MemberPaymentsModal } from "@/Pages/Manage/Modals/MemberPaymentsModal";
 
 interface MembersTabProps {
   ownerId: number;

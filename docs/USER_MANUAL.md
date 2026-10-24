@@ -44,6 +44,7 @@ ______________________________________________________________________
 - `taxsystem.manage_corps` - Manage all corporations
 - `taxsystem.manage_own_alliance` - Manage your own alliance
 - `taxsystem.manage_alliances` - Manage all alliances
+- `taxsystem.admin_access` - Access the Administration (all corporations and alliances)
 - `taxsystem.create_access` - Add new corporations/alliances
 
 ______________________________________________________________________
@@ -253,6 +254,8 @@ The **Balance Due** represents the total ISK credited to your account through ap
 ______________________________________________________________________
 
 ## Administration
+
+The Administration lists all registered (player) corporations and alliances. It requires the dedicated permission `taxsystem.admin_access` (superusers have it implicitly); `taxsystem.manage_corps` / `taxsystem.manage_alliances` alone do not grant access. Global update tasks and every forced refresh remain superuser-only.
 
 ### Management Dashboard
 

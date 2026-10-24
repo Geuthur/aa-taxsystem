@@ -8,10 +8,6 @@
   height: 32px;
 }
 
-.errorMessage {
-  max-width: 220px;
-}
-
 .dropdownMenu {
   z-index: 1060;
 }

@@ -60,6 +60,7 @@ class UserData(Schema):
     alliance_name: str | None = None
     portrait: str | None = None
     is_admin: bool = False
+    is_superuser: bool = False
     can_manage: bool = False
     can_create: bool = False
 
@@ -364,7 +365,7 @@ class UpdateTaxPeriodRequest(Schema):
     tax_period: int
 
 
-class SuperuserTaxOwnerSchema(Schema):
+class AdministrationTaxOwnerSchema(Schema):
     id: int
     owner_id: int
     owner_type: Literal["corporation", "alliance"]
@@ -380,7 +381,7 @@ class SuperuserTaxOwnerSchema(Schema):
     error_message: str | None = None
 
 
-class SuperuserTaxOwnerUpdateRequest(Schema):
+class AdministrationTaxOwnerUpdateRequest(Schema):
     force_refresh: bool = False
 
 

@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { HistoryTab } from "@/Pages/Manage/Tabs/HistoryTab";
+import { HistoryTab } from "@/Components/OwnerManage/Tabs/HistoryTab";
 
 type AdminLogRow = components["schemas"]["AdminHistorySchema"];
 
