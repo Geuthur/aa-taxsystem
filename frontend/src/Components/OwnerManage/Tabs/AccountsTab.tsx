@@ -135,7 +135,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
             </InputGroup.Text>
             <Form.Control
               type="text"
-              placeholder={t("Filter accounts by name or status...")}
+              placeholder={t("Filter accounts by name or status…")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-dark text-light border-secondary"
@@ -229,7 +229,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
               rows={3}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder={t("Optional comment for admin history...")}
+              placeholder={t("Optional comment for admin history…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -317,7 +317,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
               rows={3}
               value={paymentComment}
               onChange={(e) => setPaymentComment(e.target.value)}
-              placeholder={t("Reason for manual payment addition...")}
+              placeholder={t("Reason for manual payment addition…")}
               className="bg-dark text-light border-secondary"
               required
             />

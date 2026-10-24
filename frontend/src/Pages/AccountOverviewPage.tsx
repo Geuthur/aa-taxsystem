@@ -99,7 +99,7 @@ export function AccountOverviewPage() {
               </InputGroup.Text>
               <Form.Control
                 type="text"
-                placeholder={t("Filter accounts by character or owner...")}
+                placeholder={t("Filter accounts by character or owner…")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="bg-dark text-light border-secondary"
@@ -118,7 +118,7 @@ export function AccountOverviewPage() {
           <div className="text-center py-5">
             <Spinner animation="border" variant="primary" />
             <div className="mt-2 text-muted">
-              {t("Loading account details...")}
+              {t("Loading account details…")}
             </div>
           </div>
         )}

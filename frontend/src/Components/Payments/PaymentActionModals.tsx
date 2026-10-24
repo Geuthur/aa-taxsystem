@@ -116,7 +116,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={rejectComment}
               onChange={(e) => onRejectCommentChange(e.target.value)}
-              placeholder={t("Reason for rejecting payment...")}
+              placeholder={t("Reason for rejecting payment…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -182,7 +182,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={deleteComment}
               onChange={(e) => onDeleteCommentChange(e.target.value)}
-              placeholder={t("Reason for deleting this custom payment...")}
+              placeholder={t("Reason for deleting this custom payment…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -230,7 +230,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={bulkRejectComment}
               onChange={(e) => onBulkRejectCommentChange?.(e.target.value)}
-              placeholder={t("Reason for rejecting payments...")}
+              placeholder={t("Reason for rejecting payments…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -285,7 +285,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={bulkDeleteComment}
               onChange={(e) => onBulkDeleteCommentChange?.(e.target.value)}
-              placeholder={t("Reason for deleting payments...")}
+              placeholder={t("Reason for deleting payments…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>

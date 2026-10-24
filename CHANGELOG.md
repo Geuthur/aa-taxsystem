@@ -57,6 +57,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] Use the typographic ellipsis (`…`) instead of three dots in loading texts and placeholders; the translation keys changed accordingly.
+
 - [CHANGE] Moved owner update and delete actions from `OwnerManagePage` header to `SettingsPage`.
 
 - [CHANGE] Refactored `SettingsPage` to use modular `BaseOwnerSettingsSection` and `BaseOwnerCard` for unified owner settings management.

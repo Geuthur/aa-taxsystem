@@ -103,7 +103,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
     return (
       <Card className="text-center py-5 border-0 bg-transparent">
         <Spinner animation="border" variant="primary" />
-        <div className="mt-2 text-muted">{t("Loading dashboard...")}</div>
+        <div className="mt-2 text-muted">{t("Loading dashboard…")}</div>
       </Card>
     );
   }

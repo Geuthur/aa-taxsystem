@@ -148,7 +148,7 @@ export function PaymentsPage() {
               </InputGroup.Text>
               <Form.Control
                 type="text"
-                placeholder={t("Filter by character or reason...")}
+                placeholder={t("Filter by character or reason…")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="bg-dark text-light border-secondary"

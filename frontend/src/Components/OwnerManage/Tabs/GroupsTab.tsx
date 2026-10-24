@@ -175,7 +175,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
             <Form.Label>{t("Select Auth Groups")}</Form.Label>
             <Form.Control
               type="text"
-              placeholder={t("Search groups...")}
+              placeholder={t("Search groups…")}
               value={authGroupSearch}
               onChange={(e) => setAuthGroupSearch(e.target.value)}
               size="sm"
@@ -268,7 +268,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
               rows={2}
               value={deleteComment}
               onChange={(e) => setDeleteComment(e.target.value)}
-              placeholder={t("Reason for deletion...")}
+              placeholder={t("Reason for deletion…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>

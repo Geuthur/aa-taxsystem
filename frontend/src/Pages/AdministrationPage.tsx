@@ -484,7 +484,7 @@ export function AdministrationPage() {
           <div className={styles.searchContainer}>
             <Form.Control
               type="search"
-              placeholder={t("Search by name or ticker...")}
+              placeholder={t("Search by name or ticker…")}
               size="sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

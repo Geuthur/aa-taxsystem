@@ -63,7 +63,7 @@ export function OverviewPage() {
               </InputGroup.Text>
               <Form.Control
                 type="text"
-                placeholder={t("Search corporations & alliances...")}
+                placeholder={t("Search corporations & alliances…")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="bg-dark text-light border-secondary"
@@ -81,7 +81,7 @@ export function OverviewPage() {
         {isLoading && (
           <div className="text-center py-5">
             <Spinner animation="border" variant="primary" />
-            <div className="mt-2 text-muted">{t("Loading tax system owners...")}</div>
+            <div className="mt-2 text-muted">{t("Loading tax system owners…")}</div>
           </div>
         )}
 

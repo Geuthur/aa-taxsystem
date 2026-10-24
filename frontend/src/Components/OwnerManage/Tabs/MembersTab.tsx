@@ -92,7 +92,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
           </InputGroup.Text>
           <Form.Control
             type="text"
-            placeholder={t("Filter members by name...")}
+            placeholder={t("Filter members by name…")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="bg-dark text-light border-secondary"

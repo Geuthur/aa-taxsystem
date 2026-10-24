@@ -183,7 +183,7 @@ export const SettingsPage: React.FC = () => {
     return (
       <div className="aa-loader-container">
         <span className="spinner-border" />
-        <span>{t("Loading settings...")}</span>
+        <span>{t("Loading settings…")}</span>
       </div>
     );
   }
@@ -225,7 +225,7 @@ export const SettingsPage: React.FC = () => {
                 </p>
               )}
               {updateMutation.isPending && (
-                <p className={styles["save-status"]} role="status">{t("Saving...")}</p>
+                <p className={styles["save-status"]} role="status">{t("Saving…")}</p>
               )}
             </div>
             <input
