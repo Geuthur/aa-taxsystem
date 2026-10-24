@@ -106,7 +106,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
         isFetching={isLoading}
         isError={isError}
         emptyText={t("No corporation members found.")}
-        variant="vowra-light"
+        variant="light"
       />
 
       {/* Delete Member Confirmation Modal */}

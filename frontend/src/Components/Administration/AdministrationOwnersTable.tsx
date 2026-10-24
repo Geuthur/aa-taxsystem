@@ -13,7 +13,7 @@ import { AdministrationErrorModal } from "@/Components/Administration/Administra
 import { AdministrationStatusBadge } from "@/Components/Administration/AdministrationStatusBadge";
 import BaseTable from "@/Components/Base/BaseTable/BaseTable";
 import styles from "@/Styles/modules/Administration.module.css";
-import { formatNumber, renderTooltip } from "@/Utils";
+import { formatCompactNumber, formatDate, renderTooltip } from "@/Utils";
 
 export interface AdministrationOwnersTableProps {
   data: AdministrationTaxOwnerSchema[];
@@ -116,7 +116,7 @@ export function AdministrationOwnersTable({
           return (
             <div className="d-flex flex-column">
               <span className="fw-semibold text-light">
-                {formatNumber(item.tax_amount)} ISK
+                {formatCompactNumber(item.tax_amount)} ISK
               </span>
               <span className="text-muted small">
                 {t("Period: {{days}} days", { days: item.tax_period })}
@@ -150,7 +150,7 @@ export function AdministrationOwnersTable({
           const date = new Date(lastSync);
           return (
             <span className="text-muted small" title={date.toISOString()}>
-              {date.toLocaleString()}
+              {formatDate(lastSync)}
             </span>
           );
         },

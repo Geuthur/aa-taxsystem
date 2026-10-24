@@ -1,5 +1,5 @@
 // React
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
@@ -64,15 +64,9 @@ export const SettingsMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPa
         staleTime: 15000,
     });
 
-    const hasStatusIssue = Boolean(
-        link.has_errors ||
-        (owners &&
-            owners.length > 0 &&
-            owners.some((o) => {
-                const s = (o.status || "").toLowerCase();
-                return s === "error" || s === "token_error" || s !== "ok";
-            }))
-    );
+    const issueCount = (owners ?? []).filter((o) => (o.status || "").toLowerCase() !== "ok").length;
+    const badgeCount = Math.max(issueCount, link.badge ?? 0);
+    const hasStatusIssue = Boolean(link.has_errors || issueCount > 0);
 
     return (
         <Nav.Item as="li">
@@ -84,15 +78,11 @@ export const SettingsMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPa
                 active={hit}
                 data-testid="settings-nav-link"
             >
-                {hasStatusIssue && (
-                    <span className="aa-pending-dot-container me-1" aria-hidden="true">
-                        <span className="aa-danger-dot-ping" />
-                        <span className="aa-danger-dot-core" />
-                    </span>
-                )}
                 {t(link.name)}
-                {link.badge ? (
-                    <span className="badge bg-danger ms-1">{link.badge}</span>
+                {badgeCount > 0 ? (
+                    <span className={`badge bg-danger ms-1 ${hasStatusIssue ? "aa-menu-badge-pulse" : ""}`}>
+                        {badgeCount}
+                    </span>
                 ) : null}
             </Nav.Link>
         </Nav.Item>

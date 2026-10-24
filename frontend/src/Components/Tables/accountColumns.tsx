@@ -6,7 +6,7 @@ import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { formatNumber, renderTooltip } from "@/Utils";
+import { formatCompactNumber, formatDate, renderTooltip } from "@/Utils";
 
 export type AccountRow = components["schemas"]["PaymentSystemSchema"];
 
@@ -91,7 +91,7 @@ export function getAccountColumns({
         const val = Number(getValue() || 0);
         return (
           <span className={`fw-mono ${val < 0 ? "text-danger" : "text-light"}`}>
-            {formatNumber(val)}
+            {formatCompactNumber(val, "ISK")}
           </span>
         );
       },
@@ -122,7 +122,7 @@ export function getAccountColumns({
       cell: ({ getValue }) => {
         const val = getValue();
         if (!val) return <span className="text-muted">—</span>;
-        return <span className="small text-muted">{new Date(String(val)).toLocaleDateString()}</span>;
+        return <span className="small text-muted">{formatDate(String(val), { dateStyle: "medium" })}</span>;
       },
     },
     {

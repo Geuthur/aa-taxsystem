@@ -381,5 +381,9 @@
   "The ESI token is invalid or expired. Re-add the character or corporation.": "The ESI token is invalid or expired. Re-add the character or corporation.",
   "No error message available.": "No error message available.",
   "Error details": "Error details",
-  "Show error details for {{name}}": "Show error details for {{name}}"
+  "Show error details for {{name}}": "Show error details for {{name}}",
+  "Done": "Done",
+  "Range…": "Range…",
+  "Filter…": "Filter…",
+  "No matching options": "No matching options"
 }

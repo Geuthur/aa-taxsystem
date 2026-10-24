@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { formatNumber } from "@/Utils";
+import { formatCompactNumber } from "@/Utils";
 
 type DivisionsData = components["schemas"]["DashboardDivisionsSchema"];
 
@@ -45,7 +45,7 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
             <Row className="align-items-center">
               <Col xs={12} sm={6}>
                 <div className="text-muted small mb-1">{t("Total Wallet Balance")}</div>
-                <h4 className="text-success fw-bold mb-0">{formatNumber(total)} ISK</h4>
+                <h4 className="text-success fw-bold mb-0">{formatCompactNumber(total)} ISK</h4>
               </Col>
               <Col xs={12} sm={6} className="text-sm-end mt-2 mt-sm-0">
                 <Badge bg="secondary" className="px-3 py-2">
@@ -82,7 +82,7 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
                     <td className="text-muted small fw-bold">{idx + 1}</td>
                     <td className="fw-semibold text-light">{div.name}</td>
                     <td className="text-end fw-bold text-success font-monospace">
-                      {formatNumber(div.balance)} ISK
+                      {formatCompactNumber(div.balance)} ISK
                     </td>
                     <td className="text-end">
                       <div className="d-flex align-items-center justify-content-end gap-2">

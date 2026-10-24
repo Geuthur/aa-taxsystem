@@ -11,6 +11,7 @@ import { initReactI18next } from "react-i18next";
 import { AppName, ProjectName } from "@/constants";
 import Routing from "@/Routing";
 import "@/Styles/index.css";
+import "@/Styles/table.css";
 
 export { AppName, ProjectName };
 

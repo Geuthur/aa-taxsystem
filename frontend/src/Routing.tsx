@@ -1,6 +1,6 @@
 // React
 import React from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 // Third Party
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

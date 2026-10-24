@@ -82,8 +82,8 @@ export function BaseOwnerCard<T extends BaseOwner = BaseOwner>({
     type === "corporation" ? t("Corporation") : type === "alliance" ? t("Alliance") : t("Character");
   const typeBadgeClass =
     type === "corporation"
-      ? "bg-info-subtle text-info border-info-subtle"
-      : "bg-warning-subtle text-warning border-warning-subtle";
+      ? "bg-primary text-white border-black"
+      : "bg-info text-white border-black";
 
   return (
     <article className={`bg-dark ${styles["char-card"]} ${cardClass}`}>

@@ -1,6 +1,6 @@
 // React
 import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
@@ -84,7 +84,7 @@ export function MyPaymentsPage() {
           isFetching={isLoading}
           isError={isError}
           emptyText={t("No payments found.")}
-          variant="vowra-light"
+          variant="light"
         />
       </div>
     </Card>

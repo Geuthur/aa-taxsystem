@@ -1,5 +1,5 @@
 // React
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 
 // Third Party
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

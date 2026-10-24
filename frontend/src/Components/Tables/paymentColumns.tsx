@@ -8,7 +8,7 @@ import { Badge, Form } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { formatNumber } from "@/Utils";
+import { formatCompactNumber } from "@/Utils";
 
 export type PaymentRow = components["schemas"]["PaymentSchema"];
 export type CorpPaymentRow = components["schemas"]["PaymentCorporationSchema"];
@@ -109,7 +109,7 @@ export function getPaymentColumns<T extends GenericPaymentRow>({
       accessorKey: "amount",
       cell: ({ getValue }) => {
         const val = Number(getValue() || 0);
-        return <span className="fw-mono text-light">{formatNumber(val)}</span>;
+        return <span className="fw-mono text-light">{formatCompactNumber(val, "ISK")}</span>;
       },
     },
     {

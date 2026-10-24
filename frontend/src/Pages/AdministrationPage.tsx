@@ -1,6 +1,6 @@
 // React
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

@@ -28,7 +28,7 @@ Section Order:
 
 ### Added
 
-- [ADD] Pulsing error indicator (`aa-order-nav-pulse` with danger ping dot) on the `Settings` navigation item in `BaseMenu` whenever manageable corporations or alliances have active sync/token errors.
+- [ADD] Red issue count badge on the `Settings` navigation item in `BaseMenu` that pulses (`aa-menu-badge-pulse`) whenever manageable corporations or alliances have active sync/token errors.
 
 - [ADD] Settings owners endpoint `GET /taxsystem/api/settings/owners/` and update-all endpoint `POST /taxsystem/api/settings/owners/update-all/` with `force_refresh=false`.
 
@@ -54,6 +54,7 @@ Section Order:
 
 - [FIX] Removed plain translation keys that duplicated their plural forms (`_one`/`_other`) in the English and German translation files, which caused Weblate "duplicate string in file" warnings.
 - [FIX] Fixed Update Status card displaying green "Synchronized" badge when ESI sync errors occurred; now dynamically shows red `Sync Error` or warning `Token Error` with pinging animation and section breakdown.
+- [FIX] Fixed the `import-headings` ESLint rule duplicating comments above the first import on every `--fix` pass, which could grow a file exponentially; added a unit test (`eslint-rules/import-headings.test.mjs`).
 
 ### Changed
 
@@ -74,6 +75,10 @@ Section Order:
 - [CHANGE] Frontend structure aligned with aa-ledger: flat `Pages/`, page-specific tabs and modals moved to `Components/OwnerManage/`, entry files renamed (`Main.tsx`, `Routing.tsx`, `constants.ts`, `Styles/index.css`); unused `Pages/Admin/AdminPage.tsx` removed.
 
 - [CHANGE] Administration owners table: the status badge is now clickable when an owner has an error message or a token error and opens a new `AdministrationErrorModal` with the full message (default text for token errors without message) instead of showing the message inline; removed the unused `.errorMessage` CSS class.
+
+- [CHANGE] Consolidated the frontend formatting helpers in `Utils/format.ts` (`formatNumber`, `formatCompactNumber`, `formatIsk`, `formatDate`, `formatRelativeTime`, `formatEta`) with a single `en` locale fallback; `renderTooltip` now lives only in `Utils/bootsTrap.tsx` and `renderHtml` in `Utils/general.tsx`. ISK amounts that were followed by a literal `ISK` no longer show the unit twice.
+
+- [CHANGE] Replaced `BaseTable` with the shared implementation from `aa-ledger` (new toolbar, `variant` is now `default` or `light`, table styles moved to `Styles/table.css`); row selection is kept. Owner type badges in the settings use the `aa-ledger` colors (`primary` / `info`). Frontend imports use `react-router` instead of `react-router-dom`.
 
 ### Removed
 

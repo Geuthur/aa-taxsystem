@@ -134,7 +134,7 @@ export function MemberPaymentsModal({
           </div>
         ) : (
           <BaseTable
-            variant="vowra-light"
+            variant="light"
             data={payments || []}
             columns={columns}
             isFetching={isLoading}

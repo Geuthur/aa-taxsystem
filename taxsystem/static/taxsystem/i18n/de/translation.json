@@ -376,5 +376,9 @@
   "The ESI token is invalid or expired. Re-add the character or corporation.": "Der ESI-Token ist ungültig oder abgelaufen. Füge den Charakter oder die Corporation erneut hinzu.",
   "No error message available.": "Keine Fehlermeldung verfügbar.",
   "Error details": "Fehlerdetails",
-  "Show error details for {{name}}": "Fehlerdetails für {{name}} anzeigen"
+  "Show error details for {{name}}": "Fehlerdetails für {{name}} anzeigen",
+  "Done": "Fertig",
+  "Range…": "Bereich…",
+  "Filter…": "Filter…",
+  "No matching options": "Keine passenden Optionen"
 }

@@ -1,6 +1,6 @@
 // React
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -41,7 +41,7 @@ import {
   MembersTab,
 } from "@/Components/OwnerManage";
 import { useOwnerTabState } from "@/Hooks/useTaxsystemState";
-import { formatNumber } from "@/Utils";
+import { formatCompactNumber } from "@/Utils";
 
 interface OwnerManagePageProps {
   ownerIdOverride?: number;
@@ -181,7 +181,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
                   </div>
                 </div>
                 <h4 className="mb-1 text-light fw-bold">
-                  {formatNumber(dashboard.tax_amount)} / {dashboard.tax_period} {t("Days")}
+                  {formatCompactNumber(dashboard.tax_amount, "ISK")} / {dashboard.tax_period} {t("Days")}
                 </h4>
                 <div className="text-muted small">
                   {t("Fixed tax amount & billing period")}
@@ -202,7 +202,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
                   </div>
                 </div>
                 <h4 className="mb-1 text-success fw-bold">
-                  {formatNumber(dashboard.divisions.total_balance)}
+                  {formatCompactNumber(dashboard.divisions.total_balance, "ISK")}
                 </h4>
                 <div className="text-muted small">
                   {dashboard.divisions.divisions.length} {t("divisions monitored")}
@@ -230,7 +230,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
                   </div>
                 </div>
                 <h4 className="mb-1 text-info fw-bold">
-                  {formatNumber(dashboard.activity)}
+                  {formatCompactNumber(dashboard.activity, "ISK")}
                 </h4>
                 <div className="text-muted small">
                   {t("Total journal volume (30d)")}

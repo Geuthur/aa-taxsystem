@@ -1,9 +1,9 @@
 // React
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 // Third Party
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 // AA TaxSystem
@@ -80,21 +80,22 @@ describe('AuthLeftMenu', () => {
         expect(container.querySelectorAll('li')).toHaveLength(0);
     });
 
-    it('should render Settings link with pulse when has_errors is true or an owner has an error', async () => {
+    it('should render pulsating issue badge on Settings link when has_errors is true', async () => {
         // Test Data
         const testData = [
-            { name: 'Settings', link: '/settings/', has_errors: true },
+            { name: 'Settings', link: '/settings/', has_errors: true, badge: 3 },
         ];
 
         // Test Action
         renderMenu(testData);
 
         // Expected Result
-        const settingsLink = screen.getByTestId('settings-nav-link');
+        const settingsLink = screen.getByRole('link', { name: /settings/i });
         expect(settingsLink).toBeDefined();
-        expect(settingsLink.classList.contains('aa-order-nav-pulse')).toBe(false);
-        expect(settingsLink.querySelector('.aa-pending-dot-container')).toBeInTheDocument();
-        expect(settingsLink.querySelector('.aa-danger-dot-ping')).toBeInTheDocument();
+        expect(settingsLink.querySelector('.aa-pending-dot-container')).toBeNull();
+        const badge = within(settingsLink).getByText('3');
+        expect(badge.textContent).toBe('3');
+        expect(badge.classList.contains('aa-menu-badge-pulse')).toBe(true);
     });
 });
 

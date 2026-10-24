@@ -1,6 +1,6 @@
 // React
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 
 // Third Party
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,7 +24,7 @@ import {
 import { getPaymentColumns } from "@/Components/Tables";
 import { usePaymentActions } from "@/Hooks/usePaymentActions";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { formatNumber } from "@/Utils";
+import { formatCompactNumber } from "@/Utils";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 
@@ -225,7 +225,7 @@ export function PaymentsPage() {
           isFetching={isLoading}
           isError={isError}
           emptyText={t("No payments found.")}
-          variant="vowra-light"
+          variant="light"
         />
       </div>
 
@@ -281,12 +281,12 @@ export function PaymentsPage() {
                 <div>
                   <h6 className="mb-1 text-light">{paymentDetails.account?.character?.character_name}</h6>
                   <div className="text-muted small">
-                    {t("Payment Pool")}: {formatNumber(Number(paymentDetails.account?.payment_pool || 0))}
+                    {t("Payment Pool")}: {formatCompactNumber(Number(paymentDetails.account?.payment_pool || 0), "ISK")}
                   </div>
                 </div>
                 <div className="text-end">
                   <h5 className="mb-1 text-info fw-bold">
-                    {formatNumber(Number(paymentDetails.payment?.amount || 0))}
+                    {formatCompactNumber(Number(paymentDetails.payment?.amount || 0), "ISK")}
                   </h5>
                   <Badge bg="secondary">{paymentDetails.payment?.request_status?.status}</Badge>
                 </div>

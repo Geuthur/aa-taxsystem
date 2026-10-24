@@ -17,7 +17,7 @@ import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getAccountColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { formatNumber } from "@/Utils";
+import { formatCompactNumber } from "@/Utils";
 
 interface AccountsTabProps {
   ownerId: number;
@@ -171,7 +171,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
         isFetching={isLoading}
         isError={isError}
         emptyText={t("No tax accounts found.")}
-        variant="vowra-light"
+        variant="light"
       />
 
       {/* Switch Account Modal */}
@@ -286,7 +286,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
               <div className="fw-semibold text-light">{paymentAccount.account?.character_name}</div>
               <div className="small text-muted">
                 {t("Current Balance")}:{" "}
-                <span className="text-info">{formatNumber(Number(paymentAccount.deposit || 0))}</span>
+                <span className="text-info">{formatCompactNumber(Number(paymentAccount.deposit || 0), "ISK")}</span>
               </div>
             </div>
           </div>
@@ -305,7 +305,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
             />
             {typeof paymentAmount === "number" && paymentAmount > 0 && (
               <Form.Text className="text-info small">
-                ≈ {formatNumber(paymentAmount)}
+                ≈ {formatCompactNumber(paymentAmount, "ISK")}
               </Form.Text>
             )}
           </Form.Group>

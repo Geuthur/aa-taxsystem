@@ -66,7 +66,7 @@ export function MemberAltsModal({
       }
     >
       <BaseTable
-        variant="vowra-light"
+        variant="light"
         data={alts || []}
         columns={columns}
         emptyText={t("No alt characters recorded.")}

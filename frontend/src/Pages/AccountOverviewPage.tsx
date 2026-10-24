@@ -1,6 +1,6 @@
 // React
 import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
@@ -30,7 +30,7 @@ import {
   allianceImageUrl,
   characterImageUrl,
   corporationImageUrl,
-  formatNumber,
+  formatCompactNumber,
   formatRelativeTime,
 } from "@/Utils";
 
@@ -239,7 +239,7 @@ export function AccountOverviewPage() {
                             <span>{t("Current Balance")}</span>
                           </div>
                           <div className={`fs-5 fw-mono ${account.deposit > 0 ? "text-success" : "text-light"}`}>
-                            {formatNumber(account.deposit)}
+                            {formatCompactNumber(account.deposit, "ISK")}
                           </div>
                         </div>
                       </Col>
@@ -251,7 +251,7 @@ export function AccountOverviewPage() {
                             <span>{t("Tax Rate")}</span>
                           </div>
                           <div className="fs-5 fw-mono text-light">
-                            {formatNumber(account.tax_amount)}
+                            {formatCompactNumber(account.tax_amount, "ISK")}
                             <span className="fs-6 text-muted ms-1">
                               / {account.tax_period} {t("Days")}
                             </span>
