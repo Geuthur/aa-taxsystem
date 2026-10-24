@@ -52,6 +52,7 @@ Section Order:
 
 ### Fixed
 
+- [FIX] Removed plain translation keys that duplicated their plural forms (`_one`/`_other`) in the English and German translation files, which caused Weblate "duplicate string in file" warnings.
 - [FIX] Fixed Update Status card displaying green "Synchronized" badge when ESI sync errors occurred; now dynamically shows red `Sync Error` or warning `Token Error` with pinging animation and section breakdown.
 
 ### Changed
