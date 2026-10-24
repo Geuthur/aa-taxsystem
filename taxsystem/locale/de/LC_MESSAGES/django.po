@@ -451,8 +451,8 @@ msgstr "Kann eigene Allianz verwalten"
 msgid "Can manage all Alliances"
 msgstr "Kann alle Allianzen verwalten"
 
-msgid "Has access to the Administration."
-msgstr "Hat Zugriff auf die Administration."
+msgid "Has access to the whole Administration."
+msgstr "Hat Zugriff auf die gesamte Administration."
 
 msgid "Disabled"
 msgstr "deaktiviert"

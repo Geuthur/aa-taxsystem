@@ -13,7 +13,6 @@ from django.utils.translation import gettext as _
 # AA TaxSystem
 from taxsystem import tasks
 from taxsystem.api import admin, schema
-from taxsystem.api.helpers import core
 from taxsystem.api.helpers.statistics import create_dashboard_common_data
 from taxsystem.helpers import lazy
 from taxsystem.models.alliance import AllianceOwner, AllianceUpdateStatus
@@ -23,6 +22,7 @@ from taxsystem.models.corporation import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
+from taxsystem.models.general import General
 from taxsystem.models.helpers.textchoices import PaymentRequestStatus
 
 # Corporation IDs below this value belong to NPC corporations
@@ -44,7 +44,7 @@ class AdministrationApiEndpoints:
             summary="List all corporation and alliance owners for administration management",
         )
         def list_administration_owners(request: WSGIRequest):
-            if not core.has_administration_access(request.user):
+            if not General.has_administration_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -53,9 +53,11 @@ class AdministrationApiEndpoints:
 
             # 1. Corporation Owners
             # NPC corporations are never listed in the Administration
-            corporations = CorporationOwner.objects.select_related(
-                "eve_corporation"
-            ).filter(eve_corporation__corporation_id__gte=MIN_PLAYER_CORPORATION_ID)
+            corporations = (
+                General.get_administration_owners("corporation", request.user)
+                .select_related("eve_corporation")
+                .filter(eve_corporation__corporation_id__gte=MIN_PLAYER_CORPORATION_ID)
+            )
             for corp in corporations:
                 last_sync = (
                     CorporationUpdateStatus.objects.filter(owner=corp)
@@ -101,7 +103,11 @@ class AdministrationApiEndpoints:
                 )
 
             # 2. Alliance Owners
-            alliances = AllianceOwner.objects.select_related("eve_alliance").all()
+            alliances = (
+                General.get_administration_owners("alliance", request.user)
+                .select_related("eve_alliance")
+                .all()
+            )
             for ally in alliances:
                 last_sync = (
                     AllianceUpdateStatus.objects.filter(owner=ally)
@@ -167,7 +173,7 @@ class AdministrationApiEndpoints:
             owner_id: int,
             payload: schema.AdministrationTaxOwnerUpdateRequest,
         ):
-            if not core.has_administration_access(request.user):
+            if not General.has_administration_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -190,6 +196,13 @@ class AdministrationApiEndpoints:
                         % {"id": owner_id}
                     }
 
+                if not General.has_administration_owner_access(
+                    "corporation", request.user, corp
+                ):
+                    return HTTPStatus.FORBIDDEN, {
+                        "error": _("Administration permission required.")
+                    }
+
                 tasks.update_corporation.apply_async(
                     args=[corp.eve_id],
                     kwargs={"force_refresh": force_refresh},
@@ -206,6 +219,13 @@ class AdministrationApiEndpoints:
                     return HTTPStatus.NOT_FOUND, {
                         "error": _("Alliance with ID %(id)s not found")
                         % {"id": owner_id}
+                    }
+
+                if not General.has_administration_owner_access(
+                    "alliance", request.user, ally
+                ):
+                    return HTTPStatus.FORBIDDEN, {
+                        "error": _("Administration permission required.")
                     }
 
                 tasks.update_alliance.apply_async(
@@ -230,12 +250,13 @@ class AdministrationApiEndpoints:
             tags=self.tags,
             summary="Delete a corporation or alliance owner",
         )
+        # pylint: disable=too-many-return-statements
         def delete_administration_owner(
             request: WSGIRequest,
             owner_type: str,
             owner_id: int,
         ):
-            if not core.has_administration_access(request.user):
+            if not General.has_administration_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -250,6 +271,13 @@ class AdministrationApiEndpoints:
                     return HTTPStatus.NOT_FOUND, {
                         "error": _("Corporation with ID %(id)s not found")
                         % {"id": owner_id}
+                    }
+
+                if not General.has_administration_owner_access(
+                    "corporation", request.user, corp
+                ):
+                    return HTTPStatus.FORBIDDEN, {
+                        "error": _("Administration permission required.")
                     }
 
                 name = corp.name
@@ -267,6 +295,13 @@ class AdministrationApiEndpoints:
                     return HTTPStatus.NOT_FOUND, {
                         "error": _("Alliance with ID %(id)s not found")
                         % {"id": owner_id}
+                    }
+
+                if not General.has_administration_owner_access(
+                    "alliance", request.user, ally
+                ):
+                    return HTTPStatus.FORBIDDEN, {
+                        "error": _("Administration permission required.")
                     }
 
                 name = ally.name
@@ -294,7 +329,7 @@ class AdministrationApiEndpoints:
             owner_type: str,
             owner_id: int,
         ):
-            if not core.has_administration_access(request.user):
+            if not General.has_administration_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -324,6 +359,13 @@ class AdministrationApiEndpoints:
             else:
                 return HTTPStatus.BAD_REQUEST, {
                     "error": _("Invalid owner type specified.")
+                }
+
+            if not General.has_administration_owner_access(
+                owner_type, request.user, owner
+            ):
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Administration permission required.")
                 }
 
             divisions = (

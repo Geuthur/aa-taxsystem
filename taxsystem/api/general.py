@@ -12,7 +12,6 @@ from django.utils.translation import gettext as _
 # AA TaxSystem
 from taxsystem import __title__, tasks
 from taxsystem.api import schema
-from taxsystem.api.helpers import core
 from taxsystem.helpers import lazy
 from taxsystem.models.alliance import (
     AllianceOwner,
@@ -177,7 +176,7 @@ class ApiEndpoints:
                     ),
                 ]
 
-            if core.has_administration_access(user):
+            if General.has_administration_access(user):
                 right_links.append(
                     schema.MenuLink(name=_("Administration"), link="/administration/")
                 )
@@ -210,7 +209,7 @@ class ApiEndpoints:
                 General.Permission.MANAGE_OWN_ALLIANCE,
             )
             can_create = General.has_perm(user, General.Permission.CREATE_ACCESS)
-            is_admin = core.has_administration_access(user)
+            is_admin = General.has_administration_access(user)
             is_superuser = bool(user.is_superuser)
 
             if not main_character:

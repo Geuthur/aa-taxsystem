@@ -36,7 +36,7 @@ Section Order:
 
 - [ADD] Owner deletion modal with `BaseModal` on `SettingsPage`.
 
-- **Superuser View Unification**: Standardized the 4 top KPI metric cards (`bg-body border-secondary h-100 shadow-sm`) with dynamic "Sync Issues" indicator (Green Shield when 0 issues, Red AlertTriangle with counter badge when issues exist).
+- **Administration View Unification**: Standardized the 4 top KPI metric cards (`bg-body border-secondary h-100 shadow-sm`) with dynamic "Sync Issues" indicator (Green Shield when 0 issues, Red AlertTriangle with counter badge when issues exist).
 
 - **Collapsible Global Task Administration**: Converted the Global Task Administration panel into a collapsible accordion card with toggle button (`data-testid="toggle-task-panel"`), "Force Refresh ESI" toggle switch, and responsive nested task cards.
 
@@ -48,7 +48,7 @@ Section Order:
 
 - [ADD] `is_superuser` flag in the `/user/` endpoint so the frontend can show superuser-only controls.
 
-- [ADD] Dedicated permission `taxsystem.admin_access` ("Has access to the Administration.") in `General.Permission`; the existing permission codenames are unchanged.
+- [ADD] Overall permission `taxsystem.admin_access` ("Has access to the whole Administration.") in `General.Permission`; it unlocks the Administration for all corporations and all alliances. The existing permission codenames are unchanged (migration `0017_alter_general_options` only updates the model options).
 
 ### Fixed
 
@@ -67,7 +67,7 @@ Section Order:
 
 - [CHANGE] Renamed "Superuser" to "Administration": API paths `superuser/owners/...` are now `administration/owners/...`, page route `/administration/` (`/superuser/` redirects), schemas, query keys and translations were renamed accordingly.
 
-- [CHANGE] The Administration area (menu entry, `is_admin` flag and all `administration/owners/...` endpoints) now requires the `admin_access` permission instead of superusers only; superusers keep access implicitly. With it, all corporations and alliances are listed; `manage_corps` / `manage_alliances` alone no longer grant access. NPC corporations (ID below 10,000,000) are never listed and return 404 on the detail endpoints.
+- [CHANGE] Administration access logic: `admin_access` is the overall permission (all corporations and alliances), `manage_corps` / `manage_alliances` unlock the Administration with all corporations / all alliances, `manage_own_corp` / `manage_own_alliance` with only the own corporation / alliance (of the main character); permissions combine (union). The menu entry, the `is_admin` flag and all `administration/owners/...` endpoints use these permissions (403 for owners the user may not administer; the list only contains permitted owners); superusers keep access implicitly. NPC corporations (ID below 10,000,000) are never listed and return 404 on the detail endpoints.
 
 - [CHANGE] Only superusers may trigger global update tasks (`admin/tasks/run`) and use `force_refresh`; managers sending `force_refresh=true` to the owner update endpoints receive 403. The Global Task panel and the force refresh option are only shown to superusers.
 

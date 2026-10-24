@@ -586,7 +586,7 @@ msgid "Can manage all Alliances"
 msgstr ""
 
 #: taxsystem/models/general.py:43
-msgid "Has access to the Administration."
+msgid "Has access to the whole Administration."
 msgstr ""
 
 #: taxsystem/models/helpers/textchoices.py:14
