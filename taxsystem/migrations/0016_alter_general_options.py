@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                     ("manage_corps", "Can manage all Corporations"),
                     ("manage_own_alliance", "Can manage own Alliance"),
                     ("manage_alliances", "Can manage all Alliances"),
-                    ("admin_access", "Has access to the Administration."),
+                    ("admin_access", "Has access to the whole Administration."),
                 ],
                 "verbose_name": "AA-TaxSystem",
                 "verbose_name_plural": "AA-TaxSystem",
