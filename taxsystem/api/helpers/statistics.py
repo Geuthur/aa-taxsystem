@@ -96,10 +96,25 @@ def create_dashboard_common_data(owner, divisions):
         members=get_members_statistics(owner),
     )
 
+    owner_status = owner.get_status
+    sections_status = owner.get_update_status
+    has_errors = getattr(owner_status, "value", str(owner_status)) in (
+        "error",
+        "token_error",
+    ) or any(
+        isinstance(v, dict) and v.get("is_success") is False
+        for v in sections_status.values()
+    )
+    status_str = (
+        str(owner_status.value) if hasattr(owner_status, "value") else str(owner_status)
+    )
+
     return {
         "update_status": UpdateStatusSchema(
-            status=owner.get_update_status,
+            status=sections_status,
             icon=owner.get_status.bootstrap_icon(),
+            has_errors=has_errors,
+            status_display=status_str,
         ),
         "tax_amount": owner.tax_amount,
         "tax_period": owner.tax_period,

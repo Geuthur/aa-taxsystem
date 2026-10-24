@@ -6,7 +6,7 @@ import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { renderTooltip } from "@/Utils";
+import { formatDate, renderTooltip } from "@/Utils";
 
 export type MemberRow = components["schemas"]["MembersSchema"];
 
@@ -115,7 +115,7 @@ export function getMemberColumns({
       cell: ({ getValue }) => {
         const val = getValue();
         if (!val) return "—";
-        return new Date(String(val)).toLocaleDateString();
+        return formatDate(String(val), { dateStyle: "medium" });
       },
     },
     {

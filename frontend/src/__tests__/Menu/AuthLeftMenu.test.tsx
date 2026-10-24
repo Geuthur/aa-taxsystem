@@ -1,8 +1,9 @@
 // React
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 // Third Party
-import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 // AA TaxSystem
@@ -19,6 +20,17 @@ vi.mock('react-i18next', async (importOriginal) => {
     };
 });
 
+const renderMenu = (data: Parameters<typeof AuthLeftMenu>[0]['data']) => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    return render(
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter initialEntries={['/taxsystem/']}>
+                <AuthLeftMenu data={data} isLoading={false} error={false} />
+            </MemoryRouter>
+        </QueryClientProvider>
+    );
+};
+
 describe('AuthLeftMenu', () => {
     it('should render internal navigation links', () => {
         // Test Data
@@ -28,11 +40,7 @@ describe('AuthLeftMenu', () => {
         ];
 
         // Test Action
-        render(
-            <MemoryRouter initialEntries={['/taxsystem/']}>
-                <AuthLeftMenu data={testData} isLoading={false} error={false} />
-            </MemoryRouter>
-        );
+        renderMenu(testData);
 
         // Expected Result
         const dashboardLink = screen.getByText('Dashboard');
@@ -51,11 +59,7 @@ describe('AuthLeftMenu', () => {
         ];
 
         // Test Action
-        render(
-            <MemoryRouter>
-                <AuthLeftMenu data={testData} isLoading={false} error={false} />
-            </MemoryRouter>
-        );
+        renderMenu(testData);
 
         // Expected Result
         const externalLink = screen.getByText('External Docs');
@@ -70,13 +74,28 @@ describe('AuthLeftMenu', () => {
         ];
 
         // Test Action
-        const { container } = render(
-            <MemoryRouter>
-                <AuthLeftMenu data={testData} isLoading={false} error={false} />
-            </MemoryRouter>
-        );
+        const { container } = renderMenu(testData);
 
         // Expected Result
         expect(container.querySelectorAll('li')).toHaveLength(0);
     });
+
+    it('should render pulsating issue badge on Settings link when has_errors is true', async () => {
+        // Test Data
+        const testData = [
+            { name: 'Settings', link: '/settings/', has_errors: true, badge: 3 },
+        ];
+
+        // Test Action
+        renderMenu(testData);
+
+        // Expected Result
+        const settingsLink = screen.getByRole('link', { name: /settings/i });
+        expect(settingsLink).toBeDefined();
+        expect(settingsLink.querySelector('.aa-pending-dot-container')).toBeNull();
+        const badge = within(settingsLink).getByText('3');
+        expect(badge.textContent).toBe('3');
+        expect(badge.classList.contains('aa-menu-badge-pulse')).toBe(true);
+    });
 });
+

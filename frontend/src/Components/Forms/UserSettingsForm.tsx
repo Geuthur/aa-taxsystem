@@ -45,7 +45,7 @@ export default function UserSettingsForm({
 
             <div className="text-end">
                 <Button type="submit" variant="primary" disabled={isPending}>
-                    {isPending ? t("Saving...") : t("Save Settings")}
+                    {isPending ? t("Saving…") : t("Save Settings")}
                 </Button>
             </div>
         </Form>

@@ -11,6 +11,7 @@ from django.conf import settings
 # AA TaxSystem
 from taxsystem.api import (
     admin,
+    administration,
     corporation,
     filters,
     general,
@@ -18,7 +19,6 @@ from taxsystem.api import (
     logs,
     overview,
     payments,
-    superuser,
 )
 from taxsystem.api.helpers.parser import SafeNinjaParser
 
@@ -41,7 +41,7 @@ def setup(ninja_api):
     logs.LogsApiEndpoints(ninja_api)
     filters.FilterApiEndpoints(ninja_api)
     groups.GroupsApiEndpoints(ninja_api)
-    superuser.SuperuserApiEndpoints(ninja_api)
+    administration.AdministrationApiEndpoints(ninja_api)
 
 
 # Initialize API endpoints

@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 // AA TaxSystem
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import type { BasePaymentRow } from "@/Hooks/usePaymentActions";
-import { formatNumber } from "@/Utils";
+import { formatCompactNumber } from "@/Utils";
 
 export interface PaymentActionModalsProps {
   rejectingPayment: BasePaymentRow | null;
@@ -98,7 +98,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
         >
           <p>
             {t("Rejecting payment of")}{" "}
-            <strong>{formatNumber(Number(rejectingPayment.amount || 0))}</strong>
+            <strong>{formatCompactNumber(Number(rejectingPayment.amount || 0), "ISK")}</strong>
             {"character" in rejectingPayment && rejectingPayment.character?.character_name ? (
               <>
                 {" "}
@@ -116,7 +116,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={rejectComment}
               onChange={(e) => onRejectCommentChange(e.target.value)}
-              placeholder={t("Reason for rejecting payment...")}
+              placeholder={t("Reason for rejecting payment…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -156,7 +156,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
           <p>
             {t("Are you sure you want to permanently delete this custom payment of")}{" "}
             <strong className="text-danger">
-              {formatNumber(Number(deletingPayment.amount || 0))}
+              {formatCompactNumber(Number(deletingPayment.amount || 0), "ISK")}
             </strong>
             {"character" in deletingPayment && deletingPayment.character?.character_name ? (
               <>
@@ -182,7 +182,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={deleteComment}
               onChange={(e) => onDeleteCommentChange(e.target.value)}
-              placeholder={t("Reason for deleting this custom payment...")}
+              placeholder={t("Reason for deleting this custom payment…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -230,7 +230,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={bulkRejectComment}
               onChange={(e) => onBulkRejectCommentChange?.(e.target.value)}
-              placeholder={t("Reason for rejecting payments...")}
+              placeholder={t("Reason for rejecting payments…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>
@@ -285,7 +285,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
               rows={3}
               value={bulkDeleteComment}
               onChange={(e) => onBulkDeleteCommentChange?.(e.target.value)}
-              placeholder={t("Reason for deleting payments...")}
+              placeholder={t("Reason for deleting payments…")}
               className="bg-dark text-light border-secondary"
             />
           </Form.Group>

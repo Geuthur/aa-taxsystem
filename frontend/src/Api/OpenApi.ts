@@ -73,6 +73,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/taxsystem/api/settings/owners/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get settings update status for all manageable owners */
+        get: operations["taxsystem_api_general_get_settings_owners"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/taxsystem/api/settings/owners/update-all/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger update tasks for all manageable owners with force_refresh=false */
+        post: operations["taxsystem_api_general_trigger_update_all_owners"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/taxsystem/api/overview/": {
         parameters: {
             query?: never;
@@ -300,6 +334,40 @@ export interface paths {
         /** Queue update tasks for taxsystem */
         post: operations["taxsystem_api_admin_run_update_tasks"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/taxsystem/api/owner/{owner_id}/update/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger manual update for a corporation or alliance owner */
+        post: operations["taxsystem_api_admin_trigger_owner_update"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/taxsystem/api/owner/{owner_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a corporation or alliance owner */
+        delete: operations["taxsystem_api_admin_delete_owner"];
         options?: never;
         head?: never;
         patch?: never;
@@ -834,15 +902,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/": {
+    "/taxsystem/api/administration/owners/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List all corporation and alliance owners for superuser management */
-        get: operations["taxsystem_api_superuser_list_superuser_owners"];
+        /** List all corporation and alliance owners for administration management */
+        get: operations["taxsystem_api_administration_list_administration_owners"];
         put?: never;
         post?: never;
         delete?: never;
@@ -851,7 +919,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/update/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/update/": {
         parameters: {
             query?: never;
             header?: never;
@@ -861,14 +929,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Trigger an update for a corporation or alliance owner */
-        post: operations["taxsystem_api_superuser_update_superuser_owner"];
+        post: operations["taxsystem_api_administration_update_administration_owner"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -879,13 +947,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a corporation or alliance owner */
-        delete: operations["taxsystem_api_superuser_delete_superuser_owner"];
+        delete: operations["taxsystem_api_administration_delete_administration_owner"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/taxsystem/api/superuser/owners/{owner_type}/{owner_id}/inspect/": {
+    "/taxsystem/api/administration/owners/{owner_type}/{owner_id}/inspect/": {
         parameters: {
             query?: never;
             header?: never;
@@ -893,7 +961,7 @@ export interface paths {
             cookie?: never;
         };
         /** Inspect a corporation or alliance owner dashboard */
-        get: operations["taxsystem_api_superuser_inspect_superuser_owner"];
+        get: operations["taxsystem_api_administration_inspect_administration_owner"];
         put?: never;
         post?: never;
         delete?: never;
@@ -922,6 +990,11 @@ export interface components {
              * @default false
              */
             is_external: boolean;
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
         };
         /**
          * MenuSchema
@@ -985,6 +1058,11 @@ export interface components {
              * @default false
              */
             is_admin: boolean;
+            /**
+             * Is Superuser
+             * @default false
+             */
+            is_superuser: boolean;
             /**
              * Can Manage
              * @default false
@@ -1065,6 +1143,92 @@ export interface components {
              */
             is_main: boolean;
         };
+        /** OwnerSectionSchema */
+        OwnerSectionSchema: {
+            /** Section */
+            section: string;
+            /** Section Name */
+            section_name: string;
+            /** Is Success */
+            is_success?: boolean | null;
+            /**
+             * Has Token Error
+             * @default false
+             */
+            has_token_error: boolean;
+            /** Error Message */
+            error_message?: string | null;
+            /** Last Update Finished At */
+            last_update_finished_at?: string | null;
+        };
+        /** TaxOwnerSettingSchema */
+        TaxOwnerSettingSchema: {
+            /** Id */
+            id: number;
+            /** Owner Id */
+            owner_id: number;
+            /**
+             * Owner Type
+             * @enum {string}
+             */
+            owner_type: "corporation" | "alliance";
+            /** Name */
+            name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Ticker */
+            ticker?: string | null;
+            /**
+             * Status
+             * @default ok
+             */
+            status: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Tax Amount
+             * @default 0
+             */
+            tax_amount: number;
+            /**
+             * Tax Period
+             * @default 0
+             */
+            tax_period: number;
+            /**
+             * Open Invoices
+             * @default 0
+             */
+            open_invoices: number;
+            /** Last Sync */
+            last_sync?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+            /**
+             * Sections
+             * @default []
+             */
+            sections: components["schemas"]["OwnerSectionSchema"][];
+        };
+        /**
+         * MessageSchema
+         * @description Schema for simple success responses.
+         */
+        MessageSchema: {
+            /** Message */
+            message: string;
+        };
+        /** OwnerUpdateRequest */
+        OwnerUpdateRequest: {
+            /**
+             * Force Refresh
+             * @default false
+             */
+            force_refresh: boolean;
+        };
         /**
          * OverviewSchema
          * @description List of all visible owners.
@@ -1099,6 +1263,11 @@ export interface components {
             open_invoices: number;
             /** Can Manage */
             can_manage: boolean;
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
         };
         /** CharacterSchema */
         CharacterSchema: {
@@ -1258,6 +1427,16 @@ export interface components {
             icon?: string | null;
             /** Html */
             html?: string | null;
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
+            /**
+             * Status Display
+             * @default ok
+             */
+            status_display: string;
         };
         /** AccountSchema */
         AccountSchema: {
@@ -1319,14 +1498,6 @@ export interface components {
         UpdateTaxPeriodRequest: {
             /** Tax Period */
             tax_period: number;
-        };
-        /**
-         * MessageSchema
-         * @description Schema for simple success responses.
-         */
-        MessageSchema: {
-            /** Message */
-            message: string;
         };
         /**
          * AdminUpdateRequest
@@ -1629,8 +1800,8 @@ export interface components {
             /** Group Ids */
             group_ids: number[];
         };
-        /** SuperuserTaxOwnerSchema */
-        SuperuserTaxOwnerSchema: {
+        /** AdministrationTaxOwnerSchema */
+        AdministrationTaxOwnerSchema: {
             /** Id */
             id: number;
             /** Owner Id */
@@ -1676,8 +1847,8 @@ export interface components {
             /** Error Message */
             error_message?: string | null;
         };
-        /** SuperuserTaxOwnerUpdateRequest */
-        SuperuserTaxOwnerUpdateRequest: {
+        /** AdministrationTaxOwnerUpdateRequest */
+        AdministrationTaxOwnerUpdateRequest: {
             /**
              * Force Refresh
              * @default false
@@ -1829,6 +2000,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserAccountSchema"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_general_get_settings_owners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxOwnerSettingSchema"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_general_trigger_update_all_owners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["OwnerUpdateRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
                 };
             };
             /** @description Forbidden */
@@ -2320,6 +2553,90 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_admin_trigger_owner_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["OwnerUpdateRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_admin_delete_owner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                owner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3518,7 +3835,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_list_superuser_owners: {
+    taxsystem_api_administration_list_administration_owners: {
         parameters: {
             query?: never;
             header?: never;
@@ -3533,7 +3850,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SuperuserTaxOwnerSchema"][];
+                    "application/json": components["schemas"]["AdministrationTaxOwnerSchema"][];
                 };
             };
             /** @description Forbidden */
@@ -3547,7 +3864,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_update_superuser_owner: {
+    taxsystem_api_administration_update_administration_owner: {
         parameters: {
             query?: never;
             header?: never;
@@ -3559,7 +3876,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SuperuserTaxOwnerUpdateRequest"];
+                "application/json": components["schemas"]["AdministrationTaxOwnerUpdateRequest"];
             };
         };
         responses: {
@@ -3601,7 +3918,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_delete_superuser_owner: {
+    taxsystem_api_administration_delete_administration_owner: {
         parameters: {
             query?: never;
             header?: never;
@@ -3651,7 +3968,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_superuser_inspect_superuser_owner: {
+    taxsystem_api_administration_inspect_administration_owner: {
         parameters: {
             query?: never;
             header?: never;

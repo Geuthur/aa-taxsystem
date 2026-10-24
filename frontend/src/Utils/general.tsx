@@ -21,3 +21,10 @@ export const renderLink = ({
     );
 };
 
+/**
+ * Helper function for rendering pre-rendered HTML safely in React components
+ * @param value The HTML string to render
+ */
+export function renderHtml(value: string) {
+    return <span dangerouslySetInnerHTML={{ __html: value }} />;
+}

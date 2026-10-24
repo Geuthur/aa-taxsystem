@@ -1,5 +1,5 @@
 // React
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 // Third Party
 import { render, screen } from '@testing-library/react';
@@ -37,6 +37,26 @@ describe('AuthRightMenu', () => {
         const adminLink = screen.getByText('Admin');
         expect(adminLink).toBeDefined();
         expect(adminLink.getAttribute('href')).toBe('/taxsystem/admin/');
+    });
+
+    it('should render the administration link with the administration menu item', () => {
+        // Test Data
+        const testData = [
+            { name: 'Administration', link: '/administration/' },
+        ];
+
+        // Test Action
+        render(
+            <MemoryRouter initialEntries={['/taxsystem/']}>
+                <AuthRightMenu data={testData} isLoading={false} error={false} />
+            </MemoryRouter>
+        );
+
+        // Expected Result
+        const link = screen.getByText('Administration').closest('a');
+        expect(link).not.toBeNull();
+        expect(link?.getAttribute('href')).toBe('/taxsystem/administration/');
+        expect(link?.className).toContain('aa-nav-danger');
     });
 
     it('should render external links in right menu', () => {

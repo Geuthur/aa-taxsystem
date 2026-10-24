@@ -18,8 +18,9 @@ export const queryKeys = {
     ["MemberPayments", ownerId, characterId] as const,
   AdminLogs: (ownerId: number) => ["AdminLogs", ownerId] as const,
   UserAccounts: ["UserAccounts"] as const,
-  SuperuserOwners: ["SuperuserOwners"] as const,
-  SuperuserOwnerInspect: (ownerType: string, ownerId: number) =>
-    ["SuperuserOwnerInspect", ownerType, ownerId] as const,
+  AdministrationOwners: ["AdministrationOwners"] as const,
+  AdministrationOwnerInspect: (ownerType: string, ownerId: number) =>
+    ["AdministrationOwnerInspect", ownerType, ownerId] as const,
+  SettingsOwners: ["SettingsOwners"] as const,
 };
 

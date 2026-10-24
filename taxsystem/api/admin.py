@@ -395,7 +395,9 @@ class AdminApiEndpoints:
         # pylint: disable=too-many-return-statements
         def run_update_tasks(request: WSGIRequest, payload: schema.AdminUpdateRequest):
             if not request.user.is_superuser:
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Superuser permission required.")
+                }
 
             force_refresh = payload.force_refresh
             target = payload.target
@@ -469,3 +471,87 @@ class AdminApiEndpoints:
                     }
 
             return HTTPStatus.BAD_REQUEST, {"error": _("Invalid target specified.")}
+
+        @api.post(
+            "owner/{int:owner_id}/update/",
+            response={
+                HTTPStatus.OK: schema.MessageSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
+            },
+            tags=self.tags,
+            summary="Trigger manual update for a corporation or alliance owner",
+        )
+        def trigger_owner_update(
+            request: WSGIRequest,
+            owner_id: int,
+            payload: schema.OwnerUpdateRequest | None = None,
+        ):
+            owner, perms = core.get_manage_owner(request, owner_id)
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            force_refresh = payload.force_refresh if payload else False
+            if force_refresh and not request.user.is_superuser:
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("Superuser permission required.")
+                }
+
+            if isinstance(owner, CorporationOwner):
+                tasks.update_corporation.apply_async(
+                    args=[owner.eve_id],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+                return HTTPStatus.OK, {
+                    "message": _("Queued update for %(name)s") % {"name": owner.name}
+                }
+
+            if isinstance(owner, AllianceOwner):
+                tasks.update_alliance.apply_async(
+                    args=[owner.eve_id],
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                )
+                return HTTPStatus.OK, {
+                    "message": _("Queued update for %(name)s") % {"name": owner.name}
+                }
+
+            return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
+
+        @api.delete(
+            "owner/{int:owner_id}/",
+            response={
+                HTTPStatus.OK: schema.MessageSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
+            },
+            tags=self.tags,
+            summary="Delete a corporation or alliance owner",
+        )
+        def delete_owner(request: WSGIRequest, owner_id: int):
+            owner, perms = core.get_manage_owner(request, owner_id)
+            if owner is None:
+                return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            name = owner.name
+            if isinstance(owner, CorporationOwner):
+                AllianceOwner.objects.filter(corporation=owner).delete()
+                owner.delete()
+                return HTTPStatus.OK, {
+                    "message": _("Corporation %(name)s deleted successfully.")
+                    % {"name": name}
+                }
+
+            if isinstance(owner, AllianceOwner):
+                owner.delete()
+                return HTTPStatus.OK, {
+                    "message": _("Alliance %(name)s deleted successfully.")
+                    % {"name": name}
+                }
+
+            return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}

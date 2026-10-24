@@ -40,10 +40,11 @@ ______________________________________________________________________
 ### Required Permissions
 
 - `taxsystem.basic_access` - Basic access to view tax system
-- `taxsystem.manage_own_corp` - Manage your own corporation
-- `taxsystem.manage_corps` - Manage all corporations
-- `taxsystem.manage_own_alliance` - Manage your own alliance
-- `taxsystem.manage_alliances` - Manage all alliances
+- `taxsystem.manage_own_corp` - Manage your own corporation (also unlocks the Administration for the own corporation)
+- `taxsystem.manage_corps` - Manage all corporations (also unlocks the Administration for corporations)
+- `taxsystem.manage_own_alliance` - Manage your own alliance (also unlocks the Administration for the own alliance)
+- `taxsystem.manage_alliances` - Manage all alliances (also unlocks the Administration for alliances)
+- `taxsystem.admin_access` - Overall permission: access the whole Administration (all corporations and alliances)
 - `taxsystem.create_access` - Add new corporations/alliances
 
 ______________________________________________________________________
@@ -253,6 +254,17 @@ The **Balance Due** represents the total ISK credited to your account through ap
 ______________________________________________________________________
 
 ## Administration
+
+The Administration lists registered (player) corporations and alliances. Access depends on the owner type:
+
+- `taxsystem.admin_access` (overall): all corporations and all alliances.
+- `taxsystem.manage_corps`: the Administration with all corporations (no alliances).
+- `taxsystem.manage_alliances`: the Administration with all alliances (no corporations).
+- `taxsystem.manage_own_corp`: the Administration with only the corporation of your main character.
+- `taxsystem.manage_own_alliance`: the Administration with only the alliance of your main character.
+- Permissions combine: you see the union of everything your permissions allow. Owners you may not administer return 403.
+
+Superusers have all of this implicitly. Global update tasks and every forced refresh remain superuser-only.
 
 ### Management Dashboard
 

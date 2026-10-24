@@ -1,6 +1,6 @@
 
 // React
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 
 // Third Party
 import { Col } from "react-bootstrap";

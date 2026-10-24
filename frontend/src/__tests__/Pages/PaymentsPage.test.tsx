@@ -1,5 +1,5 @@
 // React
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router";
 
 // Third Party
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { PaymentsPage } from "@/Pages/Payments/PaymentsPage";
+import { PaymentsPage } from "@/Pages/PaymentsPage";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 
