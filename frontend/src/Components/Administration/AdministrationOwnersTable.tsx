@@ -158,7 +158,7 @@ export function AdministrationOwnersTable({
               {renderTooltip(
                 t("Inspect"),
                 <Button
-                  variant="link"
+                  variant="primary"
                   size="sm"
                   onClick={() => onInspect(item)}
                   title={t("Inspect")}
