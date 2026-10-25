@@ -52,6 +52,7 @@ Section Order:
 
 ### Fixed
 
+- [FIX] Unified the capitalization of UI strings: "Select All", "Force Refresh (Bypass Cache)", "Last sync", "Corporation not found" and "Filter set not found.".
 - [FIX] Removed plain translation keys that duplicated their plural forms (`_one`/`_other`) in the English and German translation files, which caused Weblate "duplicate string in file" warnings.
 - [FIX] Fixed Update Status card displaying green "Synchronized" badge when ESI sync errors occurred; now dynamically shows red `Sync Error` or warning `Token Error` with pinging animation and section breakdown.
 - [FIX] Fixed the `import-headings` ESLint rule duplicating comments above the first import on every `--fix` pass, which could grow a file exponentially; added a unit test (`eslint-rules/import-headings.test.mjs`).

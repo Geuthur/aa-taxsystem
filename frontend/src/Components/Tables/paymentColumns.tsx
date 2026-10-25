@@ -45,7 +45,7 @@ export function getPaymentColumns<T extends GenericPaymentRow>({
             }
           }}
           onChange={table.getToggleAllPageRowsSelectedHandler()}
-          aria-label={t("Select all")}
+          aria-label={t("Select All")}
         />
       ),
       cell: ({ row }) => (
