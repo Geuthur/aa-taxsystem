@@ -80,6 +80,8 @@ Section Order:
 
 - [CHANGE] Replaced `BaseTable` with the shared implementation from `aa-ledger` (new toolbar, `variant` is now `default` or `light`, table styles moved to `Styles/table.css`); row selection is kept. Owner type badges in the settings use the `aa-ledger` colors (`primary` / `info`).
 
+- [CHANGE] Replaced `pook` with `pookx` in the test dependencies and removed the custom `httpx2` pook interceptor, which `pookx` now provides.
+
 ### Removed
 
 - [REMOVED] Redundant `is_superuser` branches in the owner and payment managers (superusers pass `has_perm` anyway).
