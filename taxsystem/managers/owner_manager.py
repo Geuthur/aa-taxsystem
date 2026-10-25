@@ -10,6 +10,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
 from taxsystem import __title__
+from taxsystem.models.general import General
 from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
@@ -30,15 +31,7 @@ class CorporationOwnerQuerySet(models.QuerySet["CorporationOwner"]):
 
     def visible_to(self, user):
         """Get all corps visible to the user."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all corps for superuser %s.",
-                user,
-            )
-            return self
-
-        if user.has_perm("taxsystem.manage_corps"):
+        if General.has_perm(user, General.Permission.MANAGE_CORPS):
             logger.debug("Returning all corps for Tax Audit Manager %s.", user)
             return self
 
@@ -64,15 +57,7 @@ class CorporationOwnerQuerySet(models.QuerySet["CorporationOwner"]):
 
     def manage_to(self, user):
         """Get all corps that the user can manage."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all corps for superuser %s.",
-                user,
-            )
-            return self
-
-        if user.has_perm("taxsystem.manage_corps"):
+        if General.has_perm(user, General.Permission.MANAGE_CORPS):
             logger.debug("Returning all corps for Tax Audit Manager %s.", user)
             return self
 
@@ -81,7 +66,7 @@ class CorporationOwnerQuerySet(models.QuerySet["CorporationOwner"]):
             assert char
             query = None
 
-            if user.has_perm("taxsystem.manage_own_corp"):
+            if General.has_perm(user, General.Permission.MANAGE_OWN_CORP):
                 query = models.Q(eve_corporation__corporation_id=char.corporation_id)
 
             logger.debug("Returning own corps for User %s.", user)
@@ -191,15 +176,7 @@ class AllianceOwnerQuerySet(models.QuerySet["AllianceOwner"]):
 
     def visible_to(self, user):
         """Get all allys visible to the user."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all alliances for superuser %s.",
-                user,
-            )
-            return self
-
-        if user.has_perm("taxsystem.manage_alliances"):
+        if General.has_perm(user, General.Permission.MANAGE_ALLIANCES):
             logger.debug("Returning all alliances for Tax Audit Manager %s.", user)
             return self
 
@@ -225,15 +202,7 @@ class AllianceOwnerQuerySet(models.QuerySet["AllianceOwner"]):
 
     def manage_to(self, user):
         """Get all alliances that the user can manage."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all alliances for superuser %s.",
-                user,
-            )
-            return self
-
-        if user.has_perm("taxsystem.manage_alliances"):
+        if General.has_perm(user, General.Permission.MANAGE_ALLIANCES):
             logger.debug("Returning all alliances for Tax Audit Manager %s.", user)
             return self
 
@@ -242,7 +211,7 @@ class AllianceOwnerQuerySet(models.QuerySet["AllianceOwner"]):
             assert char
             query = None
 
-            if user.has_perm("taxsystem.manage_own_alliance"):
+            if General.has_perm(user, General.Permission.MANAGE_OWN_ALLIANCE):
                 query = models.Q(eve_alliance__alliance_id=char.alliance_id)
 
             logger.debug("Returning own alliances for User %s.", user)

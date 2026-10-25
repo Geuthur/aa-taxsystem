@@ -142,14 +142,15 @@ python manage.py migrate
 
 With the Following IDs you can set up the permissions for the Tax System
 
-| ID                    | Description                      |                                                                |
-| :-------------------- | :------------------------------- | :------------------------------------------------------------- |
-| `basic_access`        | Can access the Tax System module | All Members with the Permission can access the Tax System.     |
-| `create_access`       | Can add Corporation/Alliance     | Users with this permission can add corporations and alliances. |
-| `manage_own_corp`     | Can manage own Corporation       | Users with this permission can manage own corporation.         |
-| `manage_corps`        | Can manage all Corporations      | Users with this permission can manage all corporations.        |
-| `manage_own_alliance` | Can manage own Alliance          | Users with this permission can manage own alliance.            |
-| `manage_alliances`    | Can manage all Alliances         | Users with this permission can manage all alliances.           |
+| ID                    | Description                             |                                                                                                                                                                                                                               |
+| :-------------------- | :-------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `basic_access`        | Can access the Tax System module        | All Members with the Permission can access the Tax System.                                                                                                                                                                    |
+| `create_access`       | Can add Corporation/Alliance            | Users with this permission can add corporations and alliances.                                                                                                                                                                |
+| `manage_own_corp`     | Can manage own Corporation              | Users with this permission can manage own corporation.                                                                                                                                                                        |
+| `manage_corps`        | Can manage all Corporations             | Users with this permission can manage all corporations. Also unlocks the Administration for corporations.                                                                                                                     |
+| `manage_own_alliance` | Can manage own Alliance                 | Users with this permission can manage own alliance.                                                                                                                                                                           |
+| `manage_alliances`    | Can manage all Alliances                | Users with this permission can manage all alliances. Also unlocks the Administration for alliances.                                                                                                                           |
+| `admin_access`        | Has access to the whole Administration. | Overall permission: Users with this permission can access the Administration and see all corporations and alliances. `manage_corps` / `manage_alliances` also unlock the Administration, limited to corporations / alliances. |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step-6---optional-setting-up-compatibilies"></a>
 

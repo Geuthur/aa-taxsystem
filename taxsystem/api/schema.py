@@ -38,6 +38,7 @@ class MenuLink(Schema):
     link: str
     badge: int | None = None
     is_external: bool = False
+    has_errors: bool = False
 
 
 class MenuSchema(Schema):
@@ -59,6 +60,7 @@ class UserData(Schema):
     alliance_name: str | None = None
     portrait: str | None = None
     is_admin: bool = False
+    is_superuser: bool = False
     can_manage: bool = False
     can_create: bool = False
 
@@ -94,6 +96,7 @@ class OwnerOverviewSchema(Schema):
     active: bool
     open_invoices: int
     can_manage: bool
+    has_errors: bool = False
 
 
 class OverviewSchema(Schema):
@@ -113,6 +116,12 @@ class RequestStatusSchema(Schema):
 
 class UpdateStatusSchema(RequestStatusSchema):
     status: dict
+    has_errors: bool = False
+    status_display: str = "ok"
+
+
+class OwnerUpdateRequest(Schema):
+    force_refresh: bool = False
 
 
 class OwnerSchema(Schema):
@@ -356,7 +365,7 @@ class UpdateTaxPeriodRequest(Schema):
     tax_period: int
 
 
-class SuperuserTaxOwnerSchema(Schema):
+class AdministrationTaxOwnerSchema(Schema):
     id: int
     owner_id: int
     owner_type: Literal["corporation", "alliance"]
@@ -372,5 +381,31 @@ class SuperuserTaxOwnerSchema(Schema):
     error_message: str | None = None
 
 
-class SuperuserTaxOwnerUpdateRequest(Schema):
+class AdministrationTaxOwnerUpdateRequest(Schema):
     force_refresh: bool = False
+
+
+class OwnerSectionSchema(Schema):
+    section: str
+    section_name: str
+    is_success: bool | None = None
+    has_token_error: bool = False
+    error_message: str | None = None
+    last_update_finished_at: str | None = None
+
+
+class TaxOwnerSettingSchema(Schema):
+    id: int
+    owner_id: int
+    owner_type: Literal["corporation", "alliance"]
+    name: str
+    icon: str | None = None
+    ticker: str | None = None
+    status: str = "ok"
+    is_active: bool = True
+    tax_amount: float = 0.0
+    tax_period: int = 0
+    open_invoices: int = 0
+    last_sync: str | None = None
+    error_message: str | None = None
+    sections: list[OwnerSectionSchema] = []

@@ -585,6 +585,10 @@ msgstr ""
 msgid "Can manage all Alliances"
 msgstr ""
 
+#: taxsystem/models/general.py:43
+msgid "Has access to the whole Administration."
+msgstr ""
+
 #: taxsystem/models/helpers/textchoices.py:14
 msgid "Inactive"
 msgstr ""
@@ -777,4 +781,13 @@ msgstr ""
 #: taxsystem/views.py:120
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
+msgstr ""
+
+msgid "Administration"
+msgstr ""
+
+msgid "Administration permission required."
+msgstr ""
+
+msgid "Superuser permission required."
 msgstr ""

@@ -46,7 +46,7 @@ describe("PaymentActionModals Component", () => {
       />,
     );
 
-    const textarea = screen.getByPlaceholderText("Reason for rejecting payment...");
+    const textarea = screen.getByPlaceholderText("Reason for rejecting payment…");
     await userEvent.type(textarea, " more info");
 
     const confirmBtn = screen.getByRole("button", { name: "Confirm Rejection" });

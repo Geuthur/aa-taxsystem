@@ -10,7 +10,6 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA TaxSystem
-from taxsystem.tests import pook_httpx2
 from taxsystem.tests.testdata.factory import EveCorporationInfoFactory, UserMainFactory
 from taxsystem.views import add_alliance, add_corp
 

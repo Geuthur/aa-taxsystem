@@ -1,26 +1,79 @@
 // React
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BellOff, Settings2 } from "lucide-react";
+import { BellOff, Settings2, Users } from "lucide-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadUserSettings, updateUserSettings } from "@/Api/ApiCalls";
+import {
+  deleteOwner,
+  loadSettingsOwners,
+  loadUserSettings,
+  triggerOwnerUpdate,
+  triggerUpdateAllTaxOwners,
+  updateUserSettings,
+} from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import type { UserSettingsSchema } from "@/Api/schema";
+import { BaseOwnerSettingsSection } from "@/Components/Base/OwnerSettings";
+import type { BaseOwner } from "@/Components/Base/OwnerSettings";
 import styles from "@/Styles/modules/SettingsPage.module.css";
 
 export const SettingsPage: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+
+  // Cooldown & Feedback States
+  const [globalCooldown, setGlobalCooldown] = useState(0);
+  const [updatingOwnerId, setUpdatingOwnerId] = useState<number | null>(null);
+  const [ownerCooldowns, setOwnerCooldowns] = useState<Record<number, number>>({});
+  const [feedbackMsg, setFeedbackMsg] = useState<{ variant: "success" | "danger"; text: string } | null>(null);
+
+  useEffect(() => {
+    if (globalCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setGlobalCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [globalCooldown]);
+
+  useEffect(() => {
+    const activeCooldowns = Object.values(ownerCooldowns).some((v) => v > 0);
+    if (!activeCooldowns) return;
+    const timer = setInterval(() => {
+      setOwnerCooldowns((prev) => {
+        const next: Record<number, number> = {};
+        for (const [key, val] of Object.entries(prev)) {
+          if (val > 1) next[Number(key)] = val - 1;
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [ownerCooldowns]);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: queryKeys.UserSettings,
     queryFn: loadUserSettings,
   });
 
+  const {
+    data: owners,
+    isLoading: isLoadingOwners,
+    isError: isErrorOwners,
+  } = useQuery({
+    queryKey: queryKeys.SettingsOwners,
+    queryFn: loadSettingsOwners,
+  });
+
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.SettingsOwners });
+    queryClient.invalidateQueries({ queryKey: queryKeys.Overview });
+    queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
+  };
 
   const updateMutation = useMutation({
     mutationFn: updateUserSettings,
@@ -40,11 +93,97 @@ export const SettingsPage: React.FC = () => {
     },
   });
 
+  const updateAllMutation = useMutation({
+    mutationFn: () => triggerUpdateAllTaxOwners(false),
+    onSuccess: (res) => {
+      setFeedbackMsg({ variant: "success", text: res.message || t("Update all task queued.") });
+      setGlobalCooldown(60);
+      invalidateQueries();
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    },
+    onError: (err: unknown) => {
+      setFeedbackMsg({
+        variant: "danger",
+        text: err instanceof Error ? err.message : t("Failed to queue update all task."),
+      });
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    },
+  });
+
+  const updateOwnerMutation = useMutation({
+    mutationFn: (ownerId: number) => triggerOwnerUpdate({ ownerId, forceRefresh: false }),
+    onSuccess: (res, ownerId) => {
+      setFeedbackMsg({ variant: "success", text: res.message || t("Owner update task queued.") });
+      setOwnerCooldowns((prev) => ({ ...prev, [ownerId]: 60 }));
+      invalidateQueries();
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    },
+    onError: (err: unknown) => {
+      setFeedbackMsg({
+        variant: "danger",
+        text: err instanceof Error ? err.message : t("Failed to trigger owner update."),
+      });
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    },
+    onSettled: () => {
+      setUpdatingOwnerId(null);
+    },
+  });
+
+  const handleTriggerOwnerUpdate = (ownerId: number) => {
+    setUpdatingOwnerId(ownerId);
+    updateOwnerMutation.mutate(ownerId);
+  };
+
+  const deleteOwnerMutation = useMutation({
+    mutationFn: (ownerId: number) => deleteOwner(ownerId),
+    onSuccess: (res) => {
+      setFeedbackMsg({ variant: "success", text: res.message || t("Owner removed successfully.") });
+      invalidateQueries();
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    },
+    onError: (err: unknown) => {
+      setFeedbackMsg({
+        variant: "danger",
+        text: err instanceof Error ? err.message : t("Failed to delete owner."),
+      });
+      setTimeout(() => setFeedbackMsg(null), 5000);
+    },
+  });
+
+  const mappedOwners: BaseOwner[] = useMemo(() => {
+    if (!owners) return [];
+    return owners.map((owner) => {
+      const statusLower = (owner.status || "incomplete").toLowerCase();
+      const isErr = statusLower === "error";
+      const isTokErr = statusLower === "token_error";
+      return {
+        id: owner.owner_id,
+        name: owner.name,
+        owner_type: owner.owner_type,
+        avatar_url: owner.icon,
+        subtitle: owner.ticker ? `[${owner.ticker}]` : undefined,
+        status: owner.status,
+        has_error: isErr || isTokErr,
+        error_message: owner.error_message,
+        last_sync: owner.last_sync,
+        sections: owner.sections?.map((sec) => ({
+          section: sec.section,
+          section_name: sec.section_name,
+          is_success: sec.is_success,
+          has_token_error: sec.has_token_error,
+          error_message: sec.error_message,
+          last_run_finished_at: sec.last_update_finished_at,
+        })),
+      };
+    });
+  }, [owners]);
+
   if (isLoading) {
     return (
       <div className="aa-loader-container">
         <span className="spinner-border" />
-        <span>{t("Loading settings...")}</span>
+        <span>{t("Loading settings…")}</span>
       </div>
     );
   }
@@ -66,7 +205,7 @@ export const SettingsPage: React.FC = () => {
           <Settings2 size={24} aria-hidden="true" />
           <div>
             <h1 className={styles["title"]}>{t("Settings")}</h1>
-            <p className={styles["description"]}>{t("Manage your Example preferences.")}</p>
+            <p className={styles["description"]}>{t("Manage your TaxSystem preferences.")}</p>
           </div>
         </Card.Header>
 
@@ -78,7 +217,7 @@ export const SettingsPage: React.FC = () => {
                 <label htmlFor="disable-notifications">{t("Disable all notifications")}</label>
               </div>
               <p className={styles["setting-description"]}>
-                {t("When enabled, Example will not send notifications to your Alliance Auth or Discord account.")}
+                {t("When enabled, TaxSystem will not send notifications to your Alliance Auth or Discord account.")}
               </p>
               {updateMutation.isError && (
                 <p className={styles["error-message"]} role="alert">
@@ -86,7 +225,7 @@ export const SettingsPage: React.FC = () => {
                 </p>
               )}
               {updateMutation.isPending && (
-                <p className={styles["save-status"]} role="status">{t("Saving...")}</p>
+                <p className={styles["save-status"]} role="status">{t("Saving…")}</p>
               )}
             </div>
             <input
@@ -102,6 +241,36 @@ export const SettingsPage: React.FC = () => {
             />
           </Card.Body>
         </Card>
+
+        {/* Modular BaseOwnerSettingsSection for Owners */}
+        <BaseOwnerSettingsSection<BaseOwner>
+          title={t("Owners Update Status")}
+          description={t("ESI synchronization status of your linked corporations and alliances.")}
+          icon={<Users size={20} aria-hidden="true" />}
+          owners={mappedOwners}
+          isLoading={isLoadingOwners}
+          isError={isErrorOwners}
+          errorMessage={t("Failed to load owners update status.")}
+          emptyMessage={t("No TaxSystem owners configured.")}
+          appName="TaxSystem"
+          onUpdateAll={() => updateAllMutation.mutate()}
+          isUpdatingAll={updateAllMutation.isPending}
+          globalCooldown={globalCooldown}
+          feedbackMessage={feedbackMsg}
+          onDismissFeedback={() => setFeedbackMsg(null)}
+          onTriggerSingleUpdate={handleTriggerOwnerUpdate}
+          updatingOwnerId={updatingOwnerId}
+          ownerCooldowns={ownerCooldowns}
+          onDeleteOwner={(owner) => deleteOwnerMutation.mutateAsync(owner.id)}
+          isDeleting={deleteOwnerMutation.isPending}
+          deleteModalTitle={t("Delete Owner")}
+          deleteModalDescription={(owner) =>
+            t(
+              "Are you sure you want to remove {{name}} from TaxSystem? All payment configurations, member records, and tax accounts for this owner will be permanently deleted.",
+              { name: owner.name },
+            )
+          }
+        />
       </Card.Body>
     </Card>
   );

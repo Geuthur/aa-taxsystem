@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // AA TaxSystem
 import * as ApiCalls from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { AccountOverviewPage } from "@/Pages/Account/AccountOverviewPage";
+import { AccountOverviewPage } from "@/Pages/AccountOverviewPage";
 
 type UserAccount = components["schemas"]["UserAccountSchema"];
 
@@ -101,7 +101,7 @@ describe("AccountOverviewPage", () => {
     renderPage();
 
     // Expected Result
-    expect(screen.getByText("Loading account details...")).toBeInTheDocument();
+    expect(screen.getByText("Loading account details…")).toBeInTheDocument();
   });
 
   it("should render account cards with status badges and metrics", async () => {
@@ -132,7 +132,7 @@ describe("AccountOverviewPage", () => {
     renderPage();
     await waitFor(() => expect(screen.getByText("Mega Corp")).toBeInTheDocument());
 
-    const searchInput = screen.getByPlaceholderText("Filter accounts by character or owner...");
+    const searchInput = screen.getByPlaceholderText("Filter accounts by character or owner…");
     await user.type(searchInput, "Alpha");
 
     // Expected Result
@@ -170,7 +170,7 @@ describe("AccountOverviewPage", () => {
     renderPage();
     await waitFor(() => expect(screen.getByText("Mega Corp")).toBeInTheDocument());
 
-    const searchInput = screen.getByPlaceholderText("Filter accounts by character or owner...");
+    const searchInput = screen.getByPlaceholderText("Filter accounts by character or owner…");
     await user.type(searchInput, "NonexistentName");
 
     // Expected Result

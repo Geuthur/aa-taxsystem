@@ -26,6 +26,66 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- [ADD] Red issue count badge on the `Settings` navigation item in `BaseMenu` that pulses (`aa-menu-badge-pulse`) whenever manageable corporations or alliances have active sync/token errors.
+
+- [ADD] Settings owners endpoint `GET /taxsystem/api/settings/owners/` and update-all endpoint `POST /taxsystem/api/settings/owners/update-all/` with `force_refresh=false`.
+
+- [ADD] Owners Update Status & Management section on `SettingsPage` with individual owner cards, status badges, sync times, section details, "Update All" button, and single owner "Update" button (each with `force_refresh=false` and 60-second cooldown timer).
+
+- [ADD] Owner deletion modal with `BaseModal` on `SettingsPage`.
+
+- **Administration View Unification**: Standardized the 4 top KPI metric cards (`bg-body border-secondary h-100 shadow-sm`) with dynamic "Sync Issues" indicator (Green Shield when 0 issues, Red AlertTriangle with counter badge when issues exist).
+
+- **Collapsible Global Task Administration**: Converted the Global Task Administration panel into a collapsible accordion card with toggle button (`data-testid="toggle-task-panel"`), "Force Refresh ESI" toggle switch, and responsive nested task cards.
+
+- **Filter Button Group**: Added standardized ButtonGroup for filtering owner types (`All`, `Corporations`, `Alliances`, `Sync Issues`) alongside the search input.
+
+- **Pulsing Error Indicator**: Added `has_errors` detection to `OwnerOverviewSchema` in `overview.py` and rendered pulsing warning indicator (`aa-btn-warning aa-btn-pulse` with `aa-pending-dot-container`) on the `Manage` button for owners with active sync errors.
+
+- [ADD] `General.Permission` (TextChoices) with `get_perm`, `has_perm` and `has_any_perm` helpers in `taxsystem/models/general.py`; permission codenames are unchanged (migration `0016_alter_general_options` only updates the model options).
+
+- [ADD] `is_superuser` flag in the `/user/` endpoint so the frontend can show superuser-only controls.
+
+- [ADD] Overall permission `taxsystem.admin_access` ("Has access to the whole Administration.") in `General.Permission`; it unlocks the Administration for all corporations and all alliances. The existing permission codenames are unchanged (migration `0017_alter_general_options` only updates the model options).
+
+### Fixed
+
+- [FIX] Removed plain translation keys that duplicated their plural forms (`_one`/`_other`) in the English and German translation files, which caused Weblate "duplicate string in file" warnings.
+- [FIX] Fixed Update Status card displaying green "Synchronized" badge when ESI sync errors occurred; now dynamically shows red `Sync Error` or warning `Token Error` with pinging animation and section breakdown.
+- [FIX] Fixed the `import-headings` ESLint rule duplicating comments above the first import on every `--fix` pass, which could grow a file exponentially; added a unit test (`eslint-rules/import-headings.test.mjs`).
+
+### Changed
+
+- [CHANGE] Use the typographic ellipsis (`…`) instead of three dots in loading texts and placeholders; the translation keys changed accordingly.
+
+- [CHANGE] Moved owner update and delete actions from `OwnerManagePage` header to `SettingsPage`.
+
+- [CHANGE] Refactored `SettingsPage` to use modular `BaseOwnerSettingsSection` and `BaseOwnerCard` for unified owner settings management.
+
+- [CHANGE] All permission checks (views, menu hook, API, managers) use `General.has_perm` / `General.get_perm` instead of hard-coded permission strings.
+
+- [CHANGE] Renamed "Superuser" to "Administration": API paths `superuser/owners/...` are now `administration/owners/...`, page route `/administration/` (`/superuser/` redirects), schemas, query keys and translations were renamed accordingly.
+
+- [CHANGE] Administration access logic: `admin_access` is the overall permission (all corporations and alliances), `manage_corps` / `manage_alliances` unlock the Administration with all corporations / all alliances, `manage_own_corp` / `manage_own_alliance` with only the own corporation / alliance (of the main character); permissions combine (union). The menu entry, the `is_admin` flag and all `administration/owners/...` endpoints use these permissions (403 for owners the user may not administer; the list only contains permitted owners); superusers keep access implicitly. NPC corporations (ID below 10,000,000) are never listed and return 404 on the detail endpoints.
+
+- [CHANGE] Only superusers may trigger global update tasks (`admin/tasks/run`) and use `force_refresh`; managers sending `force_refresh=true` to the owner update endpoints receive 403. The Global Task panel and the force refresh option are only shown to superusers.
+
+- [CHANGE] Frontend structure aligned with aa-ledger: flat `Pages/`, page-specific tabs and modals moved to `Components/OwnerManage/`, entry files renamed (`Main.tsx`, `Routing.tsx`, `constants.ts`, `Styles/index.css`); unused `Pages/Admin/AdminPage.tsx` removed.
+
+- [CHANGE] Administration owners table: the status badge is now clickable when an owner has an error message or a token error and opens a new `AdministrationErrorModal` with the full message (default text for token errors without message) instead of showing the message inline; removed the unused `.errorMessage` CSS class.
+
+- [CHANGE] Consolidated the frontend formatting helpers in `Utils/format.ts` (`formatNumber`, `formatCompactNumber`, `formatIsk`, `formatDate`, `formatRelativeTime`, `formatEta`) with a single `en` locale fallback; `renderTooltip` now lives only in `Utils/bootsTrap.tsx` and `renderHtml` in `Utils/general.tsx`. ISK amounts that were followed by a literal `ISK` no longer show the unit twice.
+
+- [CHANGE] Replaced `BaseTable` with the shared implementation from `aa-ledger` (new toolbar, `variant` is now `default` or `light`, table styles moved to `Styles/table.css`); row selection is kept. Owner type badges in the settings use the `aa-ledger` colors (`primary` / `info`).
+
+- [CHANGE] Replaced `pook` with `pookx` in the test dependencies and removed the custom `httpx2` pook interceptor, which `pookx` now provides.
+
+### Removed
+
+- [REMOVED] Redundant `is_superuser` branches in the owner and payment managers (superusers pass `has_perm` anyway).
+
 <!-- Your changes go here -->
 
 ## [5.0.7] - 2026-10-19
