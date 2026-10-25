@@ -110,7 +110,8 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
             {t("Tax Groups")}
           </h5>
           <Button
-            className="aa-btn aa-btn-sm aa-btn-primary"
+            variant="primary"
+            size="sm"
             onClick={() => setShowCreateModal(true)}
           >
             <Plus size={14} />

@@ -8,6 +8,7 @@ import { Badge, Form } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { formatCompactNumber } from "@/Utils";
 
 export type PaymentRow = components["schemas"]["PaymentSchema"];
@@ -78,15 +79,7 @@ export function getPaymentColumns<T extends GenericPaymentRow>({
             : undefined;
         return (
           <div className="d-flex align-items-center gap-2">
-            {char?.character_portrait && (
-              <img
-                src={char.character_portrait}
-                alt={char.character_name}
-                width={32}
-                height={32}
-                className="rounded-circle"
-              />
-            )}
+            <OwnerPortrait src={char?.character_portrait} alt={char?.character_name} size="sm" />
             <span className="fw-semibold">{char?.character_name}</span>
           </div>
         );

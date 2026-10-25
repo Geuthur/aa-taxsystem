@@ -57,7 +57,7 @@ export function MyPaymentsPage() {
   return (
     <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("My Invoices & Payments")}>
-        <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
+        <Link to="/" className="btn btn-sm btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
           {t("Overview")}
         </Link>

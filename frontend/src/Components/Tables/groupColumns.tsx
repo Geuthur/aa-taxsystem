@@ -44,7 +44,8 @@ export function getGroupColumns({
       cell: ({ row }) =>
         row.original.id ? (
           <Button
-            className="aa-btn aa-btn-sm aa-btn-danger"
+            variant="danger"
+            size="sm"
             onClick={() => onDelete(row.original)}
           >
             <Trash2 size={12} />

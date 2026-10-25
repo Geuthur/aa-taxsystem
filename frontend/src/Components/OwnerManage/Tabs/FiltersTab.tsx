@@ -155,7 +155,8 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 {t("Filter Sets")}
               </h5>
               <Button
-                className="aa-btn aa-btn-sm aa-btn-primary"
+                variant="primary"
+                size="sm"
                 onClick={() => setShowCreateSetModal(true)}
               >
                 <Plus size={14} />
@@ -181,7 +182,8 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
                 {t("Active Filters")}
               </h5>
               <Button
-                className="aa-btn aa-btn-sm aa-btn-info"
+                variant="info"
+                size="sm"
                 disabled={!filterSets || filterSets.length === 0}
                 onClick={() => {
                   setNewFilterSetId(activeSetId);

@@ -147,19 +147,21 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
               variant="secondary"
               size="sm"
               onClick={onBack}
-              className="d-flex align-items-center gap-1 aa-btn aa-btn-secondary aa-btn-sm"
+              className="d-flex align-items-center gap-1"
             >
               <ArrowLeft size={14} />
               {t("Back to Administration Overview")}
             </Button>
           ) : (
-            <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
+            <Link to="/" className="btn btn-sm btn-secondary d-flex align-items-center gap-1">
               <ArrowLeft size={14} />
               {t("Overview")}
             </Link>
           )}
           <Button
-            className="aa-btn aa-btn-sm aa-btn-warning d-flex align-items-center gap-1"
+            variant="warning"
+            size="sm"
+            className="d-flex align-items-center gap-1"
             onClick={handleOpenSettings}
           >
             <Settings size={14} />
@@ -209,7 +211,9 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
                 </div>
               </div>
               <Button
-                className="aa-btn aa-btn-sm aa-btn-success mt-3 w-100 d-flex align-items-center justify-content-center gap-1"
+                variant="success"
+                size="sm"
+                className="mt-3 w-100 d-flex align-items-center justify-content-center gap-1"
                 onClick={() => setShowDivisionsModal(true)}
               >
                 <Layers size={14} />

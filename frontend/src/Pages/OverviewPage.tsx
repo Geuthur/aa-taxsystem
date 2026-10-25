@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
-import { Building2, CreditCard, FileText, Settings, Shield, UserCheck } from "lucide-react";
+import { CreditCard, FileText, Settings, Shield, UserCheck } from "lucide-react";
 import { Badge, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { loadOverview } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
@@ -94,30 +95,17 @@ export function OverviewPage() {
                 <Card.Body className="d-flex flex-column justify-content-between p-3">
                   <div>
                     <div className="d-flex align-items-center gap-3 mb-3">
-                      {owner.portrait_url ? (
-                        <img
-                          src={owner.portrait_url}
-                          alt={owner.name}
-                          width={48}
-                          height={48}
-                          className="rounded-circle border border-secondary"
-                        />
-                      ) : (
-                        <div
-                          className="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
-                          style={{ width: 48, height: 48 }}
-                        >
-                          {owner.type === "corporation" ? <Building2 size={24} /> : <Shield size={24} />}
-                        </div>
-                      )}
+                      <OwnerPortrait
+                        src={owner.portrait_url}
+                        alt={owner.name}
+                        type={owner.type}
+                        bordered
+                      />
                       <div className="overflow-hidden">
                         <h5 className="mb-0 text-truncate text-light">{owner.name}</h5>
                         <div className="d-flex align-items-center gap-2 mt-1">
                           <Badge bg={owner.type === "corporation" ? "info" : "warning"} className="text-dark">
                             {owner.type_display}
-                          </Badge>
-                          <Badge bg={owner.active ? "success" : "secondary"}>
-                            {owner.active ? t("Active") : t("Deactivated")}
                           </Badge>
                         </div>
                       </div>
@@ -134,21 +122,21 @@ export function OverviewPage() {
                   <div className="d-flex flex-wrap gap-2 pt-2 border-top border-secondary">
                     <Link
                       to={`account/${owner.id}/`}
-                      className="aa-btn aa-btn-sm aa-btn-success flex-fill d-flex align-items-center justify-content-center gap-1"
+                      className="btn btn-sm btn-success flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <UserCheck size={14} />
                       {t("Account")}
                     </Link>
                     <Link
                       to={`payments/${owner.id}/`}
-                      className="aa-btn aa-btn-sm aa-btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
+                      className="btn btn-sm btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <CreditCard size={14} />
                       {t("Payments")}
                     </Link>
                     <Link
                       to={`my-payments/${owner.id}/`}
-                      className="aa-btn aa-btn-sm aa-btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
+                      className="btn btn-sm btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <FileText size={14} />
                       {t("My Payments")}
@@ -156,8 +144,8 @@ export function OverviewPage() {
                     {owner.can_manage && (
                       <Link
                         to={`owner/${owner.id}/`}
-                        className={`aa-btn aa-btn-sm aa-btn-warning flex-fill d-flex align-items-center justify-content-center gap-1 ${
-                          owner.has_errors ? "aa-btn-pulse" : ""
+                        className={`btn btn-sm btn-warning flex-fill d-flex align-items-center justify-content-center gap-1 ${
+                          owner.has_errors ? "aa-pulse" : ""
                         }`}
                       >
                         {owner.has_errors && (

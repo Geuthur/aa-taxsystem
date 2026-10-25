@@ -134,7 +134,7 @@ export function PaymentsPage() {
   return (
     <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("Payments Management")}>
-        <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
+        <Link to="/" className="btn btn-sm btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
           {t("Overview")}
         </Link>
@@ -160,7 +160,7 @@ export function PaymentsPage() {
               <Button
                 variant="success"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-success"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => bulkApprove(selectedPaymentIds)}
               >
@@ -170,7 +170,7 @@ export function PaymentsPage() {
               <Button
                 variant="danger"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => setBulkRejectingPaymentIds(selectedPaymentIds)}
               >
@@ -180,7 +180,7 @@ export function PaymentsPage() {
               <Button
                 variant="warning"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-warning"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => bulkUndo(selectedPaymentIds)}
               >
@@ -188,9 +188,9 @@ export function PaymentsPage() {
                 {t("Undo")}
               </Button>
               <Button
-                variant="outline-danger"
+                variant="danger"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => setBulkDeletingPaymentIds(selectedPaymentIds)}
               >
@@ -198,8 +198,8 @@ export function PaymentsPage() {
                 {t("Delete")}
               </Button>
               <Button
-                variant="outline-secondary"
-                className="aa-btn aa-btn-secondary"
+                variant="secondary"
+                
                 size="sm"
                 onClick={() => setRowSelection({})}
               >

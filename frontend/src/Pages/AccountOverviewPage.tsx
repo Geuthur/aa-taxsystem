@@ -13,6 +13,7 @@ import { loadUserAccounts } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
@@ -71,7 +72,7 @@ export function AccountOverviewPage() {
           {filterOwnerId && (
             <Link
               to="/account/"
-              className="aa-btn aa-btn-sm aa-btn-secondary"
+              className="btn btn-sm btn-secondary"
             >
               <ArrowRight size={14} />
               {t("Show All Owners")}
@@ -150,12 +151,12 @@ export function AccountOverviewPage() {
                     {/* Header: Owner branding + Paid status badge */}
                     <div className="d-flex align-items-center justify-content-between gap-3 mb-3 pb-3 border-bottom border-secondary">
                       <div className="d-flex align-items-center gap-3">
-                        <img
+                        <OwnerPortrait
                           src={ownerLogo}
                           alt={account.owner_name}
-                          width={48}
-                          height={48}
-                          className="rounded border border-secondary"
+                          type={account.owner_type}
+                          shape="rounded"
+                          bordered
                         />
                         <div>
                           <h5 className="mb-0 text-light fw-bold">{account.owner_name}</h5>
@@ -189,22 +190,12 @@ export function AccountOverviewPage() {
 
                     {/* Character Identity */}
                     <div className="d-flex align-items-center gap-3 mb-3 p-2 rounded bg-dark border border-secondary">
-                      {charPortrait ? (
-                        <img
-                          src={charPortrait}
-                          alt={account.character_name || account.name}
-                          width={40}
-                          height={40}
-                          className="rounded-circle border border-secondary"
-                        />
-                      ) : (
-                        <div
-                          className="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
-                          style={{ width: 40, height: 40 }}
-                        >
-                          <User size={20} />
-                        </div>
-                      )}
+                      <OwnerPortrait
+                        src={charPortrait}
+                        alt={account.character_name || account.name}
+                        size="md"
+                        bordered
+                      />
                       <div>
                         <div className="small text-muted">{t("Linked Character")}</div>
                         <div className="fw-semibold text-light">
@@ -311,14 +302,14 @@ export function AccountOverviewPage() {
                   <div className="d-flex flex-wrap gap-2 pt-3 border-top border-secondary">
                     <Link
                       to={`/taxsystem/my-payments/${account.owner_id}/`}
-                      className="aa-btn aa-btn-sm aa-btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
+                      className="btn btn-sm btn-secondary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <FileText size={14} />
                       {t("My Payments")}
                     </Link>
                     <Link
                       to={`/taxsystem/payments/${account.owner_id}/`}
-                      className="aa-btn aa-btn-sm aa-btn-primary flex-fill d-flex align-items-center justify-content-center gap-1"
+                      className="btn btn-sm btn-primary flex-fill d-flex align-items-center justify-content-center gap-1"
                     >
                       <CreditCard size={14} />
                       {t("Payments")}

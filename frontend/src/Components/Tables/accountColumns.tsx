@@ -6,6 +6,7 @@ import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { formatCompactNumber, formatDate, renderTooltip } from "@/Utils";
 
 export type AccountRow = components["schemas"]["PaymentSystemSchema"];
@@ -34,15 +35,11 @@ export function getAccountColumns({
         const openInvoices = row.original.open_invoices ?? 0;
         return (
           <div className="d-flex align-items-center gap-2">
-            {row.original.account?.character_portrait && (
-              <img
-                src={row.original.account.character_portrait}
-                alt={row.original.account.character_name}
-                width={32}
-                height={32}
-                className="rounded-circle"
-              />
-            )}
+            <OwnerPortrait
+              src={row.original.account?.character_portrait}
+              alt={row.original.account?.character_name}
+              size="sm"
+            />
             <span className="fw-semibold">{row.original.account?.character_name}</span>
             {openInvoices > 0 &&
               renderTooltip(
@@ -50,7 +47,9 @@ export function getAccountColumns({
                   count: openInvoices,
                 }),
                 <Button
-                  className="aa-btn aa-btn-sm aa-btn-warning aa-btn-pulse"
+                  variant="warning"
+                  size="sm"
+                  className="aa-pulse"
                   onClick={(e) => {
                     e.stopPropagation();
                     onHistory(row.original);
@@ -134,7 +133,7 @@ export function getAccountColumns({
             t("Payment History & Activities"),
             <Button
               variant="info"
-              className="aa-btn aa-btn-sm aa-btn-info"
+              size="sm"
               onClick={() => onHistory(row.original)}
             >
               <History size={12} />
@@ -145,7 +144,7 @@ export function getAccountColumns({
             t("Add Custom Payment"),
             <Button
               variant="success"
-              className="aa-btn aa-btn-sm aa-btn-success"
+              size="sm"
               onClick={() => onAddPayment(row.original)}
             >
               <DollarSign size={12} />
@@ -156,7 +155,7 @@ export function getAccountColumns({
             t("Switch Account Status"),
             <Button
               variant="secondary"
-              className="aa-btn aa-btn-sm aa-btn-secondary"
+              size="sm"
               onClick={() => onSwitchStatus(row.original)}
             >
               {row.original.status?.toLowerCase() === "active" ? (
@@ -171,7 +170,8 @@ export function getAccountColumns({
             renderTooltip(
               t("Reset Account Balance & Due Date"),
               <Button
-                className="aa-btn aa-btn-sm aa-btn-danger"
+                variant="danger"
+                size="sm"
                 onClick={() => onReset(row.original)}
               >
                 <RotateCcw size={12} />

@@ -2,12 +2,14 @@
 import type { ReactNode } from "react";
 
 // Third Party
-import { Button } from "react-bootstrap";
+import { Badge, Button } from "react-bootstrap";
 
 export interface ButtonGroupFilterOption<T extends string = string> {
   value: T;
   label: string;
   icon?: ReactNode;
+  /** Optional counter shown as a badge after the label. */
+  count?: number;
   activeVariant?: string;
   inactiveVariant?: string;
 }
@@ -37,18 +39,27 @@ export function ButtonGroupFilter<T extends string = string>({
     >
       {options.map((opt) => {
         const isActive = value === opt.value;
-        const activeClass = opt.activeVariant || "aa-btn-primary";
-        const inactiveClass = opt.inactiveVariant || "aa-btn-secondary";
-        const btnVariantClass = isActive ? activeClass : inactiveClass;
+        const variant = isActive ? opt.activeVariant || "primary" : opt.inactiveVariant || "secondary";
 
         return (
           <Button
             key={opt.value}
-            className={`aa-btn aa-btn-${size} ${btnVariantClass} d-inline-flex align-items-center gap-1`}
+            variant={variant}
+            size={size}
+            className="d-inline-flex align-items-center gap-1"
+            aria-pressed={isActive}
             onClick={() => onChange(opt.value)}
           >
             {opt.icon}
             <span>{opt.label}</span>
+            {opt.count !== undefined && (
+              <>
+                {" "}
+                <Badge bg="secondary" className="ms-1">
+                  {opt.count}
+                </Badge>
+              </>
+            )}
           </Button>
         );
       })}

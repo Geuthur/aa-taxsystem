@@ -18,7 +18,7 @@ function MainPage() {
         <Card.Body className="p-0">
           <div className="d-flex align-items-center justify-content-between gap-3">
             <span>{t("Example Content")}</span>
-            <Link className="aa-btn aa-btn-sm" to="styleguide/">
+            <Link className="btn btn-sm" to="styleguide/">
               {t("Style Guide")}
             </Link>
           </div>

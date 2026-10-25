@@ -53,7 +53,8 @@ export const PaymentActionButtons: React.FC<PaymentActionButtonsProps> = ({
         renderTooltip(
           t("View Details"),
           <Button
-            className="aa-btn aa-btn-sm aa-btn-info"
+            variant="info"
+            size="sm"
             aria-label={t("View Details")}
             onClick={() => onViewDetails(payment.payment_id)}
           >
@@ -65,7 +66,8 @@ export const PaymentActionButtons: React.FC<PaymentActionButtonsProps> = ({
         renderTooltip(
           t("Accept Payment"),
           <Button
-            className="aa-btn aa-btn-sm aa-btn-success"
+            variant="success"
+            size="sm"
             aria-label={t("Accept Payment")}
             disabled={isPending}
             onClick={() => onApprove(payment.payment_id)}
@@ -79,7 +81,8 @@ export const PaymentActionButtons: React.FC<PaymentActionButtonsProps> = ({
         renderTooltip(
           t("Reject Payment"),
           <Button
-            className="aa-btn aa-btn-sm aa-btn-danger"
+            variant="danger"
+            size="sm"
             aria-label={t("Reject Payment")}
             disabled={isPending}
             onClick={() => onReject(payment)}
@@ -93,7 +96,8 @@ export const PaymentActionButtons: React.FC<PaymentActionButtonsProps> = ({
         renderTooltip(
           t("Undo Payment"),
           <Button
-            className="aa-btn aa-btn-sm aa-btn-warning"
+            variant="warning"
+            size="sm"
             aria-label={t("Undo Payment")}
             disabled={isPending}
             onClick={() => onUndo(payment.payment_id)}
@@ -107,7 +111,8 @@ export const PaymentActionButtons: React.FC<PaymentActionButtonsProps> = ({
         renderTooltip(
           t("Delete Custom Payment"),
           <Button
-            className="aa-btn aa-btn-sm aa-btn-danger"
+            variant="danger"
+            size="sm"
             aria-label={t("Delete Custom Payment")}
             disabled={isPending}
             onClick={() => onDelete(payment)}

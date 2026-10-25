@@ -13,6 +13,7 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
@@ -140,18 +141,18 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
             value={paidFilter}
             onChange={(val) => setPaidFilter(val)}
             options={[
-              { value: "all", label: t("All"), activeVariant: "aa-btn-primary" },
+              { value: "all", label: t("All"), activeVariant: "primary" },
               {
                 value: "paid",
                 label: t("Paid"),
                 icon: <CheckCircle2 size={13} />,
-                activeVariant: "aa-btn-success",
+                activeVariant: "success",
               },
               {
                 value: "unpaid",
                 label: t("Unpaid"),
                 icon: <XCircle size={13} />,
-                activeVariant: "aa-btn-danger",
+                activeVariant: "danger",
               },
             ]}
             ariaLabel="Filter accounts by payment status"
@@ -267,15 +268,11 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
           }
         >
           <div className="d-flex align-items-center gap-3 mb-3 p-2 bg-black bg-opacity-25 rounded border border-secondary">
-            {paymentAccount.account?.character_portrait && (
-              <img
-                src={paymentAccount.account.character_portrait}
-                alt={paymentAccount.account.character_name}
-                width={40}
-                height={40}
-                className="rounded-circle"
-              />
-            )}
+            <OwnerPortrait
+              src={paymentAccount.account?.character_portrait}
+              alt={paymentAccount.account?.character_name}
+              size="md"
+            />
             <div>
               <div className="fw-semibold text-light">{paymentAccount.account?.character_name}</div>
               <div className="small text-muted">
