@@ -337,7 +337,7 @@ describe("AdministrationPage", () => {
     // Expected Result
     expect(screen.queryByText("Global Task Administration")).not.toBeInTheDocument();
     expect(await screen.findByText("Update (Normal)")).toBeInTheDocument();
-    expect(screen.queryByText("Force Refresh (Bypass cache)")).not.toBeInTheDocument();
+    expect(screen.queryByText("Force Refresh (Bypass Cache)")).not.toBeInTheDocument();
   });
 
   it("should show force refresh option for superusers", async () => {
@@ -354,6 +354,6 @@ describe("AdministrationPage", () => {
     await user.click(dropdownToggles[0]);
 
     // Expected Result
-    expect(await screen.findByText("Force Refresh (Bypass cache)")).toBeInTheDocument();
+    expect(await screen.findByText("Force Refresh (Bypass Cache)")).toBeInTheDocument();
   });
 });

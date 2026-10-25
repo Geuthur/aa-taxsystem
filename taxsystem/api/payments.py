@@ -448,7 +448,7 @@ class PaymentsApiEndpoints:
         def get_member_payments(request: WSGIRequest, owner_id: int, character_id: int):
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Corporation Not Found")}
+                return 404, {"error": _("Corporation not found")}
             if perms is False:
                 return 403, {"error": _("Permission Denied.")}
             return get_payments(request, owner_id, character_id=character_id)

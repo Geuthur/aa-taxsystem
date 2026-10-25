@@ -247,7 +247,7 @@ class FilterApiEndpoints:
                 owner=owner, pk=filterset_pk
             ).first()
             if not filter_set:
-                msg = _("Filter Set not found.")
+                msg = _("Filter set not found.")
                 return 404, {"success": False, "message": msg}
 
             # Delete the filter set
@@ -307,7 +307,7 @@ class FilterApiEndpoints:
                 owner=owner, pk=filterset_pk
             ).first()
             if not filter_set:
-                msg = _("Filter Set not found.")
+                msg = _("Filter set not found.")
                 return 404, {"success": False, "message": msg}
 
             # Toggle the filter set enabled state

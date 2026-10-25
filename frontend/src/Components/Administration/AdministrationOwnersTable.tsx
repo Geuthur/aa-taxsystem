@@ -142,7 +142,7 @@ export function AdministrationOwnersTable({
       },
       {
         id: "last_sync",
-        header: t("Last Sync"),
+        header: t("Last sync"),
         accessorKey: "last_sync",
         cell: ({ row }) => {
           const lastSync = row.original.last_sync;
@@ -220,7 +220,7 @@ export function AdministrationOwnersTable({
                   {canForceRefresh && (
                     <Dropdown.Item onClick={() => onUpdate(item, true)}>
                       <RefreshCw size={14} className="me-2 text-warning" />
-                      {t("Force Refresh (Bypass cache)")}
+                      {t("Force Refresh (Bypass Cache)")}
                     </Dropdown.Item>
                   )}
                 </Dropdown.Menu>
