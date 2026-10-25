@@ -1,6 +1,6 @@
 // React
 import { useMemo } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";

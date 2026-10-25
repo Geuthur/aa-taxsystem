@@ -78,7 +78,7 @@ Section Order:
 
 - [CHANGE] Consolidated the frontend formatting helpers in `Utils/format.ts` (`formatNumber`, `formatCompactNumber`, `formatIsk`, `formatDate`, `formatRelativeTime`, `formatEta`) with a single `en` locale fallback; `renderTooltip` now lives only in `Utils/bootsTrap.tsx` and `renderHtml` in `Utils/general.tsx`. ISK amounts that were followed by a literal `ISK` no longer show the unit twice.
 
-- [CHANGE] Replaced `BaseTable` with the shared implementation from `aa-ledger` (new toolbar, `variant` is now `default` or `light`, table styles moved to `Styles/table.css`); row selection is kept. Owner type badges in the settings use the `aa-ledger` colors (`primary` / `info`). Frontend imports use `react-router` instead of `react-router-dom`.
+- [CHANGE] Replaced `BaseTable` with the shared implementation from `aa-ledger` (new toolbar, `variant` is now `default` or `light`, table styles moved to `Styles/table.css`); row selection is kept. Owner type badges in the settings use the `aa-ledger` colors (`primary` / `info`).
 
 ### Removed
 
