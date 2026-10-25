@@ -380,5 +380,7 @@
   "Done": "Fertig",
   "Range…": "Bereich…",
   "Filter…": "Filter…",
-  "No matching options": "Keine passenden Optionen"
+  "No matching options": "Keine passenden Optionen",
+  "Force Refresh (Bypass Cache)": "Force Refresh (Bypass Cache)",
+  "Select All": "Select All"
 }
