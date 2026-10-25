@@ -2,18 +2,16 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { Button, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { deleteMember, loadMembers } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { SearchInput } from "@/Components/Base/SearchInput";
+import { useMemberActions, useMembers } from "@/Components/OwnerManage/Hooks";
 import { MemberAltsModal } from "@/Components/OwnerManage/Modals/MemberAltsModal";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getMemberColumns } from "@/Components/Tables";
@@ -27,7 +25,6 @@ type MemberRow = components["schemas"]["MembersSchema"];
 
 export function MembersTab({ ownerId }: MembersTabProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const [search, setSearch] = useTableSearchState("memberSearch");
   const [memberToDelete, setMemberToDelete] = useState<MemberRow | null>(null);
   const [altsMember, setAltsMember] = useState<MemberRow | null>(null);
@@ -37,18 +34,8 @@ export function MembersTab({ ownerId }: MembersTabProps) {
     characterPortrait?: string;
   } | null>(null);
 
-  const { data: members, isLoading, isError } = useQuery({
-    queryKey: queryKeys.Members(ownerId),
-    queryFn: () => loadMembers(ownerId),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (memberPk: number) => deleteMember(ownerId, memberPk),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Members(ownerId) });
-      setMemberToDelete(null);
-    },
-  });
+  const { data: members, isLoading, isError } = useMembers(ownerId);
+  const memberActions = useMemberActions(ownerId, () => setMemberToDelete(null));
 
   const filteredMembers = useMemo(() => {
     if (!members) return [];
@@ -125,14 +112,14 @@ export function MembersTab({ ownerId }: MembersTabProps) {
               </Button>
               <Button
                 variant="danger"
-                disabled={deleteMutation.isPending}
+                disabled={memberActions.isRemoving}
                 onClick={() => {
                   if (memberToDelete.character?.character_id) {
-                    deleteMutation.mutate(memberToDelete.character.character_id);
+                    memberActions.remove(memberToDelete.character.character_id);
                   }
                 }}
               >
-                {deleteMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {memberActions.isRemoving && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Confirm Delete")}
               </Button>
             </>

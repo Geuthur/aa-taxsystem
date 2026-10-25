@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
   AlertCircle,
@@ -25,11 +24,6 @@ import { Alert, Badge, Button, Card, Col, Form, Nav, Row, Spinner } from "react-
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import {
-  loadDashboard,
-  updateOwnerSettings,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import {
@@ -40,6 +34,7 @@ import {
   HistoryTab,
   MembersTab,
 } from "@/Components/OwnerManage";
+import { useDashboard, useUpdateOwnerSettings } from "@/Components/OwnerManage/Hooks";
 import { useOwnerTabState } from "@/Hooks/useTaxsystemState";
 import { formatCompactNumber } from "@/Utils";
 
@@ -50,7 +45,6 @@ interface OwnerManagePageProps {
 
 export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProps = {}) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const { ownerId } = useParams<{ ownerId: string }>();
   const numericOwnerId = ownerIdOverride ?? Number(ownerId || 0);
 
@@ -63,19 +57,8 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
   const [newTaxPeriod, setNewTaxPeriod] = useState<number>(0);
   const [feedbackMsg, setFeedbackMsg] = useState<{ variant: "success" | "danger"; text: string } | null>(null);
 
-  const { data: dashboard, isLoading, isError, error } = useQuery({
-    queryKey: queryKeys.Dashboard(numericOwnerId),
-    queryFn: () => loadDashboard(numericOwnerId),
-    enabled: numericOwnerId > 0,
-  });
-
-  const settingsMutation = useMutation({
-    mutationFn: (settings: { tax_amount?: number; tax_period?: number }) =>
-      updateOwnerSettings(numericOwnerId, settings),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Dashboard(numericOwnerId) });
-    },
-  });
+  const { data: dashboard, isLoading, isError, error } = useDashboard(numericOwnerId);
+  const settingsMutation = useUpdateOwnerSettings(numericOwnerId);
 
   const handleOpenSettings = () => {
     if (dashboard) {

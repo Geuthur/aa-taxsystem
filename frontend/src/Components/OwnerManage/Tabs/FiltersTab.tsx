@@ -2,23 +2,18 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Filter, Layers, Plus } from "lucide-react";
 import { Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import {
-  createFilter,
-  createFilterSet,
-  deleteFilter,
-  deleteFilterSet,
-  loadFilters,
-  loadFilterSets,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import {
+  useFilterActions,
+  useFilters,
+  useFilterSets,
+} from "@/Components/OwnerManage/Hooks";
 import { getFilterRuleColumns, getFilterSetColumns } from "@/Components/Tables";
 
 interface FiltersTabProps {
@@ -27,7 +22,6 @@ interface FiltersTabProps {
 
 export function FiltersTab({ ownerId }: FiltersTabProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   const [selectedFilterSetId, setSelectedFilterSetId] = useState<number | null>(null);
   const [filterSetToDelete, setFilterSetToDelete] = useState<number | null>(null);
@@ -45,66 +39,24 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
   const [newMatchType, setNewMatchType] = useState<"exact" | "contains">("exact");
   const [newFilterValue, setNewFilterValue] = useState("");
 
-  const { data: filterSets, isLoading: setsLoading } = useQuery({
-    queryKey: queryKeys.FilterSets(ownerId),
-    queryFn: () => loadFilterSets(ownerId),
-  });
+  const { data: filterSets, isLoading: setsLoading } = useFilterSets(ownerId);
 
   const activeSetId = selectedFilterSetId ?? filterSets?.[0]?.id ?? null;
 
-  const { data: filters, isLoading: filtersLoading } = useQuery({
-    queryKey: queryKeys.Filters(ownerId, activeSetId ?? undefined),
-    queryFn: () => (activeSetId ? loadFilters(ownerId, activeSetId) : Promise.resolve([])),
-    enabled: activeSetId !== null,
-  });
+  const { data: filters, isLoading: filtersLoading } = useFilters(ownerId, activeSetId);
 
-  const createSetMutation = useMutation({
-    mutationFn: () =>
-      createFilterSet(ownerId, {
-        name: newSetName.trim(),
-        description: newSetDescription.trim(),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.FilterSets(ownerId) });
+  const filterActions = useFilterActions(ownerId, activeSetId, {
+    onSetCreated: () => {
       setShowCreateSetModal(false);
       setNewSetName("");
       setNewSetDescription("");
     },
-  });
-
-  const createFilterMutation = useMutation({
-    mutationFn: () => {
-      const targetSetId = newFilterSetId ?? activeSetId;
-      if (!targetSetId) throw new Error("No filter set selected");
-      return createFilter(ownerId, {
-        filter_set_id: targetSetId,
-        filter_type: newFilterType,
-        match_type: newMatchType,
-        value: newFilterValue.trim(),
-      });
-    },
-    onSuccess: () => {
-      const targetSetId = newFilterSetId ?? activeSetId;
-      queryClient.invalidateQueries({ queryKey: queryKeys.Filters(ownerId, targetSetId ?? undefined) });
+    onFilterCreated: () => {
       setShowCreateFilterModal(false);
       setNewFilterValue("");
     },
-  });
-
-  const deleteSetMutation = useMutation({
-    mutationFn: (filtersetPk: number) => deleteFilterSet(ownerId, filtersetPk),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.FilterSets(ownerId) });
-      setFilterSetToDelete(null);
-    },
-  });
-
-  const deleteFilterMutation = useMutation({
-    mutationFn: (filterPk: number) => deleteFilter(ownerId, filterPk),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Filters(ownerId, activeSetId ?? undefined) });
-      setFilterToDelete(null);
-    },
+    onSetDeleted: () => setFilterSetToDelete(null),
+    onFilterDeleted: () => setFilterToDelete(null),
   });
 
   const setColumns = useMemo(
@@ -228,10 +180,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
               </Button>
               <Button
                 variant="primary"
-                disabled={!newSetName.trim() || createSetMutation.isPending}
-                onClick={() => createSetMutation.mutate()}
+                disabled={!newSetName.trim() || filterActions.isCreatingSet}
+                onClick={() => filterActions.createSet({ name: newSetName, description: newSetDescription })}
               >
-                {createSetMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {filterActions.isCreatingSet && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Create")}
               </Button>
             </>
@@ -283,10 +235,15 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
               </Button>
               <Button
                 variant="info"
-                disabled={!newFilterValue.trim() || createFilterMutation.isPending}
-                onClick={() => createFilterMutation.mutate()}
+                disabled={!newFilterValue.trim() || filterActions.isCreatingFilter}
+                onClick={() => filterActions.createFilter({
+                    filterSetId: newFilterSetId ?? activeSetId,
+                    filterType: newFilterType,
+                    matchType: newMatchType,
+                    value: newFilterValue,
+                  })}
               >
-                {createFilterMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {filterActions.isCreatingFilter && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Create")}
               </Button>
             </>
@@ -358,10 +315,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
               </Button>
               <Button
                 variant="danger"
-                disabled={deleteSetMutation.isPending}
-                onClick={() => deleteSetMutation.mutate(filterSetToDelete)}
+                disabled={filterActions.isRemovingSet}
+                onClick={() => filterActions.removeSet(filterSetToDelete)}
               >
-                {deleteSetMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {filterActions.isRemovingSet && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Delete")}
               </Button>
             </>
@@ -387,10 +344,10 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
               </Button>
               <Button
                 variant="danger"
-                disabled={deleteFilterMutation.isPending}
-                onClick={() => deleteFilterMutation.mutate(filterToDelete)}
+                disabled={filterActions.isRemovingFilter}
+                onClick={() => filterActions.removeFilter(filterToDelete)}
               >
-                {deleteFilterMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {filterActions.isRemovingFilter && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Delete")}
               </Button>
             </>

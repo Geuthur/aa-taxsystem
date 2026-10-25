@@ -2,20 +2,18 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, DollarSign, UserCheck, XCircle } from "lucide-react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { addCustomPayment, loadTaxAccounts, switchTaxAccount } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
+import { useAccountActions, useTaxAccounts } from "@/Components/OwnerManage/Hooks";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getAccountColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
@@ -30,7 +28,6 @@ type PaidFilter = "all" | "paid" | "unpaid";
 
 export function AccountsTab({ ownerId }: AccountsTabProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const [search, setSearch] = useTableSearchState("accountSearch");
   const [paidFilter, setPaidFilter] = useState<PaidFilter>("all");
 
@@ -51,33 +48,13 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
     characterPortrait?: string;
   } | null>(null);
 
-  const { data: accounts, isLoading, isError } = useQuery({
-    queryKey: queryKeys.TaxAccounts(ownerId),
-    queryFn: () => loadTaxAccounts(ownerId),
-  });
-
-  const switchMutation = useMutation({
-    mutationFn: ({ accountPk }: { accountPk: number }) =>
-      switchTaxAccount(ownerId, accountPk),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.TaxAccounts(ownerId) });
+  const { data: accounts, isLoading, isError } = useTaxAccounts(ownerId);
+  const accountActions = useAccountActions(ownerId, {
+    onSwitched: () => {
       setSelectedAccount(null);
       setComment("");
     },
-  });
-
-  const addPaymentMutation = useMutation({
-    mutationFn: () => {
-      const targetPk = paymentAccount?.account_id;
-      if (!targetPk) throw new Error("No account selected");
-      return addCustomPayment(ownerId, targetPk, {
-        amount: Number(paymentAmount),
-        comment: paymentComment.trim(),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.TaxAccounts(ownerId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.Payments(ownerId) });
+    onPaymentAdded: () => {
       setPaymentAccount(null);
       setPaymentAmount("");
       setPaymentComment("");
@@ -191,16 +168,16 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
               </Button>
               <Button
                 variant="primary"
-                disabled={switchMutation.isPending}
+                disabled={accountActions.isSwitching}
                 onClick={() => {
                   if (selectedAccount.account_id) {
-                    switchMutation.mutate({
+                    accountActions.switchAccount({
                       accountPk: selectedAccount.account_id,
                     });
                   }
                 }}
               >
-                {switchMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {accountActions.isSwitching && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Save Changes")}
               </Button>
             </>
@@ -257,11 +234,19 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
                   !paymentAmount ||
                   Number(paymentAmount) <= 0 ||
                   !paymentComment.trim() ||
-                  addPaymentMutation.isPending
+                  accountActions.isAddingPayment
                 }
-                onClick={() => addPaymentMutation.mutate()}
+                onClick={() => {
+                  if (paymentAccount?.account_id) {
+                    accountActions.addPayment({
+                      accountPk: paymentAccount.account_id,
+                      amount: Number(paymentAmount),
+                      comment: paymentComment,
+                    });
+                  }
+                }}
               >
-                {addPaymentMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {accountActions.isAddingPayment && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Add Payment")}
               </Button>
             </>
