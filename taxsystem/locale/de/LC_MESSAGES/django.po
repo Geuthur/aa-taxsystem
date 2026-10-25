@@ -10,8 +10,7 @@ msgstr ""
 "POT-Creation-Date: 2026-09-06 13:47+0200\n"
 "PO-Revision-Date: 2026-09-06 11:49+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
-"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
-"taxsystem/de/>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-taxsystem/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,23 +25,15 @@ msgid "Force update selected corporations"
 msgstr "Update erzwingen für ausgewählte Corporations"
 
 #, python-brace-format
-msgid ""
-"Started force update for {count} corporation(s). Updates will run in the "
-"background."
-msgstr ""
-"Erzwinge Aktualisierung für {count} Charakter(e). Die Aktualisierung erfolgt "
-"im Hintergrund."
+msgid "Started force update for {count} corporation(s). Updates will run in the background."
+msgstr "Erzwinge Aktualisierung für {count} Charakter(e). Die Aktualisierung erfolgt im Hintergrund."
 
 msgid "Force update selected alliances"
 msgstr "Ausgewählte Allianzen zwangsweise aktualisieren"
 
 #, python-brace-format
-msgid ""
-"Started force update for {count} alliance(s). Updates will run in the "
-"background."
-msgstr ""
-"Die erzwungene Aktualisierung für {count} Allianz(en) wurde gestartet. Die "
-"Aktualisierungen werden im Hintergrund ausgeführt."
+msgid "Started force update for {count} alliance(s). Updates will run in the background."
+msgstr "Die erzwungene Aktualisierung für {count} Allianz(en) wurde gestartet. Die Aktualisierungen werden im Hintergrund ausgeführt."
 
 msgid "Owner not Found."
 msgstr "Inhaber nicht gefunden."
@@ -65,16 +56,14 @@ msgid "Tax Period from {owner} changed to {value}"
 msgstr "Steuer Periode von {owner} aktualisiert auf {value}"
 
 msgid "Please select at least one account to perform bulk actions."
-msgstr ""
-"Bitte wählen Sie mindestens ein Konto aus, um Massenaktionen durchzuführen."
+msgstr "Bitte wählen Sie mindestens ein Konto aus, um Massenaktionen durchzuführen."
 
 msgid "Please select a valid action"
 msgstr "Bitte wählen Sie eine gültige Aktion aus"
 
 #, python-brace-format
 msgid "Bulk '{status}' performed for {items} accounts({pks}) for {owner}"
-msgstr ""
-"Massenaktion „{status}“ für {items} Konten({pks}) für {owner} ausgeführt"
+msgstr "Massenaktion „{status}“ für {items} Konten({pks}) für {owner} ausgeführt"
 
 msgid "Invalid form data."
 msgstr "Ungültige Formulardaten."
@@ -197,26 +186,21 @@ msgstr "ESI-importierte Zahlungen können nicht gelöscht werden"
 
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
-msgstr ""
-"Zahlungs-ID: {pid} – Betrag: {amount} – Name: {name} gelöscht – {reason}"
+msgstr "Zahlungs-ID: {pid} – Betrag: {amount} – Name: {name} gelöscht – {reason}"
 
 #, python-brace-format
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} rejected - {reason}"
-msgstr ""
-"Zahlungs-ID: {pid} – Betrag: {amount} – Name: {name} abgelehnt – {reason}"
+msgstr "Zahlungs-ID: {pid} – Betrag: {amount} – Name: {name} abgelehnt – {reason}"
 
 msgid "Please select at least one payment to perform bulk actions."
-msgstr ""
-"Bitte wählen Sie mindestens eine Zahlung aus, um Massenaktionen "
-"durchzuführen."
+msgstr "Bitte wählen Sie mindestens eine Zahlung aus, um Massenaktionen durchzuführen."
 
 msgid "Bulk Approved"
 msgstr "Sammel Genehmigung"
 
 #, python-brace-format
 msgid "Bulk '{status}' performed for {runs} payments ({pks}) for {owner}"
-msgstr ""
-"Massenaktion „{status}“ für {runs} Zahlungen ({pks}) für {owner} ausgeführt"
+msgstr "Massenaktion „{status}“ für {runs} Zahlungen ({pks}) für {owner} ausgeführt"
 
 msgid "Reason for accepting the payment"
 msgstr "Grund für die Annahme der Zahlung"
@@ -318,15 +302,10 @@ msgid "Tax Amount in ISK that is set for the alliance. Max 16 Digits"
 msgstr "Für die Allianz festgelegter Steuerbetrag in ISK. Maximal 16 Stellen"
 
 msgid "Tax Period in days for the alliance. Max 365 days. Default: 30 days"
-msgstr ""
-"Steuerzeitraum in Tagen für die Allianz. Maximal 365 Tage. Standard: 30 Tage"
+msgstr "Steuerzeitraum in Tagen für die Allianz. Maximal 365 Tage. Standard: 30 Tage"
 
-msgid ""
-"Message that is sent to alliance members when a tax payment is overdue or "
-"the deposit has fallen below zero."
-msgstr ""
-"Nachricht, die an die Allianzmitglieder gesendet wird, wenn eine "
-"Steuerzahlung überfällig ist oder das Guthaben unter Null gefallen ist."
+msgid "Message that is sent to alliance members when a tax payment is overdue or the deposit has fallen below zero."
+msgstr "Nachricht, die an die Allianzmitglieder gesendet wird, wenn eine Steuerzahlung überfällig ist oder das Guthaben unter Null gefallen ist."
 
 msgid "Owner of this payment"
 msgstr "Inhaber dieser Zahlung"
@@ -398,19 +377,13 @@ msgid "Designates whether this corporation owner is active."
 msgstr "Gibt an, ob dieser Corporation Inhaber aktiv ist."
 
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
-msgstr ""
-"Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
+msgstr "Steuer Menge in ISK die gesetzt ist für die Corporation. Max 16 Ziffern"
 
 msgid "Tax Period in days for the corporation. Max 365 days. Default: 30 days"
-msgstr ""
-"Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
+msgstr "Steuer Periode in tagen für die Corporation. Max 365 tage. Standard: 30 tage"
 
-msgid ""
-"Message that is sent to corporation members when a tax payment is overdue or "
-"the deposit has fallen below zero."
-msgstr ""
-"Nachricht, die an die Corporationmitglieder gesendet wird, wenn eine "
-"Steuerzahlung überfällig ist oder das Guthaben unter null gefallen ist."
+msgid "Message that is sent to corporation members when a tax payment is overdue or the deposit has fallen below zero."
+msgstr "Nachricht, die an die Corporationmitglieder gesendet wird, wenn eine Steuerzahlung überfällig ist oder das Guthaben unter null gefallen ist."
 
 msgid "Missing"
 msgstr "Vermisst"
@@ -641,8 +614,7 @@ msgid "Close"
 msgstr "Schließen"
 
 msgid "Are you sure you want to add custom payment?"
-msgstr ""
-"Möchten Sie wirklich eine benutzerdefinierte Zahlungsmethode hinzufügen?"
+msgstr "Möchten Sie wirklich eine benutzerdefinierte Zahlungsmethode hinzufügen?"
 
 msgid "This field is required"
 msgstr "Dieses Feld ist erforderlich"
@@ -758,15 +730,11 @@ msgstr "Beigetreten"
 msgid "Last Login"
 msgstr "Letzte Anmeldung"
 
-msgid ""
-"Here you can find answers to the most common questions regarding the tax "
-"system."
+msgid "Here you can find answers to the most common questions regarding the tax system."
 msgstr "Hier finden Sie Antworten auf die häufigsten Fragen zum Steuersystem."
 
-msgid ""
-"If you have any further questions, please contact the tax administration."
-msgstr ""
-"Wenn Sie weitere Fragen haben, wenden Sie sich bitte an die tax verwalter."
+msgid "If you have any further questions, please contact the tax administration."
+msgstr "Wenn Sie weitere Fragen haben, wenden Sie sich bitte an die tax verwalter."
 
 msgid "How do I pay taxes?"
 msgstr "Wie zahle ich Steuern?"
@@ -774,20 +742,14 @@ msgstr "Wie zahle ich Steuern?"
 msgid "Click Your Profile then Click the Corporation"
 msgstr "Klicken Sie auf Ihr Profil und dann auf „Corporation“"
 
-msgid ""
-"Click on the three dots on the upper right on the Information Screen about "
-"your Corporation:"
-msgstr ""
-"Klicken Sie auf die drei Punkte oben rechts auf dem Informationsbildschirm "
-"zu Ihrer Corporation:"
+msgid "Click on the three dots on the upper right on the Information Screen about your Corporation:"
+msgstr "Klicken Sie auf die drei Punkte oben rechts auf dem Informationsbildschirm zu Ihrer Corporation:"
 
 msgid "Select 'Give Money':"
 msgstr "Wählen Sie „Geld spenden“:"
 
 msgid "Enter the appropriate Amount and the Reason(case insensitive):"
-msgstr ""
-"Geben Sie den entsprechenden Betrag und den Grund ein (Groß-/Kleinschreibung "
-"spielt keine Rolle):"
+msgstr "Geben Sie den entsprechenden Betrag und den Grund ein (Groß-/Kleinschreibung spielt keine Rolle):"
 
 msgid "Actions"
 msgstr "Aktionen"
@@ -1029,8 +991,7 @@ msgid "Corporation with ID %s not found"
 msgstr "Corporation mit ID %s nicht gefunden"
 
 msgid "Queued Update All Taxsystem Corporations"
-msgstr ""
-"In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
+msgstr "In der Warteschlange: Alle Corporations des Steuersystems aktualisieren"
 
 #, python-format
 msgid "Queued Update for Alliance: %s"
@@ -1082,8 +1043,7 @@ msgstr "Zum Steuersystem hinzugefügt"
 
 #, python-brace-format
 msgid "{corporation_name} successfully added/updated to Tax System"
-msgstr ""
-"{corporation_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
+msgstr "{corporation_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
 #, python-brace-format
 msgid "Added Alliance to Tax System with Corporation {corp}"
@@ -1098,6 +1058,103 @@ msgstr "Administrationsberechtigung erforderlich."
 
 msgid "Superuser permission required."
 msgstr "Superuser-Berechtigung erforderlich."
+
+#, python-brace-format
+msgid "Tax Amount from {owner} changed to {value}"
+msgstr ""
+
+msgid "No settings provided to update."
+msgstr ""
+
+msgid "Invalid target specified."
+msgstr ""
+
+msgid "Filter set name is required."
+msgstr ""
+
+#, python-brace-format
+msgid "Filter set \"{filter_set}\" created."
+msgstr ""
+
+msgid "Filter set not found."
+msgstr ""
+
+msgid "Filter value is required."
+msgstr ""
+
+msgid "This filter already exists in the filter set."
+msgstr ""
+
+#, python-brace-format
+msgid "Filter {filter_type} \"{val}\" created in \"{filter_set}\"."
+msgstr ""
+
+msgid "Account Overview"
+msgstr "Account Übersicht"
+
+msgid "Superuser"
+msgstr ""
+
+msgid "Group name is required."
+msgstr ""
+
+msgid "A group with this name already exists."
+msgstr ""
+
+#, python-brace-format
+msgid "Tax free group \"{name}\" created."
+msgstr ""
+
+msgid "Payment not Found."
+msgstr ""
+
+msgid "No payment IDs provided."
+msgstr ""
+
+msgid "approved"
+msgstr ""
+
+msgid "rejected"
+msgstr ""
+
+msgid "undone"
+msgstr ""
+
+msgid "deleted"
+msgstr ""
+
+#, python-brace-format
+msgid "{processed} of {total} payments successfully {action}."
+msgstr ""
+
+#, python-format
+msgid "Corporation with ID %(id)s not found"
+msgstr ""
+
+#, python-format
+msgid "Queued update for %(name)s"
+msgstr ""
+
+#, python-format
+msgid "Alliance with ID %(id)s not found"
+msgstr ""
+
+msgid "Invalid owner type specified."
+msgstr ""
+
+#, python-format
+msgid "Corporation %(name)s deleted successfully."
+msgstr ""
+
+#, python-format
+msgid "Alliance %(name)s deleted successfully."
+msgstr ""
+
+msgid "Owner of the alliance group"
+msgstr ""
+
+msgid "Name of the alliance group"
+msgstr ""
 
 #~ msgid "Edit Filter Set"
 #~ msgstr "Filtersatz bearbeiten"
@@ -1220,8 +1277,7 @@ msgstr "Superuser-Berechtigung erforderlich."
 #~ msgstr "Eingehende Zahlungen"
 
 #~ msgid "Queued Clear All ETags"
-#~ msgstr ""
-#~ "Alle zwischengespeicherten ETags löschen - in Warteschlange eingereiht"
+#~ msgstr "Alle zwischengespeicherten ETags löschen - in Warteschlange eingereiht"
 
 #, python-brace-format
 #~ msgid "{filter_set.name} from {owner.name} deleted"
@@ -1230,12 +1286,8 @@ msgstr "Superuser-Berechtigung erforderlich."
 #~ msgid "Filter set deleted successfully."
 #~ msgstr "Filtersatz wurde erfolgreich gelöscht."
 
-#~ msgid ""
-#~ "{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} "
-#~ "deleted - {form.cleaned_data['delete_reason']}"
-#~ msgstr ""
-#~ "{filter_obj.filter_type}({filter_obj.value}) aus {filter_obj.filter_set} "
-#~ "gelöscht – {form.cleaned_data[‚delete_reason‘]}"
+#~ msgid "{filter_obj.filter_type}({filter_obj.value}) from {filter_obj.filter_set} deleted - {form.cleaned_data['delete_reason']}"
+#~ msgstr "{filter_obj.filter_type}({filter_obj.value}) aus {filter_obj.filter_set} gelöscht – {form.cleaned_data[‚delete_reason‘]}"
 
 #~ msgid "Filter set updated successfully."
 #~ msgstr "Filtersatz aktualisierungen erfolgreich abgeschlossen."
