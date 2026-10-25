@@ -26,6 +26,10 @@ Section Order:
 ### Removed
 -->
 
+<!-- Your changes go here -->
+
+## [5.1.0] - 2026-10-25
+
 ### Added
 
 - [ADD] Red issue count badge on the `Settings` navigation item in `BaseMenu` that pulses (`aa-menu-badge-pulse`) whenever manageable corporations or alliances have active sync/token errors.
@@ -87,8 +91,6 @@ Section Order:
 ### Removed
 
 - [REMOVED] Redundant `is_superuser` branches in the owner and payment managers (superusers pass `has_perm` anyway).
-
-<!-- Your changes go here -->
 
 ## [5.0.7] - 2026-10-19
 
@@ -1134,5 +1136,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.5]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.4...v5.0.5 "v5.0.5"
 [5.0.6]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.5...v5.0.6 "v5.0.6"
 [5.0.7]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.6...v5.0.7 "v5.0.7"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.7...HEAD "In Development"
+[5.1.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.7...v5.1.0 "v5.1.0"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.1.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"

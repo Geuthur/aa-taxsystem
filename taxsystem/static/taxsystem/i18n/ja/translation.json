@@ -373,5 +373,7 @@
   "Done": "Done",
   "Range…": "Range…",
   "Filter…": "Filter…",
-  "No matching options": "No matching options"
+  "No matching options": "No matching options",
+  "Force Refresh (Bypass Cache)": "Force Refresh (Bypass Cache)",
+  "Select All": "Select All"
 }
