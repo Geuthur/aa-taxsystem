@@ -3,14 +3,13 @@ import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { RowSelectionState } from "@tanstack/react-table";
 import { ArrowLeft, Check, CreditCard, RotateCcw, Trash2, X } from "lucide-react";
 import { Badge, Button, Card, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadPaymentDetails, loadPayments } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
@@ -22,8 +21,8 @@ import {
   PaymentActionButtons,
   PaymentActionModals,
 } from "@/Components/Payments";
+import { usePaymentActions, usePaymentDetails, usePayments } from "@/Components/Payments/Hooks";
 import { getPaymentColumns } from "@/Components/Tables";
-import { usePaymentActions } from "@/Hooks/usePaymentActions";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
 import { formatCompactNumber } from "@/Utils";
 
@@ -42,17 +41,11 @@ export function PaymentsPage() {
   // Details Modal state
   const [detailsPaymentId, setDetailsPaymentId] = useState<number | null>(null);
 
-  const { data: payments, isLoading, isError } = useQuery({
-    queryKey: queryKeys.Payments(numericOwnerId),
-    queryFn: () => loadPayments(numericOwnerId),
-    enabled: numericOwnerId > 0,
-  });
-
-  const { data: paymentDetails, isLoading: detailsLoading } = useQuery({
-    queryKey: queryKeys.PaymentDetails(numericOwnerId, detailsPaymentId || 0),
-    queryFn: () => loadPaymentDetails(numericOwnerId, detailsPaymentId!),
-    enabled: Boolean(detailsPaymentId && detailsPaymentId > 0),
-  });
+  const { data: payments, isLoading, isError } = usePayments(numericOwnerId);
+  const { data: paymentDetails, isLoading: detailsLoading } = usePaymentDetails(
+    numericOwnerId,
+    detailsPaymentId,
+  );
 
   const {
     approve,

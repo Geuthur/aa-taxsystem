@@ -3,15 +3,13 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowRight, Calendar, CheckCircle, Clock, CreditCard, FileText, User, Wallet } from "lucide-react";
 import { Badge, Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadUserAccounts } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
+import { useUserAccounts } from "@/Components/AccountOverview/Hooks";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
@@ -41,10 +39,7 @@ export function AccountOverviewPage() {
     isError,
     error,
     refetch,
-  } = useQuery({
-    queryKey: queryKeys.UserAccounts,
-    queryFn: loadUserAccounts,
-  });
+  } = useUserAccounts();
 
   const filteredAccounts = useMemo<UserAccount[]>(() => {
     if (!accounts) return [];

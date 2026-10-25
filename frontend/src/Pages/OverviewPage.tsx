@@ -3,17 +3,15 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { CreditCard, FileText, Settings, Shield, UserCheck } from "lucide-react";
 import { Badge, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadOverview } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
+import { useOverview } from "@/Components/Overview/Hooks";
 import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
 
@@ -22,10 +20,7 @@ export function OverviewPage() {
   const [search, setSearch] = useTableSearchState("search");
   const [ownerType, setOwnerType] = useStatusFilterState("type");
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: queryKeys.Overview,
-    queryFn: loadOverview,
-  });
+  const { data, isLoading, isError, error } = useOverview();
 
   const filteredOwners = useMemo(() => {
     if (!data?.owners) return [];

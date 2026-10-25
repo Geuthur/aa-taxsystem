@@ -7,7 +7,7 @@ import { Button, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import type { BasePaymentRow } from "@/Hooks/usePaymentActions";
+import type { BasePaymentRow } from "@/Components/Payments/Hooks";
 import { renderTooltip } from "@/Utils";
 
 export interface PaymentActionButtonsProps {

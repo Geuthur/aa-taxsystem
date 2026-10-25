@@ -2,15 +2,13 @@
 import { Link, useLocation } from "react-router-dom";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { ShieldAlert } from "lucide-react";
 import { Nav } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadSettingsOwners } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
+import { useMenuOwnerStatus } from "@/Menu/Hooks";
 
 export type MenuLinkItem = components["schemas"]["MenuLink"];
 
@@ -57,12 +55,7 @@ export const SettingsMenuItem = ({ link, toPath }: { link: MenuLinkItem } & ToPa
     const path = useLocation();
     const hit = path.pathname.endsWith(link.link ?? "");
 
-    const { data: owners } = useQuery({
-        queryKey: queryKeys.SettingsOwners,
-        queryFn: () => loadSettingsOwners(),
-        refetchInterval: 30000,
-        staleTime: 15000,
-    });
+    const { data: owners } = useMenuOwnerStatus();
 
     const issueCount = (owners ?? []).filter((o) => (o.status || "").toLowerCase() !== "ok").length;
     const badgeCount = Math.max(issueCount, link.badge ?? 0);

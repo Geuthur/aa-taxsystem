@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
+import type { BasePaymentRow } from "@/Components/Payments/Hooks";
 import { PaymentActionModals } from "@/Components/Payments/PaymentActionModals";
-import type { BasePaymentRow } from "@/Hooks/usePaymentActions";
 
 const baseMockPayment: BasePaymentRow = {
   payment_id: 10,

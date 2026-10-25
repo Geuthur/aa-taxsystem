@@ -17,7 +17,7 @@ import {
   PaymentActionModals,
 } from "@/Components/Payments";
 import { getPaymentColumns } from "@/Components/Tables";
-import { usePaymentActions } from "@/Hooks/usePaymentActions";
+import { usePaymentActions } from "@/Components/Payments/Hooks";
 
 type PaymentRow = components["schemas"]["PaymentSchema"];
 
