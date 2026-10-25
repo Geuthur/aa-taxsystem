@@ -433,6 +433,9 @@ msgstr ""
 msgid "Can manage all Alliances"
 msgstr ""
 
+msgid "Has access to the whole Administration."
+msgstr ""
+
 msgid "Inactive"
 msgstr ""
 
@@ -575,4 +578,13 @@ msgstr ""
 
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
+msgstr ""
+
+msgid "Administration"
+msgstr ""
+
+msgid "Administration permission required."
+msgstr ""
+
+msgid "Superuser permission required."
 msgstr ""
