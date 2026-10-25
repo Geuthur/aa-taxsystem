@@ -788,3 +788,34 @@ html[data-bs-theme="dark"] {
         transform: scale(1.06);
     }
 }
+
+/* ═══ UTILITIES ═══════════════════════════════════════════════════════════════ */
+
+.aa-search-input {
+    max-width: 360px;
+}
+
+.aa-btn-compact {
+    font-size: 0.75rem;
+    height: 24px;
+}
+
+.aa-scroll-list {
+    max-height: 200px;
+}
+
+.aa-col-index {
+    width: 60px;
+}
+
+.aa-col-share {
+    width: 120px;
+}
+
+.aa-share-bar {
+    width: 50px;
+}
+
+.aa-progress-sm {
+    height: 6px;
+}

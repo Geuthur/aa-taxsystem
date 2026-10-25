@@ -5,8 +5,8 @@ import { Link, useParams } from "react-router-dom";
 // Third Party
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { RowSelectionState } from "@tanstack/react-table";
-import { ArrowLeft, Check, CreditCard, RotateCcw, Search, Trash2, X } from "lucide-react";
-import { Badge, Button, Card, Form, InputGroup, Spinner } from "react-bootstrap";
+import { ArrowLeft, Check, CreditCard, RotateCcw, Trash2, X } from "lucide-react";
+import { Badge, Button, Card, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -16,6 +16,7 @@ import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { SearchInput } from "@/Components/Base/SearchInput";
 import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
 import {
   PaymentActionButtons,
@@ -142,18 +143,11 @@ export function PaymentsPage() {
       <div className="mt-3 p-3 aa-panel rounded">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
           <div className="d-flex flex-wrap align-items-center gap-2">
-            <InputGroup style={{ maxWidth: 360 }}>
-              <InputGroup.Text className="bg-dark border-secondary text-secondary">
-                <Search size={16} />
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder={t("Filter by character or reason…")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="bg-dark text-light border-secondary"
-              />
-            </InputGroup>
+            <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder={t("Filter by character or reason…")}
+          />
 
             <PaymentsFilter statusFilter={statusFilter} setStatusFilter={setStatusFilter} t={t} />
           </div>

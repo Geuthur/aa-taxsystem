@@ -4,8 +4,8 @@ import { Link, useParams } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Search } from "lucide-react";
-import { Card, Form, InputGroup } from "react-bootstrap";
+import { ArrowLeft } from "lucide-react";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -14,6 +14,7 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { SearchInput } from "@/Components/Base/SearchInput";
 import { getPaymentColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
 
@@ -64,18 +65,11 @@ export function MyPaymentsPage() {
 
       <div className="mt-3 p-3 aa-panel rounded">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <InputGroup style={{ maxWidth: 360 }}>
-            <InputGroup.Text className="bg-dark border-secondary text-secondary">
-              <Search size={16} />
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder={t("Filter by division or reason…")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-dark text-light border-secondary"
-            />
-          </InputGroup>
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder={t("Filter by division or reason…")}
+          />
         </div>
 
         <BaseTable

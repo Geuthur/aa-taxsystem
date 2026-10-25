@@ -182,8 +182,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
               className="bg-dark text-light border-secondary mb-2"
             />
             <div
-              className="p-2 aa-panel-light border border-secondary rounded overflow-auto"
-              style={{ maxHeight: "200px" }}
+              className="p-2 aa-panel-light border border-secondary rounded overflow-auto aa-scroll-list"
             >
               {availableLoading ? (
                 <div className="text-center py-3">

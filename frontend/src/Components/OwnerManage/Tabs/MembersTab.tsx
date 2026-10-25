@@ -3,8 +3,8 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Search } from "lucide-react";
-import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
+import { AlertCircle } from "lucide-react";
+import { Button, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -13,6 +13,7 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { SearchInput } from "@/Components/Base/SearchInput";
 import { MemberAltsModal } from "@/Components/OwnerManage/Modals/MemberAltsModal";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getMemberColumns } from "@/Components/Tables";
@@ -86,18 +87,11 @@ export function MembersTab({ ownerId }: MembersTabProps) {
   return (
     <div className="mt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <InputGroup style={{ maxWidth: 360 }}>
-          <InputGroup.Text className="bg-dark border-secondary text-secondary">
-            <Search size={16} />
-          </InputGroup.Text>
-          <Form.Control
-            type="text"
-            placeholder={t("Filter members by name…")}
+        <SearchInput
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-dark text-light border-secondary"
+            onChange={setSearch}
+            placeholder={t("Filter members by name…")}
           />
-        </InputGroup>
       </div>
 
       <BaseTable

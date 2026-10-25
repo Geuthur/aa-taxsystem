@@ -3,8 +3,8 @@ import { useMemo, useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, DollarSign, Search, UserCheck, XCircle } from "lucide-react";
-import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
+import { CheckCircle2, DollarSign, UserCheck, XCircle } from "lucide-react";
+import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -13,6 +13,7 @@ import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { SearchInput } from "@/Components/Base/SearchInput";
 import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getAccountColumns } from "@/Components/Tables";
@@ -129,18 +130,11 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
     <div className="mt-3">
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div className="d-flex flex-wrap align-items-center gap-2">
-          <InputGroup style={{ maxWidth: 360 }}>
-            <InputGroup.Text className="bg-dark border-secondary text-secondary">
-              <Search size={16} />
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder={t("Filter accounts by name or status…")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-dark text-light border-secondary"
-            />
-          </InputGroup>
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder={t("Filter accounts by name or status…")}
+          />
 
           <ButtonGroupFilter<PaidFilter>
             value={paidFilter}

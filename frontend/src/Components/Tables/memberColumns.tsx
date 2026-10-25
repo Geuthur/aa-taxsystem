@@ -49,8 +49,7 @@ export function getMemberColumns({
                   count: alts.length,
                 }),
                 <Button
-                  className="aa-btn aa-btn-sm aa-btn-secondary d-inline-flex align-items-center gap-1 py-0 px-2"
-                  style={{ fontSize: "0.75rem", height: "24px" }}
+                  className="aa-btn aa-btn-sm aa-btn-secondary aa-btn-compact d-inline-flex align-items-center gap-1 py-0 px-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpenAlts(row.original);

@@ -4,19 +4,8 @@ import { Link, useParams } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  ArrowRight,
-  Calendar,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  FileText,
-  Search,
-  User,
-  Wallet,
-} from "lucide-react";
-import { Badge, Button, Card, Col, Form, InputGroup, Row, Spinner } from "react-bootstrap";
+import { AlertCircle, ArrowRight, Calendar, CheckCircle, Clock, CreditCard, FileText, User, Wallet } from "lucide-react";
+import { Badge, Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -24,6 +13,7 @@ import { loadUserAccounts } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import { SearchInput } from "@/Components/Base/SearchInput";
 import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
 import {
@@ -93,18 +83,11 @@ export function AccountOverviewPage() {
       <div className="p-3 aa-panel rounded">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
           <div className="d-flex flex-wrap align-items-center gap-2">
-            <InputGroup style={{ maxWidth: 360 }}>
-              <InputGroup.Text className="bg-dark border-secondary text-secondary">
-                <Search size={16} />
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder={t("Filter accounts by character or owner…")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="bg-dark text-light border-secondary"
-              />
-            </InputGroup>
+            <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder={t("Filter accounts by character or owner…")}
+          />
 
             <OwnerTypeFilter
               ownerType={ownerType}

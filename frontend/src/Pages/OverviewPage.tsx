@@ -4,22 +4,15 @@ import { Link } from "react-router-dom";
 
 // Third Party
 import { useQuery } from "@tanstack/react-query";
-import {
-  Building2,
-  CreditCard,
-  FileText,
-  Search,
-  Settings,
-  Shield,
-  UserCheck,
-} from "lucide-react";
-import { Badge, Card, Col, Form, InputGroup, Row, Spinner } from "react-bootstrap";
+import { Building2, CreditCard, FileText, Settings, Shield, UserCheck } from "lucide-react";
+import { Badge, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import { loadOverview } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
+import { SearchInput } from "@/Components/Base/SearchInput";
 import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
 
@@ -57,18 +50,11 @@ export function OverviewPage() {
       <div className="mt-3 p-3 aa-panel rounded">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
           <div className="d-flex flex-wrap align-items-center gap-2">
-            <InputGroup style={{ maxWidth: 360 }}>
-              <InputGroup.Text className="bg-dark border-secondary text-secondary">
-                <Search size={16} />
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder={t("Search corporations & alliances…")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="bg-dark text-light border-secondary"
-              />
-            </InputGroup>
+            <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder={t("Search corporations & alliances…")}
+          />
 
             <OwnerTypeFilter
               ownerType={ownerType}
