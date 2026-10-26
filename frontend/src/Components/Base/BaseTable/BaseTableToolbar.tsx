@@ -4,7 +4,6 @@ import { Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
 
 // AA TaxSystem
 import { BaseTableForm } from "@/Components/Base/BaseTable/BaseTableForm";
-import pageStyles from "@/Styles/modules/BaseTablePages.module.css";
 
 export interface TableToolbarProps<TData> {
   table: TanStackTable<TData>;
@@ -13,7 +12,7 @@ export interface TableToolbarProps<TData> {
 export const BaseToolbar = <TData,>({ table }: TableToolbarProps<TData>) => {
   return (
     <ButtonToolbar>
-      <ButtonGroup className={pageStyles["button-group"]}>
+      <ButtonGroup className="z-0">
         <Button
           variant="success"
           onClick={() => table.setPageIndex(0)}

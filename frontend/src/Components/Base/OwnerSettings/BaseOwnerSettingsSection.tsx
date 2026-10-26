@@ -69,18 +69,18 @@ export function BaseOwnerSettingsSection<
   };
 
   return (
-    <Card className={`${styles["section"]} border-0`}>
+    <Card className="mt-4 border-0">
       <Card.Body className="bg-secondary text-light">
         <Card.Header
-          className={`${styles["section-header"]} bg-secondary d-flex justify-content-between align-items-center flex-wrap gap-2`}
+          className="bg-secondary d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3"
         >
           <div>
-            <div className={styles["section-title-wrap"]}>
+            <div className={`${styles["section-title-wrap"]} d-flex align-items-center gap-2`}>
               {icon ?? <Users size={20} aria-hidden="true" />}
-              <h2 className={styles["section-title"]}>{title ?? t("Owner Status")}</h2>
+              <h2 className={`${styles["section-title"]} m-0 fw-bold`}>{title ?? t("Owner Status")}</h2>
               {owners && <span className={styles["section-count"]}>({owners.length})</span>}
             </div>
-            <p className={styles["section-description"]}>
+            <p className={`${styles["section-description"]} mt-1 mb-0 w-100`}>
               {description ?? t("ESI synchronization status of your linked owners.")}
             </p>
           </div>
@@ -119,7 +119,7 @@ export function BaseOwnerSettingsSection<
         )}
 
         {isLoading && (
-          <div className="aa-loader-container">
+          <div className="aa-loader-container w-100 d-flex align-items-center justify-content-center p-4">
             <span className="spinner-border" />
             <span>{t("Loading update statuses…")}</span>
           </div>
@@ -135,14 +135,14 @@ export function BaseOwnerSettingsSection<
 
         {!isLoading && !isError && !hasOwners && !hasMissing && (
           <Card className="bg-secondary text-light border-0 shadow-sm">
-            <Card.Body className={styles["empty-state"]}>
+            <Card.Body className={`${styles["empty-state"]} text-center py-4 px-3`}>
               {emptyMessage ?? t("Nothing to show.")}
             </Card.Body>
           </Card>
         )}
 
         {!isLoading && !isError && hasOwners && (
-          <div className={styles["characters-grid"]}>
+          <div className={`${styles["characters-grid"]} d-grid gap-3`}>
             {owners?.map((owner) => (
               <BaseOwnerCard<T>
                 key={owner.id}
@@ -164,7 +164,7 @@ export function BaseOwnerSettingsSection<
               {missingSectionTitle ?? t("Not registered in {{app}}", { app: appName })} (
               {missingOwners?.length})
             </h3>
-            <div className={styles["characters-grid"]}>
+            <div className={`${styles["characters-grid"]} d-grid gap-3`}>
               {missingOwners?.map((missing) => (
                 <MissingOwnerCard
                   key={missing.id}

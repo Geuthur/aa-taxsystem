@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 // AA TaxSystem
 import { exportToCSV } from "@/Components/Base/BaseTable/tableHelper";
 import tableStyles from "@/Styles/modules/BaseTable.module.css";
-import pageStyles from "@/Styles/modules/BaseTablePages.module.css";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatDate } from "@/Utils/format";
 
@@ -33,7 +32,7 @@ const BasePages = <TData,>({
 
   return (
     <div>
-      <ButtonGroup size="sm" className={pageStyles["button-group"]}>
+      <ButtonGroup size="sm" className="z-0">
         {showPageNumber && (
           <Button size="sm" variant="primary">
             {t("Page {{page}} of {{total}}", {

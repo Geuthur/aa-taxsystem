@@ -91,7 +91,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
 
   return (
     <OverlayTrigger trigger="click" placement="bottom" rootClose={true} overlay={popoverNumber}>
-      <div className={Styles.searchwrapper}>
+      <div className="position-relative w-100">
         <Form.Control
           size="sm"
           className={Styles.searchinput}
@@ -117,7 +117,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
             <X size={12} />
           </button>
         ) : (
-          <SlidersHorizontal size={12} className={Styles.searchicon} />
+          <SlidersHorizontal size={12} className={`${Styles.searchicon} position-absolute pe-none`} />
         )}
       </div>
     </OverlayTrigger>
@@ -136,7 +136,7 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
       rootClose={true}
       overlay={
         <Dropdown show drop="down-centered">
-          <Dropdown.Menu className={Styles.dropdown}>
+          <Dropdown.Menu className={`${Styles.dropdown} overflow-y-auto`}>
             <Dropdown.Item
               onClick={() => {
                 column.setFilterValue(true);
@@ -166,7 +166,7 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
         </Dropdown>
       }
     >
-      <div className={Styles.searchwrapper}>
+      <div className="position-relative w-100">
         <Form.Control
           size="sm"
           className={Styles.searchinput}
@@ -188,7 +188,7 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
             <X size={12} />
           </button>
         ) : (
-          <ChevronDown size={12} className={Styles.searchicon} />
+          <ChevronDown size={12} className={`${Styles.searchicon} position-absolute pe-none`} />
         )}
       </div>
     </OverlayTrigger>
@@ -199,7 +199,7 @@ export const TextFilter = <TData,>({ column }: { column: Column<TData, unknown> 
   const { t } = useTranslation();
   const value = (column.getFilterValue() as string) ?? "";
   return (
-    <div className={Styles.searchwrapper}>
+    <div className="position-relative w-100">
       <Form.Control
         size="sm"
         className={Styles.searchinput}
@@ -220,7 +220,7 @@ export const TextFilter = <TData,>({ column }: { column: Column<TData, unknown> 
           <X size={12} />
         </button>
       ) : (
-        <Search size={12} className={Styles.searchicon} />
+        <Search size={12} className={`${Styles.searchicon} position-absolute pe-none`} />
       )}
     </div>
   );
@@ -263,12 +263,12 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
       rootClose={true}
       overlay={
         <Dropdown show drop="down-centered">
-          <Dropdown.Menu className={Styles.dropdown}>
+          <Dropdown.Menu className={`${Styles.dropdown} overflow-y-auto`}>
             {selectOptions.length > 0 ? (
               selectOptions.map((item) => (
                 <Dropdown.Item
                   key={item.value}
-                  className={Styles.capitalisewords}
+                  className="text-capitalize"
                   onClick={() => {
                     column.setFilterValue(item.value ? item.value : "");
                     document.body.click();
@@ -284,7 +284,7 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
         </Dropdown>
       }
     >
-      <div className={Styles.searchwrapper}>
+      <div className="position-relative w-100">
         <Form.Control
           size="sm"
           className={Styles.searchinput}
@@ -320,7 +320,7 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
             <X size={12} />
           </button>
         ) : (
-          <ChevronDown size={12} className={Styles.searchicon} />
+          <ChevronDown size={12} className={`${Styles.searchicon} position-absolute pe-none`} />
         )}
       </div>
     </OverlayTrigger>

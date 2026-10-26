@@ -13,7 +13,7 @@ export const FetchingLoader = ({ message, className = '' }: LoaderProps = {}) =>
   const { t } = useTranslation();
 
   return (
-    <div className={`${styles['flex-container-loader']} ${className}`}>
+    <div className={`d-flex flex-column align-items-center justify-content-center ${className}`}>
       <div
         className={`spinner-border text-info ${styles["spinner"]}`}
         role="status"

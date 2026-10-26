@@ -5,9 +5,6 @@ import type { KeyboardEvent } from "react";
 import { Badge } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-// AA TaxSystem
-import styles from "@/Styles/modules/Administration.module.css";
-
 export interface AdministrationStatusBadgeProps {
   /** Owner status as delivered by the API (e.g. "ok", "error", "token_error") */
   status: string;
@@ -80,7 +77,6 @@ export function AdministrationStatusBadge({
       role="button"
       tabIndex={0}
       aria-label={ariaLabel}
-      className={styles.cursorPointer}
       onClick={onClick}
       onKeyDown={handleKeyDown}
     >

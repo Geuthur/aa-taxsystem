@@ -48,11 +48,17 @@ Section Order:
 
 - [CHANGE] The generated `manifest.json` is excluded from the pre-commit end-of-file fixer.
 
+- [CHANGE] Layout CSS of the settings page, owner cards, tables, loaders and the table filter was replaced by Bootstrap utility classes; own CSS remains for colors, borders, hover and fixed sizes. The error icon uses the theme's `text-danger` color.
+
 ### Removed
 
 - [REMOVED] Active/Deactivated status badge from the owner cards on the `OverviewPage`.
 
 - [REMOVED] Outdated `IMPROVEMENT_PLAN.md`.
+
+- [REMOVED] Unused CSS: the `aa-bg-*`, `aa-color-*`, `aa-tab-*`, `aa-status-*` and further helper classes, unused design tokens, the old owner card styles in the settings page module and `BaseModal.module.css`.
+
+- [REMOVED] Unused `BaseModalQuery` component.
 
 <!-- Your changes go here -->
 

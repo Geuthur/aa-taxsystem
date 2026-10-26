@@ -8,8 +8,8 @@ interface LoaderProps {
 
 export const ErrorLoader = (props: LoaderProps = {}) => {
   return (
-    <div className={`${styles["flex-container-error"]}`}>
-      <span className={styles["shake"]}><i className={`fas fa-exclamation-triangle ${styles["icon-96"]}`}></i></span>
+    <div className="d-flex flex-column align-items-center justify-content-center">
+      <span className={styles["shake"]}><i className={`fas fa-exclamation-triangle text-danger ${styles["icon-96"]}`}></i></span>
       {props.title && <h3>{props.title}</h3>}
       {props.message && <p>{props.message}</p>}
     </div>

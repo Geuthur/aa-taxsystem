@@ -37,14 +37,14 @@ function BaseHeader<TData>({ table, enableFilters = true }: TableHeaderProps<TDa
                     key={header.id}
                     colSpan={header.colSpan}
                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                    className={`aa-table-heading-cell ${canSort ? "aa-table-sortable" : ""} ${
-                      isRight ? "text-end aa-table-cell-right" : ""
+                    className={`aa-table-heading-cell ${canSort ? "aa-table-sortable user-select-none" : ""} ${
+                      isRight ? "text-end" : ""
                     }`}
                   >
                     {header.isPlaceholder ? null : (
                       <div
-                        className={`aa-table-heading ${
-                          isRight ? "aa-table-heading-right justify-content-end" : ""
+                        className={`d-flex align-items-center gap-1 ${
+                          isRight ? "justify-content-end" : ""
                         }`}
                       >
                         {flexRender(header.column.columnDef.header, header.getContext())}
