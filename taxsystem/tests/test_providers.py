@@ -287,6 +287,7 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
         self.task.retry.assert_not_called()
         self.assertEqual(str(context.exception), "Some other error")
 
+    @override_settings(DISABLE_DAILY_DOWNTIME_CHECK=False)
     @patch(MODULE_PATH + ".random.uniform")
     def test_should_retry_on_daily_downtime(self, mock_random):
         """
