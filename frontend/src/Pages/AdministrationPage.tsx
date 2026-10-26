@@ -104,7 +104,7 @@ export function AdministrationPage() {
   return (
     <Card className="bg-dark d-flex flex-column gap-3">
       <Card.Body>
-        <header className="d-flex align-items-center justify-content-between gap-3 mb-4">
+        <header className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
           <div className="d-flex align-items-center gap-3">
             <div className="p-2 rounded bg-danger-subtle text-danger border border-danger-subtle">
               <ShieldAlert size={28} />

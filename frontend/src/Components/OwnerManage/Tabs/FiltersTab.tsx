@@ -101,7 +101,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
       <Row className="g-4">
         <Col xs={12}>
           <Card className="bg-dark border-secondary">
-            <Card.Header className="d-flex align-items-center justify-content-between border-secondary">
+            <Card.Header className="d-flex flex-wrap align-items-center justify-content-between gap-2 border-secondary">
               <h5 className="mb-0 d-flex align-items-center gap-2">
                 <Layers size={18} className="text-primary" />
                 {t("Filter Sets")}
@@ -128,7 +128,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
 
         <Col xs={12}>
           <Card className="bg-dark border-secondary">
-            <Card.Header className="d-flex align-items-center justify-content-between border-secondary">
+            <Card.Header className="d-flex flex-wrap align-items-center justify-content-between gap-2 border-secondary">
               <h5 className="mb-0 d-flex align-items-center gap-2">
                 <Filter size={18} className="text-info" />
                 {t("Active Filters")}

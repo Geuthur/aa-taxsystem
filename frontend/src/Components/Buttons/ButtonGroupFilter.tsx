@@ -32,37 +32,39 @@ export function ButtonGroupFilter<T extends string = string>({
   ariaLabel,
 }: ButtonGroupFilterProps<T>) {
   return (
-    <div
-      className={`btn-group ${className}`.trim()}
-      role="group"
-      aria-label={ariaLabel}
-    >
-      {options.map((opt) => {
-        const isActive = value === opt.value;
-        const variant = isActive ? opt.activeVariant || "primary" : opt.inactiveVariant || "secondary";
+    <div className="mw-100 overflow-x-auto">
+      <div
+        className={`btn-group ${className}`.trim()}
+        role="group"
+        aria-label={ariaLabel}
+      >
+        {options.map((opt) => {
+          const isActive = value === opt.value;
+          const variant = isActive ? opt.activeVariant || "primary" : opt.inactiveVariant || "secondary";
 
-        return (
-          <Button
-            key={opt.value}
-            variant={variant}
-            size={size}
-            className="d-inline-flex align-items-center gap-1"
-            aria-pressed={isActive}
-            onClick={() => onChange(opt.value)}
-          >
-            {opt.icon}
-            <span>{opt.label}</span>
-            {opt.count !== undefined && (
-              <>
-                {" "}
-                <Badge bg="secondary" className="ms-1">
-                  {opt.count}
-                </Badge>
-              </>
-            )}
-          </Button>
-        );
-      })}
+          return (
+            <Button
+              key={opt.value}
+              variant={variant}
+              size={size}
+              className="d-inline-flex align-items-center gap-1"
+              aria-pressed={isActive}
+              onClick={() => onChange(opt.value)}
+            >
+              {opt.icon}
+              <span>{opt.label}</span>
+              {opt.count !== undefined && (
+                <>
+                  {" "}
+                  <Badge bg="secondary" className="ms-1">
+                    {opt.count}
+                  </Badge>
+                </>
+              )}
+            </Button>
+          );
+        })}
+      </div>
     </div>
   );
 }
