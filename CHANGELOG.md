@@ -32,6 +32,10 @@ Section Order:
 
 - [ADD] Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Payments, Overview, Account Overview, Owner Management and menu views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
 
+### Fixed
+
+- [FIX] Tests no longer fail between 11:00 and 11:15 UTC. The daily ESI downtime check can be disabled with the `DISABLE_DAILY_DOWNTIME_CHECK` setting, which the test settings now set.
+
 ### Changed
 
 - [CHANGE] Buttons use the Bootstrap 5 variants (`variant`, `size`) with the theme look defined as overrides under `.aa-react`; the custom `aa-btn` classes were removed. Frontend inline styles were replaced by CSS classes, and missing `index.ts` files were added.

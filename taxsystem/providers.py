@@ -12,6 +12,7 @@ from aiopenapi3 import RequestError
 from celery import Task
 
 # Django
+from django.conf import settings
 from django.utils import timezone
 
 # Alliance Auth
@@ -119,6 +120,9 @@ def retry_task_on_esi_error(task: Task):
 
     def daily_downtime():
         """Checks if the current time is within ESI's daily downtime window (11:00 - 11:15 UTC)."""
+        if getattr(settings, "DISABLE_DAILY_DOWNTIME_CHECK", False):
+            return False
+
         is_downtime = (
             timezone.now().time() >= timezone.datetime.strptime("11:00", "%H:%M").time()
             and timezone.now().time()

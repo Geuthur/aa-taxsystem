@@ -122,3 +122,6 @@ DEFAULT_FROM_EMAIL = ""
 #######################################
 # Add any custom settings below here. #
 #######################################
+
+# Keep tests deterministic: never trigger ESI downtime handling by wall-clock time.
+DISABLE_DAILY_DOWNTIME_CHECK = True
