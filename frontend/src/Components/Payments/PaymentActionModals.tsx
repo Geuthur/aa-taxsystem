@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import type { BasePaymentRow } from "@/Hooks/usePaymentActions";
+import type { BasePaymentRow } from "@/Components/Payments/Hooks";
 import { formatCompactNumber } from "@/Utils";
 
 export interface PaymentActionModalsProps {

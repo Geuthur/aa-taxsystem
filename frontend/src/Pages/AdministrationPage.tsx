@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -16,44 +15,32 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import {
-  Alert,
-  Badge,
-  Button,
-  ButtonGroup,
-  Card,
-  Col,
-  Form,
-  Modal,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import { Alert, Button, Card, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import {
-  deleteAdministrationOwner,
-  loadAdministrationOwners,
-  loadUserData,
-  runAdminTasks,
-  triggerAdministrationOwnerUpdate,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import AdministrationInspectionView from "@/Components/Administration/AdministrationInspectionView";
 import AdministrationOwnersTable from "@/Components/Administration/AdministrationOwnersTable";
+import {
+  useAdministrationActions,
+  useAdministrationOwners,
+  useIsSuperuser,
+} from "@/Components/Administration/Hooks";
+import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 import styles from "@/Styles/modules/Administration.module.css";
+
+type TypeFilter = "all" | "corporation" | "alliance" | "issues";
 
 export function AdministrationPage() {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   // nuqs query state for inspection view
   const [inspectId, setInspectId] = useQueryState("inspect", parseAsInteger);
   const [inspectType, setInspectType] = useQueryState("type", parseAsString);
 
   // Filter states
-  const [typeFilter, setTypeFilter] = useState<"all" | "corporation" | "alliance" | "issues">("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Global Task states
@@ -62,74 +49,13 @@ export function AdministrationPage() {
   const [corpIdInput, setCorpIdInput] = useState("");
   const [allyIdInput, setAllyIdInput] = useState("");
 
-  // Feedback messages
-  const [message, setMessage] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   // Delete modal state
   const [ownerToDelete, setOwnerToDelete] = useState<AdministrationTaxOwnerSchema | null>(null);
 
-  // Current user, the global tasks and force refresh are reserved for superusers
-  const { data: userData } = useQuery({
-    queryKey: queryKeys.User,
-    queryFn: loadUserData,
-  });
-  const isSuperuser = Boolean(userData?.user.is_superuser);
-
-  // Queries
-  const {
-    data: owners = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: queryKeys.AdministrationOwners,
-    queryFn: loadAdministrationOwners,
-  });
-
-  // Global Task Mutation
-  const globalTaskMutation = useMutation({
-    mutationFn: (vars: Parameters<typeof runAdminTasks>[0]) => runAdminTasks(vars),
-    onSuccess: (data) => {
-      setMessage(data.message);
-      setErrorMsg(null);
-    },
-    onError: (err: Error) => {
-      setErrorMsg(err.message);
-      setMessage(null);
-    },
-  });
-
-  // Individual Owner Update Mutation
-  const updateMutation = useMutation({
-    mutationFn: (vars: Parameters<typeof triggerAdministrationOwnerUpdate>[0]) =>
-      triggerAdministrationOwnerUpdate(vars),
-    onSuccess: (data) => {
-      setMessage(data.message);
-      setErrorMsg(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setErrorMsg(err.message);
-      setMessage(null);
-    },
-  });
-
-  // Delete Owner Mutation
-  const deleteMutation = useMutation({
-    mutationFn: (vars: Parameters<typeof deleteAdministrationOwner>[0]) =>
-      deleteAdministrationOwner(vars),
-    onSuccess: (data) => {
-      setMessage(data.message);
-      setErrorMsg(null);
-      setOwnerToDelete(null);
-      queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
-    },
-    onError: (err: Error) => {
-      setErrorMsg(err.message);
-      setMessage(null);
-    },
-  });
+  // Data and actions
+  const { data: owners = [], isLoading, isError, error } = useAdministrationOwners();
+  const isSuperuser = useIsSuperuser();
+  const actions = useAdministrationActions(() => setOwnerToDelete(null));
 
   // If inspection view active
   if (inspectId) {
@@ -194,7 +120,7 @@ export function AdministrationPage() {
           </div>
           <Link
             to="/"
-            className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1"
+            className="btn btn-sm btn-secondary d-flex align-items-center gap-1"
           >
             <ArrowLeft size={14} />
             {t("Overview")}
@@ -202,24 +128,24 @@ export function AdministrationPage() {
         </header>
 
         {/* Alert Messages */}
-        {message && (
+        {actions.message && (
           <Alert
             variant="success"
             className="mt-3"
-            onClose={() => setMessage(null)}
+            onClose={actions.clearMessage}
             dismissible
           >
-            <span data-testid="task-feedback-message">{message}</span>
+            <span data-testid="task-feedback-message">{actions.message}</span>
           </Alert>
         )}
-        {errorMsg && (
+        {actions.errorMessage && (
           <Alert
             variant="danger"
             className="mt-3"
-            onClose={() => setErrorMsg(null)}
+            onClose={actions.clearErrorMessage}
             dismissible
           >
-            <span data-testid="task-feedback-message">{errorMsg}</span>
+            <span data-testid="task-feedback-message">{actions.errorMessage}</span>
           </Alert>
         )}
         {isError && (
@@ -343,16 +269,16 @@ export function AdministrationPage() {
                         <Button
                           variant="primary"
                           size="sm"
-                          disabled={globalTaskMutation.isPending}
+                          disabled={actions.isRunningTasks}
                           onClick={() =>
-                            globalTaskMutation.mutate({
+                            actions.runTasks({
                               target: "all",
                               force_refresh: forceRefreshGlobal,
                             })
                           }
-                          className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
+                          className="w-100 d-flex align-items-center justify-content-center gap-1"
                         >
-                          {globalTaskMutation.isPending ? (
+                          {actions.isRunningTasks ? (
                             <Spinner size="sm" animation="border" />
                           ) : (
                             <Play size={14} />
@@ -382,17 +308,17 @@ export function AdministrationPage() {
                         <Button
                           variant="primary"
                           size="sm"
-                          disabled={globalTaskMutation.isPending}
+                          disabled={actions.isRunningTasks}
                           onClick={() =>
-                            globalTaskMutation.mutate({
+                            actions.runTasks({
                               target: "corporation",
                               eve_id: corpIdInput ? parseInt(corpIdInput, 10) : undefined,
                               force_refresh: forceRefreshGlobal,
                             })
                           }
-                          className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
+                          className="w-100 d-flex align-items-center justify-content-center gap-1"
                         >
-                          {globalTaskMutation.isPending ? (
+                          {actions.isRunningTasks ? (
                             <Spinner size="sm" animation="border" />
                           ) : (
                             <Play size={14} />
@@ -422,17 +348,17 @@ export function AdministrationPage() {
                         <Button
                           variant="primary"
                           size="sm"
-                          disabled={globalTaskMutation.isPending}
+                          disabled={actions.isRunningTasks}
                           onClick={() =>
-                            globalTaskMutation.mutate({
+                            actions.runTasks({
                               target: "alliance",
                               eve_id: allyIdInput ? parseInt(allyIdInput, 10) : undefined,
                               force_refresh: forceRefreshGlobal,
                             })
                           }
-                          className="w-100 d-flex align-items-center justify-content-center gap-1 aa-btn aa-btn-primary"
+                          className="w-100 d-flex align-items-center justify-content-center gap-1"
                         >
-                          {globalTaskMutation.isPending ? (
+                          {actions.isRunningTasks ? (
                             <Spinner size="sm" animation="border" />
                           ) : (
                             <Play size={14} />
@@ -450,36 +376,17 @@ export function AdministrationPage() {
 
         {/* Filter and Search Bar */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-          <ButtonGroup size="sm">
-            <Button
-              variant={typeFilter === "all" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("all")}
-              className={`aa-btn ${typeFilter === "all" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-            >
-              {t("All")} <Badge bg="secondary" className="ms-1">{totalCount}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "corporation" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("corporation")}
-              className={`aa-btn ${typeFilter === "corporation" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-            >
-              {t("Corporations")} <Badge bg="secondary" className="ms-1">{corpCount}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "alliance" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("alliance")}
-              className={`aa-btn ${typeFilter === "alliance" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-            >
-              {t("Alliances")} <Badge bg="secondary" className="ms-1">{allianceCount}</Badge>
-            </Button>
-            <Button
-              variant={typeFilter === "issues" ? "primary" : "secondary"}
-              onClick={() => setTypeFilter("issues")}
-              className={`aa-btn ${typeFilter === "issues" ? "aa-btn-primary" : "aa-btn-secondary"}`}
-            >
-              {t("Issues")} <Badge bg="secondary" className="ms-1">{errorCount}</Badge>
-            </Button>
-          </ButtonGroup>
+          <ButtonGroupFilter<TypeFilter>
+            value={typeFilter}
+            onChange={setTypeFilter}
+            options={[
+              { value: "all", label: t("All"), count: totalCount },
+              { value: "corporation", label: t("Corporations"), count: corpCount },
+              { value: "alliance", label: t("Alliances"), count: allianceCount },
+              { value: "issues", label: t("Issues"), count: errorCount },
+            ]}
+            ariaLabel={t("Filter owners by type")}
+          />
 
           <div className={styles.searchContainer}>
             <Form.Control
@@ -497,14 +404,14 @@ export function AdministrationPage() {
         <AdministrationOwnersTable
           data={filteredOwners}
           isLoading={isLoading}
-          isUpdating={updateMutation.isPending}
+          isUpdating={actions.isUpdating}
           canForceRefresh={isSuperuser}
           onInspect={(owner) => {
             setInspectId(owner.owner_id);
             setInspectType(owner.owner_type);
           }}
           onUpdate={(owner, forceRefresh) => {
-            updateMutation.mutate({
+            actions.updateOwner({
               ownerType: owner.owner_type,
               ownerId: owner.owner_id,
               payload: { force_refresh: forceRefresh },
@@ -520,6 +427,7 @@ export function AdministrationPage() {
             onHide={() => setOwnerToDelete(null)}
             centered
             className="modal-dark"
+            contentClassName="aa-react"
           >
             <Modal.Header closeButton className="border-secondary">
               <Modal.Title className="text-danger d-flex align-items-center gap-2">
@@ -544,23 +452,23 @@ export function AdministrationPage() {
               <Button
                 variant="secondary"
                 onClick={() => setOwnerToDelete(null)}
-                disabled={deleteMutation.isPending}
-                className="aa-btn aa-btn-secondary"
+                disabled={actions.isDeleting}
+                
               >
                 {t("Cancel")}
               </Button>
               <Button
                 variant="danger"
-                disabled={deleteMutation.isPending}
+                disabled={actions.isDeleting}
                 onClick={() => {
-                  deleteMutation.mutate({
+                  actions.deleteOwner({
                     ownerType: ownerToDelete.owner_type,
                     ownerId: ownerToDelete.owner_id,
                   });
                 }}
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                className="d-flex align-items-center gap-1"
               >
-                {deleteMutation.isPending && <Spinner size="sm" animation="border" />}
+                {actions.isDeleting && <Spinner size="sm" animation="border" />}
                 {t("Delete Owner")}
               </Button>
             </Modal.Footer>

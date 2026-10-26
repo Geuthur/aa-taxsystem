@@ -115,11 +115,11 @@ describe("OverviewPage in aa-taxsystem", () => {
     expect(manageLinks).toHaveLength(2);
 
     // First card (Corp One) has has_errors: false
-    expect(manageLinks[0]).not.toHaveClass("aa-btn-pulse");
+    expect(manageLinks[0]).not.toHaveClass("aa-pulse");
     expect(manageLinks[0].querySelector(".aa-pending-dot-container")).toBeNull();
 
     // Second card (Alliance One) has has_errors: true
-    expect(manageLinks[1]).toHaveClass("aa-btn-pulse");
+    expect(manageLinks[1]).toHaveClass("aa-pulse");
     expect(manageLinks[1].querySelector(".aa-pending-dot-container")).toBeInTheDocument();
   });
 });

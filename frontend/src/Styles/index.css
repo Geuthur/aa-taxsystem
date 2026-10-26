@@ -508,8 +508,8 @@ html[data-bs-theme="dark"] {
     text-decoration: underline;
 }
 
-/* ═══ BUTTONS ══════════════════════════════════════════════════════════════ */
-.aa-btn {
+/* ═══ BUTTONS (Bootstrap 5.3 + Theme Overrides) ════════════════════════════════ */
+.aa-react .btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -524,77 +524,84 @@ html[data-bs-theme="dark"] {
     transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 
-.aa-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.aa-btn-primary {
+.aa-react .btn-primary {
     background-color: var(--aa-color-blue);
     color: var(--aa-color-white-light);
 }
 
-.aa-btn-primary:hover:not(:disabled) {
-    background-color: var(--aa-color-blue-light);
-    color: var(--aa-color-white);
+.aa-react .btn-primary:hover:not(:disabled) {
+    background-color: var(--aa-color-blue-light) !important;
+    color: var(--aa-color-white) !important;
+    border-color: var(--aa-color-blue-light) !important;
 }
 
-.aa-btn-secondary {
+.aa-react .btn-secondary {
     background-color: var(--aa-color-grey);
     color: var(--aa-color-white-light);
-    border-color: var(--aa-border);
+    border-color: var(--aa-border-light);
 }
 
-.aa-btn-secondary:hover:not(:disabled) {
-    background-color: var(--aa-color-grey-light);
-    color: var(--aa-color-white);
+.aa-react .btn-secondary:hover:not(:disabled) {
+    background-color: var(--aa-color-grey-light) !important;
+    color: var(--aa-color-white) !important;
+    border-color: var(--aa-color-grey-light) !important;
 }
 
-.aa-btn-success {
+.aa-react .btn-success {
     background-color: var(--aa-color-emerald-dark);
     color: var(--aa-color-emerald-light);
     border-color: var(--aa-color-emerald);
 }
 
-.aa-btn-success:hover:not(:disabled) {
-    background-color: var(--aa-color-emerald);
-    color: var(--aa-color-white);
+.aa-react .btn-success:hover:not(:disabled) {
+    background-color: var(--aa-color-emerald) !important;
+    color: var(--aa-color-white) !important;
+    border-color: var(--aa-color-emerald) !important;
 }
 
-.aa-btn-info {
-    background-color: var(--aa-color-blue-dark);
-    color: var(--aa-color-white-light);
-    border-color: var(--aa-color-blue-light);
-}
-
-.aa-btn-info:hover:not(:disabled) {
-    background-color: var(--aa-color-blue-light);
-    color: var(--aa-color-white);
-}
-
-.aa-btn-warning {
+.aa-react .btn-warning {
     background-color: var(--aa-color-amber-dark);
     color: var(--aa-color-amber-light);
     border-color: var(--aa-border-amber);
 }
 
-.aa-btn-warning:hover:not(:disabled) {
-    background-color: var(--aa-color-amber);
-    color: var(--aa-color-white)
+.aa-react .btn-warning:hover:not(:disabled) {
+    background-color: var(--aa-color-amber) !important;
+    color: var(--aa-color-black) !important;
+    border-color: var(--aa-color-amber) !important;
 }
 
-.aa-btn-danger {
+.aa-react .btn-danger {
     background-color: var(--aa-color-rose-dark);
     color: var(--aa-color-rose-light);
     border-color: var(--aa-border-rose);
 }
 
-.aa-btn-danger:hover:not(:disabled) {
-    background-color: var(--aa-color-red);
-    color: var(--aa-color-white);
+.aa-react .btn-danger:hover:not(:disabled) {
+    background-color: var(--aa-color-red) !important;
+    color: var(--aa-color-white) !important;
+    border-color: var(--aa-color-red) !important;
 }
 
-.aa-btn-sm {
+.aa-react .btn-info {
+    background-color: var(--aa-color-blue-dark);
+    color: var(--aa-color-white-light);
+    border-color: var(--aa-color-blue-light);
+}
+
+.aa-react .btn-info:hover:not(:disabled) {
+    background-color: var(--aa-color-blue-light) !important;
+    color: var(--aa-color-white) !important;
+    border-color: var(--aa-color-blue-light) !important;
+}
+
+.aa-react .btn:disabled,
+.aa-react .btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.aa-react .btn-sm {
     padding: 4px 10px;
     font-size: var(--aa-font-size-xs);
 }
@@ -671,11 +678,11 @@ html[data-bs-theme="dark"] {
 }
 
 /* ═══ ANIMATED PENDING / ERROR PULSE ══════════════════════════════════════════ */
-.aa-btn-pulse {
+.aa-pulse {
     animation: aa-pending-glow 2s infinite ease-in-out;
 }
 
-.aa-btn-pulse-danger,
+.aa-pulse-danger,
 .aa-order-nav-pulse {
     animation: aa-danger-glow 2s infinite ease-in-out;
 }
@@ -787,4 +794,35 @@ html[data-bs-theme="dark"] {
         box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
         transform: scale(1.06);
     }
+}
+
+/* ═══ UTILITIES ═══════════════════════════════════════════════════════════════ */
+
+.aa-search-input {
+    max-width: 360px;
+}
+
+.aa-compact {
+    font-size: 0.75rem;
+    height: 24px;
+}
+
+.aa-scroll-list {
+    max-height: 200px;
+}
+
+.aa-col-index {
+    width: 60px;
+}
+
+.aa-col-share {
+    width: 120px;
+}
+
+.aa-share-bar {
+    width: 50px;
+}
+
+.aa-progress-sm {
+    height: 6px;
 }

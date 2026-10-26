@@ -87,6 +87,7 @@ function ModalShell({
       backdrop={backdrop}
       restoreFocus={restoreFocus}
       dialogClassName={className}
+      contentClassName="aa-react"
     >
       <Modal.Header closeButton={closeButton}>
         <Modal.Title className={titleClassName}>{displayedTitle}</Modal.Title>

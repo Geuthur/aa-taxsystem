@@ -6,6 +6,7 @@ import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { formatDate, renderTooltip } from "@/Utils";
 
 export type MemberRow = components["schemas"]["MembersSchema"];
@@ -33,15 +34,11 @@ export function getMemberColumns({
         const alts = row.original.alts ?? [];
         return (
           <div className="d-flex align-items-center gap-2">
-            {row.original.character?.character_portrait && (
-              <img
-                src={row.original.character.character_portrait}
-                alt={row.original.character.character_name}
-                width={32}
-                height={32}
-                className="rounded-circle"
-              />
-            )}
+            <OwnerPortrait
+              src={row.original.character?.character_portrait}
+              alt={row.original.character?.character_name}
+              size="sm"
+            />
             <span className="fw-semibold">{row.original.character?.character_name}</span>
             {alts.length > 0 &&
               renderTooltip(
@@ -49,8 +46,9 @@ export function getMemberColumns({
                   count: alts.length,
                 }),
                 <Button
-                  className="aa-btn aa-btn-sm aa-btn-secondary d-inline-flex align-items-center gap-1 py-0 px-2"
-                  style={{ fontSize: "0.75rem", height: "24px" }}
+                  variant="secondary"
+                  size="sm"
+                  className="aa-compact d-inline-flex align-items-center gap-1 py-0 px-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpenAlts(row.original);
@@ -68,7 +66,9 @@ export function getMemberColumns({
                   count: openInvoices,
                 }),
                 <Button
-                  className="aa-btn aa-btn-sm aa-btn-warning aa-btn-pulse"
+                  variant="warning"
+                  size="sm"
+                  className="aa-pulse"
                   onClick={(e) => {
                     e.stopPropagation();
                     onHistory(row.original);
@@ -127,7 +127,8 @@ export function getMemberColumns({
             renderTooltip(
               t("Payment History & Activities"),
               <Button
-                className="aa-btn aa-btn-sm aa-btn-info"
+                variant="info"
+                size="sm"
                 onClick={() => onHistory(row.original)}
               >
                 <History size={12} />
@@ -136,7 +137,8 @@ export function getMemberColumns({
             )}
           {row.original.is_missing && row.original.character?.character_id && (
             <Button
-              className="aa-btn aa-btn-sm aa-btn-danger"
+              variant="danger"
+              size="sm"
               onClick={() => onDeleteMissing(row.original)}
             >
               <Trash2 size={12} />

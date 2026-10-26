@@ -2,15 +2,13 @@
 import { useMemo } from "react";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
 import { History } from "lucide-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadAdminLogs } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { useAdminLogs } from "@/Components/OwnerManage/Hooks";
 import { getHistoryColumns } from "@/Components/Tables";
 
 interface HistoryTabProps {
@@ -20,10 +18,7 @@ interface HistoryTabProps {
 export function HistoryTab({ ownerId }: HistoryTabProps) {
   const { t } = useTranslation();
 
-  const { data: logs, isLoading, isError } = useQuery({
-    queryKey: queryKeys.AdminLogs(ownerId),
-    queryFn: () => loadAdminLogs(ownerId),
-  });
+  const { data: logs, isLoading, isError } = useAdminLogs(ownerId);
 
   const columns = useMemo(() => getHistoryColumns({ t }), [t]);
 

@@ -3,26 +3,26 @@ import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { RowSelectionState } from "@tanstack/react-table";
-import { ArrowLeft, Check, CreditCard, RotateCcw, Search, Trash2, X } from "lucide-react";
-import { Badge, Button, Card, Form, InputGroup, Spinner } from "react-bootstrap";
+import { ArrowLeft, Check, CreditCard, RotateCcw, Trash2, X } from "lucide-react";
+import { Badge, Button, Card, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadPaymentDetails, loadPayments } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { SearchInput } from "@/Components/Base/SearchInput";
 import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
 import {
   PaymentActionButtons,
   PaymentActionModals,
 } from "@/Components/Payments";
+import { usePaymentActions, usePaymentDetails, usePayments } from "@/Components/Payments/Hooks";
 import { getPaymentColumns } from "@/Components/Tables";
-import { usePaymentActions } from "@/Hooks/usePaymentActions";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
 import { formatCompactNumber } from "@/Utils";
 
@@ -41,17 +41,11 @@ export function PaymentsPage() {
   // Details Modal state
   const [detailsPaymentId, setDetailsPaymentId] = useState<number | null>(null);
 
-  const { data: payments, isLoading, isError } = useQuery({
-    queryKey: queryKeys.Payments(numericOwnerId),
-    queryFn: () => loadPayments(numericOwnerId),
-    enabled: numericOwnerId > 0,
-  });
-
-  const { data: paymentDetails, isLoading: detailsLoading } = useQuery({
-    queryKey: queryKeys.PaymentDetails(numericOwnerId, detailsPaymentId || 0),
-    queryFn: () => loadPaymentDetails(numericOwnerId, detailsPaymentId!),
-    enabled: Boolean(detailsPaymentId && detailsPaymentId > 0),
-  });
+  const { data: payments, isLoading, isError } = usePayments(numericOwnerId);
+  const { data: paymentDetails, isLoading: detailsLoading } = usePaymentDetails(
+    numericOwnerId,
+    detailsPaymentId,
+  );
 
   const {
     approve,
@@ -133,7 +127,7 @@ export function PaymentsPage() {
   return (
     <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("Payments Management")}>
-        <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
+        <Link to="/" className="btn btn-sm btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
           {t("Overview")}
         </Link>
@@ -142,18 +136,11 @@ export function PaymentsPage() {
       <div className="mt-3 p-3 aa-panel rounded">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
           <div className="d-flex flex-wrap align-items-center gap-2">
-            <InputGroup style={{ maxWidth: 360 }}>
-              <InputGroup.Text className="bg-dark border-secondary text-secondary">
-                <Search size={16} />
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder={t("Filter by character or reason…")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="bg-dark text-light border-secondary"
-              />
-            </InputGroup>
+            <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder={t("Filter by character or reason…")}
+          />
 
             <PaymentsFilter statusFilter={statusFilter} setStatusFilter={setStatusFilter} t={t} />
           </div>
@@ -166,7 +153,7 @@ export function PaymentsPage() {
               <Button
                 variant="success"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-success"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => bulkApprove(selectedPaymentIds)}
               >
@@ -176,7 +163,7 @@ export function PaymentsPage() {
               <Button
                 variant="danger"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => setBulkRejectingPaymentIds(selectedPaymentIds)}
               >
@@ -186,7 +173,7 @@ export function PaymentsPage() {
               <Button
                 variant="warning"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-warning"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => bulkUndo(selectedPaymentIds)}
               >
@@ -194,9 +181,9 @@ export function PaymentsPage() {
                 {t("Undo")}
               </Button>
               <Button
-                variant="outline-danger"
+                variant="danger"
                 size="sm"
-                className="d-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                className="d-flex align-items-center gap-1"
                 disabled={isPending}
                 onClick={() => setBulkDeletingPaymentIds(selectedPaymentIds)}
               >
@@ -204,8 +191,8 @@ export function PaymentsPage() {
                 {t("Delete")}
               </Button>
               <Button
-                variant="outline-secondary"
-                className="aa-btn aa-btn-secondary"
+                variant="secondary"
+                
                 size="sm"
                 onClick={() => setRowSelection({})}
               >

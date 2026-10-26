@@ -1,10 +1,11 @@
 // Third Party
 import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
-import { Badge, Image } from "react-bootstrap";
+import { Badge } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export type AltCharacter = components["schemas"]["CharacterSchema"];
 
@@ -20,15 +21,11 @@ export function getAltColumns({ t }: AltColumnsOptions): ColumnDef<AltCharacter>
       accessorKey: "character_name",
       cell: ({ row }) => (
         <div className="d-flex align-items-center gap-2">
-          {row.original.character_portrait && (
-            <Image
-              src={row.original.character_portrait}
-              alt={row.original.character_name}
-              roundedCircle
-              width={32}
-              height={32}
-            />
-          )}
+          <OwnerPortrait
+            src={row.original.character_portrait}
+            alt={row.original.character_name}
+            size="sm"
+          />
           <span className="fw-semibold text-light">
             {row.original.character_name}
           </span>

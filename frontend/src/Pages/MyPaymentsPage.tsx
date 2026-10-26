@@ -3,17 +3,16 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Search } from "lucide-react";
-import { Card, Form, InputGroup } from "react-bootstrap";
+import { ArrowLeft } from "lucide-react";
+import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadMyPayments } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from "@/Components/Base/BaseHeader";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { SearchInput } from "@/Components/Base/SearchInput";
+import { useMyPayments } from "@/Components/Payments/Hooks";
 import { getPaymentColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
 
@@ -26,11 +25,7 @@ export function MyPaymentsPage() {
 
   const [search, setSearch] = useTableSearchState("myPaymentSearch");
 
-  const { data: payments, isLoading, isError } = useQuery({
-    queryKey: queryKeys.MyPayments(numericOwnerId),
-    queryFn: () => loadMyPayments(numericOwnerId),
-    enabled: numericOwnerId > 0,
-  });
+  const { data: payments, isLoading, isError } = useMyPayments(numericOwnerId);
 
   const filteredPayments = useMemo(() => {
     if (!payments) return [];
@@ -56,7 +51,7 @@ export function MyPaymentsPage() {
   return (
     <Card className="border-0 bg-transparent">
       <BaseSectionHeader name={t("My Invoices & Payments")}>
-        <Link to="/" className="aa-btn aa-btn-sm aa-btn-secondary d-flex align-items-center gap-1">
+        <Link to="/" className="btn btn-sm btn-secondary d-flex align-items-center gap-1">
           <ArrowLeft size={14} />
           {t("Overview")}
         </Link>
@@ -64,18 +59,11 @@ export function MyPaymentsPage() {
 
       <div className="mt-3 p-3 aa-panel rounded">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <InputGroup style={{ maxWidth: 360 }}>
-            <InputGroup.Text className="bg-dark border-secondary text-secondary">
-              <Search size={16} />
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder={t("Filter by division or reason…")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-dark text-light border-secondary"
-            />
-          </InputGroup>
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder={t("Filter by division or reason…")}
+          />
         </div>
 
         <BaseTable

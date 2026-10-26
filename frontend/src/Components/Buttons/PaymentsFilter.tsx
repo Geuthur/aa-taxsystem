@@ -9,11 +9,11 @@ export interface PaymentsFilterProps {
 
 export function PaymentsFilter({ statusFilter, setStatusFilter, t }: PaymentsFilterProps) {
   const options = [
-    { value: "all", label: t("All"), activeVariant: "aa-btn-primary" },
-    { value: "pending", label: t("Pending"), activeVariant: "aa-btn-warning" },
-    { value: "needs_approval", label: t("Needs Approval"), activeVariant: "aa-btn-warning" },
-    { value: "approved", label: t("Approved"), activeVariant: "aa-btn-success" },
-    { value: "rejected", label: t("Rejected"), activeVariant: "aa-btn-danger" },
+    { value: "all", label: t("All"), activeVariant: "primary" },
+    { value: "pending", label: t("Pending"), activeVariant: "warning" },
+    { value: "needs_approval", label: t("Needs Approval"), activeVariant: "warning" },
+    { value: "approved", label: t("Approved"), activeVariant: "success" },
+    { value: "rejected", label: t("Rejected"), activeVariant: "danger" },
   ];
 
   return (

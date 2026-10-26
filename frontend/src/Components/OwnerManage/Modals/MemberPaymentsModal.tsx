@@ -2,22 +2,22 @@
 import { useMemo } from "react";
 
 // Third Party
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Image } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { loadMemberPayments } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import { useMemberPayments } from "@/Components/OwnerManage/Hooks";
 import {
   PaymentActionButtons,
   PaymentActionModals,
 } from "@/Components/Payments";
+import { usePaymentActions } from "@/Components/Payments/Hooks";
 import { getPaymentColumns } from "@/Components/Tables";
-import { usePaymentActions } from "@/Hooks/usePaymentActions";
 
 type PaymentRow = components["schemas"]["PaymentSchema"];
 
@@ -41,15 +41,7 @@ export function MemberPaymentsModal({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const {
-    data: payments,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: characterId ? queryKeys.MemberPayments(ownerId, characterId) : ["MemberPayments", ownerId],
-    queryFn: () => (characterId ? loadMemberPayments(ownerId, characterId) : Promise.resolve([])),
-    enabled: show && characterId !== null,
-  });
+  const { data: payments, isLoading, isError } = useMemberPayments(ownerId, characterId, show);
 
   const invalidateAll = () => {
     if (characterId) {

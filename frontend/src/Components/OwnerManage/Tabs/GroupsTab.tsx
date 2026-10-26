@@ -2,22 +2,19 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2, Users2 } from "lucide-react";
 import { Button, Card, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import {
-  createGroup,
-  deleteGroup,
-  loadAvailableGroups,
-  loadGroups,
-} from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import { BaseTable } from "@/Components/Base/BaseTable";
+import {
+  useAvailableGroups,
+  useGroupActions,
+  useGroups,
+} from "@/Components/OwnerManage/Hooks";
 import { getGroupColumns } from "@/Components/Tables";
 
 interface GroupsTabProps {
@@ -28,7 +25,6 @@ type GroupManagementRow = components["schemas"]["GroupManagementSchema"];
 
 export function GroupsTab({ ownerId }: GroupsTabProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   // Create Group Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -40,37 +36,19 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
   const [groupToDelete, setGroupToDelete] = useState<GroupManagementRow | null>(null);
   const [deleteComment, setDeleteComment] = useState("");
 
-  const { data: groups, isLoading, isError } = useQuery({
-    queryKey: queryKeys.Groups(ownerId),
-    queryFn: () => loadGroups(ownerId),
-  });
-
-  const { data: availableGroups, isLoading: availableLoading } = useQuery({
-    queryKey: queryKeys.AvailableGroups(ownerId),
-    queryFn: () => loadAvailableGroups(ownerId),
-    enabled: showCreateModal,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: () =>
-      createGroup(ownerId, {
-        name: newGroupName.trim(),
-        group_ids: selectedAuthGroupIds,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Groups(ownerId) });
+  const { data: groups, isLoading, isError } = useGroups(ownerId);
+  const { data: availableGroups, isLoading: availableLoading } = useAvailableGroups(
+    ownerId,
+    showCreateModal,
+  );
+  const groupActions = useGroupActions(ownerId, {
+    onCreated: () => {
       setShowCreateModal(false);
       setNewGroupName("");
       setSelectedAuthGroupIds([]);
       setAuthGroupSearch("");
     },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: ({ groupPk, comment }: { groupPk: number; comment: string }) =>
-      deleteGroup(ownerId, groupPk, comment),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Groups(ownerId) });
+    onDeleted: () => {
       setGroupToDelete(null);
       setDeleteComment("");
     },
@@ -110,7 +88,8 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
             {t("Tax Groups")}
           </h5>
           <Button
-            className="aa-btn aa-btn-sm aa-btn-primary"
+            variant="primary"
+            size="sm"
             onClick={() => setShowCreateModal(true)}
           >
             <Plus size={14} />
@@ -150,10 +129,10 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
               </Button>
               <Button
                 variant="primary"
-                disabled={!newGroupName.trim() || createMutation.isPending}
-                onClick={() => createMutation.mutate()}
+                disabled={!newGroupName.trim() || groupActions.isCreating}
+                onClick={() => groupActions.create({ name: newGroupName, groupIds: selectedAuthGroupIds })}
               >
-                {createMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {groupActions.isCreating && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Create")}
               </Button>
             </>
@@ -182,8 +161,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
               className="bg-dark text-light border-secondary mb-2"
             />
             <div
-              className="p-2 aa-panel-light border border-secondary rounded overflow-auto"
-              style={{ maxHeight: "200px" }}
+              className="p-2 aa-panel-light border border-secondary rounded overflow-auto aa-scroll-list"
             >
               {availableLoading ? (
                 <div className="text-center py-3">
@@ -241,17 +219,17 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
               </Button>
               <Button
                 variant="danger"
-                disabled={deleteMutation.isPending}
+                disabled={groupActions.isRemoving}
                 onClick={() => {
                   if (groupToDelete.id) {
-                    deleteMutation.mutate({
+                    groupActions.remove({
                       groupPk: groupToDelete.id,
                       comment: deleteComment.trim() || t("Deleted via Tax System"),
                     });
                   }
                 }}
               >
-                {deleteMutation.isPending && <Spinner size="sm" animation="border" className="me-1" />}
+                {groupActions.isRemoving && <Spinner size="sm" animation="border" className="me-1" />}
                 {t("Confirm Delete")}
               </Button>
             </>

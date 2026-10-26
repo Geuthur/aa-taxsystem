@@ -12,6 +12,7 @@ import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { AdministrationStatusBadge } from "@/Components/Administration/AdministrationStatusBadge";
 import BaseTable from "@/Components/Base/BaseTable/BaseTable";
+import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import styles from "@/Styles/modules/Administration.module.css";
 import { formatCompactNumber, formatDate, renderTooltip } from "@/Utils";
 
@@ -48,21 +49,13 @@ export function AdministrationOwnersTable({
           const item = row.original;
           return (
             <div className="d-flex align-items-center gap-2">
-              {item.icon ? (
-                <img
-                  src={item.icon}
-                  alt={item.name}
-                  width={32}
-                  height={32}
-                  className="rounded-circle border border-secondary"
-                />
-              ) : (
-                <div
-                  className={`rounded-circle bg-secondary d-flex align-items-center justify-content-center text-light ${styles.avatarFallback}`}
-                >
-                  {item.name.charAt(0)}
-                </div>
-              )}
+              <OwnerPortrait
+                src={item.icon}
+                alt={item.name}
+                type={item.owner_type}
+                size="sm"
+                bordered
+              />
               <div className="d-flex flex-column">
                 <span className="fw-semibold text-light">{item.name}</span>
                 {item.ticker && (
@@ -165,11 +158,11 @@ export function AdministrationOwnersTable({
               {renderTooltip(
                 t("Inspect"),
                 <Button
-                  variant="link"
+                  variant="primary"
                   size="sm"
                   onClick={() => onInspect(item)}
                   title={t("Inspect")}
-                  className="d-inline-flex align-items-center gap-1 aa-btn aa-btn-primary"
+                  className="d-inline-flex align-items-center gap-1"
                   data-testid={`inspect-btn-${item.owner_type}-${item.owner_id}`}
                 >
                   <Eye size={13} />
@@ -186,7 +179,7 @@ export function AdministrationOwnersTable({
                     disabled={isUpdating}
                     onClick={() => onUpdate(item, false)}
                     title={t("Update")}
-                    className="d-inline-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                    className="d-inline-flex align-items-center gap-1"
                     data-testid={`update-btn-${item.owner_type}-${item.owner_id}`}
                   >
                     {isUpdating ? (
@@ -206,7 +199,6 @@ export function AdministrationOwnersTable({
                     aria-label={t("More update options")}
                     disabled={isUpdating}
                     id={`update-dropdown-${item.owner_id}`}
-                    className="aa-btn aa-btn-danger"
                   />
                 )}
                 <Dropdown.Menu
@@ -233,7 +225,7 @@ export function AdministrationOwnersTable({
                   size="sm"
                   onClick={() => onDelete(item)}
                   title={t("Delete")}
-                  className="d-inline-flex align-items-center gap-1 aa-btn aa-btn-danger"
+                  className="d-inline-flex align-items-center gap-1"
                   data-testid={`delete-btn-${item.owner_type}-${item.owner_id}`}
                 >
                   <Trash2 size={13} />

@@ -69,7 +69,8 @@ export function getFilterSetColumns({
       cell: ({ row }) =>
         row.original.id ? (
           <Button
-            className="aa-btn aa-btn-sm aa-btn-danger"
+            variant="danger"
+            size="sm"
             onClick={() => onDelete(row.original.id!)}
           >
             <Trash2 size={12} />
@@ -125,7 +126,8 @@ export function getFilterRuleColumns({
       cell: ({ row }) =>
         row.original.id ? (
           <Button
-            className="aa-btn aa-btn-sm aa-btn-danger"
+            variant="danger"
+            size="sm"
             onClick={() => onDelete(row.original.id!)}
           >
             <Trash2 size={12} />

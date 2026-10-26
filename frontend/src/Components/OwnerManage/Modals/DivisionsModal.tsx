@@ -66,10 +66,10 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
           <Table hover variant="dark" className="align-middle mb-0 border-secondary">
             <thead className="text-muted small border-secondary">
               <tr>
-                <th style={{ width: "60px" }}>#</th>
+                <th className="aa-col-index">#</th>
                 <th>{t("Division Name")}</th>
                 <th className="text-end">{t("Balance")}</th>
-                <th style={{ width: "120px" }} className="text-end">
+                <th className="text-end aa-col-share">
                   {t("Share")}
                 </th>
               </tr>
@@ -89,11 +89,11 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
                         <span className="small text-muted font-monospace">
                           {sharePercent.toFixed(1)}%
                         </span>
-                        <div style={{ width: "50px" }}>
+                        <div className="aa-share-bar">
                           <ProgressBar
                             now={sharePercent}
                             variant={sharePercent > 50 ? "success" : "info"}
-                            style={{ height: "6px" }}
+                            className="aa-progress-sm"
                           />
                         </div>
                       </div>

@@ -12,8 +12,8 @@ describe("ButtonGroupFilter Component", () => {
     const handleChange = vi.fn();
     const options = [
       { value: "all", label: "All Options" },
-      { value: "paid", label: "Paid Only", activeVariant: "aa-btn-success" },
-      { value: "unpaid", label: "Unpaid Only", activeVariant: "aa-btn-danger" },
+      { value: "paid", label: "Paid Only", activeVariant: "success" },
+      { value: "unpaid", label: "Unpaid Only", activeVariant: "danger" },
     ];
 
     // Test Action
@@ -39,7 +39,7 @@ describe("ButtonGroupFilter Component", () => {
     // Test Data
     const options = [
       { value: "all", label: "All" },
-      { value: "paid", label: "Paid", activeVariant: "aa-btn-success" },
+      { value: "paid", label: "Paid", activeVariant: "success" },
     ];
 
     // Test Action
@@ -53,6 +53,21 @@ describe("ButtonGroupFilter Component", () => {
 
     // Expected Result
     const paidBtn = screen.getByRole("button", { name: "Paid" });
-    expect(paidBtn.className).toContain("aa-btn-success");
+    expect(paidBtn.className).toContain("btn-success");
+  });
+
+  it("shows a counter only for options that have one and marks the active option", () => {
+    // Test Data
+    const options = [
+      { value: "all", label: "All", count: 5 },
+      { value: "issues", label: "Issues" },
+    ];
+
+    // Test Action
+    render(<ButtonGroupFilter value="all" onChange={() => {}} options={options} />);
+
+    // Expected Result
+    expect(screen.getByRole("button", { name: "All 5" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Issues" })).toHaveAttribute("aria-pressed", "false");
   });
 });

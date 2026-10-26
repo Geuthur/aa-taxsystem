@@ -26,6 +26,28 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- [ADD] Reusable frontend components `OwnerPortrait` and `SearchInput`, replacing several inline copies.
+
+- [ADD] Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Payments, Overview, Account Overview, Owner Management and menu views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
+
+### Changed
+
+- [CHANGE] Buttons use the Bootstrap 5 variants (`variant`, `size`) with the theme look defined as overrides under `.aa-react`; the custom `aa-btn` classes were removed. Frontend inline styles were replaced by CSS classes, and missing `index.ts` files were added.
+
+- [CHANGE] `ButtonGroupFilter` supports counters, and the Administration owner filter uses it.
+
+- [CHANGE] Both menus now share the same query options (5 minutes stale time, one retry, no refetch on window focus).
+
+- [CHANGE] The generated `manifest.json` is excluded from the pre-commit end-of-file fixer.
+
+### Removed
+
+- [REMOVED] Active/Deactivated status badge from the owner cards on the `OverviewPage`.
+
+- [REMOVED] Outdated `IMPROVEMENT_PLAN.md`.
+
 <!-- Your changes go here -->
 
 ## [5.1.0] - 2026-10-25
