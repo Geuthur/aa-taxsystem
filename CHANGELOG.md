@@ -36,6 +36,8 @@ Section Order:
 
 - [FIX] Tests no longer fail between 11:00 and 11:15 UTC. The daily ESI downtime check can be disabled with the `DISABLE_DAILY_DOWNTIME_CHECK` setting, which the test settings now set.
 
+- [FIX] Section headers, card headers and filter button groups overflowing the container on small screens; headers now wrap and the filter buttons scroll horizontally.
+
 ### Changed
 
 - [CHANGE] Buttons use the Bootstrap 5 variants (`variant`, `size`) with the theme look defined as overrides under `.aa-react`; the custom `aa-btn` classes were removed. Frontend inline styles were replaced by CSS classes, and missing `index.ts` files were added.

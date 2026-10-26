@@ -25,7 +25,7 @@ export function HistoryTab({ ownerId }: HistoryTabProps) {
   return (
     <div className="mt-3">
       <Card className="bg-dark border-secondary">
-        <Card.Header className="d-flex align-items-center justify-content-between border-secondary">
+        <Card.Header className="d-flex flex-wrap align-items-center justify-content-between gap-2 border-secondary">
           <h5 className="mb-0 d-flex align-items-center gap-2">
             <History size={18} className="text-warning" />
             {t("Admin History")}
