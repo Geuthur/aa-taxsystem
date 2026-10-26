@@ -388,7 +388,7 @@ export function AdministrationPage() {
             ariaLabel={t("Filter owners by type")}
           />
 
-          <div className={styles.searchContainer}>
+          <div className={`${styles.searchContainer} w-100`}>
             <Form.Control
               type="search"
               placeholder={t("Search by name or ticker…")}

@@ -156,12 +156,12 @@ export function AccountOverviewPage() {
                         <div>
                           <h5 className="mb-0 text-light fw-bold">{account.owner_name}</h5>
                           <div className="d-flex align-items-center gap-2 mt-1">
-                            <span className="aa-badge aa-badge-secondary">
+                            <span className="aa-badge aa-badge-secondary d-inline-flex align-items-center">
                               {account.owner_type === "corporation"
                                 ? t("Corporation")
                                 : t("Alliance")}
                             </span>
-                            <span className="aa-badge aa-badge-secondary">
+                            <span className="aa-badge aa-badge-secondary d-inline-flex align-items-center">
                               {account.status_display}
                             </span>
                           </div>

@@ -19,7 +19,7 @@ const AuthBase = () => {
       <AuthLeftMenuAsync />
       <AuthRightMenuAsync />
       <Col>
-        <div className="aa-react aa-section mt-4">
+        <div className="aa-react aa-section d-flex flex-column gap-4 p-3 mx-auto mt-4">
           <ErrorBoundary>
             <Outlet /> {/* Render the Children here */}
           </ErrorBoundary>

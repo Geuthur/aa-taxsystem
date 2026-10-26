@@ -53,7 +53,7 @@ export const SettingsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="aa-loader-container">
+      <div className="aa-loader-container w-100 d-flex align-items-center justify-content-center p-4">
         <span className="spinner-border" />
         <span>{t("Loading settings…")}</span>
       </div>
@@ -71,38 +71,38 @@ export const SettingsPage: React.FC = () => {
   }
 
   return (
-    <Card className={`${styles["page"]} border-0`}>
+    <Card className={`${styles["page"]} mx-auto border-0`}>
       <Card.Body className="bg-dark">
-        <Card.Header className={styles["header"] + " bg-secondary"}>
+        <Card.Header className={`${styles["header"]} d-flex align-items-center gap-3 mb-3 bg-secondary`}>
           <Settings2 size={24} aria-hidden="true" />
           <div>
-            <h1 className={styles["title"]}>{t("Settings")}</h1>
-            <p className={styles["description"]}>{t("Manage your TaxSystem preferences.")}</p>
+            <h1 className={`${styles["title"]} m-0 fw-bold`}>{t("Settings")}</h1>
+            <p className={`${styles["description"]} mt-1 mb-0`}>{t("Manage your TaxSystem preferences.")}</p>
           </div>
         </Card.Header>
 
         <Card className="bg-secondary text-light border-0 shadow-sm mb-4">
-          <Card.Body className={styles["setting-row"]}>
+          <Card.Body className="d-flex align-items-start align-items-sm-center justify-content-between gap-4">
             <div className={styles["setting-copy"]}>
-              <div className={styles["setting-title"]}>
+              <div className={`${styles["setting-title"]} d-flex align-items-center gap-2 fw-bold`}>
                 <BellOff size={18} aria-hidden="true" />
                 <label htmlFor="disable-notifications">{t("Disable all notifications")}</label>
               </div>
-              <p className={styles["setting-description"]}>
+              <p className={`${styles["setting-description"]} mt-2 mb-0`}>
                 {t("When enabled, TaxSystem will not send notifications to your Alliance Auth or Discord account.")}
               </p>
               {updateMutation.isError && (
-                <p className={styles["error-message"]} role="alert">
+                <p className={`${styles["error-message"]} mt-2 mb-0`} role="alert">
                   {t("Could not save this setting. Your previous preference was restored.")}
                 </p>
               )}
               {updateMutation.isPending && (
-                <p className={styles["save-status"]} role="status">{t("Saving…")}</p>
+                <p className={`${styles["save-status"]} mt-2 mb-0`} role="status">{t("Saving…")}</p>
               )}
             </div>
             <input
               id="disable-notifications"
-              className={styles["switch"]}
+              className={`${styles["switch"]} flex-shrink-0 m-0`}
               type="checkbox"
               role="switch"
               checked={data.disable_notifications}

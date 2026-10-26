@@ -32,7 +32,6 @@ import { useTranslation } from "react-i18next";
 // AA TaxSystem
 import BaseHeader from "@/Components/Base/BaseTable/BaseTableHeader";
 import BasePages from "@/Components/Base/BaseTable/BaseTablePages";
-import styles from "@/Styles/modules/BaseTable.module.css";
 
 export interface BaseTableProps<TData, TValue = unknown> {
   isFetching?: boolean;
@@ -134,7 +133,7 @@ const BaseTable = <TData, TValue = unknown>({
               <tr>
                 <td
                   colSpan={table.getVisibleLeafColumns().length}
-                  className="aa-table-message"
+                  className="aa-table-message text-center py-5 px-3"
                 >
                   {t("Something went wrong.")}
                 </td>
@@ -143,7 +142,7 @@ const BaseTable = <TData, TValue = unknown>({
               <tr>
                 <td
                   colSpan={table.getVisibleLeafColumns().length}
-                  className="aa-table-message"
+                  className="aa-table-message text-center py-5 px-3"
                 >
                   {emptyText ?? t("No Data Available")}
                 </td>
@@ -164,7 +163,7 @@ const BaseTable = <TData, TValue = unknown>({
                     return (
                       <td
                         key={cell.id}
-                        className={`aa-table-cell ${styles["cell-middle"]} ${isRight ? styles["cell-right"] : ""
+                        className={`aa-table-cell align-middle ${isRight ? "text-end" : ""
                           }`}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -179,17 +178,17 @@ const BaseTable = <TData, TValue = unknown>({
       </div>
 
       {/* DataTable Footer Controls */}
-      <div className="aa-table-footer">
+      <div className="aa-table-footer d-flex flex-column align-items-center justify-content-between gap-3 p-3">
         {/* Page Size Selector, Count Indicator & Export / Status */}
-        <div className="aa-table-controls">
+        <div className="d-flex w-100 align-items-center justify-content-between gap-3">
           <div className="d-flex align-items-center gap-3">
-            <div className="aa-table-page-size">
+            <div className="d-flex align-items-center gap-2">
               <span>{t("Page Size:")}</span>
               <Form.Select
                 size="sm"
                 value={pageSize}
                 onChange={(e) => table.setPageSize(Number(e.target.value))}
-                className={`aa-table-select ${styles["page-size-select"]}`}
+                className="aa-table-select w-auto"
               >
                 {pageSizeOptions.map((size) => (
                   <option key={size} value={size}>
@@ -205,7 +204,7 @@ const BaseTable = <TData, TValue = unknown>({
         </div>
         {/* Pagination Buttons */}
         {pageCount > 1 && (
-          <div className="aa-table-pagination">
+          <div className="d-flex align-items-center gap-2">
             <Button
               size="sm"
               disabled={!table.getCanPreviousPage()}
@@ -213,7 +212,7 @@ const BaseTable = <TData, TValue = unknown>({
               className="aa-table-page-button"
               title={t("First Page")}
             >
-              <ChevronFirst className="aa-table-page-icon" />
+              <ChevronFirst className="aa-table-page-icon d-block" />
             </Button>
             <Button
               size="sm"
@@ -222,7 +221,7 @@ const BaseTable = <TData, TValue = unknown>({
               className="aa-table-page-button"
               title={t("Previous Page")}
             >
-              <ChevronLeft className="aa-table-page-icon" />
+              <ChevronLeft className="aa-table-page-icon d-block" />
             </Button>
 
             <span className="aa-table-page-number">
@@ -239,7 +238,7 @@ const BaseTable = <TData, TValue = unknown>({
               className="aa-table-page-button"
               title={t("Next Page")}
             >
-              <ChevronRight className="aa-table-page-icon" />
+              <ChevronRight className="aa-table-page-icon d-block" />
             </Button>
             <Button
               size="sm"
@@ -248,7 +247,7 @@ const BaseTable = <TData, TValue = unknown>({
               className="aa-table-page-button"
               title={t("Last Page")}
             >
-              <ChevronLast className="aa-table-page-icon" />
+              <ChevronLast className="aa-table-page-icon d-block" />
             </Button>
           </div>
         )}

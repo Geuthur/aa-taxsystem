@@ -1,34 +1,19 @@
 .page {
     max-width: 900px;
-    margin: 0 auto;
 }
 
 .header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
     color: var(--aa-color-blue);
 }
 
 .title {
-    margin: 0;
     color: var(--aa-text-primary);
     font-size: var(--aa-font-size-xl);
-    font-weight: 700;
 }
 
 .description {
-    margin: 4px 0 0;
     color: var(--aa-text-secondary);
     font-size: var(--aa-font-size-sm);
-}
-
-.setting-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
 }
 
 .setting-copy {
@@ -36,15 +21,10 @@
 }
 
 .setting-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     color: var(--aa-text-primary);
-    font-weight: 700;
 }
 
 .setting-description {
-    margin: 6px 0 0;
     color: var(--aa-text-secondary);
     font-size: var(--aa-font-size-sm);
 }
@@ -52,8 +32,6 @@
 .switch {
     width: 2.75rem;
     height: 1.5rem;
-    flex: 0 0 auto;
-    margin: 0;
     cursor: pointer;
     accent-color: var(--aa-color-emerald);
 }
@@ -67,239 +45,11 @@
 }
 
 .error-message {
-    margin: 8px 0 0;
     color: var(--aa-color-rose-light);
     font-size: var(--aa-font-size-xs);
 }
 
 .save-status {
-    margin: 8px 0 0;
     color: var(--aa-text-muted);
     font-size: var(--aa-font-size-xs);
-}
-
-@media (max-width: 480px) {
-    .setting-row {
-        align-items: flex-start;
-    }
-}
-
-.section {
-    margin-top: 24px;
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.section-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.section-title {
-    margin: 0;
-    color: var(--aa-text-primary);
-    font-size: var(--aa-font-size-lg);
-    font-weight: 700;
-}
-
-.section-count {
-    color: var(--aa-text-muted);
-    font-size: var(--aa-font-size-sm);
-    font-family: var(--font-mono);
-}
-
-.owners-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.owner-card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 16px;
-    border-radius: var(--aa-border-radius);
-    border: 1px solid var(--aa-border-light);
-    background-color: var(--aa-color-body);
-    transition: transform 150ms ease, border-color 150ms ease;
-}
-
-.owner-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--aa-border);
-}
-
-.owner-card-error {
-    border-color: var(--aa-color-rose);
-    box-shadow: 0 0 12px -2px rgba(244, 63, 94, 0.35);
-    animation: aa-danger-glow 2.5s infinite ease-in-out;
-}
-
-.owner-card-warning {
-    border-color: var(--aa-color-amber);
-    box-shadow: 0 0 12px -2px rgba(245, 158, 11, 0.35);
-    animation: aa-pending-glow 2.5s infinite ease-in-out;
-}
-
-.owner-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.portrait {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 1px solid var(--aa-border-light);
-}
-
-.owner-info {
-    min-width: 0;
-    flex-grow: 1;
-}
-
-.owner-name {
-    margin: 0;
-    font-size: var(--aa-font-size-md);
-    font-weight: 700;
-    color: var(--aa-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.owner-ticker {
-    margin: 2px 0 0;
-    font-size: var(--aa-font-size-xs);
-    color: var(--aa-text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.badge-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--aa-border-light);
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 8px;
-    border-radius: 9999px;
-    font-size: var(--aa-font-size-xs);
-    font-weight: 700;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.badge-ok {
-    background-color: color-mix(in srgb, var(--aa-color-emerald) 20%, transparent);
-    color: var(--aa-color-emerald-light);
-    border: 1px solid var(--aa-color-emerald);
-}
-
-.badge-error {
-    background-color: color-mix(in srgb, var(--aa-color-rose) 20%, transparent);
-    color: var(--aa-color-rose-light);
-    border: 1px solid var(--aa-color-rose);
-}
-
-.badge-token-error {
-    background-color: color-mix(in srgb, var(--aa-color-amber) 20%, transparent);
-    color: var(--aa-color-amber-light);
-    border: 1px solid var(--aa-color-amber);
-}
-
-.badge-disabled {
-    background-color: color-mix(in srgb, var(--aa-color-secondary) 20%, transparent);
-    color: var(--aa-text-muted);
-    border: 1px solid var(--aa-color-secondary);
-}
-
-.badge-incomplete {
-    background-color: color-mix(in srgb, var(--aa-color-amber) 15%, transparent);
-    color: var(--aa-color-amber);
-    border: 1px solid var(--aa-color-amber-dark);
-}
-
-.last-sync {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: var(--aa-font-size-xs);
-    color: var(--aa-text-secondary);
-    font-family: var(--font-mono);
-}
-
-.error-banner {
-    padding: 6px 10px;
-    border-radius: 6px;
-    background-color: color-mix(in srgb, var(--aa-color-rose) 15%, transparent);
-    border: 1px solid color-mix(in srgb, var(--aa-color-rose) 30%, transparent);
-    color: var(--aa-color-rose-light);
-    font-size: var(--aa-font-size-xs);
-    word-break: break-word;
-}
-
-.sections-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 4px;
-}
-
-.section-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: var(--aa-font-size-xs);
-    color: var(--aa-text-secondary);
-}
-
-.section-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.dot-ok {
-    background-color: var(--aa-color-emerald);
-}
-
-.dot-error {
-    background-color: var(--aa-color-rose);
-}
-
-.dot-warning {
-    background-color: var(--aa-color-amber);
-}
-
-.dot-muted {
-    background-color: var(--aa-color-secondary);
-}
-
-.empty-state {
-    padding: 24px;
-    text-align: center;
-    color: var(--aa-text-muted);
-    font-size: var(--aa-font-size-sm);
 }
