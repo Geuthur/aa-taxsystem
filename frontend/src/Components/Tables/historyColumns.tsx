@@ -1,10 +1,10 @@
 // Third Party
-import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
 import { Badge } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 
 export type AdminLogRow = components["schemas"]["AdminHistorySchema"];
 
@@ -12,7 +12,7 @@ export interface HistoryColumnsOptions {
   t: TFunction;
 }
 
-export function getHistoryColumns({ t }: HistoryColumnsOptions): ColumnDef<AdminLogRow>[] {
+export function getHistoryColumns({ t }: HistoryColumnsOptions): BaseColumnDef<AdminLogRow>[] {
   return [
     {
       id: "date",

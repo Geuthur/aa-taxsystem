@@ -1,11 +1,11 @@
 // Third Party
-import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
 import { History, Trash2, Users } from "lucide-react";
 import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { formatDate, renderTooltip } from "@/Utils";
 
@@ -23,7 +23,7 @@ export function getMemberColumns({
   onOpenAlts,
   onHistory,
   onDeleteMissing,
-}: MemberColumnsOptions): ColumnDef<MemberRow>[] {
+}: MemberColumnsOptions): BaseColumnDef<MemberRow>[] {
   return [
     {
       id: "character",

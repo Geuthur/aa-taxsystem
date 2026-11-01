@@ -1,5 +1,5 @@
 // Third Party
-import type { Table as TanStackTable } from "@tanstack/react-table";
+import type { RowData, Table as TanStackTable } from "@tanstack/react-table";
 import {
   Button,
   ButtonGroup,
@@ -7,20 +7,21 @@ import {
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
+import type { BaseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
 import { exportToCSV } from "@/Components/Base/BaseTable/tableHelper";
 import tableStyles from "@/Styles/modules/BaseTable.module.css";
 import { renderTooltip } from "@/Utils/bootsTrap";
 import { formatDate } from "@/Utils/format";
 
-export interface TablePagesProps<TData> {
-  table: TanStackTable<TData>;
+export interface TablePagesProps<TData extends RowData> {
+  table: TanStackTable<BaseTableFeatures, TData>;
   isFetching?: boolean;
   fileName?: string;
   showPageNumber?: boolean;
   showExport?: boolean;
 }
 
-const BasePages = <TData,>({
+const BasePages = <TData extends RowData,>({
   table,
   isFetching = false,
   fileName,
@@ -36,7 +37,7 @@ const BasePages = <TData,>({
         {showPageNumber && (
           <Button size="sm" variant="primary">
             {t("Page {{page}} of {{total}}", {
-              page: table.getState().pagination.pageIndex + 1,
+              page: table.atoms.pagination.get().pageIndex + 1,
               total: pageCount,
             })}
           </Button>
