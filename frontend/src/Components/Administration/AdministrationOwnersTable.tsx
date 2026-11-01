@@ -2,7 +2,6 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -12,6 +11,7 @@ import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { AdministrationStatusBadge } from "@/Components/Administration/AdministrationStatusBadge";
 import BaseTable from "@/Components/Base/BaseTable/BaseTable";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import styles from "@/Styles/modules/Administration.module.css";
 import { formatCompactNumber, formatDate, renderTooltip } from "@/Utils";
@@ -38,7 +38,7 @@ export function AdministrationOwnersTable({
   const { t } = useTranslation();
   const [errorOwner, setErrorOwner] = useState<AdministrationTaxOwnerSchema | null>(null);
 
-  const columns = useMemo<ColumnDef<AdministrationTaxOwnerSchema, unknown>[]>(
+  const columns = useMemo<BaseColumnDef<AdministrationTaxOwnerSchema, unknown>[]>(
     () => {
       return [
       {

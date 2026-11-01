@@ -1,11 +1,11 @@
 // Third Party
-import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
 import { ArrowRight, Trash2 } from "lucide-react";
 import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 
 export type FilterSetRow = components["schemas"]["FilterSetModelSchema"];
 export type FilterRow = components["schemas"]["FilterModelSchema"];
@@ -22,7 +22,7 @@ export function getFilterSetColumns({
   activeSetId,
   onSelect,
   onDelete,
-}: FilterSetColumnsOptions): ColumnDef<FilterSetRow>[] {
+}: FilterSetColumnsOptions): BaseColumnDef<FilterSetRow>[] {
   return [
     {
       id: "name",
@@ -93,7 +93,7 @@ export function getFilterRuleColumns({
   filterTypeLabels,
   matchTypeLabels,
   onDelete,
-}: FilterRuleColumnsOptions): ColumnDef<FilterRow>[] {
+}: FilterRuleColumnsOptions): BaseColumnDef<FilterRow>[] {
   return [
     {
       id: "filter_set",

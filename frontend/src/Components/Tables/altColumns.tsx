@@ -1,10 +1,10 @@
 // Third Party
-import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
 import { Badge } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export type AltCharacter = components["schemas"]["CharacterSchema"];
@@ -13,7 +13,7 @@ export interface AltColumnsOptions {
   t: TFunction;
 }
 
-export function getAltColumns({ t }: AltColumnsOptions): ColumnDef<AltCharacter>[] {
+export function getAltColumns({ t }: AltColumnsOptions): BaseColumnDef<AltCharacter>[] {
   return [
     {
       id: "character",

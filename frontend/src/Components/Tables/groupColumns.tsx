@@ -1,11 +1,11 @@
 // Third Party
-import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
 import { Trash2 } from "lucide-react";
 import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 
 export type GroupManagementRow = components["schemas"]["GroupManagementSchema"];
 
@@ -17,7 +17,7 @@ export interface GroupColumnsOptions {
 export function getGroupColumns({
   t,
   onDelete,
-}: GroupColumnsOptions): ColumnDef<GroupManagementRow>[] {
+}: GroupColumnsOptions): BaseColumnDef<GroupManagementRow>[] {
   return [
     {
       id: "name",
