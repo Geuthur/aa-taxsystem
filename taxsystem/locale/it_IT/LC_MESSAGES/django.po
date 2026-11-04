@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System \n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
 "taxsystem/\n"
-"POT-Creation-Date: 2026-10-19 17:59+0200\n"
+"POT-Creation-Date: 2026-10-25 13:31+0100\n"
 "PO-Revision-Date: 2026-01-10 15:39+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: Italian <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -68,6 +68,9 @@ msgstr ""
 msgid "No settings provided to update."
 msgstr ""
 
+msgid "Superuser permission required."
+msgstr ""
+
 msgid "Queued Update All Taxsystem"
 msgstr ""
 
@@ -96,6 +99,32 @@ msgstr ""
 msgid "Invalid target specified."
 msgstr ""
 
+#, python-format
+msgid "Queued update for %(name)s"
+msgstr ""
+
+#, python-format
+msgid "Corporation %(name)s deleted successfully."
+msgstr ""
+
+#, python-format
+msgid "Alliance %(name)s deleted successfully."
+msgstr ""
+
+msgid "Administration permission required."
+msgstr ""
+
+#, python-format
+msgid "Corporation with ID %(id)s not found"
+msgstr ""
+
+#, python-format
+msgid "Alliance with ID %(id)s not found"
+msgstr ""
+
+msgid "Invalid owner type specified."
+msgstr ""
+
 #, python-brace-format
 msgid "Member {member} deleted - {reason}"
 msgstr ""
@@ -110,7 +139,7 @@ msgstr ""
 msgid "{filter_obj} in \"{filter_set}\" deleted - Reason: {reason}"
 msgstr ""
 
-msgid "Filter Set not found."
+msgid "Filter set not found."
 msgstr ""
 
 #, python-brace-format
@@ -129,9 +158,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Filter set \"{filter_set}\" created."
-msgstr ""
-
-msgid "Filter set not found."
 msgstr ""
 
 msgid "Filter value is required."
@@ -159,7 +185,11 @@ msgstr ""
 msgid "Add Alliance"
 msgstr ""
 
-msgid "Superuser"
+msgid "Administration"
+msgstr ""
+
+#, python-format
+msgid "Queued updates for %(count)d owner(s)."
 msgstr ""
 
 #, python-brace-format
@@ -219,7 +249,7 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-msgid "Corporation Not Found"
+msgid "Corporation not found"
 msgstr ""
 
 msgid "Invalid form data."
@@ -246,29 +276,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{processed} of {total} payments successfully {action}."
-msgstr ""
-
-#, python-format
-msgid "Corporation with ID %(id)s not found"
-msgstr ""
-
-#, python-format
-msgid "Queued update for %(name)s"
-msgstr ""
-
-#, python-format
-msgid "Alliance with ID %(id)s not found"
-msgstr ""
-
-msgid "Invalid owner type specified."
-msgstr ""
-
-#, python-format
-msgid "Corporation %(name)s deleted successfully."
-msgstr ""
-
-#, python-format
-msgid "Alliance %(name)s deleted successfully."
 msgstr ""
 
 msgid "Master Wallet"
@@ -576,13 +583,4 @@ msgstr ""
 
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
-msgstr ""
-
-msgid "Administration"
-msgstr ""
-
-msgid "Administration permission required."
-msgstr ""
-
-msgid "Superuser permission required."
 msgstr ""

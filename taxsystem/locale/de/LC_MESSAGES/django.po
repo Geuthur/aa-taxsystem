@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
 "taxsystem/\n"
-"POT-Creation-Date: 2026-10-19 17:59+0200\n"
+"POT-Creation-Date: 2026-10-25 13:31+0100\n"
 "PO-Revision-Date: 2026-10-25 10:29+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -72,6 +72,9 @@ msgstr "Steuer Periode von {owner} aktualisiert auf {value}"
 msgid "No settings provided to update."
 msgstr "Keine Einstellungen zum Aktualisieren angegeben."
 
+msgid "Superuser permission required."
+msgstr "Superuser-Berechtigung erforderlich."
+
 msgid "Queued Update All Taxsystem"
 msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
 
@@ -101,6 +104,32 @@ msgstr "In der Warteschlange: Alle Allianzen des Steuersystems aktualisieren"
 msgid "Invalid target specified."
 msgstr "Ungültiges Ziel angegeben."
 
+#, python-format
+msgid "Queued update for %(name)s"
+msgstr "Update für %(name)s eingereiht"
+
+#, python-format
+msgid "Corporation %(name)s deleted successfully."
+msgstr "Corporation %(name)s erfolgreich gelöscht."
+
+#, python-format
+msgid "Alliance %(name)s deleted successfully."
+msgstr "Allianz %(name)s erfolgreich gelöscht."
+
+msgid "Administration permission required."
+msgstr "Administrationsberechtigung erforderlich."
+
+#, python-format
+msgid "Corporation with ID %(id)s not found"
+msgstr "Corporation mit ID %(id)s nicht gefunden"
+
+#, python-format
+msgid "Alliance with ID %(id)s not found"
+msgstr "Allianz mit ID %(id)s nicht gefunden"
+
+msgid "Invalid owner type specified."
+msgstr "Ungültiger Eigentümertyp angegeben."
+
 #, python-brace-format
 msgid "Member {member} deleted - {reason}"
 msgstr "Mitglied {member} gelöscht – {reason}"
@@ -115,8 +144,8 @@ msgstr "Kein Filter gefunden."
 msgid "{filter_obj} in \"{filter_set}\" deleted - Reason: {reason}"
 msgstr "{filter_obj} in „{filter_set}” gelöscht – Grund: {reason}"
 
-msgid "Filter Set not found."
-msgstr "Kein Filtersatz gefunden."
+msgid "Filter set not found."
+msgstr "Filterset nicht gefunden."
 
 #, python-brace-format
 msgid "{filter_set} deleted - Reason: {reason}"
@@ -135,9 +164,6 @@ msgstr "Ein Filtersatz mit diesem Namen existiert bereits."
 #, python-brace-format
 msgid "Filter set \"{filter_set}\" created."
 msgstr "Filterset \"{filter_set}\" erstellt."
-
-msgid "Filter set not found."
-msgstr "Filterset nicht gefunden."
 
 msgid "Filter value is required."
 msgstr "Ein Filterwert ist erforderlich."
@@ -164,8 +190,12 @@ msgstr "Corporation hinzufügen"
 msgid "Add Alliance"
 msgstr "Allianz hinzufügen"
 
-msgid "Superuser"
-msgstr "Superuser"
+msgid "Administration"
+msgstr "Verwaltung"
+
+#, python-format
+msgid "Queued updates for %(count)d owner(s)."
+msgstr ""
 
 #, python-brace-format
 msgid "{group_obj} deleted - Reason: {reason}"
@@ -226,8 +256,8 @@ msgstr "Transaktion fehlgeschlagen. Bitte versuchen Sie es später erneut."
 msgid "System"
 msgstr "System"
 
-msgid "Corporation Not Found"
-msgstr "Corporation nicht gefunden"
+msgid "Corporation not found"
+msgstr ""
 
 msgid "Invalid form data."
 msgstr "Ungültige Formulardaten."
@@ -254,29 +284,6 @@ msgstr "gelöscht"
 #, python-brace-format
 msgid "{processed} of {total} payments successfully {action}."
 msgstr "{processed} von {total} Zahlungen erfolgreich {action}."
-
-#, python-format
-msgid "Corporation with ID %(id)s not found"
-msgstr "Corporation mit ID %(id)s nicht gefunden"
-
-#, python-format
-msgid "Queued update for %(name)s"
-msgstr "Update für %(name)s eingereiht"
-
-#, python-format
-msgid "Alliance with ID %(id)s not found"
-msgstr "Allianz mit ID %(id)s nicht gefunden"
-
-msgid "Invalid owner type specified."
-msgstr "Ungültiger Eigentümertyp angegeben."
-
-#, python-format
-msgid "Corporation %(name)s deleted successfully."
-msgstr "Corporation %(name)s erfolgreich gelöscht."
-
-#, python-format
-msgid "Alliance %(name)s deleted successfully."
-msgstr "Allianz %(name)s erfolgreich gelöscht."
 
 msgid "Master Wallet"
 msgstr "Haupt Konto"
@@ -593,14 +600,14 @@ msgstr "Allianz zum Steuersystem mit Corporation {corp} hinzugefügt"
 msgid "{alliance_name} successfully added/updated to Tax System"
 msgstr "{alliance_name} erfolgreich zum Steuersystem hinzugefügt/aktualisiert"
 
-msgid "Administration"
-msgstr "Verwaltung"
+#~ msgid "Filter Set not found."
+#~ msgstr "Kein Filtersatz gefunden."
 
-msgid "Administration permission required."
-msgstr "Administrationsberechtigung erforderlich."
+#~ msgid "Superuser"
+#~ msgstr "Superuser"
 
-msgid "Superuser permission required."
-msgstr "Superuser-Berechtigung erforderlich."
+#~ msgid "Corporation Not Found"
+#~ msgstr "Corporation nicht gefunden"
 
 #~ msgid "Please select at least one account to perform bulk actions."
 #~ msgstr ""
