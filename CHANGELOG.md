@@ -40,6 +40,8 @@ Section Order:
 
 - Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
 
+- [FIX] The pulsing menu and tab badges scaled up and down with their number. Only the glow around the badge pulses now.
+
 ### Changed
 
 - [CHANGE] Buttons use the Bootstrap 5 variants (`variant`, `size`) with the theme look defined as overrides under `.aa-react`; the custom `aa-btn` classes were removed. Frontend inline styles were replaced by CSS classes, and missing `index.ts` files were added.
