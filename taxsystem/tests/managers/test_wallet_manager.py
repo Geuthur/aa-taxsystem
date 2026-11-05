@@ -10,7 +10,7 @@ from allianceauth.eveonline.models import EveCorporationInfo
 
 # AA TaxSystem
 from taxsystem.models.general import EveEntity
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
     DivisionFactory,
@@ -22,12 +22,13 @@ MODULE_PATH = "taxsystem.managers.wallet_manager"
 
 @patch(MODULE_PATH + ".EveEntity.objects.bulk_resolve_names")
 @patch(MODULE_PATH + ".EveEntity.objects.filter")
-class TestWalletManager(TaxSystemTestCase):
+class TestWalletManager(AuthTestCase):
     """Test Wallet Managers for Corporation."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         corp = EveCorporationInfo.objects.get(
             corporation_id=cls.user_character.corporation_id

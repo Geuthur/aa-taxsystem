@@ -14,7 +14,7 @@ from taxsystem.models.corporation import CorporationPayments
 from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
 )
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     AlliancePaymentsFactory,
@@ -31,10 +31,11 @@ from taxsystem.tests.testdata.factory import (
 MODULE_PATH = "taxsystem.models.tax"
 
 
-class TestPaymentsModel(TaxSystemTestCase):
+class TestPaymentsModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.audit = CorporationOwnerFactory(user=cls.user)
         cls.audit2 = CorporationOwnerFactory(user=cls.superuser)
         cls.user2 = UserMainFactory()
@@ -174,10 +175,11 @@ class TestPaymentsModel(TaxSystemTestCase):
         self.assertEqual(open_invoices, 0)
 
 
-class TestAlliancePaymentsModel(TaxSystemTestCase):
+class TestAlliancePaymentsModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.corp_audit = CorporationOwnerFactory(user=cls.user)
         cls.audit = AllianceOwnerFactory(user=cls.user)
         cls.audit2 = AllianceOwnerFactory(user=cls.superuser)

@@ -8,7 +8,7 @@ from django.urls import reverse
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
 from taxsystem.models.helpers.textchoices import AccountStatus
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
     CorporationTaxAccountFactory,
@@ -20,12 +20,13 @@ MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestAdminApiEndpoints(TaxSystemTestCase):
+class TestAdminApiEndpoints(AuthTestCase):
     """Test Admin API Endpoints."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         cls.audit = CorporationOwnerFactory(user=cls.user)
 

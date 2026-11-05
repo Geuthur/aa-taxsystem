@@ -6,13 +6,13 @@ import pook
 
 # AA TaxSystem
 from taxsystem.models.general import EveEntity as EveEntityV2
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import AllianceOwnerFactory, EveEntityFactory
 
 MODULE_PATH = "taxsystem.managers.eveonline_manager"
 
 
-class TestEveEntityManager(TaxSystemTestCase):
+class TestEveEntityManager(AuthTestCase):
     """Test Eve Entity Managers."""
 
     @classmethod

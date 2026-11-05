@@ -21,7 +21,7 @@ from taxsystem.tasks import (
     update_alliance,
     update_corporation,
 )
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     AllianceTaxAccountFactory,
@@ -37,7 +37,7 @@ MODELS_PATH = "taxsystem.models"
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestTasks(TaxSystemTestCase):
+class TestTasks(AuthTestCase):
     """
     Tests for taxsystem tasks.
     """

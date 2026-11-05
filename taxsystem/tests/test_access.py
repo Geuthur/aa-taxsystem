@@ -11,12 +11,12 @@ from django.urls import resolve, reverse
 
 # AA TaxSystem
 from taxsystem import views
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 
 MODULE_PATH = "taxsystem.views"
 
 
-class TestViewAccess(TaxSystemTestCase):
+class TestViewAccess(AuthTestCase):
     """Test View General Access Permissions for React SPA."""
 
     @classmethod

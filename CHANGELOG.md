@@ -56,6 +56,8 @@ Section Order:
 
 - [CHANGE] Layout CSS of the settings page, owner cards, tables, loaders and the table filter was replaced by Bootstrap utility classes; own CSS remains for colors, borders, hover and fixed sizes. The error icon uses the theme's `text-danger` color.
 
+- [CHANGE] Tests use the `AuthTestCase` base class in the layout of the `aa-example` template (`NoSocketsTestCase` and `AuthTestCase` with `factory`, `user`, `superuser`). `TaxSystemTestCase` and its extras (`corp`, `user_character`, `superuser_character`, `_add_corporation`, `_add_alliance`) were removed; the tests that need them set them up themselves or use `testdata/views.py`.
+
 ### Removed
 
 - [REMOVED] Own `UserFactory`, `EveAllianceInfoFactory`, `EveCorporationInfoFactory` and `EveCharacterFactory` and the test helper module `testdata/utils.py` (`add_character_to_user` and others) (identical to the ones in `aa-evesde-factory`); `aa-evesde-factory` provides it, and the `UserMainFactory` of TaxSystem now inherits from it. Generated usernames are unique, so a random test user can no longer match an existing user such as a test superuser.

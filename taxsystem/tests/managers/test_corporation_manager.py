@@ -22,7 +22,7 @@ from taxsystem.models.corporation import (
     Members,
 )
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationFilterFactory,
     CorporationFilterSetFactory,
@@ -39,12 +39,13 @@ from taxsystem.tests.testdata.factory import (
 MODULE_PATH = "taxsystem.managers.corporation_manager"
 
 
-class TestCorporationManager(TaxSystemTestCase):
+class TestCorporationManager(AuthTestCase):
     """Test Corporation Managers."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         cls.audit = CorporationOwnerFactory(user=cls.user)
 

@@ -7,7 +7,7 @@ from django.urls import reverse
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationFilter, CorporationFilterSet
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationFilterFactory,
     CorporationFilterSetFactory,
@@ -18,7 +18,7 @@ MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestFilterApiEndpoints(TaxSystemTestCase):
+class TestFilterApiEndpoints(AuthTestCase):
     """Test Filter API Endpoints."""
 
     @classmethod

@@ -11,15 +11,16 @@ from django.urls import reverse
 # AA TaxSystem
 from taxsystem.models import CorporationAdminHistory, CorporationOwner
 from taxsystem.models.helpers.textchoices import AdminActions
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import CorporationOwnerFactory, UserMainFactory
+from taxsystem.tests.testdata.views import add_corporation
 
 MODULE_PATH = "taxsystem.views"
 
 
 @patch(MODULE_PATH + ".messages")
 @patch(MODULE_PATH + ".tasks")
-class TestAddCorpView(TaxSystemTestCase):
+class TestAddCorpView(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -32,7 +33,7 @@ class TestAddCorpView(TaxSystemTestCase):
         token = user.token_set.get(character_id=1001)
 
         # Test Action
-        response = self._add_corporation(user, token)
+        response = add_corporation(user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -60,7 +61,7 @@ class TestAddCorpView(TaxSystemTestCase):
         token = user.token_set.get(character_id=1001)
 
         # Test Action
-        response = self._add_corporation(user, token)
+        response = add_corporation(user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

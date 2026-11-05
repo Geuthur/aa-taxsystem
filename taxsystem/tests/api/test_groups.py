@@ -9,7 +9,7 @@ from django.urls import reverse
 from allianceauth.groupmanagement.models import Group
 
 # AA TaxSystem
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceGroupFactory,
     AllianceOwnerFactory,
@@ -21,7 +21,7 @@ MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestGroupApiEndpoints(TaxSystemTestCase):
+class TestGroupApiEndpoints(AuthTestCase):
     """Test Group API Endpoints."""
 
     @classmethod

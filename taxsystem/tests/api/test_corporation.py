@@ -10,19 +10,20 @@ from evesde_factory.utils import add_character_to_user
 from django.urls import reverse
 
 # AA TaxSystem
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import CorporationOwnerFactory, MembersFactory
 
 MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestCorporationApiEndpoints(TaxSystemTestCase):
+class TestCorporationApiEndpoints(AuthTestCase):
     """Test Corporation API Endpoints."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         cls.audit = CorporationOwnerFactory(user=cls.user)
 
@@ -101,7 +102,7 @@ class TestCorporationApiEndpoints(TaxSystemTestCase):
         )
         alt_char = EveCharacterFactory(
             character_name="User Alt Character",
-            corporation=self.corp,
+            corporation=self.audit.eve_corporation,
         )
         add_character_to_user(
             user=self.user,

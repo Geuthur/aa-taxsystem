@@ -4,7 +4,7 @@ from django.utils import timezone
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount
 from taxsystem.models.helpers.textchoices import AccountStatus
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
     CorporationTaxAccountFactory,
@@ -13,7 +13,7 @@ from taxsystem.tests.testdata.factory import (
 MODULE_PATH = "taxsystem.models.tax"
 
 
-class TestPaymentSystemModel(TaxSystemTestCase):
+class TestPaymentSystemModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

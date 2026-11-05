@@ -4,7 +4,7 @@
 from evesde_factory.allianceauth import EveCorporationInfoFactory
 
 # AA TaxSystem
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceGroupFactory,
     AllianceOwnerFactory,
@@ -15,7 +15,7 @@ from taxsystem.tests.testdata.factory import (
 )
 
 
-class TestFactory(TaxSystemTestCase):
+class TestFactory(AuthTestCase):
     """Test the factories."""
 
     def test_can_create_user(self):

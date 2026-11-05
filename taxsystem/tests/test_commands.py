@@ -9,7 +9,7 @@ from django.utils import timezone
 from taxsystem.models.helpers.textchoices import AccountStatus, PaymentRequestStatus
 
 # AA Tax System
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
@@ -21,12 +21,13 @@ from taxsystem.tests.testdata.factory import (
 COMMAND_PATH = "taxsystem.management.commands.taxsystem_migrate_payments"
 
 
-class TestMigratePayments(TaxSystemTestCase):
+class TestMigratePayments(AuthTestCase):
     """Test Tax System Payment Migration Command."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
         cls.audit = CorporationOwnerFactory(user=cls.user)
         cls.division = DivisionFactory(corporation=cls.audit)
         cls.journal_entry = CorporationJournalFactory(division=cls.division)
