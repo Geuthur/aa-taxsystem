@@ -2,14 +2,14 @@
 from http import HTTPStatus
 
 # AA TaxSystem
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
     UserMainFactory,
 )
 
 
-class TestOverviewApi(TaxSystemTestCase):
+class TestOverviewApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

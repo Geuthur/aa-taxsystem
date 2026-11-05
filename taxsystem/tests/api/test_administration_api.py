@@ -9,7 +9,7 @@ from evesde_factory.allianceauth import EveCorporationInfoFactory
 # AA TaxSystem
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationOwnerFactory,
@@ -19,7 +19,7 @@ from taxsystem.tests.testdata.factory import (
 TASKS_PATH = "taxsystem.tasks"
 
 
-class TestAdministrationApi(TaxSystemTestCase):
+class TestAdministrationApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

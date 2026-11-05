@@ -11,19 +11,20 @@ from django.urls import reverse
 # AA TaxSystem
 from taxsystem.models import AllianceAdminHistory, AllianceOwner
 from taxsystem.models.helpers.textchoices import AdminActions
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationOwnerFactory,
     UserMainFactory,
 )
+from taxsystem.tests.testdata.views import add_alliance_view
 
 MODULE_PATH = "taxsystem.views"
 
 
 @patch(MODULE_PATH + ".messages")
 @patch(MODULE_PATH + ".tasks")
-class TestAddAllianceView(TaxSystemTestCase):
+class TestAddAllianceView(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -40,7 +41,7 @@ class TestAddAllianceView(TaxSystemTestCase):
         token = user.token_set.get(character_id=1001)
 
         # Test Action
-        response = self._add_alliance(user, token)
+        response = add_alliance_view(user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -69,7 +70,7 @@ class TestAddAllianceView(TaxSystemTestCase):
         token = user.token_set.get(character_id=1001)
 
         # Test Action
-        response = self._add_alliance(user, token)
+        response = add_alliance_view(user, token)
 
         # Expected Results
         self.assertEqual(response.status_code, HTTPStatus.FOUND)

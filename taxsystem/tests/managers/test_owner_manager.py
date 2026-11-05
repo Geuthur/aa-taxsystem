@@ -5,7 +5,7 @@ from evesde_factory.allianceauth import EveCharacterFactory
 from allianceauth.eveonline.models import EveAllianceInfo, EveCorporationInfo
 
 # AA TaxSystem
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationOwnerFactory,
@@ -15,12 +15,13 @@ from taxsystem.tests.testdata.factory import (
 MODULE_PATH = "taxsystem.managers.owner_manager"
 
 
-class TestOwnerManager(TaxSystemTestCase):
+class TestOwnerManager(AuthTestCase):
     """Test Corporation Managers."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         # Corporation Owner
         corp = EveCorporationInfo.objects.get(

@@ -20,7 +20,7 @@ from taxsystem.models.helpers.textchoices import (
     FilterMatchType,
     PaymentRequestStatus,
 )
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceFilterFactory,
     AllianceFilterSetFactory,
@@ -35,12 +35,13 @@ from taxsystem.tests.testdata.factory import (
 MODULE_PATH = "taxsystem.managers.alliance_manager"
 
 
-class TestAllianceManager(TaxSystemTestCase):
+class TestAllianceManager(AuthTestCase):
     """Test Alliance Managers."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         cls.audit = AllianceOwnerFactory(user=cls.user)
 

@@ -23,7 +23,7 @@ from taxsystem.models.helpers.update_manager import (
     UpdateSection,
     UpdateStatus,
 )
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
     CorporationUpdateStatusFactory,
@@ -31,7 +31,7 @@ from taxsystem.tests.testdata.factory import (
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestUpdateManager(TaxSystemTestCase):
+class TestUpdateManager(AuthTestCase):
     """
     Tests for the UpdateManager class.
     """
@@ -471,7 +471,7 @@ class TestUpdateManager(TaxSystemTestCase):
         self.assertFalse(status.has_token_error)
 
 
-class TestUpdateStatusAndSections(TaxSystemTestCase):
+class TestUpdateStatusAndSections(AuthTestCase):
     """Tests for UpdateSection, CorporationUpdateSection, AllianceUpdateSection, and UpdateStatus."""
 
     def test_update_section_should_return_sections_and_method_names(self):

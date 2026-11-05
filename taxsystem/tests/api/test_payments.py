@@ -10,7 +10,7 @@ from django.utils import timezone
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationPaymentAccount
 from taxsystem.models.helpers.textchoices import PaymentActions, PaymentRequestStatus
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationJournalFactory,
     CorporationOwnerFactory,
@@ -24,12 +24,13 @@ MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestPaymentsApiEndpoints(TaxSystemTestCase):
+class TestPaymentsApiEndpoints(AuthTestCase):
     """Test Payments API Endpoints."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user_character = cls.user.profile.main_character
 
         cls.audit = CorporationOwnerFactory(user=cls.user)
         cls.account = CorporationTaxAccountFactory(

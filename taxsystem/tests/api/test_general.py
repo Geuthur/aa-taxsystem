@@ -8,7 +8,7 @@ from django.urls import reverse
 
 # AA TaxSystem
 from taxsystem.models.general import UserSettings
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
     CorporationTaxAccountFactory,
@@ -18,7 +18,7 @@ from taxsystem.tests.testdata.factory import (
 TASKS_PATH = "taxsystem.tasks"
 
 
-class TestGeneralApi(TaxSystemTestCase):
+class TestGeneralApi(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

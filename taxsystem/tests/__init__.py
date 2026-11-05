@@ -2,19 +2,14 @@
 import socket
 from unittest.mock import Mock
 
-# Third Party
-from evesde_factory.allianceauth import EveCorporationInfoFactory
-
 # Django
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.handlers.wsgi import WSGIRequest
 from django.test import RequestFactory, TestCase
-from django.urls import reverse
 
 # AA TaxSystem
 from taxsystem.tests.testdata.factory import UserMainFactory
-from taxsystem.views import add_alliance, add_corp
 
 
 class SocketAccessError(Exception):
@@ -22,16 +17,7 @@ class SocketAccessError(Exception):
 
 
 class NoSocketsTestCase(TestCase):
-    """Variation of Django's TestCase class that prevents any network use.
-
-    Example:
-
-        .. code-block:: python
-
-            class TestMyStuff(BaseTestCase):
-                def test_should_do_what_i_need(self): ...
-
-    """
+    """Variation of Django's TestCase class that prevents any network use."""
 
     @classmethod
     def setUpClass(cls):
@@ -49,67 +35,33 @@ class NoSocketsTestCase(TestCase):
         raise SocketAccessError("Attempted to access network")
 
 
-class TaxSystemTestCase(NoSocketsTestCase):
+class AuthTestCase(NoSocketsTestCase):
     """
-    Preloaded Testcase class for TaxSystem tests without Network access.
-
-    Pre-Load:
-        * Alliance Auth Characters, Corporation, Alliance Data
+    Preloaded Testcase class for AllianceAuth tests without Network access.
 
     Available Request Factory:
         `self.factory`
-
-    Available test users:
-        * `user` User with standard TaxSystem access.
-            * 'taxsystem.basic_access' Permission
-        * `superuser` Superuser.
-            * Access to whole Application
-
-    Example:
-        .. code-block:: python
-
-            class TestMyTaxSystemStuff(TaxSystemTestCase):
-                def test_should_do_what_i_need(self):
-                    user = self.user
+    Available Django Users:
+        `self.user`
+        `self.superuser`
+    Available methods:
+        `_middleware_process_request(request)`
     """
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.corp = EveCorporationInfoFactory(
-            corporation_id=98_000_000, corporation_name="Test Corporation"
-        )
 
         # Request Factory
         cls.factory = RequestFactory()
 
         # User with Standard Access
-        cls.user = UserMainFactory(main_character__corporation=cls.corp)
-        cls.user_character = cls.user.profile.main_character
+        cls.user = UserMainFactory()
 
         # User with Superuser Access
         cls.superuser = UserMainFactory()
         cls.superuser.is_superuser = True
         cls.superuser.save()
-        cls.superuser_character = cls.superuser.profile.main_character
-
-    def _add_corporation(self, user, token):
-        request = self.factory.get(reverse("taxsystem:add_corp"))
-        request.user = user
-        request.token = token
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        orig_view = add_corp.__wrapped__.__wrapped__.__wrapped__
-        return orig_view(request, token)
-
-    def _add_alliance(self, user, token):
-        request = self.factory.get(reverse("taxsystem:add_alliance"))
-        request.user = user
-        request.token = token
-        middleware = SessionMiddleware(Mock())
-        middleware.process_request(request)
-        orig_view = add_alliance.__wrapped__.__wrapped__.__wrapped__
-        return orig_view(request, token)
 
     def _middleware_process_request(self, request: WSGIRequest):
         """Helper method to process middleware for a request."""

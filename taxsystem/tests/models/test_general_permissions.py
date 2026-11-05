@@ -3,7 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 
 # AA TaxSystem
 from taxsystem.models.general import General
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationOwnerFactory,
@@ -11,7 +11,7 @@ from taxsystem.tests.testdata.factory import (
 )
 
 
-class TestGeneralPermission(TaxSystemTestCase):
+class TestGeneralPermission(AuthTestCase):
     def test_get_perm_should_return_full_permission_string_for_enum(self):
         # Test Data
         perm = General.Permission.MANAGE_CORPS

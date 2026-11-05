@@ -9,11 +9,11 @@ from django.contrib.admin.sites import AdminSite
 # AA TaxSystem
 from taxsystem.admin import CorporationOwnerAdmin
 from taxsystem.models.corporation import CorporationOwner
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import CorporationOwnerFactory
 
 
-class TestCorporationOwnerAdmin(TaxSystemTestCase):
+class TestCorporationOwnerAdmin(AuthTestCase):
     """Test Backend AA Administration for Tax System"""
 
     @classmethod

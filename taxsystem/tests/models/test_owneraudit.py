@@ -6,13 +6,13 @@ from allianceauth.tests.auth_utils import AuthUtils
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationOwner
-from taxsystem.tests import TaxSystemTestCase
+from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import CorporationOwnerFactory
 
 MODULE_PATH = "taxsystem.models.owneraudit"
 
 
-class TestOwnerAuditModel(TaxSystemTestCase):
+class TestOwnerAuditModel(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
