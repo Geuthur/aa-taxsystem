@@ -58,7 +58,7 @@ Section Order:
 
 ### Removed
 
-- [REMOVED] Own `UserFactory` in the test data; `aa-evesde-factory` provides it, and the `UserMainFactory` of TaxSystem now inherits from it. Generated usernames are unique, so a random test user can no longer match an existing user such as a test superuser.
+- [REMOVED] Own `UserFactory`, `EveAllianceInfoFactory`, `EveCorporationInfoFactory` and `EveCharacterFactory` in the test data (identical to the ones in `aa-evesde-factory`); `aa-evesde-factory` provides it, and the `UserMainFactory` of TaxSystem now inherits from it. Generated usernames are unique, so a random test user can no longer match an existing user such as a test superuser.
 
 - [REMOVED] Active/Deactivated status badge from the owner cards on the `OverviewPage`.
 

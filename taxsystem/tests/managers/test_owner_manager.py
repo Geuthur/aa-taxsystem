@@ -1,3 +1,6 @@
+# Third Party
+from evesde_factory.allianceauth import EveCharacterFactory
+
 # Alliance Auth
 from allianceauth.eveonline.models import EveAllianceInfo, EveCorporationInfo
 
@@ -6,7 +9,6 @@ from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationOwnerFactory,
-    EveCharacterFactory,
     UserMainFactory,
 )
 

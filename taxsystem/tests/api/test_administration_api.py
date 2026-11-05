@@ -3,6 +3,9 @@ import json
 from http import HTTPStatus
 from unittest.mock import patch
 
+# Third Party
+from evesde_factory.allianceauth import EveCorporationInfoFactory
+
 # AA TaxSystem
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
@@ -10,7 +13,6 @@ from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationOwnerFactory,
-    EveCorporationInfoFactory,
     UserMainFactory,
 )
 

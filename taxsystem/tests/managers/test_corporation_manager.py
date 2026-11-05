@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 # Third Party
 import pook
+from evesde_factory.allianceauth import EveCharacterFactory
 
 # Django
 from django.db import IntegrityError
@@ -30,7 +31,6 @@ from taxsystem.tests.testdata.factory import (
     CorporationPaymentsFactory,
     CorporationTaxAccountFactory,
     DivisionFactory,
-    EveCharacterFactory,
     MembersFactory,
     UserMainFactory,
 )

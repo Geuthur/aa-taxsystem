@@ -2,6 +2,9 @@
 from http import HTTPStatus
 from unittest.mock import patch
 
+# Third Party
+from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoFactory
+
 # Django
 from django.urls import reverse
 
@@ -12,8 +15,6 @@ from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationOwnerFactory,
-    EveCharacterFactory,
-    EveCorporationInfoFactory,
     UserMainFactory,
 )
 

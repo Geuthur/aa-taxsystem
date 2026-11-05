@@ -2,6 +2,9 @@
 import socket
 from unittest.mock import Mock
 
+# Third Party
+from evesde_factory.allianceauth import EveCorporationInfoFactory
+
 # Django
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -10,7 +13,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 # AA TaxSystem
-from taxsystem.tests.testdata.factory import EveCorporationInfoFactory, UserMainFactory
+from taxsystem.tests.testdata.factory import UserMainFactory
 from taxsystem.views import add_alliance, add_corp
 
 
