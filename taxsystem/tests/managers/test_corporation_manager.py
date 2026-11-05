@@ -5,6 +5,7 @@ from unittest.mock import patch
 # Third Party
 import pook
 from evesde_factory.allianceauth import EveCharacterFactory
+from evesde_factory.utils import add_character_to_user
 
 # Django
 from django.db import IntegrityError
@@ -34,7 +35,6 @@ from taxsystem.tests.testdata.factory import (
     MembersFactory,
     UserMainFactory,
 )
-from taxsystem.tests.testdata.utils import add_character_to_user
 
 MODULE_PATH = "taxsystem.managers.corporation_manager"
 

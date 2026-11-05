@@ -10,6 +10,7 @@ from evesde_factory.allianceauth import (
     EveCorporationInfoFactory,
     UserFactory,
 )
+from evesde_factory.utils import add_character_to_user
 
 # Django
 from django.db.models import Max
@@ -54,7 +55,6 @@ from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
-from taxsystem.tests.testdata.utils import add_character_to_user
 
 T = TypeVar("T")
 
