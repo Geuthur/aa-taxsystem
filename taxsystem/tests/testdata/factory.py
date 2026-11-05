@@ -8,8 +8,8 @@ from evesde_factory.allianceauth import (
     EveAllianceInfoFactory,
     EveCharacterFactory,
     EveCorporationInfoFactory,
+    UserFactory,
 )
-from evesde_factory.allianceauth import UserMainFactory as EvesdeUserMainFactory
 
 # Django
 from django.db.models import Max
@@ -54,6 +54,7 @@ from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
+from taxsystem.tests.testdata.utils import add_character_to_user
 
 T = TypeVar("T")
 
@@ -63,11 +64,28 @@ class BaseMetaFactory(Generic[T], factory.base.FactoryMetaClass):
         return super().__call__(*args, **kwargs)
 
 
-class UserMainFactory(EvesdeUserMainFactory):
+class UserMainFactory(UserFactory):
     """Generate a User object with a main character and default permissions for TaxSystem."""
 
     permissions__ = ["taxsystem.basic_access"]
     scopes__ = CorporationOwner.get_esi_scopes()
+
+    @factory.post_generation
+    def main_character(obj, create, _, **kwargs):
+        if not create:
+            return
+        if "character" in kwargs:
+            character = kwargs["character"]
+        else:
+            character_name = f"{obj.first_name} {obj.last_name}"
+            character = EveCharacterFactory(character_name=character_name)
+
+        add_character_to_user(
+            user=obj,
+            character=character,
+            is_main=True,
+            scopes=obj._main_character_scopes,
+        )
 
 
 class EveEntityFactory(
