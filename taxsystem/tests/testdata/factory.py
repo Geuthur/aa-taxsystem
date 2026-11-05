@@ -4,9 +4,9 @@ from typing import Generic, TypeVar
 # Third Party
 import factory
 import factory.fuzzy
+from evesde_factory.allianceauth import UserMainFactory as EvesdeUserMainFactory
 
 # Django
-from django.contrib.auth import get_user_model
 from django.db.models import Max
 from django.utils import timezone
 
@@ -16,7 +16,6 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
-from allianceauth.tests.auth_utils import AuthUtils
 
 # AA TaxSystem
 from taxsystem.models import (
@@ -50,10 +49,8 @@ from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
-from taxsystem.tests.testdata.utils import add_character_to_user
 
 T = TypeVar("T")
-User = get_user_model()
 
 
 class BaseMetaFactory(Generic[T], factory.base.FactoryMetaClass):
@@ -61,60 +58,11 @@ class BaseMetaFactory(Generic[T], factory.base.FactoryMetaClass):
         return super().__call__(*args, **kwargs)
 
 
-class UserFactory(factory.django.DjangoModelFactory, metaclass=BaseMetaFactory[User]):
-    """Generate a User object."""
-
-    class Meta:
-        model = User
-        django_get_or_create = ("username",)
-        exclude = ("_generated_name",)
-
-    _generated_name = factory.Faker("name")
-    username = factory.LazyAttribute(lambda obj: obj._generated_name.replace(" ", "_"))
-    first_name = factory.LazyAttribute(lambda obj: obj._generated_name.split(" ")[0])
-    last_name = factory.LazyAttribute(lambda obj: obj._generated_name.split(" ")[1])
-    email = factory.LazyAttribute(
-        lambda obj: f"{obj.first_name.lower()}.{obj.last_name.lower()}@example.com"
-    )
-
-    @factory.post_generation
-    def permissions(obj, create, extracted, **kwargs):
-        """Set default permissions. Overwrite with `permissions=["app.perm1"]`."""
-        if not create:
-            return
-        permissions = extracted or []
-        for permission_name in permissions:
-            AuthUtils.add_permission_to_user_by_name(permission_name, obj)
-
-    @classmethod
-    def _after_postgeneration(cls, obj, create, results=None):
-        """Reset permission cache to force an update."""
-        super()._after_postgeneration(obj, create, results)
-        if hasattr(obj, "_perm_cache"):
-            del obj._perm_cache
-        if hasattr(obj, "_user_perm_cache"):
-            del obj._user_perm_cache
-
-
-class UserMainFactory(UserFactory):
+class UserMainFactory(EvesdeUserMainFactory):
     """Generate a User object with a main character and default permissions for TaxSystem."""
 
     permissions__ = ["taxsystem.basic_access"]
-
-    @factory.post_generation
-    def main_character(obj, create, _, **kwargs):
-        if not create:
-            return
-        if "character" in kwargs:
-            character = kwargs["character"]
-        else:
-            character_name = f"{obj.first_name} {obj.last_name}"
-            character = EveCharacterFactory(character_name=character_name)
-
-        scopes = CorporationOwner.get_esi_scopes()
-        add_character_to_user(
-            user=obj, character=character, is_main=True, scopes=scopes
-        )
+    scopes__ = CorporationOwner.get_esi_scopes()
 
 
 class EveAllianceInfoFactory(

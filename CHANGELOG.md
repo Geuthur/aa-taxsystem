@@ -44,6 +44,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] `aa-evesde-factory` is a test dependency (`tests-allianceauth-latest`).
+
 - [CHANGE] Buttons use the Bootstrap 5 variants (`variant`, `size`) with the theme look defined as overrides under `.aa-react`; the custom `aa-btn` classes were removed. Frontend inline styles were replaced by CSS classes, and missing `index.ts` files were added.
 
 - [CHANGE] `ButtonGroupFilter` supports counters, and the Administration owner filter uses it.
@@ -55,6 +57,8 @@ Section Order:
 - [CHANGE] Layout CSS of the settings page, owner cards, tables, loaders and the table filter was replaced by Bootstrap utility classes; own CSS remains for colors, borders, hover and fixed sizes. The error icon uses the theme's `text-danger` color.
 
 ### Removed
+
+- [REMOVED] Own `UserFactory` in the test data; `aa-evesde-factory` provides it, and the `UserMainFactory` of TaxSystem now inherits from it. Generated usernames are unique, so a random test user can no longer match an existing user such as a test superuser.
 
 - [REMOVED] Active/Deactivated status badge from the owner cards on the `OverviewPage`.
 

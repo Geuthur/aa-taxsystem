@@ -3,13 +3,15 @@
 # Standard Library
 from http import HTTPStatus
 
+# Third Party
+from evesde_factory.allianceauth import UserFactory
+
 # Django
 from django.urls import resolve, reverse
 
 # AA TaxSystem
 from taxsystem import views
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.factory import UserFactory
 
 MODULE_PATH = "taxsystem.views"
 
