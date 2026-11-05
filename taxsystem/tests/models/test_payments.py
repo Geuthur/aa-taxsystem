@@ -1,3 +1,6 @@
+# Third Party
+from evesde_factory.allianceauth import EveCharacterFactory
+
 # Django
 from django.utils import timezone
 
@@ -21,7 +24,6 @@ from taxsystem.tests.testdata.factory import (
     CorporationPaymentsFactory,
     CorporationTaxAccountFactory,
     DivisionFactory,
-    EveCharacterFactory,
     EveEntityFactory,
     UserMainFactory,
 )

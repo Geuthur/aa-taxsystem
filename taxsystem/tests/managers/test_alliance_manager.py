@@ -1,6 +1,10 @@
 # Standard Library
 from unittest.mock import patch
 
+# Third Party
+from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoFactory
+from evesde_factory.utils import add_character_to_user
+
 # Django
 from django.db import IntegrityError
 from django.utils import timezone
@@ -25,11 +29,8 @@ from taxsystem.tests.testdata.factory import (
     AllianceTaxAccountFactory,
     CorporationJournalFactory,
     DivisionFactory,
-    EveCharacterFactory,
-    EveCorporationInfoFactory,
     UserMainFactory,
 )
-from taxsystem.tests.testdata.utils import add_character_to_user
 
 MODULE_PATH = "taxsystem.managers.alliance_manager"
 

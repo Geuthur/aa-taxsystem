@@ -1,5 +1,8 @@
 """Test to ensure that the factories are working correctly."""
 
+# Third Party
+from evesde_factory.allianceauth import EveCorporationInfoFactory
+
 # AA TaxSystem
 from taxsystem.tests import TaxSystemTestCase
 from taxsystem.tests.testdata.factory import (
@@ -7,7 +10,6 @@ from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     CorporationGroupFactory,
     CorporationOwnerFactory,
-    EveCorporationInfoFactory,
     EveEntityFactory,
     UserMainFactory,
 )

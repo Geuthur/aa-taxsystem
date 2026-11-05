@@ -2,17 +2,16 @@
 import json
 from http import HTTPStatus
 
+# Third Party
+from evesde_factory.allianceauth import EveCharacterFactory
+from evesde_factory.utils import add_character_to_user
+
 # Django
 from django.urls import reverse
 
 # AA TaxSystem
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.factory import (
-    CorporationOwnerFactory,
-    EveCharacterFactory,
-    MembersFactory,
-)
-from taxsystem.tests.testdata.utils import add_character_to_user
+from taxsystem.tests.testdata.factory import CorporationOwnerFactory, MembersFactory
 
 MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"

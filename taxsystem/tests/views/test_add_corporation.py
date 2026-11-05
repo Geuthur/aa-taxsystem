@@ -2,6 +2,9 @@
 from http import HTTPStatus
 from unittest.mock import patch
 
+# Third Party
+from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoFactory
+
 # Django
 from django.urls import reverse
 
@@ -9,12 +12,7 @@ from django.urls import reverse
 from taxsystem.models import CorporationAdminHistory, CorporationOwner
 from taxsystem.models.helpers.textchoices import AdminActions
 from taxsystem.tests import TaxSystemTestCase
-from taxsystem.tests.testdata.factory import (
-    CorporationOwnerFactory,
-    EveCharacterFactory,
-    EveCorporationInfoFactory,
-    UserMainFactory,
-)
+from taxsystem.tests.testdata.factory import CorporationOwnerFactory, UserMainFactory
 
 MODULE_PATH = "taxsystem.views"
 
