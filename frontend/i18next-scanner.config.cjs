@@ -20,8 +20,10 @@ module.exports = {
     ns: ["translation"],
     defaultLng: "en",
     defaultNs: "translation",
+    // Only the English template gets the key as value. Other languages stay empty
+    // until translated on Weblate and fall back to English at runtime.
     defaultValue: function (lng, ns, key) {
-      return key;
+      return lng === "en" ? key : "";
     },
     resource: {
       loadPath: "i18n/{{lng}}/{{ns}}.json",
