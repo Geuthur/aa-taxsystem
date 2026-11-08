@@ -46,6 +46,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] The language files `frontend/i18n/<lng>/translation.json` hold only real translations as Weblate writes them; missing keys fall back to English. `i18next-scanner` maintains only `en`, and the empty placeholders were removed from all other languages.
+
 - [CHANGE] `aa-geuthur-react` raised to `^1.3.0`. The package bundles its own translations and registers them with i18next through `AaReactProvider`, so `Main.tsx` lists only the namespace `translation`, the copies under `taxsystem/static/taxsystem/i18n/<lng>/aa-geuthur-react.json` are removed and `make react-copy-translations` no longer copies them. Untranslated strings in `frontend/i18n/<lng>/translation.json` are empty instead of English (`i18next-scanner` writes the key as value only for `en`); `returnEmptyString: false` shows the English fallback at runtime. Translate on Weblate as before.
 
 - [CHANGE] GitHub workflows match the `aa-example` template: `autotester.yml` runs the React checks (lint, unit tests, build) in an own `frontend` job that the Python tests wait for, and uses `actions-setup-redis` 1.60.0; `release.yml` is the release job of the template.
