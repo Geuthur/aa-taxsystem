@@ -185,7 +185,7 @@ The manual covers:
 
 Help us translate this app into your language or improve existing translations. Join our team!"
 
-The shared frontend components (tables, modals, menu, loaders) come from the npm package [aa-geuthur-react](https://github.com/Geuthur/aa-geuthur-react) and are translated once in its own Weblate component.
+The texts of the app live in the namespace `translation` (`frontend/i18n/<lng>/translation.json`). The shared frontend components (tables, modals, menu, loaders) come from the npm package [aa-geuthur-react](https://github.com/Geuthur/aa-geuthur-react) and are translated once in its own Weblate component; the package bundles these texts and registers them with i18next itself, so the app neither copies nor loads them. Only `en` holds the English text as value; in the other languages untranslated strings are empty and fall back to English at runtime (`returnEmptyString: false`).
 
 ## Contributing<a name="contributing"></a>
 
