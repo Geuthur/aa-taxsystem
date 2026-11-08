@@ -2,14 +2,13 @@
 import React from "react";
 
 // Third Party
+import { BaseModal, ModalSize, formatCompactNumber } from "aa-geuthur-react";
 import { Trash2 } from "lucide-react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import type { BasePaymentRow } from "@/Components/Payments/Hooks";
-import { formatCompactNumber } from "@/Utils";
 
 export interface PaymentActionModalsProps {
   rejectingPayment: BasePaymentRow | null;
@@ -69,7 +68,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
     <>
       {/* Reject Payment Modal */}
       {rejectingPayment && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!rejectingPayment}
           onHide={onCancelReject}
           size={ModalSize.medium}
@@ -125,7 +124,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
 
       {/* Delete Custom Payment Modal */}
       {deletingPayment && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!deletingPayment}
           onHide={onCancelDelete}
           size={ModalSize.medium}
@@ -191,7 +190,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
 
       {/* Bulk Reject Modal */}
       {bulkRejectingPaymentIds && bulkRejectingPaymentIds.length > 0 && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!bulkRejectingPaymentIds}
           onHide={onCancelBulkReject || (() => {})}
           size={ModalSize.medium}
@@ -239,7 +238,7 @@ export const PaymentActionModals: React.FC<PaymentActionModalsProps> = ({
 
       {/* Bulk Delete Modal */}
       {bulkDeletingPaymentIds && bulkDeletingPaymentIds.length > 0 && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!bulkDeletingPaymentIds}
           onHide={onCancelBulkDelete || (() => {})}
           size={ModalSize.medium}

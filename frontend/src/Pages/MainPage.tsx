@@ -2,11 +2,11 @@
 import { Link } from "react-router-dom";
 
 // Third Party
+import { BaseSectionHeader } from "aa-geuthur-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import BaseSectionHeader from "@/Components/Base/BaseHeader";
 
 function MainPage() {
   const { t } = useTranslation();

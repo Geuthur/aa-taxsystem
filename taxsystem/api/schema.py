@@ -49,7 +49,11 @@ class MenuSchema(Schema):
 
 
 class UserData(Schema):
-    """The current user, main character and permissions."""
+    """The current user and its main character, as the `UserData` type of aa-geuthur-react expects it.
+
+    `is_admin` is the superuser flag: it unlocks the global update tasks and the
+    force refresh of the Administration, which the API restricts to superusers.
+    """
 
     user_id: int
     character_id: int = 0
@@ -60,9 +64,6 @@ class UserData(Schema):
     alliance_name: str | None = None
     portrait: str | None = None
     is_admin: bool = False
-    is_superuser: bool = False
-    can_manage: bool = False
-    can_create: bool = False
 
 
 class UserSettingsSchema(Schema):

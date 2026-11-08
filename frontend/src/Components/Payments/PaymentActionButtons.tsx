@@ -2,13 +2,13 @@
 import React from "react";
 
 // Third Party
+import { renderTooltip } from "aa-geuthur-react";
 import { Check, Eye, Trash2, Undo2, X } from "lucide-react";
 import { Button, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { BasePaymentRow } from "@/Components/Payments/Hooks";
-import { renderTooltip } from "@/Utils";
 
 export interface PaymentActionButtonsProps {
   payment: BasePaymentRow;

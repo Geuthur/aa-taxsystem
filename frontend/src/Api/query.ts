@@ -1,7 +1,10 @@
+// Third Party
+import { queryKeys as baseQueryKeys } from "aa-geuthur-react";
+
+// Every key that influences a request is part of the key, so URL state changes refetch.
+// `Menu`, `User` and `UserSettings` come from the package, so its hooks and the app share them.
 export const queryKeys = {
-  Menu: ["Menu"] as const,
-  User: ["User"] as const,
-  UserSettings: ["UserSettings"] as const,
+  ...baseQueryKeys,
   Overview: ["Overview"] as const,
   Dashboard: (ownerId: number) => ["Dashboard", ownerId] as const,
   TaxAccounts: (ownerId: number) => ["TaxAccounts", ownerId] as const,

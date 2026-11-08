@@ -3,14 +3,13 @@ import { useMemo } from "react";
 
 // Third Party
 import { useQueryClient } from "@tanstack/react-query";
+import { BaseModal, BaseTable, ModalSize } from "aa-geuthur-react";
 import { Image } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import { useMemberPayments } from "@/Components/OwnerManage/Hooks";
 import {
   PaymentActionButtons,

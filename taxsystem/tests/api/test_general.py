@@ -44,6 +44,24 @@ class TestGeneralApi(AuthTestCase):
         right_links = [link["link"] for link in response.json()["right_links"]]
         self.assertEqual(right_links, [])
 
+    def test_get_menu_should_badge_settings_with_owners_that_are_not_ok(self):
+        # Test Data
+        CorporationOwnerFactory(active=False)
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/menu/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        settings_link = next(
+            link
+            for link in response.json()["left_links"]
+            if link["link"] == "/settings/"
+        )
+        self.assertEqual(settings_link["badge"], 1)
+        self.assertTrue(settings_link["has_errors"])
+
     def test_get_menu_should_include_admin_and_add_links_for_superuser(self):
         # Test Data
         self.client.force_login(self.superuser)

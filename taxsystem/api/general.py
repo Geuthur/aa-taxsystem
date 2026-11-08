@@ -137,19 +137,15 @@ class ApiEndpoints:
             if not General.has_perm(user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
-            has_owner_errors = False
-            for corp in CorporationOwner.objects.manage_to(user):
-                if corp.get_status in (UpdateStatus.ERROR, UpdateStatus.TOKEN_ERROR):
-                    has_owner_errors = True
-                    break
-            if not has_owner_errors:
-                for ally in AllianceOwner.objects.manage_to(user):
-                    if ally.get_status in (
-                        UpdateStatus.ERROR,
-                        UpdateStatus.TOKEN_ERROR,
-                    ):
-                        has_owner_errors = True
-                        break
+            # Owners that are not up to date; the count is the badge of the Settings link.
+            owner_issues = sum(
+                1
+                for owner in (
+                    *CorporationOwner.objects.manage_to(user),
+                    *AllianceOwner.objects.manage_to(user),
+                )
+                if owner.get_status != UpdateStatus.OK
+            )
 
             left_links = [
                 schema.MenuLink(name=_("Overview"), link="/"),
@@ -157,7 +153,8 @@ class ApiEndpoints:
                 schema.MenuLink(
                     name=_("Settings"),
                     link="/settings/",
-                    has_errors=has_owner_errors,
+                    badge=owner_issues or None,
+                    has_errors=owner_issues > 0,
                 ),
             ]
 
@@ -190,7 +187,7 @@ class ApiEndpoints:
                 HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
-            summary="Get the current user and permissions",
+            summary="Get the current user and its main character",
         )
         def get_user(request: WSGIRequest):
             user = request.user
@@ -201,25 +198,10 @@ class ApiEndpoints:
                 getattr(user, "profile", None), "main_character", None
             )
 
-            can_manage = General.has_any_perm(
-                user,
-                General.Permission.MANAGE_CORPS,
-                General.Permission.MANAGE_OWN_CORP,
-                General.Permission.MANAGE_ALLIANCES,
-                General.Permission.MANAGE_OWN_ALLIANCE,
-            )
-            can_create = General.has_perm(user, General.Permission.CREATE_ACCESS)
-            is_admin = General.has_administration_access(user)
-            is_superuser = bool(user.is_superuser)
+            is_admin = bool(user.is_superuser)
 
             if not main_character:
-                return schema.UserData(
-                    user_id=user.id,
-                    is_admin=is_admin,
-                    is_superuser=is_superuser,
-                    can_manage=can_manage,
-                    can_create=can_create,
-                )
+                return schema.UserData(user_id=user.id, is_admin=is_admin)
 
             return schema.UserData(
                 user_id=user.id,
@@ -234,9 +216,6 @@ class ApiEndpoints:
                     size=64,
                 ),
                 is_admin=is_admin,
-                is_superuser=is_superuser,
-                can_manage=can_manage,
-                can_create=can_create,
             )
 
         @api.get(

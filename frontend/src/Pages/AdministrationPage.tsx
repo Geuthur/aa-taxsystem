@@ -25,7 +25,7 @@ import AdministrationOwnersTable from "@/Components/Administration/Administratio
 import {
   useAdministrationActions,
   useAdministrationOwners,
-  useIsSuperuser,
+  useIsAdmin,
 } from "@/Components/Administration/Hooks";
 import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 import styles from "@/Styles/modules/Administration.module.css";
@@ -54,7 +54,7 @@ export function AdministrationPage() {
 
   // Data and actions
   const { data: owners = [], isLoading, isError, error } = useAdministrationOwners();
-  const isSuperuser = useIsSuperuser();
+  const isAdmin = useIsAdmin();
   const actions = useAdministrationActions(() => setOwnerToDelete(null));
 
   // If inspection view active
@@ -219,7 +219,7 @@ export function AdministrationPage() {
         </Row>
 
         {/* Global Task Administration Panel (Collapsible) */}
-        {isSuperuser && (
+        {isAdmin && (
           <Card className="bg-dark border-secondary mb-4 shadow-sm">
             <Card.Header
               className={`border-secondary d-flex align-items-center justify-content-between py-2 ${styles.cursorPointer}`}
@@ -405,7 +405,7 @@ export function AdministrationPage() {
           data={filteredOwners}
           isLoading={isLoading}
           isUpdating={actions.isUpdating}
-          canForceRefresh={isSuperuser}
+          canForceRefresh={isAdmin}
           onInspect={(owner) => {
             setInspectId(owner.owner_id);
             setInspectType(owner.owner_type);

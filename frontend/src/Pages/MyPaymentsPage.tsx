@@ -3,14 +3,13 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
+import { BaseSectionHeader, BaseTable } from "aa-geuthur-react";
 import { ArrowLeft } from "lucide-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import BaseSectionHeader from "@/Components/Base/BaseHeader";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { useMyPayments } from "@/Components/Payments/Hooks";
 import { getPaymentColumns } from "@/Components/Tables";

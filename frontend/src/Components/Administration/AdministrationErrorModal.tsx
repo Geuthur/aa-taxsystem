@@ -1,9 +1,9 @@
 // Third Party
+import { BaseModal } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import { AdministrationStatusBadge } from "@/Components/Administration/AdministrationStatusBadge";
-import { BaseModal } from "@/Components/Base/BaseModal";
 
 export interface AdministrationErrorModalProps {
   show: boolean;
@@ -33,7 +33,7 @@ export function AdministrationErrorModal({
       : t("No error message available."));
 
   return (
-    <BaseModal show={show} onHide={onHide} title={t("Error details")}>
+    <BaseModal bodyClassName="aa-panel" show={show} onHide={onHide} title={t("Error details")}>
       <div className="d-flex align-items-center gap-2 mb-3">
         <span className="fw-semibold">{ownerName}</span>
         <AdministrationStatusBadge status={status} />

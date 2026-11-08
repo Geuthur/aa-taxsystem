@@ -1,3 +1,6 @@
+/* The styles of the shared React base come first, so the rules below can override them. */
+@import "aa-geuthur-react/styles.css";
+
 /*
  * AllianceAuth CSS not colliding with BS5
  */
@@ -139,11 +142,6 @@ html[data-bs-theme="dark"] {
 }
 
 /* ═══ General ═══════════════════════════════════════════════════════════════ */
-.aa-section {
-    color: var(--aa-text-primary);
-    max-width: 128rem;
-}
-
 .aa-badge {
     font-family: ui-monospace, Menlo, Consolas, monospace;
     text-transform: uppercase;
@@ -337,10 +335,6 @@ html[data-bs-theme="dark"] {
     animation: aa-pending-glow 2s infinite ease-in-out;
 }
 
-.aa-order-nav-pulse {
-    animation: aa-danger-glow 2s infinite ease-in-out;
-}
-
 .aa-pending-dot-container {
     position: relative;
     display: inline-flex;
@@ -416,35 +410,6 @@ html[data-bs-theme="dark"] {
 
     50% {
         box-shadow: 0 0 10px 2px rgba(244, 63, 94, 0.5);
-    }
-}
-
-.aa-nav-danger {
-    color: var(--aa-color-rose, #f43f5e) !important;
-    font-weight: 600;
-}
-
-.aa-nav-danger:hover {
-    color: var(--aa-color-rose-light, #fda4af) !important;
-    text-shadow: 0 0 8px rgba(244, 63, 94, 0.4);
-}
-
-/* ═══ MENU BADGE PULSE ════════════════════════════════════════════════════════ */
-.aa-menu-badge-pulse {
-    position: relative;
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    animation: aa-menu-badge-ping 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes aa-menu-badge-ping {
-
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.75);
-    }
-
-    50% {
-        box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
     }
 }
 

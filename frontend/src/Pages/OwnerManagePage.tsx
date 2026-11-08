@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
+import { BaseModal, BaseSectionHeader, ModalSize, formatCompactNumber } from "aa-geuthur-react";
 import {
   Activity,
   AlertCircle,
@@ -24,8 +25,6 @@ import { Alert, Badge, Button, Card, Col, Form, Nav, Row, Spinner } from "react-
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import BaseSectionHeader from "@/Components/Base/BaseHeader";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
 import {
   AccountsTab,
   DivisionsModal,
@@ -36,7 +35,6 @@ import {
 } from "@/Components/OwnerManage";
 import { useDashboard, useUpdateOwnerSettings } from "@/Components/OwnerManage/Hooks";
 import { useOwnerTabState } from "@/Hooks/useTaxsystemState";
-import { formatCompactNumber } from "@/Utils";
 
 interface OwnerManagePageProps {
   ownerIdOverride?: number;
@@ -405,7 +403,7 @@ export function OwnerManagePage({ ownerIdOverride, onBack }: OwnerManagePageProp
       </div>
 
       {/* Tax Configuration Modal via BaseModal */}
-      <BaseModal
+      <BaseModal bodyClassName="aa-panel"
         show={showSettingsModal}
         onHide={() => setShowSettingsModal(false)}
         size={ModalSize.medium}
