@@ -44,6 +44,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] GitHub workflows match the `aa-example` template: `autotester.yml` runs the React checks (lint, unit tests, build) in an own `frontend` job that the Python tests wait for, and uses `actions-setup-redis` 1.60.0; `release.yml` is the release job of the template.
+
 - [CHANGE] `aa-evesde-factory` is a test dependency (`tests-allianceauth-latest`).
 
 - [CHANGE] Buttons use the Bootstrap 5 variants (`variant`, `size`) with the theme look defined as overrides under `.aa-react`; the custom `aa-btn` classes were removed. Frontend inline styles were replaced by CSS classes, and missing `index.ts` files were added.
