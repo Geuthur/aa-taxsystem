@@ -3,6 +3,7 @@ import { useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUserData } from "aa-geuthur-react";
 
 // AA TaxSystem
 // AA Tax System
@@ -13,7 +14,6 @@ import {
   triggerAdministrationOwnerUpdate,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import { useUserData } from "@/Hooks/useUserData";
 
 /** Loads all owners of the Administration. */
 export function useAdministrationOwners() {
@@ -23,10 +23,10 @@ export function useAdministrationOwners() {
   });
 }
 
-/** Tells whether the current user is a superuser (global tasks and force refresh are reserved for them). */
-export function useIsSuperuser() {
+/** Tells whether the current user is an admin (`is_admin` of the user endpoint, the superuser flag: global tasks, force refresh). */
+export function useIsAdmin() {
   const { data } = useUserData();
-  return Boolean(data?.user.is_superuser);
+  return data?.user.is_admin ?? false;
 }
 
 /**

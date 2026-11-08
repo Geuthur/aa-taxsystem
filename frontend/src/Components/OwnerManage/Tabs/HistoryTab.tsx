@@ -2,12 +2,12 @@
 import { useMemo } from "react";
 
 // Third Party
+import { BaseTable } from "aa-geuthur-react";
 import { History } from "lucide-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { BaseTable } from "@/Components/Base/BaseTable";
 import { useAdminLogs } from "@/Components/OwnerManage/Hooks";
 import { getHistoryColumns } from "@/Components/Tables";
 

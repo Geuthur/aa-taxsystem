@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useUserData } from "aa-geuthur-react";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,9 +14,17 @@ import * as ApiCalls from "@/Api/ApiCalls";
 import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import { AdministrationPage } from "@/Pages/AdministrationPage";
 
+// useUserData of the package calls the `user/` endpoint itself, so the hook is mocked, not the call.
+vi.mock("aa-geuthur-react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("aa-geuthur-react")>();
+  return { ...actual, useUserData: vi.fn() };
+});
+
+const userQuery = (user: { user_id: number; is_admin: boolean }) =>
+  ({ data: { user }, isLoading: false, error: null }) as unknown as ReturnType<typeof useUserData>;
+
 vi.mock("@/Api/ApiCalls", () => ({
   loadAdministrationOwners: vi.fn(),
-  loadUserData: vi.fn(),
   runAdminTasks: vi.fn(),
   triggerAdministrationOwnerUpdate: vi.fn(),
   deleteAdministrationOwner: vi.fn(),
@@ -119,9 +128,7 @@ describe("AdministrationPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
-      user: { user_id: 1, is_admin: true, is_superuser: true },
-    } as never);
+    vi.mocked(useUserData).mockReturnValue(userQuery({ user_id: 1, is_admin: true }));
     vi.mocked(ApiCalls.loadDashboard).mockResolvedValue(mockDashboard as never);
   });
 
@@ -318,12 +325,10 @@ describe("AdministrationPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("should hide global tasks and force refresh for administrators without superuser", async () => {
+  it("should hide global tasks and force refresh for users that are not admins", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserData).mockResolvedValue({
-      user: { user_id: 2, is_admin: true, is_superuser: false },
-    } as never);
+    vi.mocked(useUserData).mockReturnValue(userQuery({ user_id: 2, is_admin: false }));
     renderPage();
 
     await waitFor(() => {

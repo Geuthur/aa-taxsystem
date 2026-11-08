@@ -2,14 +2,13 @@
 import { useMemo } from "react";
 
 // Third Party
+import { BaseModal, BaseTable, ModalSize } from "aa-geuthur-react";
 import { Users } from "lucide-react";
 import { Badge, Button, Image } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import { getAltColumns } from "@/Components/Tables";
 
 type AltCharacter = components["schemas"]["CharacterSchema"];

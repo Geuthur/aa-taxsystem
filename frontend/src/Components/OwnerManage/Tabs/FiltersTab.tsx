@@ -2,13 +2,12 @@
 import { useMemo, useState } from "react";
 
 // Third Party
+import { BaseModal, BaseTable, ModalSize } from "aa-geuthur-react";
 import { Filter, Layers, Plus } from "lucide-react";
 import { Button, Card, Col, Form, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import {
   useFilterActions,
   useFilters,
@@ -160,7 +159,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
 
       {/* Create Filter Set Modal */}
       {showCreateSetModal && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={showCreateSetModal}
           onHide={() => setShowCreateSetModal(false)}
           size={ModalSize.medium}
@@ -215,7 +214,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
 
       {/* Create Filter Modal */}
       {showCreateFilterModal && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={showCreateFilterModal}
           onHide={() => setShowCreateFilterModal(false)}
           size={ModalSize.medium}
@@ -300,7 +299,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
 
       {/* Delete Confirmation Modals */}
       {filterSetToDelete !== null && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={filterSetToDelete !== null}
           onHide={() => setFilterSetToDelete(null)}
           size={ModalSize.medium}
@@ -329,7 +328,7 @@ export function FiltersTab({ ownerId }: FiltersTabProps) {
       )}
 
       {filterToDelete !== null && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={filterToDelete !== null}
           onHide={() => setFilterToDelete(null)}
           size={ModalSize.medium}

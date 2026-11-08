@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 // Third Party
 import { useQueryClient } from "@tanstack/react-query";
 import type { RowSelectionState } from "@tanstack/react-table";
+import { BaseModal, BaseSectionHeader, BaseTable, ModalSize, formatCompactNumber } from "aa-geuthur-react";
 import { ArrowLeft, Check, CreditCard, RotateCcw, Trash2, X } from "lucide-react";
 import { Badge, Button, Card, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -12,9 +13,6 @@ import { useTranslation } from "react-i18next";
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
-import BaseSectionHeader from "@/Components/Base/BaseHeader";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
 import {
@@ -24,7 +22,6 @@ import {
 import { usePaymentActions, usePaymentDetails, usePayments } from "@/Components/Payments/Hooks";
 import { getPaymentColumns } from "@/Components/Tables";
 import { useStatusFilterState, useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { formatCompactNumber } from "@/Utils";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 
@@ -242,7 +239,7 @@ export function PaymentsPage() {
 
       {/* Details & History Modal */}
       {detailsPaymentId && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!detailsPaymentId}
           onHide={() => setDetailsPaymentId(null)}
           size={ModalSize.large}

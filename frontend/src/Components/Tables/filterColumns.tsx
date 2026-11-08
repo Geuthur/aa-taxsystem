@@ -1,11 +1,11 @@
 // Third Party
+import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { ArrowRight, Trash2 } from "lucide-react";
 import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 
 export type FilterSetRow = components["schemas"]["FilterSetModelSchema"];
 export type FilterRow = components["schemas"]["FilterModelSchema"];

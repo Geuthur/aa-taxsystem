@@ -2,14 +2,13 @@
 import { useMemo, useState } from "react";
 
 // Third Party
+import { BaseModal, BaseTable, ModalSize, formatCompactNumber } from "aa-geuthur-react";
 import { CheckCircle2, DollarSign, UserCheck, XCircle } from "lucide-react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
@@ -17,7 +16,6 @@ import { useAccountActions, useTaxAccounts } from "@/Components/OwnerManage/Hook
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getAccountColumns } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
-import { formatCompactNumber } from "@/Utils";
 
 interface AccountsTabProps {
   ownerId: number;
@@ -148,7 +146,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
 
       {/* Switch Account Modal */}
       {selectedAccount && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!selectedAccount}
           onHide={() => setSelectedAccount(null)}
           size={ModalSize.medium}
@@ -210,7 +208,7 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
 
       {/* Add Custom Payment Modal */}
       {paymentAccount && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!paymentAccount}
           onHide={() => setPaymentAccount(null)}
           size={ModalSize.medium}

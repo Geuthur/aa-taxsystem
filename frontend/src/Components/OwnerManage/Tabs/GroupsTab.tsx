@@ -2,14 +2,13 @@
 import { useMemo, useState } from "react";
 
 // Third Party
+import { BaseModal, BaseTable, ModalSize } from "aa-geuthur-react";
 import { Plus, Trash2, Users2 } from "lucide-react";
 import { Button, Card, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import {
   useAvailableGroups,
   useGroupActions,
@@ -109,7 +108,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
 
       {/* Add Tax-Free Group Modal */}
       {showCreateModal && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={showCreateModal}
           onHide={() => setShowCreateModal(false)}
           size={ModalSize.medium}
@@ -199,7 +198,7 @@ export function GroupsTab({ ownerId }: GroupsTabProps) {
 
       {/* Delete Group Confirmation Modal */}
       {groupToDelete && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!groupToDelete}
           onHide={() => setGroupToDelete(null)}
           size={ModalSize.medium}

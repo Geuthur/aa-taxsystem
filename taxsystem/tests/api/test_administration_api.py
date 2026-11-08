@@ -658,31 +658,29 @@ class TestAdministrationApi(AuthTestCase):
         self.assertIn("/administration/", corps_links)
         self.assertIn("/administration/", alliances_links)
 
-    def test_get_user_should_flag_is_admin_per_permission(self):
+    def test_get_user_should_flag_is_admin_only_for_superusers(self):
         # Test Data
         base = "taxsystem.basic_access"
-        cases = {
-            "taxsystem.admin_access": True,
-            "taxsystem.manage_corps": True,
-            "taxsystem.manage_alliances": True,
-            "taxsystem.manage_own_corp": True,
-            "taxsystem.manage_own_alliance": True,
-        }
+        permissions = [
+            "taxsystem.admin_access",
+            "taxsystem.manage_corps",
+            "taxsystem.manage_alliances",
+            "taxsystem.manage_own_corp",
+            "taxsystem.manage_own_alliance",
+        ]
 
         # Test Action
         results = {}
-        for perm in cases:
+        for perm in permissions:
             self.client.force_login(UserMainFactory(permissions__=[base, perm]))
-            data = self.client.get(f"{self.api}/user/").json()
-            results[perm] = (data["is_admin"], data["is_superuser"])
+            results[perm] = self.client.get(f"{self.api}/user/").json()["is_admin"]
         self.client.force_login(self.superuser)
         superuser_data = self.client.get(f"{self.api}/user/").json()
 
         # Expected Result
-        for perm, expected in cases.items():
-            self.assertEqual(results[perm], (expected, False), perm)
+        for perm in permissions:
+            self.assertFalse(results[perm], perm)
         self.assertTrue(superuser_data["is_admin"])
-        self.assertTrue(superuser_data["is_superuser"])
 
     def _own_user(self, *permissions):
         user = UserMainFactory(permissions__=list(permissions))

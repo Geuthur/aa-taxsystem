@@ -28,7 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get the current user and permissions */
+        /** Get the current user and its main character */
         get: operations["taxsystem_api_general_get_user"];
         put?: never;
         post?: never;
@@ -1022,7 +1022,10 @@ export interface components {
         };
         /**
          * UserData
-         * @description The current user, main character and permissions.
+         * @description The current user and its main character, as the `UserData` type of aa-geuthur-react expects it.
+         *
+         *     `is_admin` is the superuser flag: it unlocks the global update tasks and the
+         *     force refresh of the Administration, which the API restricts to superusers.
          */
         UserData: {
             /** User Id */
@@ -1058,21 +1061,6 @@ export interface components {
              * @default false
              */
             is_admin: boolean;
-            /**
-             * Is Superuser
-             * @default false
-             */
-            is_superuser: boolean;
-            /**
-             * Can Manage
-             * @default false
-             */
-            can_manage: boolean;
-            /**
-             * Can Create
-             * @default false
-             */
-            can_create: boolean;
         };
         /**
          * UserSettingsSchema

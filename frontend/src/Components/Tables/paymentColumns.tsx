@@ -2,14 +2,14 @@
 import React from "react";
 
 // Third Party
+import { formatCompactNumber } from "aa-geuthur-react";
+import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { Badge, Form } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
-import { formatCompactNumber } from "@/Utils";
 
 export type PaymentRow = components["schemas"]["PaymentSchema"];
 export type CorpPaymentRow = components["schemas"]["PaymentCorporationSchema"];

@@ -3,6 +3,7 @@ import { useState } from "react";
 
 // Third Party
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCooldown, useFeedback, useOwnerCooldowns } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
@@ -17,8 +18,6 @@ import {
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
 import type { UserSettingsSchema } from "@/Api/schema";
-import { useCooldown, useOwnerCooldowns } from "@/Hooks/useCooldown";
-import { useFeedback } from "@/Hooks/useFeedback";
 
 /** Loads the user settings and updates them optimistically. */
 export function useUserSettings() {

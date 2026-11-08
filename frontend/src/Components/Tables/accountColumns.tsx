@@ -1,13 +1,13 @@
 // Third Party
+import { formatCompactNumber, formatDate, renderTooltip } from "aa-geuthur-react";
+import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { CheckCircle2, DollarSign, History, RotateCcw, ToggleLeft, ToggleRight, XCircle } from "lucide-react";
 import { Badge, Button } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
-import { formatCompactNumber, formatDate, renderTooltip } from "@/Utils";
 
 export type AccountRow = components["schemas"]["PaymentSystemSchema"];
 

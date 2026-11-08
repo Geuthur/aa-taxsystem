@@ -46,7 +46,7 @@
     "/taxsystem/api/user/": {
       "get": {
         "operationId": "taxsystem_api_general_get_user",
-        "summary": "Get the current user and permissions",
+        "summary": "Get the current user and its main character",
         "parameters": [],
         "responses": {
           "200": {
@@ -3418,7 +3418,7 @@
         "type": "object"
       },
       "UserData": {
-        "description": "The current user, main character and permissions.",
+        "description": "The current user and its main character, as the `UserData` type of aa-geuthur-react expects it.\n\n`is_admin` is the superuser flag: it unlocks the global update tasks and the\nforce refresh of the Administration, which the API restricts to superusers.",
         "properties": {
           "user_id": {
             "title": "User Id",
@@ -3480,21 +3480,6 @@
           "is_admin": {
             "default": false,
             "title": "Is Admin",
-            "type": "boolean"
-          },
-          "is_superuser": {
-            "default": false,
-            "title": "Is Superuser",
-            "type": "boolean"
-          },
-          "can_manage": {
-            "default": false,
-            "title": "Can Manage",
-            "type": "boolean"
-          },
-          "can_create": {
-            "default": false,
-            "title": "Can Create",
             "type": "boolean"
           }
         },

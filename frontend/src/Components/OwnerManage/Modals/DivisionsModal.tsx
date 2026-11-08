@@ -2,14 +2,13 @@
 import type { ReactNode } from "react";
 
 // Third Party
+import { BaseModal, ModalSize, formatCompactNumber } from "aa-geuthur-react";
 import { Wallet } from "lucide-react";
 import { Badge, Card, Col, ProgressBar, Row, Table } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { formatCompactNumber } from "@/Utils";
 
 type DivisionsData = components["schemas"]["DashboardDivisionsSchema"];
 
@@ -32,7 +31,7 @@ export function DivisionsModal({ show, onHide, divisions }: DivisionsModalProps)
   );
 
   return (
-    <BaseModal
+    <BaseModal bodyClassName="aa-panel"
       show={show}
       onHide={onHide}
       title={modalTitle}

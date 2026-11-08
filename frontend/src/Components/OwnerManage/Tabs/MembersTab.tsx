@@ -2,14 +2,13 @@
 import { useMemo, useState } from "react";
 
 // Third Party
+import { BaseModal, BaseTable, ModalSize } from "aa-geuthur-react";
 import { AlertCircle } from "lucide-react";
 import { Button, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { BaseModal, ModalSize } from "@/Components/Base/BaseModal";
-import { BaseTable } from "@/Components/Base/BaseTable";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { useMemberActions, useMembers } from "@/Components/OwnerManage/Hooks";
 import { MemberAltsModal } from "@/Components/OwnerManage/Modals/MemberAltsModal";
@@ -92,7 +91,7 @@ export function MembersTab({ ownerId }: MembersTabProps) {
 
       {/* Delete Member Confirmation Modal */}
       {memberToDelete && (
-        <BaseModal
+        <BaseModal bodyClassName="aa-panel"
           show={!!memberToDelete}
           onHide={() => setMemberToDelete(null)}
           size={ModalSize.medium}

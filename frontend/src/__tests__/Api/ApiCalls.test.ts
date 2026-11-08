@@ -6,9 +6,7 @@ import { apiClient } from '@/Api/Api';
 import {
     addCustomPayment,
     deletePayment,
-    loadMenu,
     loadUserAccounts,
-    loadUserData,
     loadUserSettings,
     manageBulkPaymentAction,
     updateUserSettings,
@@ -17,46 +15,6 @@ import {
 describe('General API client functions', () => {
     beforeEach(() => {
         vi.restoreAllMocks();
-    });
-
-    describe('loadUserData', () => {
-        it('returns user data on successful GET', async () => {
-            const mockUser = { user_id: 1, character_id: 42, character_name: 'Test Pilot' };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: mockUser,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadUserData();
-            expect(result).toEqual({ user: mockUser });
-            expect(apiClient.GET).toHaveBeenCalledWith('/taxsystem/api/user/');
-        });
-
-        it('throws error when GET fails or returns no data', async () => {
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: undefined,
-                error: { status: 500 },
-                response: new Response(),
-            } as never);
-
-            await expect(loadUserData()).rejects.toThrow('Failed to load user data');
-        });
-    });
-
-    describe('loadMenu', () => {
-        it('calls /taxsystem/api/menu/ and returns data', async () => {
-            const mockMenu = { left_links: [], right_links: [] };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: mockMenu,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadMenu();
-            expect(result).toEqual(mockMenu);
-            expect(apiClient.GET).toHaveBeenCalledWith('/taxsystem/api/menu/');
-        });
     });
 
     describe('loadUserSettings', () => {

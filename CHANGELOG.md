@@ -58,7 +58,13 @@ Section Order:
 
 - [CHANGE] Tests use the `AuthTestCase` base class in the layout of the `aa-example` template (`NoSocketsTestCase` and `AuthTestCase` with `factory`, `user`, `superuser`). `TaxSystemTestCase` and its extras (`corp`, `user_character`, `superuser_character`, `_add_corporation`, `_add_alliance`) were removed; the tests that need them set them up themselves or use `testdata/views.py`.
 
+- [CHANGE] The frontend uses the npm package [aa-geuthur-react](https://github.com/Geuthur/aa-geuthur-react) for the shared base: tables, modals, loaders, menus, hooks, utilities, the page layout (`aa-react container`, 640 px to 1280 px wide) and the ESLint rule `import-headings`. The package texts are translated in its own Weblate component, and `make react-copy-translations` copies them next to the app translations. Where the package looks different from the former copies (section header, table footer layout, spinner and error icon sizes, no `-webkit-backdrop-filter`), the package look applies.
+
+- [CHANGE] The `user/` endpoint returns the `UserData` contract of the package: `is_admin` is now the superuser flag (global update tasks and force refresh of the Administration) and `is_superuser`, `can_manage` and `can_create` are gone. The `menu/` endpoint puts the number of owners that are not up to date as `badge` on the Settings link and sets `has_errors` when there are any. The badge is loaded with the menu and no longer refreshed every 30 seconds.
+
 ### Removed
+
+- [REMOVED] The frontend copies of `BaseTable`, `BaseModal`, the loaders, `BaseSectionHeader`, the menus, `useCooldown`, `useFeedback`, `useUserData`, `useMenu`, `Utils`, the base `Pages` (`Base`, `404`), `table.css`, the matching CSS modules and the `import-headings` ESLint rule, with their tests, and the CSS of `aa-section`, `aa-nav-danger`, `aa-menu-badge-pulse` and the tooltips (all part of the package).
 
 - [REMOVED] Own `UserFactory`, `EveAllianceInfoFactory`, `EveCorporationInfoFactory` and `EveCharacterFactory` and the test helper module `testdata/utils.py` (`add_character_to_user` and others) (identical to the ones in `aa-evesde-factory`); `aa-evesde-factory` provides it, and the `UserMainFactory` of TaxSystem now inherits from it. Generated usernames are unique, so a random test user can no longer match an existing user such as a test superuser.
 

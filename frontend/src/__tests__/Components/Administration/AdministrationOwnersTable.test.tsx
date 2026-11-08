@@ -11,8 +11,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import { AdministrationOwnersTable } from "@/Components/Administration";
 
+// `withTranslation` is used by the ErrorBoundary of aa-geuthur-react, which the tests run through Vite.
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
+  withTranslation: () => (Component: unknown) => Component,
 }));
 
 const buildOwner = (

@@ -2,13 +2,13 @@
 import { useState } from "react";
 
 // Third Party
+// AA Base
+import { BaseModal } from "aa-geuthur-react";
 import { AlertTriangle, RotateCw, Trash2, Users } from "lucide-react";
 import { Alert, Button, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-// AA Base
-import { BaseModal } from "@/Components/Base/BaseModal";
 import { BaseOwnerCard } from "@/Components/Base/OwnerSettings/BaseOwnerCard";
 import { MissingOwnerCard } from "@/Components/Base/OwnerSettings/MissingOwnerCard";
 import styles from "@/Components/Base/OwnerSettings/OwnerSettings.module.css";
@@ -179,7 +179,7 @@ export function BaseOwnerSettingsSection<
         )}
 
         {onDeleteOwner && (
-          <BaseModal
+          <BaseModal bodyClassName="aa-panel"
             show={Boolean(ownerToDelete)}
             onHide={() => !isDeleting && setOwnerToDelete(null)}
             centered
