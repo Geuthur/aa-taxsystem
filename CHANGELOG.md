@@ -34,6 +34,8 @@ Section Order:
 
 ### Fixed
 
+- [FIX] Real Weblate translations lost when the bundled-translations switch emptied all non-English values (Weblate could no longer rebase its branch). The translated frontend strings from the Weblate branch (30 to 43 per language, one more for German) are merged into `frontend/i18n/<lng>/translation.json`; new `cs` and `sk` files were added. The Django `.po` files already contained everything and are unchanged.
+
 - [FIX] Tests no longer fail between 11:00 and 11:15 UTC. The daily ESI downtime check can be disabled with the `DISABLE_DAILY_DOWNTIME_CHECK` setting, which the test settings now set.
 
 - [FIX] Section headers, card headers and filter button groups overflowing the container on small screens; headers now wrap and the filter buttons scroll horizontally.
