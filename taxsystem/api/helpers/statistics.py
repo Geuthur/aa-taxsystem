@@ -112,7 +112,6 @@ def create_dashboard_common_data(owner, divisions):
     return {
         "update_status": UpdateStatusSchema(
             status=sections_status,
-            icon=owner.get_status.bootstrap_icon(),
             has_errors=has_errors,
             status_display=status_str,
         ),

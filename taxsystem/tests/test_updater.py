@@ -21,7 +21,6 @@ from taxsystem.models.helpers.update_manager import (
     CorporationUpdateSection,
     UpdateManager,
     UpdateSection,
-    UpdateStatus,
 )
 from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
@@ -494,72 +493,3 @@ class TestUpdateStatusAndSections(AuthTestCase):
         self.assertIn("payments", alliance_list)
         self.assertIn("deadlines", alliance_list)
         self.assertEqual(alliance_sections.PAYMENTS.method_name, "update_payments")
-
-    def test_update_status_bootstrap_icon_should_render_html_span(self):
-        # Test Data
-        statuses = [
-            (UpdateStatus.DISABLED, "text-muted", "Update is disabled"),
-            (
-                UpdateStatus.TOKEN_ERROR,
-                "text-warning",
-                "One section has a token error during update",
-            ),
-            (UpdateStatus.ERROR, "text-danger", "An error occurred during update"),
-            (UpdateStatus.OK, "text-success", "Updates completed successfully"),
-            (
-                UpdateStatus.INCOMPLETE,
-                "text-warning",
-                "One or more sections have not been updated",
-            ),
-            (UpdateStatus.IN_PROGRESS, "text-info", "Update is in progress"),
-        ]
-
-        # Test Action & Expected Result
-        for status, expected_class, expected_desc in statuses:
-            # Test Action
-            icon_html = status.bootstrap_icon()
-
-            # Expected Result
-            self.assertIn(f"class='{expected_class}'", icon_html)
-            self.assertIn(f"title='{expected_desc}'", icon_html)
-            self.assertIn("data-bs-tooltip='aa-taxsystem'", icon_html)
-            self.assertIn("⬤", icon_html)
-
-    def test_update_status_bootstrap_text_style_class_should_return_correct_class(self):
-        # Test Data
-        expected_styles = {
-            UpdateStatus.DISABLED: "text-muted",
-            UpdateStatus.TOKEN_ERROR: "text-warning",
-            UpdateStatus.INCOMPLETE: "text-warning",
-            UpdateStatus.IN_PROGRESS: "text-info",
-            UpdateStatus.ERROR: "text-danger",
-            UpdateStatus.OK: "text-success",
-        }
-
-        # Test Action & Expected Result
-        for status, expected_style in expected_styles.items():
-            # Test Action
-            style = status.bootstrap_text_style_class()
-
-            # Expected Result
-            self.assertEqual(style, expected_style)
-
-    def test_update_status_description_should_return_human_readable_string(self):
-        # Test Data
-        statuses = [
-            UpdateStatus.DISABLED,
-            UpdateStatus.TOKEN_ERROR,
-            UpdateStatus.ERROR,
-            UpdateStatus.OK,
-            UpdateStatus.INCOMPLETE,
-            UpdateStatus.IN_PROGRESS,
-        ]
-
-        # Test Action & Expected Result
-        for status in statuses:
-            # Test Action
-            desc = status.description()
-
-            # Expected Result
-            self.assertIsInstance(desc, str)
-            self.assertTrue(len(desc) > 0)

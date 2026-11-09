@@ -84,6 +84,8 @@ Section Order:
 
 - [REMOVED] Unused `BaseModalQuery` component.
 
+- [REMOVED] Backend HTML helpers `bootstrap_icon`, `bootstrap_text_style_class` and `description` of `UpdateStatus` and the unused `icon` field of the `update_status` object in the owner dashboard API response (`UpdateStatusSchema`). The frontend renders the update status itself from `status`, `has_errors` and `status_display`.
+
 <!-- Your changes go here -->
 
 ## [5.1.0] - 2026-10-25
