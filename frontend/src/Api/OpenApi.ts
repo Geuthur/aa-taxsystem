@@ -1411,8 +1411,6 @@ export interface components {
             code?: string | null;
             /** Color */
             color?: string | null;
-            /** Icon */
-            icon?: string | null;
             /** Html */
             html?: string | null;
             /**

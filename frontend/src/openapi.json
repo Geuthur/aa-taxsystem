@@ -4399,17 +4399,6 @@
             ],
             "title": "Color"
           },
-          "icon": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Icon"
-          },
           "html": {
             "anyOf": [
               {
