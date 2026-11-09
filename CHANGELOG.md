@@ -30,6 +30,8 @@ Section Order:
 
 - [ADD] Reusable frontend components `OwnerPortrait` and `SearchInput`, replacing several inline copies.
 
+- [ADD] Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) for the tox environment `allianceauth-development` and `make tox-tests-development`, with separate test settings in `testauth/settings/development/`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14.
+
 - [ADD] Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Payments, Overview, Account Overview, Owner Management and menu views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
 
 ### Fixed
