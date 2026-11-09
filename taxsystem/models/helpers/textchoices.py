@@ -19,10 +19,16 @@ class AccountStatus(models.TextChoices):
         """Return the HTML for the status."""
         if text:
             return format_html(
-                f"<span class='badge bg-{self.color()}' data-bs-tooltip='aa-taxsystem' title='{self.label}'>{self.label}</span>"
+                "<span class='badge bg-{}' data-bs-tooltip='aa-taxsystem' title='{}'>{}</span>",
+                self.color(),
+                self.label,
+                self.label,
             )
         return format_html(
-            f"<span class='btn btn-sm btn-square bg-{self.color()}' data-bs-tooltip='aa-taxsystem' title='{self.label}'>{self.icon()}</span>"
+            "<span class='btn btn-sm btn-square bg-{}' data-bs-tooltip='aa-taxsystem' title='{}'>{}</span>",
+            self.color(),
+            self.label,
+            mark_safe(self.icon()),  # static icon markup from icon()
         )
 
     def color(self) -> str:
