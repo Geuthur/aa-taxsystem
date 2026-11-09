@@ -30,9 +30,13 @@ Section Order:
 
 - [ADD] Reusable frontend components `OwnerPortrait` and `SearchInput`, replacing several inline copies.
 
+- [ADD] Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) for the tox environment `allianceauth-development` and `make tox-tests-development`, with separate test settings in `testauth/settings/development/`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14.
+
 - [ADD] Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Payments, Overview, Account Overview, Owner Management and menu views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
 
 ### Fixed
+
+- [FIX] Compatibility with Alliance Auth 6 (pre-release) and Django 6: the `eveonline` migration dependencies of `0001_initial`, `0001_init_v3` and `0010_create_alliance_corporation` now point to `0019_v5squash` (Alliance Auth 6 removed the older `eveonline` migrations, `0019_v5squash` exists in Alliance Auth 5 as well), and `AccountStatus.html()` passes its values to `format_html` as arguments (Django 6 no longer accepts `format_html` without arguments). Works with Alliance Auth 5 and 6.
 
 - [FIX] Real Weblate translations lost when the bundled-translations switch emptied all non-English values (Weblate could no longer rebase its branch). The translated frontend strings from the Weblate branch (30 to 43 per language, one more for German) are merged into `frontend/i18n/<lng>/translation.json`; new `cs` and `sk` files were added. The Django `.po` files already contained everything and are unchanged.
 
