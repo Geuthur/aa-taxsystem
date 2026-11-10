@@ -3,16 +3,9 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Count, Model
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.models.alliance import AlliancePayments
 from taxsystem.models.corporation import CorporationPayments
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class Command(BaseCommand):

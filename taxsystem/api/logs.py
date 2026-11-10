@@ -5,18 +5,11 @@ from ninja import NinjaAPI
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.schema import (
     AdminHistorySchema,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class LogsApiEndpoints:

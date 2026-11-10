@@ -6,17 +6,15 @@ from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from esi.exceptions import HTTPNotModified
 
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
 from taxsystem.errors import DatabaseError
 from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.update_manager import CorporationUpdateSection
-from taxsystem.providers import AppLogger, esi
+from taxsystem.providers import esi, logger
 
 if TYPE_CHECKING:
     # AA TaxSystem
@@ -25,8 +23,6 @@ if TYPE_CHECKING:
         CorporationWalletDivision,
         CorporationWalletJournalEntry,
     )
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationJournalContext:

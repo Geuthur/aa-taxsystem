@@ -10,10 +10,8 @@ from allianceauth.eveonline.models import (
     EveAllianceInfo,
 )
 from allianceauth.groupmanagement.models import Group
-from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.managers.alliance_manager import (
     AlliancePaymentAccountManager,
     AlliancePaymentManager,
@@ -39,9 +37,6 @@ from taxsystem.models.helpers.update_manager import (
     UpdateManagerMixin,
     UpdateStatus,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class AllianceUpdateStatus(UpdateStatusBaseModel):
