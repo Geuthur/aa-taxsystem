@@ -20,8 +20,9 @@ from esi.exceptions import (
 
 # AA TaxSystem
 from taxsystem.errors import DownTimeError
-from taxsystem.providers import retry_task_on_esi_error
+from taxsystem.providers import is_retryable_esi_error, retry_task_on_esi_error
 from taxsystem.tests import NoSocketsTestCase
+from taxsystem.tests.testdata.esi import retryable_errors
 
 MODULE_PATH = "taxsystem.providers"
 
@@ -315,3 +316,21 @@ class TestRetryTaskOnESIError(NoSocketsTestCase):
                 str(call_kwargs["exc"]), str(DownTimeError("ESI is in daily downtime"))
             )
             self.assertEqual(call_kwargs["countdown"], 603)
+
+
+class TestIsRetryableEsiError(NoSocketsTestCase):
+    """Tests for is_retryable_esi_error."""
+
+    def test_should_be_true_for_errors_retry_task_on_esi_error_retries(self):
+        for exc in retryable_errors():
+            with self.subTest(exc=repr(exc)):
+                self.assertTrue(is_retryable_esi_error(exc))
+
+    def test_should_be_false_for_other_errors(self):
+        for exc in [
+            HTTPServerError(500, {}, b"Internal Server Error"),
+            HTTPClientError(404, {}, b"Not Found"),
+            ValueError("other"),
+        ]:
+            with self.subTest(exc=repr(exc)):
+                self.assertFalse(is_retryable_esi_error(exc))
