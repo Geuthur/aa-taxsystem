@@ -1407,12 +1407,6 @@ export interface components {
             status: {
                 [key: string]: unknown;
             };
-            /** Code */
-            code?: string | null;
-            /** Color */
-            color?: string | null;
-            /** Html */
-            html?: string | null;
             /**
              * Has Errors
              * @default false

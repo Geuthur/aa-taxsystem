@@ -117,9 +117,6 @@ class RequestStatusSchema(Schema):
 
 class UpdateStatusSchema(Schema):
     status: dict
-    code: str | None = None
-    color: str | None = None
-    html: str | None = None
     has_errors: bool = False
     status_display: str = "ok"
 
