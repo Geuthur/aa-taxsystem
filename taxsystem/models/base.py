@@ -23,7 +23,6 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
     PaymentStatus,
 )
-from taxsystem.providers import logger
 
 if TYPE_CHECKING:
     # AA TaxSystem
@@ -305,72 +304,6 @@ class PaymentAccountBaseModel(models.Model):
             .values_list("pk", flat=True)
             .distinct()
         )
-
-
-class UpdateStatusBaseModel(models.Model):
-    """Base Model for owner update status."""
-
-    class Meta:
-        abstract = True
-        default_permissions = ()
-
-    is_success = models.BooleanField(default=None, null=True, db_index=True)
-    error_message = models.TextField()
-    has_token_error = models.BooleanField(default=False)
-
-    last_run_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last run has been started at this time",
-    )
-    last_run_finished_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last run has been successful finished at this time",
-    )
-    last_update_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last update has been started at this time",
-    )
-    last_update_finished_at = models.DateTimeField(
-        default=None,
-        null=True,
-        db_index=True,
-        help_text="Last update has been successful finished at this time",
-    )
-
-    def need_update(self) -> bool:
-        """Check if the update is needed."""
-        if self.has_token_error:
-            logger.info(
-                "%s: Ignoring update because of token error, section: %s",
-                self.owner,
-                self.section,
-            )
-            return False
-
-        if not self.is_success or not self.last_run_finished_at:
-            return True
-
-        section_time_stale = app_settings.TAXSYSTEM_STALE_TYPES.get(self.section, 60)
-        stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
-        try:
-            return self.last_run_finished_at <= stale
-        except AttributeError:
-            return True
-
-    def reset(self) -> None:
-        """Reset this update status."""
-        self.is_success = None
-        self.error_message = ""
-        self.has_token_error = False
-        self.last_run_at = timezone.now()
-        self.last_run_finished_at = None
-        self.save()
 
 
 class FilterBaseModel(models.Model):

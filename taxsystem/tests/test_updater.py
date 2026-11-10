@@ -15,12 +15,13 @@ from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationUpdateStatus
-from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
 from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
     UpdateManager,
     UpdateSection,
+    UpdateSectionResult,
+    _NeedsUpdate,
 )
 from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.esi import retryable_errors

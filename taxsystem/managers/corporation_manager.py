@@ -11,14 +11,17 @@ from allianceauth.authentication.models import User, UserProfile
 # AA TaxSystem
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
-from taxsystem.models.general import EveEntity, General, UpdateSectionResult
+from taxsystem.models.general import EveEntity, General
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     PaymentActions,
     PaymentRequestStatus,
     PaymentSystemText,
 )
-from taxsystem.models.helpers.update_manager import CorporationUpdateSection
+from taxsystem.models.helpers.update_manager import (
+    CorporationUpdateSection,
+    UpdateSectionResult,
+)
 from taxsystem.providers import esi, logger
 
 if TYPE_CHECKING:

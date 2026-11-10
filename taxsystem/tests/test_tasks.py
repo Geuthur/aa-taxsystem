@@ -26,8 +26,10 @@ from taxsystem import tasks
 from taxsystem.errors import DownTimeError
 from taxsystem.models.alliance import AllianceUpdateStatus
 from taxsystem.models.corporation import CorporationOwner, CorporationUpdateStatus
-from taxsystem.models.general import UpdateSectionResult
-from taxsystem.models.helpers.update_manager import CorporationUpdateSection
+from taxsystem.models.helpers.update_manager import (
+    CorporationUpdateSection,
+    UpdateSectionResult,
+)
 from taxsystem.providers import DOWNTIME_TIMER
 from taxsystem.tasks import (
     _send_alliance_notification,

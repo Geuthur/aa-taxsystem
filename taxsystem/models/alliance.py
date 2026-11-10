@@ -23,10 +23,8 @@ from taxsystem.models.base import (
     HistoryBaseModel,
     PaymentAccountBaseModel,
     PaymentsBaseModel,
-    UpdateStatusBaseModel,
 )
 from taxsystem.models.corporation import CorporationOwner
-from taxsystem.models.general import UpdateSectionResult
 from taxsystem.models.helpers.textchoices import (
     ActionType,
     AdminActions,
@@ -35,7 +33,9 @@ from taxsystem.models.helpers.textchoices import (
 from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     UpdateManagerMixin,
+    UpdateSectionResult,
     UpdateStatus,
+    UpdateStatusBaseModel,
 )
 
 
