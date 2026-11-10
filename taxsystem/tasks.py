@@ -4,7 +4,7 @@
 from urllib.parse import urljoin
 
 # Third Party
-from celery import shared_task
+from celery import Task, shared_task
 
 # Django
 from django.conf import settings
@@ -25,7 +25,7 @@ from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
-from taxsystem.providers import logger
+from taxsystem.providers import logger, retry_task_on_esi_error
 
 MAX_RETRIES_DEFAULT = 3
 
@@ -45,6 +45,9 @@ TASK_DEFAULTS_ONCE_OWNER = {
     **TASK_DEFAULTS,
     **{"once": {"keys": ["owner_eve_id"], "graceful": True}},
 }
+
+# Default params for owner tasks that are bound to the task instance (ESI retry).
+TASK_DEFAULTS_BIND_ONCE_OWNER = {**TASK_DEFAULTS_ONCE_OWNER, **{"bind": True}}
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
@@ -72,9 +75,16 @@ def update_all_taxsytem(runs: int = 0, force_refresh: bool = False):
     logger.info("Queued %s Owner Tasks", runs)
 
 
-@shared_task(**TASK_DEFAULTS_ONCE_OWNER)
-def update_corporation(owner_eve_id: int, force_refresh: bool = False) -> bool:
-    """Update a corporation"""
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corporation(
+    self: Task, owner_eve_id: int, force_refresh: bool = False
+) -> bool:
+    """
+    Update the stale sections of a corporation.
+
+    ESI outages and limits retry the whole task through `retry_task_on_esi_error`,
+    errors of a single section end up in its update status.
+    """
     try:
         owner: CorporationOwner = CorporationOwner.objects.prefetch_related(
             "ts_corporation_update_status"
@@ -96,18 +106,19 @@ def update_corporation(owner_eve_id: int, force_refresh: bool = False) -> bool:
         return False
 
     runs = 0
-    for section in sections:
-        task_name = f"update_corp_{section}"
-        task = globals().get(task_name)
-        if task:
-            task(owner_eve_id=owner.eve_id, force_refresh=force_refresh)
-        else:
-            _update_corp_section(
-                owner_eve_id=owner.eve_id,
-                section=section,
-                force_refresh=force_refresh,
-            )
-        runs += 1
+    with retry_task_on_esi_error(self):
+        for section in sections:
+            task_name = f"update_corp_{section}"
+            task = globals().get(task_name)
+            if task:
+                task(owner_eve_id=owner.eve_id, force_refresh=force_refresh)
+            else:
+                _update_corp_section(
+                    owner_eve_id=owner.eve_id,
+                    section=section,
+                    force_refresh=force_refresh,
+                )
+            runs += 1
 
     logger.debug(
         "Queued %s Audit Updates for %s",
@@ -117,40 +128,44 @@ def update_corporation(owner_eve_id: int, force_refresh: bool = False) -> bool:
     return True
 
 
-@shared_task(**TASK_DEFAULTS_ONCE_OWNER)
-def update_corp_division_names(owner_eve_id: int, force_refresh: bool):
-    return _update_corp_section(
-        owner_eve_id=owner_eve_id,
-        section=CorporationUpdateSection.DIVISION_NAMES,
-        force_refresh=force_refresh,
-    )
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_division_names(self: Task, owner_eve_id: int, force_refresh: bool):
+    with retry_task_on_esi_error(self):
+        return _update_corp_section(
+            owner_eve_id=owner_eve_id,
+            section=CorporationUpdateSection.DIVISION_NAMES,
+            force_refresh=force_refresh,
+        )
 
 
-@shared_task(**TASK_DEFAULTS_ONCE_OWNER)
-def update_corp_divisions(owner_eve_id: int, force_refresh: bool):
-    return _update_corp_section(
-        owner_eve_id=owner_eve_id,
-        section=CorporationUpdateSection.DIVISIONS,
-        force_refresh=force_refresh,
-    )
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_divisions(self: Task, owner_eve_id: int, force_refresh: bool):
+    with retry_task_on_esi_error(self):
+        return _update_corp_section(
+            owner_eve_id=owner_eve_id,
+            section=CorporationUpdateSection.DIVISIONS,
+            force_refresh=force_refresh,
+        )
 
 
-@shared_task(**TASK_DEFAULTS_ONCE_OWNER)
-def update_corp_wallet(owner_eve_id: int, force_refresh: bool):
-    return _update_corp_section(
-        owner_eve_id=owner_eve_id,
-        section=CorporationUpdateSection.WALLET,
-        force_refresh=force_refresh,
-    )
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_wallet(self: Task, owner_eve_id: int, force_refresh: bool):
+    with retry_task_on_esi_error(self):
+        return _update_corp_section(
+            owner_eve_id=owner_eve_id,
+            section=CorporationUpdateSection.WALLET,
+            force_refresh=force_refresh,
+        )
 
 
-@shared_task(**TASK_DEFAULTS_ONCE_OWNER)
-def update_corp_members(owner_eve_id: int, force_refresh: bool):
-    return _update_corp_section(
-        owner_eve_id=owner_eve_id,
-        section=CorporationUpdateSection.MEMBERS,
-        force_refresh=force_refresh,
-    )
+@shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
+def update_corp_members(self: Task, owner_eve_id: int, force_refresh: bool):
+    with retry_task_on_esi_error(self):
+        return _update_corp_section(
+            owner_eve_id=owner_eve_id,
+            section=CorporationUpdateSection.MEMBERS,
+            force_refresh=force_refresh,
+        )
 
 
 @shared_task(**TASK_DEFAULTS_ONCE_OWNER)

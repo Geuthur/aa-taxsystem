@@ -34,6 +34,8 @@ Section Order:
 
 ### Fixed
 
+- [FIX] ESI outages and limits never retried the corporation update tasks: no task used `retry_task_on_esi_error`, and the `UpdateManager` turned every ESI error except `TokenError` into an update status. `update_corporation` and the ESI section tasks `update_corp_division_names`, `update_corp_divisions`, `update_corp_wallet` and `update_corp_members` are now bound and run inside `retry_task_on_esi_error`. `_handle_update_exception` raises the errors the task retries on (`ESIErrorLimitException`, `ESIBucketLimitException`, `HTTPServerError` 502/503/504, `RequestError`, `DownTimeError`), checked by the new `is_retryable_esi_error()` in `providers.py`. `execute_section` records them as a failed run of the section before raising, so the section shows the error and stays stale until the retry succeeds. Other errors (e.g. HTTP 500 or 404) still end in the update status only. Alliance tasks and the corporation sections payments, tax accounts and deadlines make no ESI calls and are unchanged.
+
 - [FIX] Real Weblate translations lost when the bundled-translations switch emptied all non-English values (Weblate could no longer rebase its branch). The translated frontend strings from the Weblate branch (30 to 43 per language, one more for German) are merged into `frontend/i18n/<lng>/translation.json`; new `cs` and `sk` files were added. The Django `.po` files already contained everything and are unchanged.
 
 - [FIX] Tests no longer fail between 11:00 and 11:15 UTC. The daily ESI downtime check can be disabled with the `DISABLE_DAILY_DOWNTIME_CHECK` setting, which the test settings now set.

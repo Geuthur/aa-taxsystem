@@ -1,16 +1,34 @@
 """Tests for the providers module."""
 
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import MagicMock, PropertyMock, patch
 
+# Third Party
+import pook
+from aiopenapi3 import RequestError
+from celery.exceptions import Retry
+
 # Django
+from django.core.cache import cache
 from django.test import override_settings
 from django.utils import timezone
 
+# Alliance Auth
+from esi.exceptions import (
+    ESIBucketLimitException,
+    ESIErrorLimitException,
+    HTTPServerError,
+)
+
 # AA TaxSystem
+from taxsystem import tasks
+from taxsystem.errors import DownTimeError
 from taxsystem.models.alliance import AllianceUpdateStatus
-from taxsystem.models.corporation import CorporationUpdateStatus
+from taxsystem.models.corporation import CorporationOwner, CorporationUpdateStatus
 from taxsystem.models.general import UpdateSectionResult
+from taxsystem.models.helpers.update_manager import CorporationUpdateSection
+from taxsystem.providers import DOWNTIME_TIMER
 from taxsystem.tasks import (
     _send_alliance_notification,
     _send_corporation_notification,
@@ -22,6 +40,11 @@ from taxsystem.tasks import (
     update_corporation,
 )
 from taxsystem.tests import AuthTestCase
+from taxsystem.tests.testdata.esi import (
+    clear_esi_limits,
+    corp_wallet_bucket_key,
+    divisions_url,
+)
 from taxsystem.tests.testdata.factory import (
     AllianceOwnerFactory,
     AllianceTaxAccountFactory,
@@ -351,3 +374,169 @@ class TestTasks(AuthTestCase):
 
         # Expected Result
         mock_send.assert_called()
+
+
+@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
+@patch(
+    TASKS_PATH + ".CorporationUpdateSection.get_sections", lambda: ["division_names"]
+)
+@patch.object(tasks.update_corporation, "retry", side_effect=Retry)
+class TestUpdateCorporationEsiErrors(AuthTestCase):
+    """ESI errors of a section reach `retry_task_on_esi_error` through the UpdateManager."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.owner = CorporationOwnerFactory(user=cls.user)
+        cls.token = cls.user.token_set.first()
+
+    def setUp(self):
+        super().setUp()
+        clear_esi_limits(self.token)
+        self.addCleanup(clear_esi_limits, self.token)
+        patcher = patch.object(
+            CorporationOwner, "get_token", return_value=self.token, autospec=True
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _assert_retried(self, mock_retry, exc_type, countdown_min: float):
+        mock_retry.assert_called_once()
+        kwargs = mock_retry.call_args.kwargs
+        self.assertIsInstance(kwargs["exc"], exc_type)
+        self.assertGreaterEqual(kwargs["countdown"], countdown_min)
+        status = CorporationUpdateStatus.objects.get(
+            owner=self.owner, section=CorporationUpdateSection.DIVISION_NAMES
+        )
+        self.assertFalse(status.is_success)
+        self.assertTrue(status.error_message.startswith(exc_type.__name__))
+
+    def test_should_retry_on_esi_server_errors(self, mock_retry):
+        for status_code in [
+            HTTPStatus.BAD_GATEWAY,
+            HTTPStatus.SERVICE_UNAVAILABLE,
+            HTTPStatus.GATEWAY_TIMEOUT,
+        ]:
+            with self.subTest(status_code=status_code), pook.use():
+                # Test Data
+                mock_retry.reset_mock()
+                pook.get(
+                    divisions_url(self.owner),
+                    reply=status_code,
+                    response_json={"error": status_code.phrase},
+                )
+
+                # Test Action
+                with self.assertRaises(Retry):
+                    tasks.update_corporation(self.owner.eve_id)
+
+                # Expected Result
+                self._assert_retried(mock_retry, HTTPServerError, DOWNTIME_TIMER)
+
+    @pook.on
+    def test_should_retry_on_the_esi_error_limit(self, mock_retry):
+        # Test Data
+        pook.get(
+            divisions_url(self.owner),
+            reply=420,
+            response_json={"error": "Error limited"},
+            response_headers={"X-RateLimit-Reset": "30"},
+        )
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_corporation(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, ESIErrorLimitException, 30)
+
+    @pook.on
+    def test_should_retry_on_the_esi_bucket_limit(self, mock_retry):
+        # Test Data: the corp-wallet bucket of the token is used up
+        cache.set(corp_wallet_bucket_key(self.token), 0, timeout=900)
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_corporation(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, ESIBucketLimitException, 1)
+
+    @pook.on
+    @patch("esi.app_settings.ESI_SERVER_ERROR_MAX_RETRIES", 1)
+    def test_should_retry_on_request_errors(self, mock_retry):
+        # Test Data
+        pook.get(divisions_url(self.owner)).error(ConnectionError("Connection reset"))
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_corporation(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, RequestError, DOWNTIME_TIMER)
+
+    @patch.object(CorporationOwner, "update_division_names", autospec=True)
+    def test_should_retry_on_downtime_errors_of_a_section(
+        self, mock_update_division_names, mock_retry
+    ):
+        # Test Data
+        mock_update_division_names.side_effect = DownTimeError(
+            "ESI is in daily downtime"
+        )
+
+        # Test Action
+        with self.assertRaises(Retry):
+            tasks.update_corporation(self.owner.eve_id)
+
+        # Expected Result
+        self._assert_retried(mock_retry, DownTimeError, DOWNTIME_TIMER)
+
+    def test_should_record_other_esi_errors_without_retry(self, mock_retry):
+        for status_code in [HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.NOT_FOUND]:
+            with self.subTest(status_code=status_code), pook.use():
+                # Test Data
+                pook.get(
+                    divisions_url(self.owner),
+                    reply=status_code,
+                    response_json={"error": status_code.phrase},
+                )
+
+                # Test Action
+                result = tasks.update_corporation(self.owner.eve_id)
+
+                # Expected Result
+                self.assertTrue(result)
+                mock_retry.assert_not_called()
+                status = CorporationUpdateStatus.objects.get(
+                    owner=self.owner, section=CorporationUpdateSection.DIVISION_NAMES
+                )
+                self.assertFalse(status.is_success)
+                self.assertIn(str(status_code.value), status.error_message)
+
+    def test_section_task_should_retry_on_its_own(self, mock_retry):
+        """A section task queued on its own retries itself."""
+        with (
+            pook.use(),
+            patch.object(
+                tasks.update_corp_division_names, "retry", side_effect=Retry
+            ) as mock_section_retry,
+        ):
+            # Test Data
+            pook.get(
+                divisions_url(self.owner),
+                reply=HTTPStatus.BAD_GATEWAY,
+                response_json={"error": "Bad Gateway"},
+            )
+
+            # Test Action
+            with self.assertRaises(Retry):
+                tasks.update_corp_division_names(
+                    owner_eve_id=self.owner.eve_id, force_refresh=False
+                )
+
+        # Expected Result
+        mock_section_retry.assert_called_once()
+        self.assertIsInstance(
+            mock_section_retry.call_args.kwargs["exc"], HTTPServerError
+        )
+        mock_retry.assert_not_called()
