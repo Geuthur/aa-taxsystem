@@ -13,19 +13,15 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.models.general import (
     UpdateSectionResult,
     _NeedsUpdate,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from taxsystem.providers import logger
 
 
 class UpdateSection(models.TextChoices):

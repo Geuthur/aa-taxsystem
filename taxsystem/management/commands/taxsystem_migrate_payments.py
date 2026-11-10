@@ -2,16 +2,9 @@
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError, transaction
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.models.corporation import CorporationOwner, CorporationPayments
 from taxsystem.models.wallet import CorporationWalletJournalEntry
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class Command(BaseCommand):

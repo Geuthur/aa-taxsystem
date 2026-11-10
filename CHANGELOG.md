@@ -46,6 +46,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] The `AppLogger` is created only once in `taxsystem/providers.py`. `helpers/discord.py`, `managers/alliance_manager.py`, `managers/corporation_manager.py`, `managers/owner_manager.py`, `managers/wallet_manager.py`, `models/base.py`, `models/corporation.py`, `models/helpers/update_manager.py` and `tasks.py` import it with `from taxsystem.providers import logger` instead of building their own. 13 modules that built a logger but never logged anything (`api/admin.py`, `api/corporation.py`, `api/filters.py`, `api/groups.py`, `api/helpers/statistics.py`, `api/logs.py`, `api/payments.py`, `auth_hooks.py`, both management commands, `models/alliance.py`, `models/wallet.py`, `views.py`) no longer create or import one. Log records now carry the logger name `taxsystem.providers` instead of the module name; the `[Tax System]` prefix is unchanged.
+
 - [CHANGE] The language files `frontend/i18n/<lng>/translation.json` hold only real translations as Weblate writes them; missing keys fall back to English. `i18next-scanner` maintains only `en`, and the empty placeholders were removed from all other languages.
 
 - [CHANGE] `aa-geuthur-react` raised to `^1.3.0`. The package bundles its own translations and registers them with i18next through `AaReactProvider`, so `Main.tsx` lists only the namespace `translation`, the copies under `taxsystem/static/taxsystem/i18n/<lng>/aa-geuthur-react.json` are removed and `make react-copy-translations` no longer copies them. Untranslated strings in `frontend/i18n/<lng>/translation.json` are empty instead of English (`i18next-scanner` writes the key as value only for `en`); `returnEmptyString: false` shows the English fallback at runtime. Translate on Weblate as before.

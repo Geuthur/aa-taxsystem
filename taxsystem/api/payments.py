@@ -14,11 +14,7 @@ from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
 from taxsystem.helpers import lazy
@@ -29,9 +25,6 @@ from taxsystem.models.helpers.textchoices import (
     PaymentActions,
     PaymentRequestStatus,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 def _serialize_payment(payment, can_manage: bool) -> schema.PaymentCorporationSchema:

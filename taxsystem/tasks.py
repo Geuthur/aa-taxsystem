@@ -13,11 +13,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 # AA TaxSystem
-from taxsystem import __title__, app_settings
+from taxsystem import app_settings
 from taxsystem.helpers.discord import send_user_notification
 from taxsystem.models.alliance import AllianceOwner, AlliancePaymentAccount
 from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
@@ -26,9 +25,7 @@ from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from taxsystem.providers import logger
 
 MAX_RETRIES_DEFAULT = 3
 

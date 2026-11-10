@@ -12,11 +12,8 @@ from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA TaxSystem
-from taxsystem import __title__, tasks
+from taxsystem import tasks
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.statistics import (
@@ -44,9 +41,6 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
 )
 from taxsystem.models.wallet import CorporationWalletDivision
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class DashboardResponse(Schema):

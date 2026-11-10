@@ -14,12 +14,10 @@ from allianceauth.eveonline.models import (
     EveCorporationInfo,
 )
 from allianceauth.groupmanagement.models import Group
-from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
 
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.managers.corporation_manager import (
     CorporationAccountManager,
     MembersManager,
@@ -53,9 +51,7 @@ from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
-from taxsystem.providers import AppLogger, esi
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from taxsystem.providers import esi, logger
 
 
 class CorporationUpdateStatus(UpdateStatusBaseModel):

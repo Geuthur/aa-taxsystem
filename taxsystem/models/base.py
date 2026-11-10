@@ -13,10 +13,9 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.authentication.models import User
 from allianceauth.groupmanagement.models import AuthGroup
-from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
-from taxsystem import __title__, app_settings
+from taxsystem import app_settings
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     FilterMatchType,
@@ -24,9 +23,7 @@ from taxsystem.models.helpers.textchoices import (
     PaymentRequestStatus,
     PaymentStatus,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from taxsystem.providers import logger
 
 if TYPE_CHECKING:
     # AA TaxSystem
