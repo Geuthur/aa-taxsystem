@@ -10,7 +10,6 @@ from aiopenapi3 import RequestError
 # Django
 from django.db import models
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -76,39 +75,6 @@ class UpdateStatus(models.TextChoices):
     OK = "ok", _("OK")
     INCOMPLETE = "incomplete", _("Incomplete")
     IN_PROGRESS = "in_progress", _("In Progress")
-
-    def bootstrap_icon(self) -> str:
-        """Return bootstrap corresponding icon class."""
-        style_class = self.bootstrap_text_style_class()
-        if not style_class:
-            return ""
-        return mark_safe(
-            f"<span class='{style_class}' data-bs-tooltip='aa-taxsystem' title='{self.description()}'>⬤</span>"
-        )
-
-    def bootstrap_text_style_class(self) -> str:
-        """Return bootstrap corresponding bootstrap text style class."""
-        update_map = {
-            self.DISABLED: "text-muted",
-            self.TOKEN_ERROR: "text-warning",
-            self.INCOMPLETE: "text-warning",
-            self.IN_PROGRESS: "text-info",
-            self.ERROR: "text-danger",
-            self.OK: "text-success",
-        }
-        return update_map.get(self, "")
-
-    def description(self) -> str:
-        """Return description for an enum object."""
-        update_map = {
-            self.DISABLED: _("Update is disabled"),
-            self.TOKEN_ERROR: _("One section has a token error during update"),
-            self.INCOMPLETE: _("One or more sections have not been updated"),
-            self.IN_PROGRESS: _("Update is in progress"),
-            self.ERROR: _("An error occurred during update"),
-            self.OK: _("Updates completed successfully"),
-        }
-        return str(update_map.get(self, ""))
 
 
 class UpdateManager:
