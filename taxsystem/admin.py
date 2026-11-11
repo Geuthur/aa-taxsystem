@@ -101,13 +101,21 @@ class CorporationOwnerAdmin(admin.ModelAdmin):
             else:
                 count += 1
 
+        skipped_message = _(
+            "%(skipped)d corporation(s) skipped, an update is already queued or running."
+        ) % {"skipped": skipped}
+        if not count:
+            messages.warning(
+                request,
+                _("No force update started.") + " " + skipped_message,
+            )
+            return
+
         message = _(
             "Started force update for %(count)d corporation(s). Updates will run in the background."
         ) % {"count": count}
         if skipped:
-            message += " " + _(
-                "%(skipped)d corporation(s) skipped, an update is already queued or running."
-            ) % {"skipped": skipped}
+            message += " " + skipped_message
         messages.success(request, message)
 
 
@@ -192,11 +200,19 @@ class AllianceOwnerAdmin(admin.ModelAdmin):
             else:
                 count += 1
 
+        skipped_message = _(
+            "%(skipped)d alliance(s) skipped, an update is already queued or running."
+        ) % {"skipped": skipped}
+        if not count:
+            messages.warning(
+                request,
+                _("No force update started.") + " " + skipped_message,
+            )
+            return
+
         message = _(
             "Started force update for %(count)d alliance(s). Updates will run in the background."
         ) % {"count": count}
         if skipped:
-            message += " " + _(
-                "%(skipped)d alliance(s) skipped, an update is already queued or running."
-            ) % {"skipped": skipped}
+            message += " " + skipped_message
         messages.success(request, message)
