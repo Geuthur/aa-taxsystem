@@ -542,3 +542,83 @@ class TestUpdateCorporationEsiErrors(AuthTestCase):
             mock_section_retry.call_args.kwargs["exc"], HTTPServerError
         )
         mock_retry.assert_not_called()
+
+
+@patch("celery.app.task.Task.apply_async")
+class TestOwnerTasksRunOnce(AuthTestCase):
+    """Owner tasks are queued only once per `owner_eve_id` (QueueOnce)."""
+
+    OWNER_TASKS = [
+        (tasks.update_corporation, {"force_refresh": False}),
+        (tasks.update_corp_wallet, {"force_refresh": False}),
+        (tasks.update_corp_payments, {"force_refresh": False}),
+        (tasks.update_alliance, {"force_refresh": False}),
+        (tasks.update_ally_payments, {"force_refresh": False}),
+        (tasks._send_corporation_notification, {}),
+    ]
+
+    def _lock_key(self, task, owner_eve_id: int, kwargs: dict) -> str:
+        key = task.get_key(args=[owner_eve_id], kwargs=kwargs)
+        self.addCleanup(task.once_backend.clear_lock, key)
+        return key
+
+    def test_should_skip_second_apply_async_for_the_same_owner(self, mock_apply_async):
+        for task, kwargs in self.OWNER_TASKS:
+            with self.subTest(task=task.name):
+                # Test Data
+                mock_apply_async.reset_mock()
+                self._lock_key(task, 1001, kwargs)
+
+                # Test Action
+                task.apply_async(args=[1001], kwargs=kwargs)
+                result = task.apply_async(args=[1001], kwargs=kwargs)
+
+                # Expected Result
+                mock_apply_async.assert_called_once()
+                self.assertEqual(result.state, "REJECTED")
+
+    def test_should_queue_tasks_for_other_owners(self, mock_apply_async):
+        for task, kwargs in self.OWNER_TASKS:
+            with self.subTest(task=task.name):
+                # Test Data
+                mock_apply_async.reset_mock()
+                self._lock_key(task, 1001, kwargs)
+                self._lock_key(task, 1002, kwargs)
+
+                # Test Action
+                task.apply_async(args=[1001], kwargs=kwargs)
+                task.apply_async(args=[1002], kwargs=kwargs)
+
+                # Expected Result
+                self.assertEqual(mock_apply_async.call_count, 2)
+
+    def test_should_queue_retries_while_locked(self, mock_apply_async):
+        """`self.retry` queues with `retries` set, which skips the lock."""
+        # Test Data
+        task = tasks.update_corporation
+        self._lock_key(task, 1001, {})
+        task.apply_async(args=[1001])
+
+        # Test Action
+        task.apply_async(args=[1001], retries=1)
+
+        # Expected Result
+        self.assertEqual(mock_apply_async.call_count, 2)
+
+    @patch(TASKS_PATH + "._update_corp_section", return_value=True)
+    def test_should_run_direct_calls_while_locked(
+        self, mock_update_corp_section, mock_apply_async
+    ):
+        """`update_corporation` calls its section tasks directly, without the lock."""
+        # Test Data
+        task = tasks.update_corp_payments
+        kwargs = {"force_refresh": False}
+        self._lock_key(task, 1001, kwargs)
+        task.apply_async(args=[1001], kwargs=kwargs)
+
+        # Test Action
+        result = task(owner_eve_id=1001, force_refresh=False)
+
+        # Expected Result
+        self.assertTrue(result)
+        mock_update_corp_section.assert_called_once()
