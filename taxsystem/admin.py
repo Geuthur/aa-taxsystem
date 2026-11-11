@@ -13,7 +13,7 @@ from allianceauth.eveonline.evelinks import eveimageserver
 # AA TaxSystem
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
-from taxsystem.tasks import update_alliance, update_corporation
+from taxsystem.tasks import is_task_skipped, update_alliance, update_corporation
 
 
 @admin.register(CorporationOwner)
@@ -91,18 +91,32 @@ class CorporationOwnerAdmin(admin.ModelAdmin):
     def force_update(self, request, queryset: "QuerySet[CorporationOwner]"):
         """Force update of selected corporations."""
         count = 0
+        skipped = 0
         for corporation_audit in queryset:
-            update_corporation.delay(
+            result = update_corporation.delay(
                 owner_eve_id=corporation_audit.eve_id, force_refresh=True
             )
-            count += 1
+            if is_task_skipped(result):
+                skipped += 1
+            else:
+                count += 1
 
-        messages.success(
-            request,
-            _(
-                f"Started force update for {count} corporation(s). Updates will run in the background."
-            ),
-        )
+        skipped_message = _(
+            "%(skipped)d corporation(s) skipped, an update is already queued or running."
+        ) % {"skipped": skipped}
+        if not count:
+            messages.warning(
+                request,
+                _("No force update started.") + " " + skipped_message,
+            )
+            return
+
+        message = _(
+            "Started force update for %(count)d corporation(s). Updates will run in the background."
+        ) % {"count": count}
+        if skipped:
+            message += " " + skipped_message
+        messages.success(request, message)
 
 
 @admin.register(AllianceOwner)
@@ -176,15 +190,29 @@ class AllianceOwnerAdmin(admin.ModelAdmin):
     def force_update(self, request, queryset: "QuerySet[AllianceOwner]"):
         """Force update of selected alliances."""
         count = 0
+        skipped = 0
         for alliance_audit in queryset:
-            update_alliance.delay(
+            result = update_alliance.delay(
                 owner_eve_id=alliance_audit.eve_id, force_refresh=True
             )
-            count += 1
+            if is_task_skipped(result):
+                skipped += 1
+            else:
+                count += 1
 
-        messages.success(
-            request,
-            _(
-                f"Started force update for {count} alliance(s). Updates will run in the background."
-            ),
-        )
+        skipped_message = _(
+            "%(skipped)d alliance(s) skipped, an update is already queued or running."
+        ) % {"skipped": skipped}
+        if not count:
+            messages.warning(
+                request,
+                _("No force update started.") + " " + skipped_message,
+            )
+            return
+
+        message = _(
+            "Started force update for %(count)d alliance(s). Updates will run in the background."
+        ) % {"count": count}
+        if skipped:
+            message += " " + skipped_message
+        messages.success(request, message)

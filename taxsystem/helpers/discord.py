@@ -10,14 +10,11 @@ from django.utils import timezone
 # Alliance Auth
 from allianceauth.authentication.models import User
 from allianceauth.notifications import notify
-from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
 from taxsystem import __title__
 from taxsystem.models import UserSettings
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from taxsystem.providers import logger
 
 # Embed colors
 DISCORD_EMBED_COLOR_INFO = 0x5BC0DE

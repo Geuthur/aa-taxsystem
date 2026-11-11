@@ -3,6 +3,10 @@ import json
 from http import HTTPStatus
 from unittest.mock import patch
 
+# Third Party
+from celery import states
+from celery.result import EagerResult
+
 # Django
 from django.urls import reverse
 
@@ -228,3 +232,28 @@ class TestGeneralApi(AuthTestCase):
         self.assertTrue(mock_task.called)
         _, kwargs = mock_task.call_args
         self.assertEqual(kwargs.get("kwargs"), {"force_refresh": False})
+
+    @patch(
+        f"{TASKS_PATH}.update_corporation.apply_async",
+        side_effect=[EagerResult(None, None, states.REJECTED), None],
+    )
+    def test_update_all_owners_should_count_skipped_owners(self, mock_task):
+        # Test Data
+        CorporationOwnerFactory()
+        CorporationOwnerFactory()
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/settings/owners/update-all/",
+            data=json.dumps({"force_refresh": False}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(mock_task.call_count, 2)
+        self.assertEqual(
+            response.json()["message"],
+            "Queued updates for 1 owner(s), 1 already queued or running.",
+        )

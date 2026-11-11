@@ -9,10 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import CharacterOwnership
-from allianceauth.services.hooks import get_extension_logger
 
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.schema import (
     ActionCommentRequest,
@@ -32,9 +30,6 @@ from taxsystem.models.helpers.textchoices import (
     AdminActions,
     PaymentRequestStatus,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class CorporationApiEndpoints:

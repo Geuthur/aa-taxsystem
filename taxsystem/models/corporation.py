@@ -14,12 +14,10 @@ from allianceauth.eveonline.models import (
     EveCorporationInfo,
 )
 from allianceauth.groupmanagement.models import Group
-from allianceauth.services.hooks import get_extension_logger
 from esi.errors import TokenError
 from esi.models import Token
 
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.managers.corporation_manager import (
     CorporationAccountManager,
     MembersManager,
@@ -34,10 +32,6 @@ from taxsystem.models.base import (
     HistoryBaseModel,
     PaymentAccountBaseModel,
     PaymentsBaseModel,
-    UpdateStatusBaseModel,
-)
-from taxsystem.models.general import (
-    UpdateSectionResult,
 )
 from taxsystem.models.helpers.textchoices import (
     ActionType,
@@ -47,15 +41,15 @@ from taxsystem.models.helpers.textchoices import (
 from taxsystem.models.helpers.update_manager import (
     CorporationUpdateSection,
     UpdateManagerMixin,
+    UpdateSectionResult,
     UpdateStatus,
+    UpdateStatusBaseModel,
 )
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
     CorporationWalletJournalEntry,
 )
-from taxsystem.providers import AppLogger, esi
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from taxsystem.providers import esi, logger
 
 
 class CorporationUpdateStatus(UpdateStatusBaseModel):
@@ -73,9 +67,6 @@ class CorporationUpdateStatus(UpdateStatusBaseModel):
     class Meta:
         default_permissions = ()
         unique_together = [("owner", "section")]
-
-    def __str__(self) -> str:
-        return f"{self.owner} - {self.section}"
 
 
 class CorporationOwner(UpdateManagerMixin, models.Model):

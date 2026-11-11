@@ -13,20 +13,16 @@ from allianceauth.eveonline.models import (
     EveCharacter,
     EveCorporationInfo,
 )
-from allianceauth.services.hooks import get_extension_logger
 from esi.decorators import token_required
 
 # AA TaxSystem
-from taxsystem import __app_name__, __title__, __version__, tasks
+from taxsystem import __app_name__, __version__, tasks
 from taxsystem.models.alliance import (
     AllianceOwner,
 )
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.models.general import General
 from taxsystem.models.helpers.textchoices import AdminActions
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 @login_required

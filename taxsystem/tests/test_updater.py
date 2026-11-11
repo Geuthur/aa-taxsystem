@@ -15,14 +15,16 @@ from esi.exceptions import HTTPClientError, HTTPNotModified, HTTPServerError
 
 # AA TaxSystem
 from taxsystem.models.corporation import CorporationUpdateStatus
-from taxsystem.models.general import UpdateSectionResult, _NeedsUpdate
 from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
     UpdateManager,
     UpdateSection,
+    UpdateSectionResult,
+    _NeedsUpdate,
 )
 from taxsystem.tests import AuthTestCase
+from taxsystem.tests.testdata.esi import retryable_errors
 from taxsystem.tests.testdata.factory import (
     CorporationOwnerFactory,
     CorporationUpdateStatusFactory,
@@ -493,3 +495,61 @@ class TestUpdateStatusAndSections(AuthTestCase):
         self.assertIn("payments", alliance_list)
         self.assertIn("deadlines", alliance_list)
         self.assertEqual(alliance_sections.PAYMENTS.method_name, "update_payments")
+
+
+class TestUpdateManagerRetryableEsiErrors(AuthTestCase):
+    """
+    Retryable ESI errors are raised again for `retry_task_on_esi_error`.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.owner = CorporationOwnerFactory(user=self.user)
+        self.manager = self.owner.update_manager
+
+    def test_perform_update_status_should_raise_retryable_esi_errors(self):
+        for exc in retryable_errors():
+            with self.subTest(exc=type(exc).__name__):
+                # Test Data
+                mock_method = MagicMock(side_effect=exc)
+
+                # Test Action & Expected Result
+                with self.assertRaises(type(exc)) as ctx:
+                    self.manager.perform_update_status(
+                        section=CorporationUpdateSection.WALLET,
+                        method=mock_method,
+                    )
+                self.assertIs(ctx.exception, exc)
+
+    def test_update_section_if_changed_should_raise_retryable_esi_errors(self):
+        for exc in retryable_errors():
+            with self.subTest(exc=type(exc).__name__):
+                # Test Data
+                fetch_func = MagicMock(side_effect=exc)
+
+                # Test Action & Expected Result
+                with self.assertRaises(type(exc)):
+                    self.manager.update_section_if_changed(
+                        section=CorporationUpdateSection.WALLET,
+                        fetch_func=fetch_func,
+                    )
+
+    def test_execute_section_should_record_and_raise_retryable_esi_errors(self):
+        for exc in retryable_errors():
+            with self.subTest(exc=type(exc).__name__):
+                # Test Data
+                self.owner.update_wallet = MagicMock(side_effect=exc)
+
+                # Test Action
+                with self.assertRaises(type(exc)):
+                    self.manager.execute_section(CorporationUpdateSection.WALLET)
+
+                # Expected Result: a failed run, not success and not in progress
+                status = CorporationUpdateStatus.objects.get(
+                    owner=self.owner, section=CorporationUpdateSection.WALLET
+                )
+                self.assertFalse(status.is_success)
+                self.assertFalse(status.has_token_error)
+                self.assertTrue(status.error_message.startswith(type(exc).__name__))
+                self.assertIsNotNone(status.last_run_finished_at)
+                self.assertTrue(status.need_update())

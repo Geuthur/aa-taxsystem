@@ -3,14 +3,23 @@
 # Standard Library
 from unittest.mock import Mock, patch
 
+# Third Party
+from celery import states
+from celery.result import EagerResult
+
 # Django
+from django.contrib import messages
 from django.contrib.admin.sites import AdminSite
 
 # AA TaxSystem
-from taxsystem.admin import CorporationOwnerAdmin
+from taxsystem.admin import AllianceOwnerAdmin, CorporationOwnerAdmin
+from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
 from taxsystem.tests import AuthTestCase
-from taxsystem.tests.testdata.factory import CorporationOwnerFactory
+from taxsystem.tests.testdata.factory import (
+    AllianceOwnerFactory,
+    CorporationOwnerFactory,
+)
 
 
 class TestCorporationOwnerAdmin(AuthTestCase):
@@ -111,4 +120,129 @@ class TestCorporationOwnerAdmin(AuthTestCase):
         # then
         mock_update.delay.assert_called_once_with(
             owner_eve_id=self.corporation_owner.eve_id, force_refresh=True
+        )
+
+    @patch("taxsystem.admin.update_corporation")
+    def test_force_update_action_should_warn_if_all_skipped(self, mock_update):
+        """Test force_update action warns when no update was started"""
+        # given
+        mock_update.delay.return_value = EagerResult(None, None, states.REJECTED)
+        request = self.factory.post("/admin/taxsystem/corporationowner/")
+        request.user = self.user
+        request._messages = Mock()
+        queryset = CorporationOwner.objects.filter(pk=self.corporation_owner.pk)
+        # when
+        self.admin.force_update(request, queryset)
+        # then
+        level, message = request._messages.add.call_args.args[:2]
+        self.assertEqual(level, messages.WARNING)
+        self.assertEqual(
+            message,
+            "No force update started. 1 corporation(s) skipped, "
+            "an update is already queued or running.",
+        )
+
+    @patch("taxsystem.admin.update_corporation")
+    def test_force_update_action_should_report_skipped(self, mock_update):
+        """Test force_update action reports success and skipped owners"""
+        # given
+        second_owner = CorporationOwnerFactory()
+        mock_update.delay.side_effect = [
+            EagerResult(None, None, states.REJECTED),
+            Mock(),
+        ]
+        request = self.factory.post("/admin/taxsystem/corporationowner/")
+        request.user = self.user
+        request._messages = Mock()
+        queryset = CorporationOwner.objects.filter(
+            pk__in=[self.corporation_owner.pk, second_owner.pk]
+        )
+        # when
+        self.admin.force_update(request, queryset)
+        # then
+        level, message = request._messages.add.call_args.args[:2]
+        self.assertEqual(level, messages.SUCCESS)
+        self.assertIn("Started force update for 1 corporation(s).", message)
+        self.assertIn(
+            "1 corporation(s) skipped, an update is already queued or running.",
+            message,
+        )
+
+
+class TestAllianceOwnerAdmin(AuthTestCase):
+    """Test force update action of the AllianceOwner admin"""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.alliance_owner = AllianceOwnerFactory(user=cls.user)
+        cls.site = AdminSite()
+        cls.admin = AllianceOwnerAdmin(AllianceOwner, cls.site)
+
+    def _request(self):
+        request = self.factory.post("/admin/taxsystem/allianceowner/")
+        request.user = self.user
+        request._messages = Mock()
+        return request
+
+    @patch("taxsystem.admin.update_alliance")
+    def test_force_update_action(self, mock_update):
+        """Test force_update action reports success"""
+        # given
+        request = self._request()
+        queryset = AllianceOwner.objects.filter(pk=self.alliance_owner.pk)
+        # when
+        self.admin.force_update(request, queryset)
+        # then
+        mock_update.delay.assert_called_once_with(
+            owner_eve_id=self.alliance_owner.eve_id, force_refresh=True
+        )
+        level, message = request._messages.add.call_args.args[:2]
+        self.assertEqual(level, messages.SUCCESS)
+        self.assertEqual(
+            message,
+            "Started force update for 1 alliance(s). "
+            "Updates will run in the background.",
+        )
+
+    @patch("taxsystem.admin.update_alliance")
+    def test_force_update_action_should_warn_if_all_skipped(self, mock_update):
+        """Test force_update action warns when no update was started"""
+        # given
+        mock_update.delay.return_value = EagerResult(None, None, states.REJECTED)
+        request = self._request()
+        queryset = AllianceOwner.objects.filter(pk=self.alliance_owner.pk)
+        # when
+        self.admin.force_update(request, queryset)
+        # then
+        level, message = request._messages.add.call_args.args[:2]
+        self.assertEqual(level, messages.WARNING)
+        self.assertEqual(
+            message,
+            "No force update started. 1 alliance(s) skipped, "
+            "an update is already queued or running.",
+        )
+
+    @patch("taxsystem.admin.update_alliance")
+    def test_force_update_action_should_report_skipped(self, mock_update):
+        """Test force_update action reports success and skipped owners"""
+        # given
+        second_owner = AllianceOwnerFactory(user=self.superuser)
+        mock_update.delay.side_effect = [
+            EagerResult(None, None, states.REJECTED),
+            Mock(),
+        ]
+        request = self._request()
+        queryset = AllianceOwner.objects.filter(
+            pk__in=[self.alliance_owner.pk, second_owner.pk]
+        )
+        # when
+        self.admin.force_update(request, queryset)
+        # then
+        level, message = request._messages.add.call_args.args[:2]
+        self.assertEqual(level, messages.SUCCESS)
+        self.assertIn("Started force update for 1 alliance(s).", message)
+        self.assertIn(
+            "1 alliance(s) skipped, an update is already queued or running.",
+            message,
         )
