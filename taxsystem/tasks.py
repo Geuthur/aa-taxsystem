@@ -4,7 +4,8 @@
 from urllib.parse import urljoin
 
 # Third Party
-from celery import Task, shared_task
+from celery import Task, shared_task, states
+from celery.result import EagerResult
 
 # Django
 from django.conf import settings
@@ -52,6 +53,15 @@ TASK_DEFAULTS_BIND_ONCE_OWNER = {
     **TASK_DEFAULTS_BIND_ONCE,
     **{"once": {"keys": ["owner_eve_id"], "graceful": True}},
 }
+
+
+def is_task_skipped(result) -> bool:
+    """Return True if QueueOnce skipped the task because it is already queued or running.
+
+    With ``graceful=True`` celery_once does not raise ``AlreadyQueued`` and does not
+    queue the task, it returns an ``EagerResult`` with state ``REJECTED`` instead.
+    """
+    return isinstance(result, EagerResult) and result.state == states.REJECTED
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)

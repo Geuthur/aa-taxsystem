@@ -4,6 +4,8 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 # Third Party
+from celery import states
+from celery.result import EagerResult
 from evesde_factory.allianceauth import EveCorporationInfoFactory
 
 # AA TaxSystem
@@ -17,6 +19,7 @@ from taxsystem.tests.testdata.factory import (
 )
 
 TASKS_PATH = "taxsystem.tasks"
+SKIPPED_RESULT = EagerResult(None, None, states.REJECTED)
 
 
 class TestAdministrationApi(AuthTestCase):
@@ -70,6 +73,27 @@ class TestAdministrationApi(AuthTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(mock_task.called)
+
+    @patch(f"{TASKS_PATH}.update_corporation.apply_async", return_value=SKIPPED_RESULT)
+    def test_update_administration_owner_should_report_already_running(self, mock_task):
+        # Test Data
+        self.client.force_login(self.superuser)
+        url = f"{self.api}/administration/owners/corporation/{self.corp_owner.eve_id}/update/"
+
+        # Test Action
+        response = self.client.post(
+            url,
+            data=json.dumps({"force_refresh": False}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(mock_task.called)
+        self.assertEqual(
+            response.json()["message"],
+            f"Update for {self.corp_owner.name} is already queued or running",
+        )
 
     @patch(f"{TASKS_PATH}.update_alliance.apply_async")
     def test_update_administration_owner_should_trigger_alliance_update(
@@ -387,6 +411,109 @@ class TestAdministrationApi(AuthTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(mock_task.called)
+
+    @patch(f"{TASKS_PATH}.update_all_taxsytem.apply_async")
+    def test_run_update_tasks_should_queue_all_gracefully(self, mock_task):
+        # Test Data
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/admin/tasks/run/",
+            data=json.dumps({"target": "all", "force_refresh": False}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(mock_task.call_args.kwargs["once"], {"graceful": True})
+        self.assertEqual(response.json()["message"], "Queued Update All Taxsystem")
+
+    @patch(f"{TASKS_PATH}.update_all_taxsytem.apply_async", return_value=SKIPPED_RESULT)
+    def test_run_update_tasks_should_report_all_already_running(self, mock_task):
+        # Test Data
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/admin/tasks/run/",
+            data=json.dumps({"target": "all", "force_refresh": False}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(
+            response.json()["message"],
+            "Update All Taxsystem is already queued or running",
+        )
+
+    @patch(f"{TASKS_PATH}.update_corporation.apply_async", return_value=SKIPPED_RESULT)
+    def test_run_update_tasks_should_report_corporation_already_running(
+        self, mock_task
+    ):
+        # Test Data
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/admin/tasks/run/",
+            data=json.dumps(
+                {
+                    "target": "corporation",
+                    "eve_id": self.corp_owner.eve_id,
+                    "force_refresh": False,
+                }
+            ),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(
+            response.json()["message"],
+            f"Update for Corporation: {self.corp_owner.name} is already queued or running",
+        )
+
+    @patch(f"{TASKS_PATH}.update_corporation.apply_async", return_value=SKIPPED_RESULT)
+    def test_run_update_tasks_should_count_skipped_corporations(self, mock_task):
+        # Test Data
+        self.client.force_login(self.superuser)
+        skipped = CorporationOwner.objects.filter(active=True).count()
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/admin/tasks/run/",
+            data=json.dumps({"target": "corporation", "force_refresh": False}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(
+            response.json()["message"],
+            f"Queued Update All Taxsystem Corporations, {skipped} already queued or running",
+        )
+
+    @patch(f"{TASKS_PATH}.update_corporation.apply_async", return_value=SKIPPED_RESULT)
+    def test_trigger_owner_update_should_report_already_running(self, mock_task):
+        # Test Data
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            f"{self.api}/owner/{self.corp_owner.eve_id}/update/",
+            data=json.dumps({"force_refresh": False}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(mock_task.called)
+        self.assertEqual(
+            response.json()["message"],
+            f"Update for {self.corp_owner.name} is already queued or running",
+        )
 
     @patch(f"{TASKS_PATH}.update_corporation.apply_async")
     def test_trigger_owner_update_should_return_403_on_force_refresh_for_manager(

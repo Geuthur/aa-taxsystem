@@ -3,6 +3,10 @@
 # Standard Library
 from unittest.mock import Mock, patch
 
+# Third Party
+from celery import states
+from celery.result import EagerResult
+
 # Django
 from django.contrib.admin.sites import AdminSite
 
@@ -111,4 +115,23 @@ class TestCorporationOwnerAdmin(AuthTestCase):
         # then
         mock_update.delay.assert_called_once_with(
             owner_eve_id=self.corporation_owner.eve_id, force_refresh=True
+        )
+
+    @patch("taxsystem.admin.update_corporation")
+    def test_force_update_action_should_report_skipped(self, mock_update):
+        """Test force_update action reports owners with an update already running"""
+        # given
+        mock_update.delay.return_value = EagerResult(None, None, states.REJECTED)
+        request = self.factory.post("/admin/taxsystem/corporationowner/")
+        request.user = self.user
+        request._messages = Mock()
+        queryset = CorporationOwner.objects.filter(pk=self.corporation_owner.pk)
+        # when
+        self.admin.force_update(request, queryset)
+        # then
+        message = request._messages.add.call_args.args[1]
+        self.assertIn("Started force update for 0 corporation(s).", message)
+        self.assertIn(
+            "1 corporation(s) skipped, an update is already queued or running.",
+            message,
         )
