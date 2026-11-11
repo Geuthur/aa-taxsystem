@@ -41,13 +41,17 @@ TASK_DEFAULTS_BIND_ONCE = {**TASK_DEFAULTS, **{"bind": True, "base": QueueOnce}}
 # Default params for tasks that need run once only.
 TASK_DEFAULTS_ONCE = {**TASK_DEFAULTS, **{"base": QueueOnce}}
 
+# Default params for tasks that run once per owner.
 TASK_DEFAULTS_ONCE_OWNER = {
-    **TASK_DEFAULTS,
+    **TASK_DEFAULTS_ONCE,
     **{"once": {"keys": ["owner_eve_id"], "graceful": True}},
 }
 
-# Default params for owner tasks that are bound to the task instance (ESI retry).
-TASK_DEFAULTS_BIND_ONCE_OWNER = {**TASK_DEFAULTS_ONCE_OWNER, **{"bind": True}}
+# Default params for tasks that run once per owner and are bound to the task instance.
+TASK_DEFAULTS_BIND_ONCE_OWNER = {
+    **TASK_DEFAULTS_BIND_ONCE,
+    **{"once": {"keys": ["owner_eve_id"], "graceful": True}},
+}
 
 
 @shared_task(**TASK_DEFAULTS_ONCE)
