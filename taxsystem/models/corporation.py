@@ -32,10 +32,6 @@ from taxsystem.models.base import (
     HistoryBaseModel,
     PaymentAccountBaseModel,
     PaymentsBaseModel,
-    UpdateStatusBaseModel,
-)
-from taxsystem.models.general import (
-    UpdateSectionResult,
 )
 from taxsystem.models.helpers.textchoices import (
     ActionType,
@@ -45,7 +41,9 @@ from taxsystem.models.helpers.textchoices import (
 from taxsystem.models.helpers.update_manager import (
     CorporationUpdateSection,
     UpdateManagerMixin,
+    UpdateSectionResult,
     UpdateStatus,
+    UpdateStatusBaseModel,
 )
 from taxsystem.models.wallet import (
     CorporationWalletDivision,
@@ -69,9 +67,6 @@ class CorporationUpdateStatus(UpdateStatusBaseModel):
     class Meta:
         default_permissions = ()
         unique_together = [("owner", "section")]
-
-    def __str__(self) -> str:
-        return f"{self.owner} - {self.section}"
 
 
 class CorporationOwner(UpdateManagerMixin, models.Model):
