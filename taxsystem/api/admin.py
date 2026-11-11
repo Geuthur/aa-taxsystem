@@ -398,10 +398,17 @@ class AdminApiEndpoints:
             eve_id = payload.eve_id
 
             if target == "all":
-                tasks.update_all_taxsytem.apply_async(
-                    kwargs={"force_refresh": force_refresh}, priority=7
+                result = tasks.update_all_taxsytem.apply_async(
+                    kwargs={"force_refresh": force_refresh},
+                    priority=7,
+                    once={"graceful": True},
                 )
-                return HTTPStatus.OK, {"message": _("Queued Update All Taxsystem")}
+                message = (
+                    _("Update All Taxsystem is already queued or running")
+                    if tasks.is_task_skipped(result)
+                    else _("Queued Update All Taxsystem")
+                )
+                return HTTPStatus.OK, {"message": message}
 
             if target == "corporation":
                 if eve_id:
@@ -409,30 +416,39 @@ class AdminApiEndpoints:
                         corp = CorporationOwner.objects.get(
                             eve_corporation__corporation_id=eve_id
                         )
-                        tasks.update_corporation.apply_async(
-                            args=[corp.eve_id],
-                            kwargs={"force_refresh": force_refresh},
-                            priority=7,
-                        )
-                        return HTTPStatus.OK, {
-                            "message": _("Queued Update for Corporation: %s")
-                            % corp.name
-                        }
                     except CorporationOwner.DoesNotExist:
                         return HTTPStatus.BAD_REQUEST, {
                             "error": _("Corporation with ID %s not found") % eve_id
                         }
-                else:
-                    corporations = CorporationOwner.objects.filter(active=True)
-                    for corporation in corporations:
-                        tasks.update_corporation.apply_async(
-                            args=[corporation.eve_id],
-                            kwargs={"force_refresh": force_refresh},
-                            priority=7,
-                        )
-                    return HTTPStatus.OK, {
-                        "message": _("Queued Update All Taxsystem Corporations")
-                    }
+                    result = tasks.update_corporation.apply_async(
+                        args=[corp.eve_id],
+                        kwargs={"force_refresh": force_refresh},
+                        priority=7,
+                    )
+                    message = (
+                        _("Update for Corporation: %s is already queued or running")
+                        if tasks.is_task_skipped(result)
+                        else _("Queued Update for Corporation: %s")
+                    )
+                    return HTTPStatus.OK, {"message": message % corp.name}
+
+                skipped = 0
+                for corporation in CorporationOwner.objects.filter(active=True):
+                    result = tasks.update_corporation.apply_async(
+                        args=[corporation.eve_id],
+                        kwargs={"force_refresh": force_refresh},
+                        priority=7,
+                    )
+                    skipped += tasks.is_task_skipped(result)
+                message = (
+                    _(
+                        "Queued Update All Taxsystem Corporations, %(skipped)d already queued or running"
+                    )
+                    % {"skipped": skipped}
+                    if skipped
+                    else _("Queued Update All Taxsystem Corporations")
+                )
+                return HTTPStatus.OK, {"message": message}
 
             if target == "alliance":
                 if eve_id:
@@ -440,29 +456,39 @@ class AdminApiEndpoints:
                         ally = AllianceOwner.objects.get(
                             eve_alliance__alliance_id=eve_id
                         )
-                        tasks.update_alliance.apply_async(
-                            args=[ally.eve_alliance.alliance_id],
-                            kwargs={"force_refresh": force_refresh},
-                            priority=7,
-                        )
-                        return HTTPStatus.OK, {
-                            "message": _("Queued Update for Alliance: %s") % ally.name
-                        }
                     except AllianceOwner.DoesNotExist:
                         return HTTPStatus.BAD_REQUEST, {
                             "error": _("Alliance with ID %s not found") % eve_id
                         }
-                else:
-                    alliances = AllianceOwner.objects.filter(active=True)
-                    for alliance in alliances:
-                        tasks.update_alliance.apply_async(
-                            args=[alliance.eve_alliance.alliance_id],
-                            kwargs={"force_refresh": force_refresh},
-                            priority=7,
-                        )
-                    return HTTPStatus.OK, {
-                        "message": _("Queued Update All Taxsystem Alliances")
-                    }
+                    result = tasks.update_alliance.apply_async(
+                        args=[ally.eve_alliance.alliance_id],
+                        kwargs={"force_refresh": force_refresh},
+                        priority=7,
+                    )
+                    message = (
+                        _("Update for Alliance: %s is already queued or running")
+                        if tasks.is_task_skipped(result)
+                        else _("Queued Update for Alliance: %s")
+                    )
+                    return HTTPStatus.OK, {"message": message % ally.name}
+
+                skipped = 0
+                for alliance in AllianceOwner.objects.filter(active=True):
+                    result = tasks.update_alliance.apply_async(
+                        args=[alliance.eve_alliance.alliance_id],
+                        kwargs={"force_refresh": force_refresh},
+                        priority=7,
+                    )
+                    skipped += tasks.is_task_skipped(result)
+                message = (
+                    _(
+                        "Queued Update All Taxsystem Alliances, %(skipped)d already queued or running"
+                    )
+                    % {"skipped": skipped}
+                    if skipped
+                    else _("Queued Update All Taxsystem Alliances")
+                )
+                return HTTPStatus.OK, {"message": message}
 
             return HTTPStatus.BAD_REQUEST, {"error": _("Invalid target specified.")}
 
@@ -494,26 +520,23 @@ class AdminApiEndpoints:
                 }
 
             if isinstance(owner, CorporationOwner):
-                tasks.update_corporation.apply_async(
-                    args=[owner.eve_id],
-                    kwargs={"force_refresh": force_refresh},
-                    priority=7,
-                )
-                return HTTPStatus.OK, {
-                    "message": _("Queued update for %(name)s") % {"name": owner.name}
-                }
+                task = tasks.update_corporation
+            elif isinstance(owner, AllianceOwner):
+                task = tasks.update_alliance
+            else:
+                return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
 
-            if isinstance(owner, AllianceOwner):
-                tasks.update_alliance.apply_async(
-                    args=[owner.eve_id],
-                    kwargs={"force_refresh": force_refresh},
-                    priority=7,
-                )
-                return HTTPStatus.OK, {
-                    "message": _("Queued update for %(name)s") % {"name": owner.name}
-                }
-
-            return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
+            result = task.apply_async(
+                args=[owner.eve_id],
+                kwargs={"force_refresh": force_refresh},
+                priority=7,
+            )
+            message = (
+                _("Update for %(name)s is already queued or running")
+                if tasks.is_task_skipped(result)
+                else _("Queued update for %(name)s")
+            )
+            return HTTPStatus.OK, {"message": message % {"name": owner.name}}
 
         @api.delete(
             "owner/{int:owner_id}/",

@@ -7,7 +7,9 @@ from unittest.mock import MagicMock, PropertyMock, patch
 # Third Party
 import pook
 from aiopenapi3 import RequestError
+from celery import states
 from celery.exceptions import Retry
+from celery.result import EagerResult
 
 # Django
 from django.core.cache import cache
@@ -577,6 +579,36 @@ class TestOwnerTasksRunOnce(AuthTestCase):
                 mock_apply_async.assert_called_once()
                 self.assertEqual(result.state, "REJECTED")
 
+    def test_should_mark_second_apply_async_as_skipped(self, mock_apply_async):
+        # Test Data
+        task = tasks.update_corporation
+        self._lock_key(task, 1001, {"force_refresh": False})
+
+        # Test Action
+        first = task.apply_async(args=[1001], kwargs={"force_refresh": False})
+        second = task.apply_async(args=[1001], kwargs={"force_refresh": False})
+
+        # Expected Result
+        self.assertFalse(tasks.is_task_skipped(first))
+        self.assertTrue(tasks.is_task_skipped(second))
+
+    def test_should_skip_update_all_gracefully_when_requested(self, mock_apply_async):
+        """`update_all_taxsytem` is not graceful by default, the API passes `once`."""
+        # Test Data
+        task = tasks.update_all_taxsytem
+        key = task.get_key(kwargs={"force_refresh": False})
+        self.addCleanup(task.once_backend.clear_lock, key)
+        task.apply_async(kwargs={"force_refresh": False})
+
+        # Test Action
+        result = task.apply_async(
+            kwargs={"force_refresh": False}, once={"graceful": True}
+        )
+
+        # Expected Result
+        mock_apply_async.assert_called_once()
+        self.assertTrue(tasks.is_task_skipped(result))
+
     def test_should_queue_tasks_for_other_owners(self, mock_apply_async):
         for task, kwargs in self.OWNER_TASKS:
             with self.subTest(task=task.name):
@@ -622,3 +654,13 @@ class TestOwnerTasksRunOnce(AuthTestCase):
         # Expected Result
         self.assertTrue(result)
         mock_update_corp_section.assert_called_once()
+
+
+class TestIsTaskSkipped(AuthTestCase):
+    def test_is_task_skipped_should_return_true_for_rejected_result(self):
+        self.assertTrue(tasks.is_task_skipped(EagerResult(None, None, states.REJECTED)))
+
+    def test_is_task_skipped_should_return_false_for_queued_result(self):
+        self.assertFalse(tasks.is_task_skipped(EagerResult("id", None, states.SUCCESS)))
+        self.assertFalse(tasks.is_task_skipped(MagicMock()))
+        self.assertFalse(tasks.is_task_skipped(None))
