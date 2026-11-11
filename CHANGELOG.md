@@ -34,6 +34,8 @@ Section Order:
 
 ### Fixed
 
+- [FIX] Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` gives each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis were returned instead of the pook responses. Redis stays the cache backend because Alliance Auth needs `django_redis`.
+
 - [FIX] The Django admin action "Force update selected corporations/alliances" showed a success message even when celery_once skipped every selected owner and no update was started. It now shows a warning ("No force update started. … skipped, an update is already queued or running.") in that case. With at least one started update the success message and the note on skipped owners are unchanged.
 
 - [FIX] Manual updates reported "Queued …" even when celery_once skipped them because an update for the same owner was already queued or running. The new helper `is_task_skipped()` in `tasks.py` detects the skipped call (celery_once returns an `EagerResult` with state `REJECTED` instead of queueing). The update endpoints `POST admin/tasks/run/`, `POST owner/{owner_id}/update/`, `POST administration/owners/{owner_type}/{owner_id}/update/` and `POST settings/owners/update-all/` now answer "… is already queued or running" or report the number of skipped owners; status code and response schema are unchanged. The Django admin action "Force update selected corporations/alliances" reports skipped owners as well, and its message is now translatable (it used an f-string inside `gettext`). `admin/tasks/run/` with target `all` queues `update_all_taxsytem` with `once={"graceful": True}`, so a second click while it is queued no longer fails with `AlreadyQueued` (HTTP 500).
