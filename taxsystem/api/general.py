@@ -437,22 +437,36 @@ class ApiEndpoints:
 
             force_refresh = payload.force_refresh if payload else False
             count = 0
+            skipped = 0
             for corp in CorporationOwner.objects.manage_to(request.user):
-                tasks.update_corporation.apply_async(
+                result = tasks.update_corporation.apply_async(
                     args=[corp.eve_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
-                count += 1
+                if tasks.is_task_skipped(result):
+                    skipped += 1
+                else:
+                    count += 1
 
             for ally in AllianceOwner.objects.manage_to(request.user):
-                tasks.update_alliance.apply_async(
+                result = tasks.update_alliance.apply_async(
                     args=[ally.eve_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
-                count += 1
+                if tasks.is_task_skipped(result):
+                    skipped += 1
+                else:
+                    count += 1
 
+            if skipped:
+                return HTTPStatus.OK, {
+                    "message": _(
+                        "Queued updates for %(count)d owner(s), %(skipped)d already queued or running."
+                    )
+                    % {"count": count, "skipped": skipped}
+                }
             return HTTPStatus.OK, {
                 "message": _("Queued updates for %(count)d owner(s).")
                 % {"count": count}

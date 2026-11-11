@@ -5,20 +5,14 @@ from typing import TYPE_CHECKING
 from django.db import models
 from django.db.models import Case, Count, Q, Value, When
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.models.general import General
 from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
     UpdateStatus,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from taxsystem.providers import logger
 
 if TYPE_CHECKING:
     # AA TaxSystem

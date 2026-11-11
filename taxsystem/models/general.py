@@ -1,8 +1,7 @@
 """General Model"""
 
 # Standard Library
-from dataclasses import dataclass
-from typing import Any, Literal, NamedTuple
+from typing import Any, Literal
 
 # Django
 from django.apps import apps
@@ -143,45 +142,6 @@ class General(models.Model):
         return (
             cls.get_administration_owners(owner_type, user).filter(pk=owner.pk).exists()
         )
-
-
-class UpdateSectionResult(NamedTuple):
-    """
-    A result of an attempted section update.
-
-    Attributes:
-        is_changed (bool | None): Whether the data has changed. None if unknown.
-        is_updated (bool): Whether the update was successful.
-        has_token_error (bool): Whether there was a token error during the update.
-        error_message (str | None): An error message if applicable.
-        data (Any): The data fetched during the update.
-    """
-
-    is_changed: bool | None
-    is_updated: bool
-    has_token_error: bool = False
-    error_message: str | None = None
-    data: Any = None
-
-
-@dataclass(frozen=True)
-class _NeedsUpdate:
-    """
-    An Object to track if an update is needed.
-
-    Results:
-        section_map (dict[str, bool]): A mapping of sections to their update needs.
-    """
-
-    section_map: dict[str, bool]
-
-    def __bool__(self) -> bool:
-        """Check if any section needs an update."""
-        return any(self.section_map.values())
-
-    def for_section(self, section: str) -> bool:
-        """Check if an update is needed for a specific section."""
-        return self.section_map.get(section, False)
 
 
 class EveEntity(models.Model):

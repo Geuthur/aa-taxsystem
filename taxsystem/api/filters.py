@@ -7,11 +7,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA TaxSystem
-from taxsystem import __title__
 from taxsystem.api.helpers import core
 from taxsystem.api.schema import (
     ActionCommentRequest,
@@ -26,9 +22,6 @@ from taxsystem.models.helpers.textchoices import (
     ActionType,
     AdminActions,
 )
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class FilterApiEndpoints:

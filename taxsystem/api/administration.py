@@ -203,11 +203,16 @@ class AdministrationApiEndpoints:
                         "error": _("Administration permission required.")
                     }
 
-                tasks.update_corporation.apply_async(
+                result = tasks.update_corporation.apply_async(
                     args=[corp.eve_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
+                if tasks.is_task_skipped(result):
+                    return HTTPStatus.OK, {
+                        "message": _("Update for %(name)s is already queued or running")
+                        % {"name": corp.name}
+                    }
                 return HTTPStatus.OK, {
                     "message": _("Queued update for %(name)s") % {"name": corp.name}
                 }
@@ -228,11 +233,16 @@ class AdministrationApiEndpoints:
                         "error": _("Administration permission required.")
                     }
 
-                tasks.update_alliance.apply_async(
+                result = tasks.update_alliance.apply_async(
                     args=[ally.eve_id],
                     kwargs={"force_refresh": force_refresh},
                     priority=7,
                 )
+                if tasks.is_task_skipped(result):
+                    return HTTPStatus.OK, {
+                        "message": _("Update for %(name)s is already queued or running")
+                        % {"name": ally.name}
+                    }
                 return HTTPStatus.OK, {
                     "message": _("Queued update for %(name)s") % {"name": ally.name}
                 }

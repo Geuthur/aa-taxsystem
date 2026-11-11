@@ -6,19 +6,16 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth import hooks
 from allianceauth.authentication.models import UserProfile
-from allianceauth.services.hooks import MenuItemHook, UrlHook, get_extension_logger
+from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA TaxSystem
-from taxsystem import __title__, app_settings, urls
+from taxsystem import app_settings, urls
 from taxsystem.models.corporation import (
     CorporationPaymentAccount,
     CorporationPayments,
 )
 from taxsystem.models.general import General
 from taxsystem.models.helpers.textchoices import AccountStatus
-from taxsystem.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class TaxSystemMenuItem(MenuItemHook):
