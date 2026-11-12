@@ -56,6 +56,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] Permissions follow the `aa-example` template. `General.Permission` (TextChoices) and the wrappers `General.get_perm`, `General.has_perm` and `General.has_any_perm` are removed. The permissions are plain tuples with translatable texts in `General.Meta.permissions`; codenames and texts are unchanged; migration `0017_alter_general_permissions` only updates the model options (the options of the earlier migrations lacked `admin_access`). Permissions are checked directly with Django and the full string (`@permission_required("taxsystem.basic_access")`, `user.has_perm("taxsystem.manage_corps")`). The rules that combine permissions moved to the new `GeneralManager` (`taxsystem/managers/general.py`, `General.objects`): `has_management_access` (replaces `General.has_administration_access`), `has_all_access` (replaces `has_administration_all_access`), `get_administration_owners` and `has_administration_owner_access`. Behaviour is unchanged, except that `None` is no longer accepted as user. The Django-Ninja API, the menu hook and the `visible_to` / `manage_to` querysets no longer call `user.has_perm` themselves but the `GeneralManager` (`has_basic_access`, `has_create_access`, `has_manage_corps_access` and the like), so the rules live in one place. Django views keep `@permission_required("taxsystem.<codename>")`. A new test checks every permission string in the code and templates against `General.Meta.permissions`.
+
 - [CHANGE] `taxsystem/models/helpers/update_manager.py` follows the `aa-example` template and holds `UpdateSectionResult`, `_NeedsUpdate`, `UpdateStatus`, `UpdateSection`, `UpdateStatusBaseModel`, `UpdateManager` and `UpdateManagerMixin` in one module. `UpdateSectionResult` and `_NeedsUpdate` moved there from `models/general.py`, `UpdateStatusBaseModel` from `models/base.py`; imports were updated. `UpdateStatusBaseModel` now provides `__str__` (`<owner> - <section>`), so `CorporationUpdateStatus` no longer defines its own; `AllianceUpdateStatus` keeps its version with the owner name. Error logging in `_handle_update_exception` uses the template's separate branches; levels and messages are unchanged. No migration needed. The owners keep their own `get_status`, which aggregates the status on the owner queryset, so `UpdateManagerMixin` has no `get_status` of its own.
 
 - [CHANGE] The `AppLogger` is created only once in `taxsystem/providers.py`. `helpers/discord.py`, `managers/alliance_manager.py`, `managers/corporation_manager.py`, `managers/owner_manager.py`, `managers/wallet_manager.py`, `models/base.py`, `models/corporation.py`, `models/helpers/update_manager.py` and `tasks.py` import it with `from taxsystem.providers import logger` instead of building their own. 13 modules that built a logger but never logged anything (`api/admin.py`, `api/corporation.py`, `api/filters.py`, `api/groups.py`, `api/helpers/statistics.py`, `api/logs.py`, `api/payments.py`, `auth_hooks.py`, both management commands, `models/alliance.py`, `models/wallet.py`, `views.py`) no longer create or import one. Log records now carry the logger name `taxsystem.providers` instead of the module name; the `[Tax System]` prefix is unchanged.
@@ -124,11 +126,11 @@ Section Order:
 
 - **Pulsing Error Indicator**: Added `has_errors` detection to `OwnerOverviewSchema` in `overview.py` and rendered pulsing warning indicator (`aa-btn-warning aa-btn-pulse` with `aa-pending-dot-container`) on the `Manage` button for owners with active sync errors.
 
-- [ADD] `General.Permission` (TextChoices) with `get_perm`, `has_perm` and `has_any_perm` helpers in `taxsystem/models/general.py`; permission codenames are unchanged (migration `0016_alter_general_options` only updates the model options).
+- [ADD] Permission codenames are defined in `General.Meta.permissions` in `taxsystem/models/general.py` (migration `0016_alter_general_options` only updates the model options).
 
 - [ADD] `is_superuser` flag in the `/user/` endpoint so the frontend can show superuser-only controls.
 
-- [ADD] Overall permission `taxsystem.admin_access` ("Has access to the whole Administration.") in `General.Permission`; it unlocks the Administration for all corporations and all alliances. The existing permission codenames are unchanged (migration `0017_alter_general_options` only updates the model options).
+- [ADD] Overall permission `taxsystem.admin_access` ("Has access to the whole Administration.") in `General.Meta.permissions`; it unlocks the Administration for all corporations and all alliances. The existing permission codenames are unchanged (migration `0017_alter_general_options` only updates the model options).
 
 ### Fixed
 
@@ -146,7 +148,7 @@ Section Order:
 
 - [CHANGE] Refactored `SettingsPage` to use modular `BaseOwnerSettingsSection` and `BaseOwnerCard` for unified owner settings management.
 
-- [CHANGE] All permission checks (views, menu hook, API, managers) use `General.has_perm` / `General.get_perm` instead of hard-coded permission strings.
+- [CHANGE] All permission checks (views, menu hook, API, managers) check permissions with Django and the full permission string.
 
 - [CHANGE] Renamed "Superuser" to "Administration": API paths `superuser/owners/...` are now `administration/owners/...`, page route `/administration/` (`/superuser/` redirects), schemas, query keys and translations were renamed accordingly.
 
