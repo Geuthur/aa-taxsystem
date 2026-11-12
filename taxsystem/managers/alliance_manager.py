@@ -11,7 +11,6 @@ from allianceauth.authentication.models import User, UserProfile
 # AA TaxSystem
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
-from taxsystem.models.general import General
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     PaymentActions,
@@ -417,7 +416,7 @@ class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
     # pylint: disable=duplicate-code
     def visible_to(self, user: User):
         """Return visible payments for the user depending on their permissions."""
-        if General.has_perm(user, General.Permission.MANAGE_ALLIANCES):
+        if user.has_perm("taxsystem.manage_alliances"):
             logger.debug(
                 "Returning all alliance payments for Tax Audit Manager %s.", user
             )
@@ -427,7 +426,7 @@ class AlliancePaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             assert char
             queries = [models.Q(account__user=user)]
 
-            if General.has_perm(user, General.Permission.MANAGE_OWN_ALLIANCE):
+            if user.has_perm("taxsystem.manage_own_alliance"):
                 alliance_ids = user.character_ownerships.all().values_list(
                     "character__alliance_id", flat=True
                 )
@@ -485,10 +484,8 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
 
     def get_owner_open_invoices(self, user: User, owner: "OwnerContext"):
         """Get the count of open invoices for the given user and owner."""
-        if General.has_any_perm(
-            user,
-            General.Permission.MANAGE_OWN_ALLIANCE,
-            General.Permission.MANAGE_ALLIANCES,
+        if user.has_perm("taxsystem.manage_own_alliance") or user.has_perm(
+            "taxsystem.manage_alliances"
         ):
             return self.get_queryset().open_invoices(owner=owner)
         return 0

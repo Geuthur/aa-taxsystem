@@ -134,7 +134,7 @@ class ApiEndpoints:
         )
         def get_menu(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             # Owners that are not up to date; the count is the badge of the Settings link.
@@ -159,7 +159,7 @@ class ApiEndpoints:
             ]
 
             right_links = []
-            if General.has_perm(user, General.Permission.CREATE_ACCESS):
+            if user.has_perm("taxsystem.create_access"):
                 right_links += [
                     schema.MenuLink(
                         name=_("Add Corporation"),
@@ -173,7 +173,7 @@ class ApiEndpoints:
                     ),
                 ]
 
-            if General.has_administration_access(user):
+            if General.objects.has_management_access(user):
                 right_links.append(
                     schema.MenuLink(name=_("Administration"), link="/administration/")
                 )
@@ -191,7 +191,7 @@ class ApiEndpoints:
         )
         def get_user(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             main_character = getattr(
@@ -228,7 +228,7 @@ class ApiEndpoints:
             summary="Get the settings of the current user",
         )
         def get_user_settings(request: WSGIRequest):
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not request.user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -248,7 +248,7 @@ class ApiEndpoints:
         def update_user_settings(
             request: WSGIRequest, payload: schema.UserSettingsUpdateRequest
         ):
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not request.user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
@@ -269,7 +269,7 @@ class ApiEndpoints:
         )
         def get_user_accounts(request: WSGIRequest):
             user = request.user
-            if not General.has_perm(user, General.Permission.BASIC_ACCESS):
+            if not user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             accounts: list[schema.UserAccountSchema] = []
@@ -399,7 +399,7 @@ class ApiEndpoints:
             summary="Get settings update status for all manageable owners",
         )
         def get_settings_owners(request: WSGIRequest):
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not request.user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             owners_list: list[schema.TaxOwnerSettingSchema] = []
@@ -432,7 +432,7 @@ class ApiEndpoints:
             request: WSGIRequest,
             payload: schema.OwnerUpdateRequest | None = None,
         ):
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not request.user.has_perm("taxsystem.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             force_refresh = payload.force_refresh if payload else False
