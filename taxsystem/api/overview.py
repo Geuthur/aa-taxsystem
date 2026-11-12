@@ -13,6 +13,7 @@ from taxsystem.api import schema
 from taxsystem.helpers import lazy
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
+from taxsystem.models.general import General
 
 
 class ApiEndpoints:
@@ -30,7 +31,7 @@ class ApiEndpoints:
         )
         def get_overview(request: WSGIRequest):
             user = request.user
-            if not user.has_perm("taxsystem.basic_access"):
+            if not General.objects.has_basic_access(user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             owner_list: list[schema.OwnerOverviewSchema] = []

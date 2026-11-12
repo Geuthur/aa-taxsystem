@@ -11,6 +11,7 @@ from allianceauth.authentication.models import User, UserProfile
 # AA TaxSystem
 from taxsystem.app_settings import TAXSYSTEM_BULK_BATCH_SIZE
 from taxsystem.decorators import log_timing
+from taxsystem.managers.general import GeneralManager
 from taxsystem.models.general import EveEntity
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
@@ -419,7 +420,7 @@ class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
     # pylint: disable=duplicate-code
     def visible_to(self, user: User):
         """Return visible payments for the user depending on their permissions."""
-        if user.has_perm("taxsystem.manage_corps"):
+        if GeneralManager.has_manage_corps_access(user):
             logger.debug(
                 "Returning all corporation payments for Tax Audit Manager %s.", user
             )
@@ -428,7 +429,7 @@ class PaymentsQuerySet(models.QuerySet["PaymentsContext"]):
             char = user.profile.main_character
             assert char
             queries = [models.Q(account__user=user)]
-            if user.has_perm("taxsystem.manage_own_corp"):
+            if GeneralManager.has_manage_own_corp_access(user):
                 corp_ids = user.character_ownerships.all().values_list(
                     "character__corporation_id", flat=True
                 )
@@ -489,9 +490,7 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
 
     def get_owner_open_invoices(self, user: User, owner: "OwnerContext"):
         """Get the count of open invoices for the given user and owner."""
-        if user.has_perm("taxsystem.manage_own_corp") or user.has_perm(
-            "taxsystem.manage_corps"
-        ):
+        if GeneralManager.has_corporation_management_access(user):
             return self.get_queryset().open_invoices(owner=owner)
         return 0
 

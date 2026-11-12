@@ -18,6 +18,50 @@ class GeneralManager(models.Manager):
     """
 
     @staticmethod
+    def has_basic_access(user) -> bool:
+        """Users with `basic_access` may use the app."""
+        return user.has_perm("taxsystem.basic_access")
+
+    @staticmethod
+    def has_create_access(user) -> bool:
+        """Users with `create_access` may add corporations and alliances."""
+        return user.has_perm("taxsystem.create_access")
+
+    @staticmethod
+    def has_manage_corps_access(user) -> bool:
+        """Users with `manage_corps` may see and manage all corporations."""
+        return user.has_perm("taxsystem.manage_corps")
+
+    @staticmethod
+    def has_manage_own_corp_access(user) -> bool:
+        """Users with `manage_own_corp` may manage their own corporation."""
+        return user.has_perm("taxsystem.manage_own_corp")
+
+    @staticmethod
+    def has_manage_alliances_access(user) -> bool:
+        """Users with `manage_alliances` may see and manage all alliances."""
+        return user.has_perm("taxsystem.manage_alliances")
+
+    @staticmethod
+    def has_manage_own_alliance_access(user) -> bool:
+        """Users with `manage_own_alliance` may manage their own alliance."""
+        return user.has_perm("taxsystem.manage_own_alliance")
+
+    @staticmethod
+    def has_corporation_management_access(user) -> bool:
+        """Users with `manage_own_corp` or `manage_corps` manage corporations."""
+        return user.has_perm("taxsystem.manage_own_corp") or user.has_perm(
+            "taxsystem.manage_corps"
+        )
+
+    @staticmethod
+    def has_alliance_management_access(user) -> bool:
+        """Users with `manage_own_alliance` or `manage_alliances` manage alliances."""
+        return user.has_perm("taxsystem.manage_own_alliance") or user.has_perm(
+            "taxsystem.manage_alliances"
+        )
+
+    @staticmethod
     def has_management_access(user) -> bool:
         """
         Check if the user may use the Administration area.
