@@ -44,7 +44,7 @@ class AdministrationApiEndpoints:
             summary="List all corporation and alliance owners for administration management",
         )
         def list_administration_owners(request: WSGIRequest):
-            if not General.has_administration_access(request.user):
+            if not General.objects.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -54,7 +54,7 @@ class AdministrationApiEndpoints:
             # 1. Corporation Owners
             # NPC corporations are never listed in the Administration
             corporations = (
-                General.get_administration_owners("corporation", request.user)
+                General.objects.get_administration_owners("corporation", request.user)
                 .select_related("eve_corporation")
                 .filter(eve_corporation__corporation_id__gte=MIN_PLAYER_CORPORATION_ID)
             )
@@ -104,7 +104,7 @@ class AdministrationApiEndpoints:
 
             # 2. Alliance Owners
             alliances = (
-                General.get_administration_owners("alliance", request.user)
+                General.objects.get_administration_owners("alliance", request.user)
                 .select_related("eve_alliance")
                 .all()
             )
@@ -173,7 +173,7 @@ class AdministrationApiEndpoints:
             owner_id: int,
             payload: schema.AdministrationTaxOwnerUpdateRequest,
         ):
-            if not General.has_administration_access(request.user):
+            if not General.objects.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -196,7 +196,7 @@ class AdministrationApiEndpoints:
                         % {"id": owner_id}
                     }
 
-                if not General.has_administration_owner_access(
+                if not General.objects.has_administration_owner_access(
                     "corporation", request.user, corp
                 ):
                     return HTTPStatus.FORBIDDEN, {
@@ -226,7 +226,7 @@ class AdministrationApiEndpoints:
                         % {"id": owner_id}
                     }
 
-                if not General.has_administration_owner_access(
+                if not General.objects.has_administration_owner_access(
                     "alliance", request.user, ally
                 ):
                     return HTTPStatus.FORBIDDEN, {
@@ -266,7 +266,7 @@ class AdministrationApiEndpoints:
             owner_type: str,
             owner_id: int,
         ):
-            if not General.has_administration_access(request.user):
+            if not General.objects.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -283,7 +283,7 @@ class AdministrationApiEndpoints:
                         % {"id": owner_id}
                     }
 
-                if not General.has_administration_owner_access(
+                if not General.objects.has_administration_owner_access(
                     "corporation", request.user, corp
                 ):
                     return HTTPStatus.FORBIDDEN, {
@@ -307,7 +307,7 @@ class AdministrationApiEndpoints:
                         % {"id": owner_id}
                     }
 
-                if not General.has_administration_owner_access(
+                if not General.objects.has_administration_owner_access(
                     "alliance", request.user, ally
                 ):
                     return HTTPStatus.FORBIDDEN, {
@@ -339,7 +339,7 @@ class AdministrationApiEndpoints:
             owner_type: str,
             owner_id: int,
         ):
-            if not General.has_administration_access(request.user):
+            if not General.objects.has_management_access(request.user):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("Administration permission required.")
                 }
@@ -371,7 +371,7 @@ class AdministrationApiEndpoints:
                     "error": _("Invalid owner type specified.")
                 }
 
-            if not General.has_administration_owner_access(
+            if not General.objects.has_administration_owner_access(
                 owner_type, request.user, owner
             ):
                 return HTTPStatus.FORBIDDEN, {

@@ -10,11 +10,11 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 # AA TaxSystem
 from taxsystem import app_settings, urls
+from taxsystem.managers.general import GeneralManager
 from taxsystem.models.corporation import (
     CorporationPaymentAccount,
     CorporationPayments,
 )
-from taxsystem.models.general import General
 from taxsystem.models.helpers.textchoices import AccountStatus
 
 
@@ -30,18 +30,14 @@ class TaxSystemMenuItem(MenuItemHook):
         )
 
     def render(self, request: UserProfile):
-        if General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+        if GeneralManager.has_basic_access(request.user):
             # Check if the User has any unpaid active accounts
             user_accounts = CorporationPaymentAccount.objects.filter(
                 user=request.user, status=AccountStatus.ACTIVE
             )
             self.count = 1 if any(not acc.has_paid for acc in user_accounts) else 0
 
-            if General.has_any_perm(
-                request.user,
-                General.Permission.MANAGE_OWN_CORP,
-                General.Permission.MANAGE_CORPS,
-            ):
+            if GeneralManager.has_corporation_management_access(request.user):
                 # Get the count of open invoices for the Managing user
                 invoices = CorporationPayments.objects.get_visible_open_invoices(
                     request.user
