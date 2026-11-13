@@ -26,89 +26,43 @@ Section Order:
 ### Removed
 -->
 
+<!-- Your changes go here -->
+
+## [5.2.0] - 2026-11-13
+
 ### Added
 
-- [ADD] Reusable frontend components `OwnerPortrait` and `SearchInput`, replacing several inline copies.
-
-- [ADD] Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Payments, Overview, Account Overview, Owner Management and menu views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
+- [ADD] Shared frontend components `OwnerPortrait` and `SearchInput` and frontend hooks per area.
 
 ### Fixed
 
-- [FIX] Members of a tax-free group no longer get the outstanding payment notification (Discord and Auth).
-
-- [FIX] Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` gives each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis were returned instead of the pook responses. Redis stays the cache backend because Alliance Auth needs `django_redis`.
-
-- [FIX] The Django admin action "Force update selected corporations/alliances" showed a success message even when celery_once skipped every selected owner and no update was started. It now shows a warning ("No force update started. … skipped, an update is already queued or running.") in that case. With at least one started update the success message and the note on skipped owners are unchanged.
-
-- [FIX] Manual updates reported "Queued …" even when celery_once skipped them because an update for the same owner was already queued or running. The new helper `is_task_skipped()` in `tasks.py` detects the skipped call (celery_once returns an `EagerResult` with state `REJECTED` instead of queueing). The update endpoints `POST admin/tasks/run/`, `POST owner/{owner_id}/update/`, `POST administration/owners/{owner_type}/{owner_id}/update/` and `POST settings/owners/update-all/` now answer "… is already queued or running" or report the number of skipped owners; status code and response schema are unchanged. The Django admin action "Force update selected corporations/alliances" reports skipped owners as well, and its message is now translatable (it used an f-string inside `gettext`). `admin/tasks/run/` with target `all` queues `update_all_taxsytem` with `once={"graceful": True}`, so a second click while it is queued no longer fails with `AlreadyQueued` (HTTP 500).
-
-- [FIX] The per-owner lock of the owner tasks never worked: `TASK_DEFAULTS_ONCE_OWNER` set `once` (keys `owner_eve_id`, graceful) but not `base=QueueOnce`, so celery_once ignored it and the same task could be queued several times for the same owner. `TASK_DEFAULTS_ONCE_OWNER` and `TASK_DEFAULTS_BIND_ONCE_OWNER` now build on `TASK_DEFAULTS_ONCE` and `TASK_DEFAULTS_BIND_ONCE` as in the `aa-example` template. A second `apply_async` for an owner whose task is still queued or running is skipped silently; this also applies to manual updates from the admin pages and the API. Other owners are not affected. Retries through `self.retry` and the direct calls of the section tasks inside `update_corporation` and `update_alliance` bypass the lock as before.
-
-- [FIX] ESI outages and limits never retried the corporation update tasks: no task used `retry_task_on_esi_error`, and the `UpdateManager` turned every ESI error except `TokenError` into an update status. `update_corporation` and the ESI section tasks `update_corp_division_names`, `update_corp_divisions`, `update_corp_wallet` and `update_corp_members` are now bound and run inside `retry_task_on_esi_error`. `_handle_update_exception` raises the errors the task retries on (`ESIErrorLimitException`, `ESIBucketLimitException`, `HTTPServerError` 502/503/504, `RequestError`, `DownTimeError`), checked by the new `is_retryable_esi_error()` in `providers.py`. `execute_section` records them as a failed run of the section before raising, so the section shows the error and stays stale until the retry succeeds. Other errors (e.g. HTTP 500 or 404) still end in the update status only. Alliance tasks and the corporation sections payments, tax accounts and deadlines make no ESI calls and are unchanged.
-
-- [FIX] Real Weblate translations lost when the bundled-translations switch emptied all non-English values (Weblate could no longer rebase its branch). The translated frontend strings from the Weblate branch (30 to 43 per language, one more for German) are merged into `frontend/i18n/<lng>/translation.json`; new `cs` and `sk` files were added. The Django `.po` files already contained everything and are unchanged.
-
-- [FIX] Tests no longer fail between 11:00 and 11:15 UTC. The daily ESI downtime check can be disabled with the `DISABLE_DAILY_DOWNTIME_CHECK` setting, which the test settings now set.
-
-- [FIX] Section headers, card headers and filter button groups overflowing the container on small screens; headers now wrap and the filter buttons scroll horizontally.
-
-- Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
-
-- [FIX] The pulsing menu and tab badges scaled up and down with their number. Only the glow around the badge pulses now.
+- [FIX] Members of a tax-free group no longer get the outstanding payment notification.
+- [FIX] The per-owner task lock never worked (missing `QueueOnce` base), so the same owner could be queued several times.
+- [FIX] Manual updates and the admin action "Force update" reported success even when the update was skipped as already queued or running.
+- [FIX] Corporation ESI tasks now retry on ESI outages and limits instead of only setting an error status.
+- [FIX] Restored the real Weblate frontend translations and added `cs` and `sk`.
+- [FIX] Headers and filter button groups overflowing on small screens.
+- [FIX] Pulsing menu and tab badges changed their size; only the glow pulses now.
+- [FIX] Tests use their own Redis cache prefix and skip the daily ESI downtime check; `make coverage` returns the test status.
 
 ### Changed
 
-- [CHANGE] Row actions of the Administration and Owner Management tables are icon-only buttons in a `ButtonGroup` with tooltips, and all filters use `FilterButtonGroup` from `aa-geuthur-react` 1.4.0 (the local `ButtonGroupFilter` is removed; filter buttons are now `primary` when active, otherwise `secondary`).
-
-- [CHANGE] Permissions follow the `aa-example` template. `General.Permission` (TextChoices) and the wrappers `General.get_perm`, `General.has_perm` and `General.has_any_perm` are removed. The permissions are plain tuples with translatable texts in `General.Meta.permissions`; codenames and texts are unchanged; migration `0017_alter_general_permissions` only updates the model options (the options of the earlier migrations lacked `admin_access`). Permissions are checked directly with Django and the full string (`@permission_required("taxsystem.basic_access")`, `user.has_perm("taxsystem.manage_corps")`). The rules that combine permissions moved to the new `GeneralManager` (`taxsystem/managers/general.py`, `General.objects`): `has_management_access` (replaces `General.has_administration_access`), `has_all_access` (replaces `has_administration_all_access`), `get_administration_owners` and `has_administration_owner_access`. Behaviour is unchanged, except that `None` is no longer accepted as user. The Django-Ninja API, the menu hook and the `visible_to` / `manage_to` querysets no longer call `user.has_perm` themselves but the `GeneralManager` (`has_basic_access`, `has_create_access`, `has_manage_corps_access` and the like), so the rules live in one place. Django views keep `@permission_required("taxsystem.<codename>")`. A new test checks every permission string in the code and templates against `General.Meta.permissions`.
-
-- [CHANGE] `taxsystem/models/helpers/update_manager.py` follows the `aa-example` template and holds `UpdateSectionResult`, `_NeedsUpdate`, `UpdateStatus`, `UpdateSection`, `UpdateStatusBaseModel`, `UpdateManager` and `UpdateManagerMixin` in one module. `UpdateSectionResult` and `_NeedsUpdate` moved there from `models/general.py`, `UpdateStatusBaseModel` from `models/base.py`; imports were updated. `UpdateStatusBaseModel` now provides `__str__` (`<owner> - <section>`), so `CorporationUpdateStatus` no longer defines its own; `AllianceUpdateStatus` keeps its version with the owner name. Error logging in `_handle_update_exception` uses the template's separate branches; levels and messages are unchanged. No migration needed. The owners keep their own `get_status`, which aggregates the status on the owner queryset, so `UpdateManagerMixin` has no `get_status` of its own.
-
-- [CHANGE] The `AppLogger` is created only once in `taxsystem/providers.py`. `helpers/discord.py`, `managers/alliance_manager.py`, `managers/corporation_manager.py`, `managers/owner_manager.py`, `managers/wallet_manager.py`, `models/base.py`, `models/corporation.py`, `models/helpers/update_manager.py` and `tasks.py` import it with `from taxsystem.providers import logger` instead of building their own. 13 modules that built a logger but never logged anything (`api/admin.py`, `api/corporation.py`, `api/filters.py`, `api/groups.py`, `api/helpers/statistics.py`, `api/logs.py`, `api/payments.py`, `auth_hooks.py`, both management commands, `models/alliance.py`, `models/wallet.py`, `views.py`) no longer create or import one. Log records now carry the logger name `taxsystem.providers` instead of the module name; the `[Tax System]` prefix is unchanged.
-
-- [CHANGE] The language files `frontend/i18n/<lng>/translation.json` hold only real translations as Weblate writes them; missing keys fall back to English. `i18next-scanner` maintains only `en`, and the empty placeholders were removed from all other languages.
-
-- [CHANGE] `aa-geuthur-react` raised to `^1.3.0`. The package bundles its own translations and registers them with i18next through `AaReactProvider`, so `Main.tsx` lists only the namespace `translation`, the copies under `taxsystem/static/taxsystem/i18n/<lng>/aa-geuthur-react.json` are removed and `make react-copy-translations` no longer copies them. Untranslated strings in `frontend/i18n/<lng>/translation.json` are empty instead of English (`i18next-scanner` writes the key as value only for `en`); `returnEmptyString: false` shows the English fallback at runtime. Translate on Weblate as before.
-
-- [CHANGE] GitHub workflows match the `aa-example` template: `autotester.yml` runs the React checks (lint, unit tests, build) in an own `frontend` job that the Python tests wait for, and uses `actions-setup-redis` 1.60.0; `release.yml` is the release job of the template.
-
-- [CHANGE] `aa-evesde-factory` is a test dependency (`tests-allianceauth-latest`).
-
-- [CHANGE] Buttons use the Bootstrap 5 variants (`variant`, `size`) with the theme look defined as overrides under `.aa-react`; the custom `aa-btn` classes were removed. Frontend inline styles were replaced by CSS classes, and missing `index.ts` files were added.
-
-- [CHANGE] `ButtonGroupFilter` supports counters, and the Administration owner filter uses it.
-
-- [CHANGE] Both menus now share the same query options (5 minutes stale time, one retry, no refetch on window focus).
-
-- [CHANGE] The generated `manifest.json` is excluded from the pre-commit end-of-file fixer.
-
-- [CHANGE] Layout CSS of the settings page, owner cards, tables, loaders and the table filter was replaced by Bootstrap utility classes; own CSS remains for colors, borders, hover and fixed sizes. The error icon uses the theme's `text-danger` color.
-
-- [CHANGE] Tests use the `AuthTestCase` base class in the layout of the `aa-example` template (`NoSocketsTestCase` and `AuthTestCase` with `factory`, `user`, `superuser`). `TaxSystemTestCase` and its extras (`corp`, `user_character`, `superuser_character`, `_add_corporation`, `_add_alliance`) were removed; the tests that need them set them up themselves or use `testdata/views.py`.
-
-- [CHANGE] The frontend uses the npm package [aa-geuthur-react](https://github.com/Geuthur/aa-geuthur-react) for the shared base: tables, modals, loaders, menus, hooks, utilities, the page layout (`aa-react container`, 640 px to 1280 px wide) and the ESLint rule `import-headings`. The package texts are translated in its own Weblate component. Where the package looks different from the former copies (section header, table footer layout, spinner and error icon sizes, no `-webkit-backdrop-filter`), the package look applies.
-
-- [CHANGE] The `user/` endpoint returns the `UserData` contract of the package: `is_admin` is now the superuser flag (global update tasks and force refresh of the Administration) and `is_superuser`, `can_manage` and `can_create` are gone. The `menu/` endpoint puts the number of owners that are not up to date as `badge` on the Settings link and sets `has_errors` when there are any. The badge is loaded with the menu and no longer refreshed every 30 seconds.
+- [CHANGE] The frontend uses the npm package `aa-geuthur-react` (1.4.0) for tables, modals, loaders, menus, filters and layout, including its bundled translations.
+- [CHANGE] Tables migrated to TanStack Table v9.
+- [CHANGE] Row actions in Administration and Owner Management are icon buttons in a `ButtonGroup` with tooltips.
+- [CHANGE] The Settings menu badge shows the number of owners that are not up to date and is loaded with the menu.
+- [CHANGE] The `user/` endpoint returns the `UserData` contract of `aa-geuthur-react` (`is_admin` is the superuser flag; `is_superuser`, `can_manage` and `can_create` removed).
+- [CHANGE] Permissions are plain Django permissions in `General.Meta`, combined rules live in `GeneralManager` (`General.objects`); `General.Permission`, `get_perm`, `has_perm` and `has_any_perm` removed.
+- [CHANGE] Language files hold only real translations; missing keys fall back to English.
+- [CHANGE] Layout CSS replaced by Bootstrap utilities; buttons use Bootstrap 5 variants.
+- [CHANGE] Logger, `UpdateManager` module, test base class, test factories (`aa-evesde-factory`) and GitHub workflows follow the `aa-example` template.
 
 ### Removed
 
-- [REMOVED] The frontend copies of `BaseTable`, `BaseModal`, the loaders, `BaseSectionHeader`, the menus, `useCooldown`, `useFeedback`, `useUserData`, `useMenu`, `Utils`, the base `Pages` (`Base`, `404`), `table.css`, the matching CSS modules and the `import-headings` ESLint rule, with their tests, and the CSS of `aa-section`, `aa-nav-danger`, `aa-menu-badge-pulse` and the tooltips (all part of the package).
-
-- [REMOVED] Own `UserFactory`, `EveAllianceInfoFactory`, `EveCorporationInfoFactory` and `EveCharacterFactory` and the test helper module `testdata/utils.py` (`add_character_to_user` and others) (identical to the ones in `aa-evesde-factory`); `aa-evesde-factory` provides it, and the `UserMainFactory` of TaxSystem now inherits from it. Generated usernames are unique, so a random test user can no longer match an existing user such as a test superuser.
-
-- [REMOVED] Active/Deactivated status badge from the owner cards on the `OverviewPage`.
-
+- [REMOVED] Frontend copies now provided by `aa-geuthur-react`, unused CSS and `BaseModalQuery`.
+- [REMOVED] Unused `update_status` fields `icon`, `code`, `color` and `html` in the owner dashboard API and the `UpdateStatus` HTML helpers.
+- [REMOVED] Active/Deactivated badge on the owner cards of the Overview page.
 - [REMOVED] Outdated `IMPROVEMENT_PLAN.md`.
-
-- [REMOVED] Unused CSS: the `aa-bg-*`, `aa-color-*`, `aa-tab-*`, `aa-status-*` and further helper classes, unused design tokens, the old owner card styles in the settings page module and `BaseModal.module.css`.
-
-- [REMOVED] Unused `BaseModalQuery` component.
-
-- [REMOVED] Backend HTML helpers `bootstrap_icon`, `bootstrap_text_style_class` and `description` of `UpdateStatus` and the unused `icon` field of the `update_status` object in the owner dashboard API response (`UpdateStatusSchema`). The frontend renders the update status itself from `status`, `has_errors` and `status_display`.
-
-- [REMOVED] Unused fields `code`, `color` and `html` of the `update_status` object in the owner dashboard API response (`UpdateStatusSchema`). They were never filled and the frontend does not read them.
-
-<!-- Your changes go here -->
 
 ## [5.1.0] - 2026-10-25
 
@@ -1219,5 +1173,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.6]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.5...v5.0.6 "v5.0.6"
 [5.0.7]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.6...v5.0.7 "v5.0.7"
 [5.1.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.7...v5.1.0 "v5.1.0"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.1.0...HEAD "In Development"
+[5.2.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.1.0...v5.2.0 "v5.2.0"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.2.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
