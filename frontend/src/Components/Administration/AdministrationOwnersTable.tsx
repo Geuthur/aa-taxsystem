@@ -199,6 +199,7 @@ export function AdministrationOwnersTable({
                   <Dropdown.Toggle
                     split
                     variant="primary"
+                    className="rounded-0"
                     aria-label={t("More update options")}
                     disabled={isUpdating}
                     id={`update-dropdown-${item.owner_id}`}
