@@ -28,6 +28,10 @@ Section Order:
 
 <!-- Your changes go here -->
 
+### Fixed
+
+- [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
+
 ## [5.2.0] - 2026-11-13
 
 ### Added
