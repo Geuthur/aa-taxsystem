@@ -153,84 +153,74 @@ export function AdministrationOwnersTable({
         cell: ({ row }) => {
           const item = row.original;
           return (
-            <div className="d-flex align-items-center justify-content-end gap-2">
-              {renderTooltip(
-                t("Inspect"),
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => onInspect(item)}
-                  title={t("Inspect")}
-                  className="d-inline-flex align-items-center gap-1"
-                  data-testid={`inspect-btn-${item.owner_type}-${item.owner_id}`}
-                >
-                  <Eye size={13} />
-                  <span>{t("Inspect")}</span>
-                </Button>
-              )}
-
-              <Dropdown as={ButtonGroup} size="sm">
+            <div className="d-flex justify-content-end">
+              <ButtonGroup size="sm">
                 {renderTooltip(
-                  t("Update"),
+                  t("Inspect"),
+                  <Button
+                    variant="info"
+                    aria-label={t("Inspect")}
+                    onClick={() => onInspect(item)}
+                    data-testid={`inspect-btn-${item.owner_type}-${item.owner_id}`}
+                  >
+                    <Eye size={14} />
+                  </Button>,
+                )}
+                <Dropdown as={ButtonGroup} size="sm">
+                  {renderTooltip(
+                    t("Update"),
+                    <Button
+                      variant="primary"
+                      aria-label={t("Update")}
+                      disabled={isUpdating}
+                      onClick={() => onUpdate(item, false)}
+                      data-testid={`update-btn-${item.owner_type}-${item.owner_id}`}
+                    >
+                      {isUpdating ? (
+                        <Spinner size="sm" animation="border" />
+                      ) : (
+                        <RefreshCw size={14} />
+                      )}
+                    </Button>,
+                  )}
+                  {renderTooltip(
+                    t("More update options"),
+                    <Dropdown.Toggle
+                      split
+                      variant="primary"
+                      aria-label={t("More update options")}
+                      disabled={isUpdating}
+                      id={`update-dropdown-${item.owner_id}`}
+                    />,
+                  )}
+                  <Dropdown.Menu
+                    align="end"
+                    className={`shadow-lg ${styles.dropdownMenu}`}
+                  >
+                    <Dropdown.Item onClick={() => onUpdate(item, false)}>
+                      <RefreshCw size={14} className="me-2 text-primary" />
+                      {t("Update (Normal)")}
+                    </Dropdown.Item>
+                    {canForceRefresh && (
+                      <Dropdown.Item onClick={() => onUpdate(item, true)}>
+                        <RefreshCw size={14} className="me-2 text-warning" />
+                        {t("Force Refresh (Bypass Cache)")}
+                      </Dropdown.Item>
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown>
+                {renderTooltip(
+                  t("Delete"),
                   <Button
                     variant="danger"
-                    size="sm"
-                    disabled={isUpdating}
-                    onClick={() => onUpdate(item, false)}
-                    title={t("Update")}
-                    className="d-inline-flex align-items-center gap-1"
-                    data-testid={`update-btn-${item.owner_type}-${item.owner_id}`}
+                    aria-label={t("Delete")}
+                    onClick={() => onDelete(item)}
+                    data-testid={`delete-btn-${item.owner_type}-${item.owner_id}`}
                   >
-                    {isUpdating ? (
-                      <Spinner size="sm" animation="border" />
-                    ) : (
-                      <RefreshCw size={13} />
-                    )}
-                    <span>{t("Update")}</span>
-                  </Button>
+                    <Trash2 size={14} />
+                  </Button>,
                 )}
-                {renderTooltip(
-                  t("More update options"),
-                  <Dropdown.Toggle
-                    split
-                    size="sm"
-                    variant="danger"
-                    aria-label={t("More update options")}
-                    disabled={isUpdating}
-                    id={`update-dropdown-${item.owner_id}`}
-                  />
-                )}
-                <Dropdown.Menu
-                  align="end"
-                  className={`shadow-lg ${styles.dropdownMenu}`}
-                >
-                  <Dropdown.Item onClick={() => onUpdate(item, false)}>
-                    <RefreshCw size={14} className="me-2 text-primary" />
-                    {t("Update (Normal)")}
-                  </Dropdown.Item>
-                  {canForceRefresh && (
-                    <Dropdown.Item onClick={() => onUpdate(item, true)}>
-                      <RefreshCw size={14} className="me-2 text-warning" />
-                      {t("Force Refresh (Bypass Cache)")}
-                    </Dropdown.Item>
-                  )}
-                </Dropdown.Menu>
-              </Dropdown>
-
-              {renderTooltip(
-                t("Delete"),
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => onDelete(item)}
-                  title={t("Delete")}
-                  className="d-inline-flex align-items-center gap-1"
-                  data-testid={`delete-btn-${item.owner_type}-${item.owner_id}`}
-                >
-                  <Trash2 size={13} />
-                  <span>{t("Delete")}</span>
-                </Button>
-              )}
+              </ButtonGroup>
             </div>
           );
         },

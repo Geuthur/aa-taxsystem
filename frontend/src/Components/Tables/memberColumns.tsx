@@ -3,7 +3,7 @@ import { formatDate, renderTooltip } from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { History, Trash2, Users } from "lucide-react";
-import { Badge, Button } from "react-bootstrap";
+import { Badge, Button, ButtonGroup } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
@@ -122,30 +122,31 @@ export function getMemberColumns({
       id: "actions",
       header: t("Actions"),
       cell: ({ row }) => (
-        <div className="d-flex align-items-center gap-1">
+        <ButtonGroup size="sm">
           {row.original.character?.character_id &&
             renderTooltip(
               t("Payment History & Activities"),
               <Button
                 variant="info"
-                size="sm"
+                aria-label={t("History")}
                 onClick={() => onHistory(row.original)}
               >
-                <History size={12} />
-                {t("History")}
+                <History size={14} />
               </Button>,
             )}
-          {row.original.is_missing && row.original.character?.character_id && (
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => onDeleteMissing(row.original)}
-            >
-              <Trash2 size={12} />
-              {t("Delete")}
-            </Button>
-          )}
-        </div>
+          {row.original.is_missing &&
+            row.original.character?.character_id &&
+            renderTooltip(
+              t("Delete"),
+              <Button
+                variant="danger"
+                aria-label={t("Delete")}
+                onClick={() => onDeleteMissing(row.original)}
+              >
+                <Trash2 size={14} />
+              </Button>,
+            )}
+        </ButtonGroup>
       ),
     },
   ];
