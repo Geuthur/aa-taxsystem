@@ -34,6 +34,8 @@ Section Order:
 
 ### Fixed
 
+- [FIX] Members of a tax-free group no longer get the outstanding payment notification (Discord and Auth).
+
 - [FIX] Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` gives each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis were returned instead of the pook responses. Redis stays the cache backend because Alliance Auth needs `django_redis`.
 
 - [FIX] The Django admin action "Force update selected corporations/alliances" showed a success message even when celery_once skipped every selected owner and no update was started. It now shows a warning ("No force update started. … skipped, an update is already queued or running.") in that case. With at least one started update the success message and the note on skipped owners are unchanged.
