@@ -3,7 +3,7 @@ import { formatCompactNumber, formatDate, renderTooltip } from "aa-geuthur-react
 import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { CheckCircle2, DollarSign, History, RotateCcw, ToggleLeft, ToggleRight, XCircle } from "lucide-react";
-import { Badge, Button } from "react-bootstrap";
+import { Badge, Button, ButtonGroup } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
@@ -128,42 +128,39 @@ export function getAccountColumns({
       id: "actions",
       header: t("Actions"),
       cell: ({ row }) => (
-        <div className="d-flex align-items-center gap-1">
+        <ButtonGroup size="sm">
           {renderTooltip(
             t("Payment History & Activities"),
             <Button
               variant="info"
-              size="sm"
+              aria-label={t("History")}
               onClick={() => onHistory(row.original)}
             >
-              <History size={12} />
-              {t("History")}
+              <History size={14} />
             </Button>,
           )}
           {renderTooltip(
             t("Add Custom Payment"),
             <Button
               variant="success"
-              size="sm"
+              aria-label={t("Add Payment")}
               onClick={() => onAddPayment(row.original)}
             >
-              <DollarSign size={12} />
-              {t("Add Payment")}
+              <DollarSign size={14} />
             </Button>,
           )}
           {renderTooltip(
             t("Switch Account Status"),
             <Button
               variant="secondary"
-              size="sm"
+              aria-label={t("Status")}
               onClick={() => onSwitchStatus(row.original)}
             >
               {row.original.status?.toLowerCase() === "active" ? (
-                <ToggleRight size={12} className="text-success" />
+                <ToggleRight size={14} className="text-success" />
               ) : (
-                <ToggleLeft size={12} />
+                <ToggleLeft size={14} />
               )}
-              {t("Status")}
             </Button>,
           )}
           {onReset &&
@@ -171,14 +168,13 @@ export function getAccountColumns({
               t("Reset Account Balance & Due Date"),
               <Button
                 variant="danger"
-                size="sm"
+                aria-label={t("Reset")}
                 onClick={() => onReset(row.original)}
               >
-                <RotateCcw size={12} />
-                {t("Reset")}
+                <RotateCcw size={14} />
               </Button>,
             )}
-        </div>
+        </ButtonGroup>
       ),
     },
   ];

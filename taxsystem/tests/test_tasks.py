@@ -17,6 +17,7 @@ from django.test import override_settings
 from django.utils import timezone
 
 # Alliance Auth
+from allianceauth.groupmanagement.models import Group
 from esi.exceptions import (
     ESIBucketLimitException,
     ESIErrorLimitException,
@@ -50,12 +51,15 @@ from taxsystem.tests.testdata.esi import (
     divisions_url,
 )
 from taxsystem.tests.testdata.factory import (
+    AllianceGroupFactory,
     AllianceOwnerFactory,
     AllianceTaxAccountFactory,
     AllianceUpdateStatusFactory,
+    CorporationGroupFactory,
     CorporationOwnerFactory,
     CorporationTaxAccountFactory,
     CorporationUpdateStatusFactory,
+    UserMainFactory,
 )
 
 TASKS_PATH = "taxsystem.tasks"
@@ -378,6 +382,68 @@ class TestTasks(AuthTestCase):
 
         # Expected Result
         mock_send.assert_called()
+
+    @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_corporation_notification_should_skip_tax_free_group_members(
+        self, mock_send
+    ):
+        """
+        Test that members of a tax-free group get no corporation notification.
+
+        Results:
+            - Only the member outside the tax-free group is notified.
+        """
+        # Test Data
+        audit = CorporationOwnerFactory(user=self.user)
+        CorporationTaxAccountFactory(
+            owner=audit, user=self.user, deposit=-1000, status="active"
+        )
+        tax_free_user = UserMainFactory()
+        tax_free_group = Group.objects.create(name="Tax Free Corporation Group")
+        tax_free_group.user_set.add(tax_free_user)
+        CorporationGroupFactory(owner=audit, groups=[tax_free_group])
+        CorporationTaxAccountFactory(
+            owner=audit, user=tax_free_user, deposit=-1000, status="active"
+        )
+
+        # Test Action
+        _send_corporation_notification(
+            owner_eve_id=audit.eve_corporation.corporation_id
+        )
+
+        # Expected Result
+        mock_send.assert_called_once()
+        self.assertEqual(mock_send.call_args.kwargs["user_id"], self.user.pk)
+
+    @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_alliance_notification_should_skip_tax_free_group_members(
+        self, mock_send
+    ):
+        """
+        Test that members of a tax-free group get no alliance notification.
+
+        Results:
+            - Only the member outside the tax-free group is notified.
+        """
+        # Test Data
+        audit = AllianceOwnerFactory(user=self.user)
+        AllianceTaxAccountFactory(
+            owner=audit, user=self.user, deposit=-1000, status="active"
+        )
+        tax_free_user = UserMainFactory()
+        tax_free_group = Group.objects.create(name="Tax Free Alliance Group")
+        tax_free_group.user_set.add(tax_free_user)
+        AllianceGroupFactory(owner=audit, groups=[tax_free_group])
+        AllianceTaxAccountFactory(
+            owner=audit, user=tax_free_user, deposit=-1000, status="active"
+        )
+
+        # Test Action
+        _send_alliance_notification(owner_eve_id=audit.eve_alliance.alliance_id)
+
+        # Expected Result
+        mock_send.assert_called_once()
+        self.assertEqual(mock_send.call_args.kwargs["user_id"], self.user.pk)
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)

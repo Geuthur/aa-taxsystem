@@ -233,7 +233,7 @@ describe("AdministrationPage", () => {
     });
 
     // Test Action
-    const updateButtons = screen.getAllByTitle("Update");
+    const updateButtons = screen.getAllByRole("button", { name: "Update" });
     await user.click(updateButtons[0]);
 
     // Expected Result
@@ -262,7 +262,7 @@ describe("AdministrationPage", () => {
     });
 
     // Test Action
-    const deleteButtons = screen.getAllByTitle("Delete");
+    const deleteButtons = screen.getAllByRole("button", { name: "Delete" });
     await user.click(deleteButtons[0]);
 
     // Verify modal appeared

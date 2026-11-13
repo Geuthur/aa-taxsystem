@@ -2,7 +2,12 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { BaseTable, formatCompactNumber, formatDate, renderTooltip } from "aa-geuthur-react";
+import {
+  BaseTable,
+  formatCompactNumber,
+  formatDate,
+  renderTooltip,
+} from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
@@ -19,7 +24,10 @@ export interface AdministrationOwnersTableProps {
   data: AdministrationTaxOwnerSchema[];
   isLoading: boolean;
   onInspect: (owner: AdministrationTaxOwnerSchema) => void;
-  onUpdate: (owner: AdministrationTaxOwnerSchema, forceRefresh: boolean) => void;
+  onUpdate: (
+    owner: AdministrationTaxOwnerSchema,
+    forceRefresh: boolean,
+  ) => void;
   onDelete: (owner: AdministrationTaxOwnerSchema) => void;
   isUpdating?: boolean;
   canForceRefresh?: boolean;
@@ -35,11 +43,13 @@ export function AdministrationOwnersTable({
   canForceRefresh = false,
 }: AdministrationOwnersTableProps) {
   const { t } = useTranslation();
-  const [errorOwner, setErrorOwner] = useState<AdministrationTaxOwnerSchema | null>(null);
+  const [errorOwner, setErrorOwner] =
+    useState<AdministrationTaxOwnerSchema | null>(null);
 
-  const columns = useMemo<BaseColumnDef<AdministrationTaxOwnerSchema, unknown>[]>(
-    () => {
-      return [
+  const columns = useMemo<
+    BaseColumnDef<AdministrationTaxOwnerSchema, unknown>[]
+  >(() => {
+    return [
       {
         id: "owner",
         header: t("Owner"),
@@ -85,7 +95,8 @@ export function AdministrationOwnersTable({
         cell: ({ row }) => {
           const item = row.original;
           const hasError =
-            Boolean(item.error_message) || item.status.toLowerCase() === "token_error";
+            Boolean(item.error_message) ||
+            item.status.toLowerCase() === "token_error";
           return (
             <AdministrationStatusBadge
               status={item.status}
@@ -138,7 +149,8 @@ export function AdministrationOwnersTable({
         accessorKey: "last_sync",
         cell: ({ row }) => {
           const lastSync = row.original.last_sync;
-          if (!lastSync) return <span className="text-muted">{t("Never")}</span>;
+          if (!lastSync)
+            return <span className="text-muted">{t("Never")}</span>;
           const date = new Date(lastSync);
           return (
             <span className="text-muted small" title={date.toISOString()}>
@@ -153,52 +165,45 @@ export function AdministrationOwnersTable({
         cell: ({ row }) => {
           const item = row.original;
           return (
-            <div className="d-flex align-items-center justify-content-end gap-2">
-              {renderTooltip(
-                t("Inspect"),
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => onInspect(item)}
-                  title={t("Inspect")}
-                  className="d-inline-flex align-items-center gap-1"
-                  data-testid={`inspect-btn-${item.owner_type}-${item.owner_id}`}
-                >
-                  <Eye size={13} />
-                  <span>{t("Inspect")}</span>
-                </Button>
-              )}
-
+            <div className="d-flex justify-content-end">
               <Dropdown as={ButtonGroup} size="sm">
+                {renderTooltip(
+                  t("Inspect"),
+                  <Button
+                    variant="info"
+                    aria-label={t("Inspect")}
+                    onClick={() => onInspect(item)}
+                    data-testid={`inspect-btn-${item.owner_type}-${item.owner_id}`}
+                  >
+                    <Eye size={14} />
+                  </Button>,
+                )}
                 {renderTooltip(
                   t("Update"),
                   <Button
-                    variant="danger"
-                    size="sm"
+                    variant="primary"
+                    aria-label={t("Update")}
                     disabled={isUpdating}
                     onClick={() => onUpdate(item, false)}
-                    title={t("Update")}
-                    className="d-inline-flex align-items-center gap-1"
                     data-testid={`update-btn-${item.owner_type}-${item.owner_id}`}
                   >
                     {isUpdating ? (
                       <Spinner size="sm" animation="border" />
                     ) : (
-                      <RefreshCw size={13} />
+                      <RefreshCw size={14} />
                     )}
-                    <span>{t("Update")}</span>
-                  </Button>
+                  </Button>,
                 )}
                 {renderTooltip(
                   t("More update options"),
                   <Dropdown.Toggle
                     split
-                    size="sm"
-                    variant="danger"
+                    variant="primary"
+                    className="rounded-0"
                     aria-label={t("More update options")}
                     disabled={isUpdating}
                     id={`update-dropdown-${item.owner_id}`}
-                  />
+                  />,
                 )}
                 <Dropdown.Menu
                   align="end"
@@ -215,22 +220,18 @@ export function AdministrationOwnersTable({
                     </Dropdown.Item>
                   )}
                 </Dropdown.Menu>
+                {renderTooltip(
+                  t("Delete"),
+                  <Button
+                    variant="danger"
+                    aria-label={t("Delete")}
+                    onClick={() => onDelete(item)}
+                    data-testid={`delete-btn-${item.owner_type}-${item.owner_id}`}
+                  >
+                    <Trash2 size={14} />
+                  </Button>,
+                )}
               </Dropdown>
-
-              {renderTooltip(
-                t("Delete"),
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => onDelete(item)}
-                  title={t("Delete")}
-                  className="d-inline-flex align-items-center gap-1"
-                  data-testid={`delete-btn-${item.owner_type}-${item.owner_id}`}
-                >
-                  <Trash2 size={13} />
-                  <span>{t("Delete")}</span>
-                </Button>
-              )}
             </div>
           );
         },

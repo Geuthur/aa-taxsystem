@@ -1,8 +1,9 @@
 // Third Party
+import { renderTooltip } from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { ArrowRight, Trash2 } from "lucide-react";
-import { Badge, Button } from "react-bootstrap";
+import { Badge, Button, ButtonGroup } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
@@ -68,14 +69,18 @@ export function getFilterSetColumns({
       header: t("Actions"),
       cell: ({ row }) =>
         row.original.id ? (
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => onDelete(row.original.id!)}
-          >
-            <Trash2 size={12} />
-            {t("Delete")}
-          </Button>
+          <ButtonGroup size="sm">
+            {renderTooltip(
+              t("Delete"),
+              <Button
+                variant="danger"
+                aria-label={t("Delete")}
+                onClick={() => onDelete(row.original.id!)}
+              >
+                <Trash2 size={14} />
+              </Button>,
+            )}
+          </ButtonGroup>
         ) : null,
     },
   ];
@@ -125,14 +130,18 @@ export function getFilterRuleColumns({
       header: t("Actions"),
       cell: ({ row }) =>
         row.original.id ? (
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => onDelete(row.original.id!)}
-          >
-            <Trash2 size={12} />
-            {t("Delete")}
-          </Button>
+          <ButtonGroup size="sm">
+            {renderTooltip(
+              t("Delete"),
+              <Button
+                variant="danger"
+                aria-label={t("Delete")}
+                onClick={() => onDelete(row.original.id!)}
+              >
+                <Trash2 size={14} />
+              </Button>,
+            )}
+          </ButtonGroup>
         ) : null,
     },
   ];
