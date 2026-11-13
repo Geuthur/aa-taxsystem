@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 // Third Party
+import { FilterButtonGroup } from "aa-geuthur-react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -27,7 +28,6 @@ import {
   useAdministrationOwners,
   useIsAdmin,
 } from "@/Components/Administration/Hooks";
-import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 import styles from "@/Styles/modules/Administration.module.css";
 
 type TypeFilter = "all" | "corporation" | "alliance" | "issues";
@@ -376,7 +376,7 @@ export function AdministrationPage() {
 
         {/* Filter and Search Bar */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-          <ButtonGroupFilter<TypeFilter>
+          <FilterButtonGroup<TypeFilter>
             value={typeFilter}
             onChange={setTypeFilter}
             options={[

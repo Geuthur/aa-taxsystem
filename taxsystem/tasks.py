@@ -333,6 +333,11 @@ def check_account_deposit(runs: int = 0):
     logger.info("Queued %s notification tasks for overdue payments", runs)
 
 
+def _needs_payment_notification(account) -> bool:
+    """Return True if the account owes taxes and is not tax-free (e.g. tax-free group)."""
+    return account.has_paid is False and not account.is_tax_free
+
+
 @shared_task(**TASK_DEFAULTS_ONCE)
 def _send_alliance_notification(
     owner_eve_id: int, runs: int = 0
@@ -347,9 +352,9 @@ def _send_alliance_notification(
         # Get the owner name from the first account, if not already set
         if owner_name is None:
             owner_name = account.owner.name
-        # Only send a notification if the user has not been notified and has not paid
+        # Only notify users who were not notified yet, have not paid and are not tax-free
         if account.has_notified is False:
-            if account.has_paid is False:
+            if _needs_payment_notification(account):
                 url = urljoin(
                     settings.SITE_URL,
                     f"{reverse('taxsystem:index')}account/{account.owner.eve_alliance.alliance_id}/",
@@ -387,9 +392,9 @@ def _send_corporation_notification(owner_eve_id: int, runs: int = 0):
         # Get the owner name from the first account, if not already set
         if owner_name is None:
             owner_name = account.owner.name
-        # Only send a notification if the user has not been notified and has not paid
+        # Only notify users who were not notified yet, have not paid and are not tax-free
         if account.has_notified is False:
-            if account.has_paid is False:
+            if _needs_payment_notification(account):
                 url = urljoin(
                     settings.SITE_URL,
                     f"{reverse('taxsystem:index')}account/{account.owner.eve_corporation.corporation_id}/",

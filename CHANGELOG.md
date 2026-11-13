@@ -38,6 +38,8 @@ Section Order:
 
 - [FIX] Compatibility with Alliance Auth 6 (pre-release) and Django 6: the `eveonline` migration dependencies of `0001_initial`, `0001_init_v3` and `0010_create_alliance_corporation` now point to `0019_v5squash` (Alliance Auth 6 removed the older `eveonline` migrations, `0019_v5squash` exists in Alliance Auth 5 as well), and `AccountStatus.html()` passes its values to `format_html` as arguments (Django 6 no longer accepts `format_html` without arguments). Works with Alliance Auth 5 and 6.
 
+- [FIX] Members of a tax-free group no longer get the outstanding payment notification (Discord and Auth).
+
 - [FIX] Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` and `testauth/settings/development/local.py` give each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis were returned instead of the pook responses. Redis stays the cache backend because Alliance Auth needs `django_redis`.
 
 - [FIX] The Django admin action "Force update selected corporations/alliances" showed a success message even when celery_once skipped every selected owner and no update was started. It now shows a warning ("No force update started. … skipped, an update is already queued or running.") in that case. With at least one started update the success message and the note on skipped owners are unchanged.
@@ -59,6 +61,8 @@ Section Order:
 - [FIX] The pulsing menu and tab badges scaled up and down with their number. Only the glow around the badge pulses now.
 
 ### Changed
+
+- [CHANGE] Row actions of the Administration and Owner Management tables are icon-only buttons in a `ButtonGroup` with tooltips, and all filters use `FilterButtonGroup` from `aa-geuthur-react` 1.4.0 (the local `ButtonGroupFilter` is removed; filter buttons are now `primary` when active, otherwise `secondary`).
 
 - [CHANGE] Permissions follow the `aa-example` template. `General.Permission` (TextChoices) and the wrappers `General.get_perm`, `General.has_perm` and `General.has_any_perm` are removed. The permissions are plain tuples with translatable texts in `General.Meta.permissions`; codenames and texts are unchanged; migration `0017_alter_general_permissions` only updates the model options (the options of the earlier migrations lacked `admin_access`). Permissions are checked directly with Django and the full string (`@permission_required("taxsystem.basic_access")`, `user.has_perm("taxsystem.manage_corps")`). The rules that combine permissions moved to the new `GeneralManager` (`taxsystem/managers/general.py`, `General.objects`): `has_management_access` (replaces `General.has_administration_access`), `has_all_access` (replaces `has_administration_all_access`), `get_administration_owners` and `has_administration_owner_access`. Behaviour is unchanged, except that `None` is no longer accepted as user. The Django-Ninja API, the menu hook and the `visible_to` / `manage_to` querysets no longer call `user.has_perm` themselves but the `GeneralManager` (`has_basic_access`, `has_create_access`, `has_manage_corps_access` and the like), so the rules live in one place. Django views keep `@permission_required("taxsystem.<codename>")`. A new test checks every permission string in the code and templates against `General.Meta.permissions`.
 

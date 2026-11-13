@@ -2,7 +2,13 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { BaseModal, BaseTable, ModalSize, formatCompactNumber } from "aa-geuthur-react";
+import {
+  BaseModal,
+  BaseTable,
+  FilterButtonGroup,
+  ModalSize,
+  formatCompactNumber,
+} from "aa-geuthur-react";
 import { CheckCircle2, DollarSign, UserCheck, XCircle } from "lucide-react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -11,7 +17,6 @@ import { useTranslation } from "react-i18next";
 import type { components } from "@/Api/OpenApi";
 import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
-import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 import { useAccountActions, useTaxAccounts } from "@/Components/OwnerManage/Hooks";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
 import { getAccountColumns } from "@/Components/Tables";
@@ -112,22 +117,20 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
             placeholder={t("Filter accounts by name or status…")}
           />
 
-          <ButtonGroupFilter<PaidFilter>
+          <FilterButtonGroup<PaidFilter>
             value={paidFilter}
             onChange={(val) => setPaidFilter(val)}
             options={[
-              { value: "all", label: t("All"), activeVariant: "primary" },
+              { value: "all", label: t("All") },
               {
                 value: "paid",
                 label: t("Paid"),
                 icon: <CheckCircle2 size={13} />,
-                activeVariant: "success",
               },
               {
                 value: "unpaid",
                 label: t("Unpaid"),
                 icon: <XCircle size={13} />,
-                activeVariant: "danger",
               },
             ]}
             ariaLabel="Filter accounts by payment status"

@@ -1,8 +1,6 @@
 // Third Party
+import { FilterButtonGroup } from "aa-geuthur-react";
 import { Building2, Shield, Users } from "lucide-react";
-
-// AA TaxSystem
-import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
 
 export interface OwnerTypeFilterProps {
   ownerType: string;
@@ -22,7 +20,7 @@ export function OwnerTypeFilter({
   ];
 
   return (
-    <ButtonGroupFilter
+    <FilterButtonGroup
       value={ownerType}
       onChange={setOwnerType}
       options={options}

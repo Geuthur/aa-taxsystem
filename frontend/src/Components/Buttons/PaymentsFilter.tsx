@@ -1,5 +1,5 @@
-// AA TaxSystem
-import { ButtonGroupFilter } from "@/Components/Buttons/ButtonGroupFilter";
+// Third Party
+import { FilterButtonGroup } from "aa-geuthur-react";
 
 export interface PaymentsFilterProps {
   statusFilter: string;
@@ -9,15 +9,15 @@ export interface PaymentsFilterProps {
 
 export function PaymentsFilter({ statusFilter, setStatusFilter, t }: PaymentsFilterProps) {
   const options = [
-    { value: "all", label: t("All"), activeVariant: "primary" },
-    { value: "pending", label: t("Pending"), activeVariant: "warning" },
-    { value: "needs_approval", label: t("Needs Approval"), activeVariant: "warning" },
-    { value: "approved", label: t("Approved"), activeVariant: "success" },
-    { value: "rejected", label: t("Rejected"), activeVariant: "danger" },
+    { value: "all", label: t("All") },
+    { value: "pending", label: t("Pending") },
+    { value: "needs_approval", label: t("Needs Approval") },
+    { value: "approved", label: t("Approved") },
+    { value: "rejected", label: t("Rejected") },
   ];
 
   return (
-    <ButtonGroupFilter
+    <FilterButtonGroup
       value={statusFilter}
       onChange={setStatusFilter}
       options={options}
