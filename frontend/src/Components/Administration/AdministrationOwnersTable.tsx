@@ -2,7 +2,12 @@
 import { useMemo, useState } from "react";
 
 // Third Party
-import { BaseTable, formatCompactNumber, formatDate, renderTooltip } from "aa-geuthur-react";
+import {
+  BaseTable,
+  formatCompactNumber,
+  formatDate,
+  renderTooltip,
+} from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
@@ -19,7 +24,10 @@ export interface AdministrationOwnersTableProps {
   data: AdministrationTaxOwnerSchema[];
   isLoading: boolean;
   onInspect: (owner: AdministrationTaxOwnerSchema) => void;
-  onUpdate: (owner: AdministrationTaxOwnerSchema, forceRefresh: boolean) => void;
+  onUpdate: (
+    owner: AdministrationTaxOwnerSchema,
+    forceRefresh: boolean,
+  ) => void;
   onDelete: (owner: AdministrationTaxOwnerSchema) => void;
   isUpdating?: boolean;
   canForceRefresh?: boolean;
@@ -35,11 +43,13 @@ export function AdministrationOwnersTable({
   canForceRefresh = false,
 }: AdministrationOwnersTableProps) {
   const { t } = useTranslation();
-  const [errorOwner, setErrorOwner] = useState<AdministrationTaxOwnerSchema | null>(null);
+  const [errorOwner, setErrorOwner] =
+    useState<AdministrationTaxOwnerSchema | null>(null);
 
-  const columns = useMemo<BaseColumnDef<AdministrationTaxOwnerSchema, unknown>[]>(
-    () => {
-      return [
+  const columns = useMemo<
+    BaseColumnDef<AdministrationTaxOwnerSchema, unknown>[]
+  >(() => {
+    return [
       {
         id: "owner",
         header: t("Owner"),
@@ -85,7 +95,8 @@ export function AdministrationOwnersTable({
         cell: ({ row }) => {
           const item = row.original;
           const hasError =
-            Boolean(item.error_message) || item.status.toLowerCase() === "token_error";
+            Boolean(item.error_message) ||
+            item.status.toLowerCase() === "token_error";
           return (
             <AdministrationStatusBadge
               status={item.status}
@@ -138,7 +149,8 @@ export function AdministrationOwnersTable({
         accessorKey: "last_sync",
         cell: ({ row }) => {
           const lastSync = row.original.last_sync;
-          if (!lastSync) return <span className="text-muted">{t("Never")}</span>;
+          if (!lastSync)
+            return <span className="text-muted">{t("Never")}</span>;
           const date = new Date(lastSync);
           return (
             <span className="text-muted small" title={date.toISOString()}>
@@ -154,7 +166,7 @@ export function AdministrationOwnersTable({
           const item = row.original;
           return (
             <div className="d-flex justify-content-end">
-              <ButtonGroup size="sm">
+              <Dropdown as={ButtonGroup} size="sm">
                 {renderTooltip(
                   t("Inspect"),
                   <Button
@@ -166,49 +178,47 @@ export function AdministrationOwnersTable({
                     <Eye size={14} />
                   </Button>,
                 )}
-                <Dropdown as={ButtonGroup} size="sm">
-                  {renderTooltip(
-                    t("Update"),
-                    <Button
-                      variant="primary"
-                      aria-label={t("Update")}
-                      disabled={isUpdating}
-                      onClick={() => onUpdate(item, false)}
-                      data-testid={`update-btn-${item.owner_type}-${item.owner_id}`}
-                    >
-                      {isUpdating ? (
-                        <Spinner size="sm" animation="border" />
-                      ) : (
-                        <RefreshCw size={14} />
-                      )}
-                    </Button>,
-                  )}
-                  {renderTooltip(
-                    t("More update options"),
-                    <Dropdown.Toggle
-                      split
-                      variant="primary"
-                      aria-label={t("More update options")}
-                      disabled={isUpdating}
-                      id={`update-dropdown-${item.owner_id}`}
-                    />,
-                  )}
-                  <Dropdown.Menu
-                    align="end"
-                    className={`shadow-lg ${styles.dropdownMenu}`}
+                {renderTooltip(
+                  t("Update"),
+                  <Button
+                    variant="primary"
+                    aria-label={t("Update")}
+                    disabled={isUpdating}
+                    onClick={() => onUpdate(item, false)}
+                    data-testid={`update-btn-${item.owner_type}-${item.owner_id}`}
                   >
-                    <Dropdown.Item onClick={() => onUpdate(item, false)}>
-                      <RefreshCw size={14} className="me-2 text-primary" />
-                      {t("Update (Normal)")}
-                    </Dropdown.Item>
-                    {canForceRefresh && (
-                      <Dropdown.Item onClick={() => onUpdate(item, true)}>
-                        <RefreshCw size={14} className="me-2 text-warning" />
-                        {t("Force Refresh (Bypass Cache)")}
-                      </Dropdown.Item>
+                    {isUpdating ? (
+                      <Spinner size="sm" animation="border" />
+                    ) : (
+                      <RefreshCw size={14} />
                     )}
-                  </Dropdown.Menu>
-                </Dropdown>
+                  </Button>,
+                )}
+                {renderTooltip(
+                  t("More update options"),
+                  <Dropdown.Toggle
+                    split
+                    variant="primary"
+                    aria-label={t("More update options")}
+                    disabled={isUpdating}
+                    id={`update-dropdown-${item.owner_id}`}
+                  />,
+                )}
+                <Dropdown.Menu
+                  align="end"
+                  className={`shadow-lg ${styles.dropdownMenu}`}
+                >
+                  <Dropdown.Item onClick={() => onUpdate(item, false)}>
+                    <RefreshCw size={14} className="me-2 text-primary" />
+                    {t("Update (Normal)")}
+                  </Dropdown.Item>
+                  {canForceRefresh && (
+                    <Dropdown.Item onClick={() => onUpdate(item, true)}>
+                      <RefreshCw size={14} className="me-2 text-warning" />
+                      {t("Force Refresh (Bypass Cache)")}
+                    </Dropdown.Item>
+                  )}
+                </Dropdown.Menu>
                 {renderTooltip(
                   t("Delete"),
                   <Button
@@ -220,7 +230,7 @@ export function AdministrationOwnersTable({
                     <Trash2 size={14} />
                   </Button>,
                 )}
-              </ButtonGroup>
+              </Dropdown>
             </div>
           );
         },
