@@ -31,6 +31,7 @@ Section Order:
 ### Fixed
 
 - [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
+- [FIX] Security alerts for `minimatch` and `zod` in the dev dependencies (eslint 10.15, typescript-eslint 8.73, zod 4.6.7).
 
 ## [5.2.0] - 2026-11-13
 
