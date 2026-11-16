@@ -222,7 +222,7 @@ export function AdministrationPage() {
         {isAdmin && (
           <Card className="bg-dark border-secondary mb-4 shadow-sm">
             <Card.Header
-              className={`border-secondary d-flex align-items-center justify-content-between py-2 ${styles.cursorPointer}`}
+              className={`border-secondary d-flex align-items-center justify-content-between py-2 ${styles["cursor-pointer"]}`}
               onClick={() => setShowTaskPanel((prev) => !prev)}
             >
               <div className="d-flex align-items-center gap-2">
@@ -388,7 +388,7 @@ export function AdministrationPage() {
             ariaLabel={t("Filter owners by type")}
           />
 
-          <div className={`${styles.searchContainer} w-100`}>
+          <div className={`${styles["search-container"]} w-100`}>
             <Form.Control
               type="search"
               placeholder={t("Search by name or ticker…")}
