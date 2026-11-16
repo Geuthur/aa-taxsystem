@@ -1,11 +1,11 @@
-.searchContainer {
+.search-container {
   max-width: 300px;
 }
 
-.dropdownMenu {
+.dropdown-menu {
   z-index: 1060;
 }
 
-.cursorPointer {
+.cursor-pointer {
   cursor: pointer;
 }

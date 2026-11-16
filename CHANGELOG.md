@@ -33,6 +33,10 @@ Section Order:
 - [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
 - [FIX] Security alerts for `minimatch` and `zod` in the dev dependencies (eslint 10.15, typescript-eslint 8.73, zod 4.6.7).
 
+### Changed
+
+- [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)
+
 ## [5.2.0] - 2026-11-13
 
 ### Added

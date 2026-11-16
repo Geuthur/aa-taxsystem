@@ -207,7 +207,7 @@ export function AdministrationOwnersTable({
                 )}
                 <Dropdown.Menu
                   align="end"
-                  className={`shadow-lg ${styles.dropdownMenu}`}
+                  className={`shadow-lg ${styles["dropdown-menu"]}`}
                 >
                   <Dropdown.Item onClick={() => onUpdate(item, false)}>
                     <RefreshCw size={14} className="me-2 text-primary" />
