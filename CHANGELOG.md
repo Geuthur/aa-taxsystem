@@ -35,6 +35,7 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] The Discord notification module moved to `taxsystem/thirdparty/discord.py` and matches the template building block (incl. webhook delivery); notifications behave as before.
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)
 
 ## [5.2.0] - 2026-11-13
