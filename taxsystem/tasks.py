@@ -18,7 +18,6 @@ from allianceauth.services.tasks import QueueOnce
 
 # AA TaxSystem
 from taxsystem import app_settings
-from taxsystem.helpers.discord import send_user_notification
 from taxsystem.models.alliance import AllianceOwner, AlliancePaymentAccount
 from taxsystem.models.corporation import CorporationOwner, CorporationPaymentAccount
 from taxsystem.models.helpers.textchoices import AccountStatus
@@ -27,6 +26,7 @@ from taxsystem.models.helpers.update_manager import (
     CorporationUpdateSection,
 )
 from taxsystem.providers import logger, retry_task_on_esi_error
+from taxsystem.thirdparty.discord import send_user_notification
 
 MAX_RETRIES_DEFAULT = 3
 
