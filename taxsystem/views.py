@@ -33,7 +33,7 @@ def react_base(request: WSGIRequest):
 
 
 @login_required
-@permission_required("taxsystem.create_access")
+@permission_required(["taxsystem.basic_access", "taxsystem.create_access"])
 @token_required(scopes=CorporationOwner.get_esi_scopes())
 def add_corp(request: WSGIRequest, token):
     char = get_object_or_404(EveCharacter, character_id=token.character_id)
@@ -73,7 +73,7 @@ def add_corp(request: WSGIRequest, token):
 
 
 @login_required
-@permission_required("taxsystem.create_access")
+@permission_required(["taxsystem.basic_access", "taxsystem.create_access"])
 @token_required(scopes=CorporationOwner.get_esi_scopes())
 def add_alliance(request: WSGIRequest, token):
     # TODO Implement Alliance System
