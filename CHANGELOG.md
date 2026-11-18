@@ -28,13 +28,19 @@ Section Order:
 
 <!-- Your changes go here -->
 
+> [!WARNING]
+>
+> Basic access is only granted by `basic_access`. Users with higher permissions (`create_access`, `manage_*`, `admin_access`) but without `basic_access` lose access to the API and to the pages to add a corporation or alliance. Grant `basic_access` to these users or groups.
+
 ### Fixed
 
 - [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
+- [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
 - [FIX] Security alerts for `minimatch` and `zod` in the dev dependencies (eslint 10.15, typescript-eslint 8.73, zod 4.6.7).
 
 ### Changed
 
+- [CHANGE] Every URL of the API requires `basic_access` (403 otherwise), and `add_corp` and `add_alliance` require it in addition to `create_access`.
 - [CHANGE] The Discord notification module moved to `taxsystem/thirdparty/discord.py` and matches the template building block (incl. webhook delivery); notifications behave as before.
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)
 

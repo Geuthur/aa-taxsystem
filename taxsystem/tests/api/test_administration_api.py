@@ -228,7 +228,9 @@ class TestAdministrationApi(AuthTestCase):
         self,
     ):
         # Test Data
-        admin = UserMainFactory(permissions__=["taxsystem.admin_access"])
+        admin = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.admin_access"]
+        )
         self.client.force_login(admin)
 
         # Test Action
@@ -295,7 +297,9 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin = UserMainFactory(permissions__=["taxsystem.admin_access"])
+        admin = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.admin_access"]
+        )
         self.client.force_login(admin)
         url = f"{self.api}/administration/owners/corporation/{self.corp_owner.eve_id}/update/"
 
@@ -315,7 +319,9 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin = UserMainFactory(permissions__=["taxsystem.admin_access"])
+        admin = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.admin_access"]
+        )
         self.client.force_login(admin)
         url = f"{self.api}/administration/owners/alliance/{self.alliance_owner.eve_id}/update/"
 
@@ -335,7 +341,9 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        admin = UserMainFactory(permissions__=["taxsystem.admin_access"])
+        admin = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.admin_access"]
+        )
         self.client.force_login(admin)
         url = f"{self.api}/administration/owners/corporation/{self.corp_owner.eve_id}/update/"
 
@@ -352,7 +360,9 @@ class TestAdministrationApi(AuthTestCase):
 
     def test_delete_administration_owner_should_allow_admin_access_for_alliance(self):
         # Test Data
-        admin = UserMainFactory(permissions__=["taxsystem.admin_access"])
+        admin = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.admin_access"]
+        )
         self.client.force_login(admin)
         url = f"{self.api}/administration/owners/alliance/{self.alliance_owner.eve_id}/"
 
@@ -369,7 +379,9 @@ class TestAdministrationApi(AuthTestCase):
 
     def test_inspect_administration_owner_should_allow_admin_access(self):
         # Test Data
-        admin = UserMainFactory(permissions__=["taxsystem.admin_access"])
+        admin = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.admin_access"]
+        )
         self.client.force_login(admin)
         url = f"{self.api}/administration/owners/corporation/{self.corp_owner.eve_id}/inspect/"
 
@@ -382,7 +394,9 @@ class TestAdministrationApi(AuthTestCase):
     @patch(f"{TASKS_PATH}.update_all_taxsytem.apply_async")
     def test_run_update_tasks_should_return_403_for_admin_access(self, mock_task):
         # Test Data
-        admin = UserMainFactory(permissions__=["taxsystem.admin_access"])
+        admin = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.admin_access"]
+        )
         self.client.force_login(admin)
 
         # Test Action
@@ -520,7 +534,9 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_task
     ):
         # Test Data
-        manager = UserMainFactory(permissions__=["taxsystem.manage_corps"])
+        manager = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_corps"]
+        )
         self.client.force_login(manager)
 
         # Test Action
@@ -570,7 +586,9 @@ class TestAdministrationApi(AuthTestCase):
         self,
     ):
         # Test Data
-        user = UserMainFactory(permissions__=["taxsystem.manage_corps"])
+        user = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_corps"]
+        )
 
         # Test Action
         keys = self._owner_keys(user)
@@ -582,7 +600,9 @@ class TestAdministrationApi(AuthTestCase):
         self,
     ):
         # Test Data
-        user = UserMainFactory(permissions__=["taxsystem.manage_alliances"])
+        user = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_alliances"]
+        )
 
         # Test Action
         keys = self._owner_keys(user)
@@ -595,7 +615,11 @@ class TestAdministrationApi(AuthTestCase):
     ):
         # Test Data
         user = UserMainFactory(
-            permissions__=["taxsystem.manage_corps", "taxsystem.manage_alliances"]
+            permissions__=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_corps",
+                "taxsystem.manage_alliances",
+            ]
         )
 
         # Test Action
@@ -619,7 +643,9 @@ class TestAdministrationApi(AuthTestCase):
                 corporation_id=1_000_125, create_alliance=False
             )
         )
-        user = UserMainFactory(permissions__=["taxsystem.manage_corps"])
+        user = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_corps"]
+        )
 
         # Test Action
         keys = self._owner_keys(user)
@@ -645,8 +671,12 @@ class TestAdministrationApi(AuthTestCase):
         self, mock_corp, mock_alliance
     ):
         # Test Data
-        corps = UserMainFactory(permissions__=["taxsystem.manage_corps"])
-        alliances = UserMainFactory(permissions__=["taxsystem.manage_alliances"])
+        corps = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_corps"]
+        )
+        alliances = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_alliances"]
+        )
         corp_id = self.corp_owner.eve_id
         alliance_id = self.alliance_owner.eve_id
 
@@ -677,7 +707,11 @@ class TestAdministrationApi(AuthTestCase):
     ):
         # Test Data
         user = UserMainFactory(
-            permissions__=["taxsystem.manage_corps", "taxsystem.manage_alliances"]
+            permissions__=[
+                "taxsystem.basic_access",
+                "taxsystem.manage_corps",
+                "taxsystem.manage_alliances",
+            ]
         )
 
         # Test Action
@@ -696,8 +730,12 @@ class TestAdministrationApi(AuthTestCase):
 
     def test_delete_administration_owner_should_respect_owner_type_permission(self):
         # Test Data
-        corps = UserMainFactory(permissions__=["taxsystem.manage_corps"])
-        alliances = UserMainFactory(permissions__=["taxsystem.manage_alliances"])
+        corps = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_corps"]
+        )
+        alliances = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_alliances"]
+        )
         corp_id = self.corp_owner.eve_id
         alliance_id = self.alliance_owner.eve_id
 
@@ -718,8 +756,12 @@ class TestAdministrationApi(AuthTestCase):
 
     def test_inspect_administration_owner_should_respect_owner_type_permission(self):
         # Test Data
-        corps = UserMainFactory(permissions__=["taxsystem.manage_corps"])
-        alliances = UserMainFactory(permissions__=["taxsystem.manage_alliances"])
+        corps = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_corps"]
+        )
+        alliances = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_alliances"]
+        )
         corp_id = self.corp_owner.eve_id
         alliance_id = self.alliance_owner.eve_id
 
@@ -750,7 +792,9 @@ class TestAdministrationApi(AuthTestCase):
                 corporation_id=1_000_125, create_alliance=False
             )
         )
-        user = UserMainFactory(permissions__=["taxsystem.manage_corps"])
+        user = UserMainFactory(
+            permissions__=["taxsystem.basic_access", "taxsystem.manage_corps"]
+        )
 
         # Test Action
         inspect = self._call(user, "get", "corporation", npc_owner.eve_id, "inspect/")
@@ -810,7 +854,7 @@ class TestAdministrationApi(AuthTestCase):
         self.assertTrue(superuser_data["is_admin"])
 
     def _own_user(self, *permissions):
-        user = UserMainFactory(permissions__=list(permissions))
+        user = UserMainFactory(permissions__=["taxsystem.basic_access", *permissions])
         own_corp = CorporationOwnerFactory(user=user)
         own_alliance = AllianceOwnerFactory(user=user)
         return user, own_corp, own_alliance
