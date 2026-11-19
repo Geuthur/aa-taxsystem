@@ -8,8 +8,8 @@ import {
   FilterButtonGroup,
   ModalSize,
   formatCompactNumber,
+  OwnerPortrait,
 } from "aa-geuthur-react";
-import { OwnerPortrait } from "aa-geuthur-react";
 import { CheckCircle2, DollarSign, UserCheck, XCircle } from "lucide-react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";

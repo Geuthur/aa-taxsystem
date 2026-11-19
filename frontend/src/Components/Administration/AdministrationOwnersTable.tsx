@@ -7,8 +7,8 @@ import {
   formatCompactNumber,
   formatDate,
   renderTooltip,
+  OwnerPortrait,
 } from "aa-geuthur-react";
-import { OwnerPortrait } from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";

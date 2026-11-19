@@ -3,8 +3,7 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Third Party
-import { BaseSectionHeader, allianceImageUrl, characterImageUrl, corporationImageUrl, formatCompactNumber, formatRelativeTime } from "aa-geuthur-react";
-import { OwnerPortrait } from "aa-geuthur-react";
+import { BaseSectionHeader, allianceImageUrl, characterImageUrl, corporationImageUrl, formatCompactNumber, formatRelativeTime, OwnerPortrait } from "aa-geuthur-react";
 import { AlertCircle, ArrowRight, Calendar, CheckCircle, Clock, CreditCard, FileText, User, Wallet } from "lucide-react";
 import { Badge, Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";

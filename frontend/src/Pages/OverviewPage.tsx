@@ -3,8 +3,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 // Third Party
-import { BaseSectionHeader } from "aa-geuthur-react";
-import { OwnerPortrait } from "aa-geuthur-react";
+import { BaseSectionHeader, OwnerPortrait } from "aa-geuthur-react";
 import { CreditCard, FileText, Settings, Shield, UserCheck } from "lucide-react";
 import { Badge, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";

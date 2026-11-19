@@ -2,8 +2,7 @@
 import React from "react";
 
 // Third Party
-import { formatCompactNumber } from "aa-geuthur-react";
-import { OwnerPortrait } from "aa-geuthur-react";
+import { formatCompactNumber, OwnerPortrait } from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { Badge, Form } from "react-bootstrap";
