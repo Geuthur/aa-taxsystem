@@ -248,6 +248,25 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
+    def test_get_payment_details_should_return_404_error_when_payment_not_found(self):
+        """Test 'api:get_payment_details' answers 404 with an `error` body for an unknown payment."""
+        # Test Data
+        url = reverse(
+            f"{API_URL}:get_payment_details",
+            kwargs={
+                "owner_id": self.user_character.corporation_id,
+                "payment_pk": 999999,
+            },
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(response.json(), {"error": "Payment not Found."})
+
     def test_add_payment(self):
         """
         Test 'api:add_payment' endpoint.
@@ -589,7 +608,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         # Expected Result
         result = "ESI imported payments cannot be deleted"
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
-        self.assertEqual(response.json().get("message"), result)
+        self.assertEqual(response.json().get("error"), result)
 
     def test_reject_payment(self):
         """
@@ -932,4 +951,4 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
-        self.assertFalse(response.json().get("success"))
+        self.assertEqual(response.json(), {"error": "No payment IDs provided."})

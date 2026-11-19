@@ -5,58 +5,52 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from '@/Api/Api';
 import {
     addCustomPayment,
+    approvePayment,
+    createFilter,
+    createFilterSet,
+    createGroup,
+    deleteAdministrationOwner,
+    deleteFilter,
+    deleteFilterSet,
+    deleteGroup,
+    deleteMember,
+    deleteOwner,
     deletePayment,
+    loadAdministrationOwnerInspect,
+    loadAdministrationOwners,
+    loadAdminLogs,
+    loadAvailableGroups,
+    loadDashboard,
+    loadFilters,
+    loadFilterSets,
+    loadGroups,
+    loadMemberPayments,
+    loadMembers,
+    loadMyPayments,
+    loadOverview,
+    loadPaymentDetails,
+    loadPayments,
+    loadSettingsOwners,
+    loadTaxAccounts,
     loadUserAccounts,
-    loadUserSettings,
     manageBulkPaymentAction,
-    updateUserSettings,
+    managePaymentAction,
+    rejectPayment,
+    runAdminTasks,
+    switchFilterSet,
+    switchTaxAccount,
+    triggerAdministrationOwnerUpdate,
+    triggerOwnerUpdate,
+    triggerUpdateAllTaxOwners,
+    undoPayment,
+    updateOwnerSettings,
+    updateTaxAmount,
+    updateTaxPeriod,
 } from '@/Api/ApiCalls';
 
 describe('General API client functions', () => {
     beforeEach(() => {
         vi.restoreAllMocks();
-    });
-
-    describe('loadUserSettings', () => {
-        it('returns settings from the typed GET endpoint', async () => {
-            const settings = { disable_notifications: true };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: settings,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadUserSettings();
-            expect(result).toEqual(settings);
-            expect(apiClient.GET).toHaveBeenCalledWith('/taxsystem/api/settings/');
-        });
-    });
-
-    describe('updateUserSettings', () => {
-        it('submits JSON to the typed PUT endpoint', async () => {
-            const settings = { disable_notifications: true };
-            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
-                data: settings,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await updateUserSettings(settings);
-            expect(result).toEqual(settings);
-            expect(apiClient.PUT).toHaveBeenCalledWith('/taxsystem/api/settings/', {
-                body: settings,
-            });
-        });
-
-        it('throws error when update fails', async () => {
-            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
-                data: undefined,
-                error: { status: 403 },
-                response: new Response(),
-            } as never);
-
-            await expect(updateUserSettings({ disable_notifications: false })).rejects.toThrow('Failed to update user settings');
-        });
     });
 
     describe('loadUserAccounts', () => {
@@ -223,6 +217,85 @@ describe('General API client functions', () => {
             await expect(
                 manageBulkPaymentAction(10, [101], 'reject'),
             ).rejects.toThrow('Failed to bulk reject payments');
+        });
+    });
+});
+
+type Method = 'GET' | 'POST' | 'DELETE';
+
+/** Every call of `ApiCalls.ts`: [name, HTTP method, call, fixed text]. */
+const calls: [string, Method, () => Promise<unknown>, string][] = [
+    ['loadOverview', 'GET', () => loadOverview(), 'Failed to load overview'],
+    ['loadDashboard', 'GET', () => loadDashboard(1), 'Failed to load dashboard'],
+    ['loadTaxAccounts', 'GET', () => loadTaxAccounts(1), 'Failed to load tax accounts'],
+    ['switchTaxAccount', 'POST', () => switchTaxAccount(1, 2), 'Failed to switch tax account'],
+    ['updateOwnerSettings', 'POST', () => updateOwnerSettings(1, {}), 'Failed to update owner settings'],
+    ['updateTaxAmount', 'POST', () => updateTaxAmount(1, 10), 'Failed to update tax amount'],
+    ['updateTaxPeriod', 'POST', () => updateTaxPeriod(1, 30), 'Failed to update tax period'],
+    ['loadMembers', 'GET', () => loadMembers(1), 'Failed to load members'],
+    ['deleteMember', 'POST', () => deleteMember(1, 2), 'Failed to delete member'],
+    ['loadPayments', 'GET', () => loadPayments(1), 'Failed to load payments'],
+    ['loadMyPayments', 'GET', () => loadMyPayments(1), 'Failed to load personal payments'],
+    ['loadPaymentDetails', 'GET', () => loadPaymentDetails(1, 2), 'Failed to load payment details'],
+    ['managePaymentAction', 'POST', () => managePaymentAction(1, 2, "approve"), 'Failed to approve payment'],
+    ['manageBulkPaymentAction', 'POST', () => manageBulkPaymentAction(1, [2], "reject"), 'Failed to bulk reject payments'],
+    ['approvePayment', 'POST', () => approvePayment(1, 2), 'Failed to approve payment'],
+    ['rejectPayment', 'POST', () => rejectPayment(1, 2), 'Failed to reject payment'],
+    ['undoPayment', 'POST', () => undoPayment(1, 2), 'Failed to undo payment'],
+    ['deletePayment', 'POST', () => deletePayment(1, 2), 'Failed to delete payment'],
+    ['loadFilterSets', 'GET', () => loadFilterSets(1), 'Failed to load filter sets'],
+    ['loadFilters', 'GET', () => loadFilters(1, 2), 'Failed to load filters'],
+    ['deleteFilter', 'POST', () => deleteFilter(1, 2), 'Failed to delete filter'],
+    ['deleteFilterSet', 'POST', () => deleteFilterSet(1, 2), 'Failed to delete filter set'],
+    ['switchFilterSet', 'POST', () => switchFilterSet(1, 2), 'Failed to switch filter set'],
+    ['loadGroups', 'GET', () => loadGroups(1), 'Failed to load groups'],
+    ['deleteGroup', 'POST', () => deleteGroup(1, 2), 'Failed to delete group'],
+    ['loadAdminLogs', 'GET', () => loadAdminLogs(1), 'Failed to load admin logs'],
+    ['runAdminTasks', 'POST', () => runAdminTasks({} as never), 'Failed to run admin tasks'],
+    ['loadMemberPayments', 'GET', () => loadMemberPayments(1, 2), 'Failed to load member payments'],
+    ['createFilterSet', 'POST', () => createFilterSet(1, {} as never), 'Failed to create filter set'],
+    ['createFilter', 'POST', () => createFilter(1, {} as never), 'Failed to create filter'],
+    ['loadAvailableGroups', 'GET', () => loadAvailableGroups(1), 'Failed to load available groups'],
+    ['createGroup', 'POST', () => createGroup(1, {} as never), 'Failed to create group'],
+    ['loadUserAccounts', 'GET', () => loadUserAccounts(), 'Failed to load user tax accounts'],
+    ['addCustomPayment', 'POST', () => addCustomPayment(1, 2, {} as never), 'Failed to add custom payment'],
+    ['loadAdministrationOwners', 'GET', () => loadAdministrationOwners(), 'Failed to load administration owners'],
+    ['triggerAdministrationOwnerUpdate', 'POST', () => triggerAdministrationOwnerUpdate({ ownerType: "corporation", ownerId: 1 }), 'Failed to trigger update'],
+    ['deleteAdministrationOwner', 'DELETE', () => deleteAdministrationOwner({ ownerType: "corporation", ownerId: 1 }), 'Failed to delete owner'],
+    ['loadAdministrationOwnerInspect', 'GET', () => loadAdministrationOwnerInspect({ ownerType: "corporation", ownerId: 1 }), 'Failed to inspect owner dashboard'],
+    ['triggerOwnerUpdate', 'POST', () => triggerOwnerUpdate({ ownerId: 1 }), 'Failed to trigger update'],
+    ['deleteOwner', 'DELETE', () => deleteOwner(1), 'Failed to delete owner'],
+    ['loadSettingsOwners', 'GET', () => loadSettingsOwners(), 'Failed to load settings owners'],
+    ['triggerUpdateAllTaxOwners', 'POST', () => triggerUpdateAllTaxOwners(), 'Failed to trigger update all owners'],
+];
+
+const failWith = (method: Method, error: unknown) =>
+    vi.spyOn(apiClient, method).mockResolvedValueOnce({
+        data: undefined,
+        error,
+        response: new Response(),
+    } as never);
+
+describe('API error messages', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    describe.each(calls)('%s', (_name, method, call, fixedText) => {
+        it('should throw the message of the API when the request fails', async () => {
+            // Test Data
+            failWith(method, { error: 'Permission Denied' });
+
+            // Test Action & Expected Result
+            await expect(call()).rejects.toThrow('Permission Denied');
+        });
+
+        it('should throw the fixed text when the API sent no message', async () => {
+            // Test Data
+            failWith(method, {});
+
+            // Test Action & Expected Result
+            await expect(call()).rejects.toThrow(fixedText);
         });
     });
 });

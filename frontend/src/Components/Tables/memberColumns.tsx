@@ -1,5 +1,5 @@
 // Third Party
-import { formatDate, renderTooltip } from "aa-geuthur-react";
+import { formatDate, renderTooltip, OwnerPortrait } from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { History, Trash2, Users } from "lucide-react";
@@ -7,7 +7,6 @@ import { Badge, Button, ButtonGroup } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 
 export type MemberRow = components["schemas"]["MembersSchema"];
 

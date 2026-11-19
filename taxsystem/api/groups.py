@@ -5,6 +5,7 @@ from ninja import NinjaAPI
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils.text import format_lazy
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -38,10 +39,10 @@ class GroupsApiEndpoints:
             owner, perms = core.get_manage_owner(request, owner_id)
 
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             response_groups: list[schema.GroupManagementSchema] = []
             for group in owner.group_model.objects.filter(owner=owner):
@@ -65,7 +66,7 @@ class GroupsApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/groups/{group_pk}/manage/delete/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: schema.ErrorSchema, 404: schema.ErrorSchema},
             tags=self.tags,
         )
         def delete_group(
@@ -92,11 +93,11 @@ class GroupsApiEndpoints:
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             try:
                 group = owner.group_model.objects.get(pk=group_pk, owner=owner)
@@ -119,7 +120,7 @@ class GroupsApiEndpoints:
 
                 return 200, {"success": True, "message": msg}
             except ObjectDoesNotExist:
-                return 404, {"error": _("Group not Found.")}
+                return 404, {"error": gettext("Group not Found.")}
 
         @api.get(
             "owner/{owner_id}/groups/available/",
@@ -136,11 +137,11 @@ class GroupsApiEndpoints:
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             groups = Group.objects.order_by("name")
             return 200, [schema.GroupSchema(id=g.pk, name=g.name) for g in groups]
@@ -163,18 +164,18 @@ class GroupsApiEndpoints:
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             name = payload.name.strip()
             if not name:
-                return 400, {"error": _("Group name is required.")}
+                return 400, {"error": gettext("Group name is required.")}
 
             if owner.group_model.objects.filter(name=name, owner=owner).exists():
-                return 400, {"error": _("A group with this name already exists.")}
+                return 400, {"error": gettext("A group with this name already exists.")}
 
             group = owner.group_model.objects.create(name=name, owner=owner)
             if payload.group_ids:

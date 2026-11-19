@@ -60,7 +60,11 @@ class AdminApiEndpoints:
     def __init__(self, api: NinjaAPI):
         @api.get(
             "corporation/{owner_id}/view/dashboard/",
-            response={200: DashboardResponse, 403: dict, 404: dict},
+            response={
+                200: DashboardResponse,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         # pylint: disable=too-many-locals
@@ -200,7 +204,7 @@ class AdminApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/account/{account_pk}/manage/switch-account/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: schema.ErrorSchema, 404: schema.ErrorSchema},
             tags=self.tags,
         )
         def switch_tax_account(request: WSGIRequest, owner_id: int, account_pk: int):
@@ -233,8 +237,7 @@ class AdminApiEndpoints:
                 owner=owner, pk=account_pk
             ).first()
             if not account:
-                msg = _("Account not found.")
-                return 404, {"success": False, "message": msg}
+                return 404, {"error": _("Account not found.")}
 
             # Toggle the filter set enabled state
             if account.status == AccountStatus.ACTIVE:
@@ -264,7 +267,12 @@ class AdminApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/manage/settings/",
-            response={200: dict, 403: dict, 404: dict, 400: dict},
+            response={
+                200: dict,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+                400: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         def update_owner_settings(
@@ -290,10 +298,7 @@ class AdminApiEndpoints:
             if payload.tax_amount is not None:
                 value = Decimal(payload.tax_amount)
                 if value < 0:
-                    return 400, {
-                        "success": False,
-                        "message": _("Please enter a valid number"),
-                    }
+                    return 400, {"error": _("Please enter a valid number")}
                 owner.tax_amount = value
                 messages_list.append(
                     format_lazy(
@@ -306,10 +311,7 @@ class AdminApiEndpoints:
             if payload.tax_period is not None:
                 value = payload.tax_period
                 if value < 0:
-                    return 400, {
-                        "success": False,
-                        "message": _("Please enter a valid number"),
-                    }
+                    return 400, {"error": _("Please enter a valid number")}
                 owner.tax_period = value
                 messages_list.append(
                     format_lazy(
@@ -320,10 +322,7 @@ class AdminApiEndpoints:
                 )
 
             if not messages_list:
-                return 400, {
-                    "success": False,
-                    "message": _("No settings provided to update."),
-                }
+                return 400, {"error": _("No settings provided to update.")}
 
             owner.save()
             msg = (
@@ -344,7 +343,12 @@ class AdminApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/manage/update-tax/",
-            response={200: dict, 403: dict, 404: dict, 400: dict},
+            response={
+                200: dict,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+                400: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         def update_tax_amount(
@@ -361,7 +365,12 @@ class AdminApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/manage/update-period/",
-            response={200: dict, 403: dict, 404: dict, 400: dict},
+            response={
+                200: dict,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+                400: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         def update_tax_period(

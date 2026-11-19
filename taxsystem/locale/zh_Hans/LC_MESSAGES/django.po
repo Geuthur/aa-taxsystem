@@ -6,9 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System \n"
-"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
-"taxsystem/\n"
-"POT-Creation-Date: 2026-10-19 17:59+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-19 16:22+0000\n"
 "PO-Revision-Date: 2026-01-10 15:39+0000\n"
 "Last-Translator: Geuthur <geuthur@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.geuthur.de/"
@@ -26,18 +25,31 @@ msgstr ""
 msgid "Force update selected corporations"
 msgstr ""
 
-#, python-brace-format
+#, python-format
 msgid ""
-"Started force update for {count} corporation(s). Updates will run in the "
+"%(skipped)d corporation(s) skipped, an update is already queued or running."
+msgstr ""
+
+msgid "No force update started."
+msgstr ""
+
+#, python-format
+msgid ""
+"Started force update for %(count)d corporation(s). Updates will run in the "
 "background."
 msgstr ""
 
 msgid "Force update selected alliances"
 msgstr ""
 
-#, python-brace-format
+#, python-format
 msgid ""
-"Started force update for {count} alliance(s). Updates will run in the "
+"%(skipped)d alliance(s) skipped, an update is already queued or running."
+msgstr ""
+
+#, python-format
+msgid ""
+"Started force update for %(count)d alliance(s). Updates will run in the "
 "background."
 msgstr ""
 
@@ -68,7 +80,21 @@ msgstr ""
 msgid "No settings provided to update."
 msgstr ""
 
+msgid "Superuser permission required."
+msgstr ""
+
+msgid "Update All Taxsystem is already queued or running"
+msgstr ""
+
 msgid "Queued Update All Taxsystem"
+msgstr ""
+
+#, python-format
+msgid "Corporation with ID %s not found"
+msgstr ""
+
+#, python-format
+msgid "Update for Corporation: %s is already queued or running"
 msgstr ""
 
 #, python-format
@@ -76,10 +102,20 @@ msgid "Queued Update for Corporation: %s"
 msgstr ""
 
 #, python-format
-msgid "Corporation with ID %s not found"
+msgid ""
+"Queued Update All Taxsystem Corporations, %(skipped)d already queued or "
+"running"
 msgstr ""
 
 msgid "Queued Update All Taxsystem Corporations"
+msgstr ""
+
+#, python-format
+msgid "Alliance with ID %s not found"
+msgstr ""
+
+#, python-format
+msgid "Update for Alliance: %s is already queued or running"
 msgstr ""
 
 #, python-format
@@ -87,13 +123,47 @@ msgid "Queued Update for Alliance: %s"
 msgstr ""
 
 #, python-format
-msgid "Alliance with ID %s not found"
+msgid ""
+"Queued Update All Taxsystem Alliances, %(skipped)d already queued or running"
 msgstr ""
 
 msgid "Queued Update All Taxsystem Alliances"
 msgstr ""
 
 msgid "Invalid target specified."
+msgstr ""
+
+#, python-format
+msgid "Update for %(name)s is already queued or running"
+msgstr ""
+
+#, python-format
+msgid "Queued update for %(name)s"
+msgstr ""
+
+#, python-format
+msgid "Corporation %(name)s deleted successfully."
+msgstr ""
+
+#, python-format
+msgid "Alliance %(name)s deleted successfully."
+msgstr ""
+
+msgid "Administration permission required."
+msgstr ""
+
+#, python-format
+msgid "Corporation with ID %(id)s not found"
+msgstr ""
+
+#, python-format
+msgid "Alliance with ID %(id)s not found"
+msgstr ""
+
+msgid "Invalid owner type specified."
+msgstr ""
+
+msgid "Permission Denied"
 msgstr ""
 
 #, python-brace-format
@@ -110,7 +180,7 @@ msgstr ""
 msgid "{filter_obj} in \"{filter_set}\" deleted - Reason: {reason}"
 msgstr ""
 
-msgid "Filter Set not found."
+msgid "Filter set not found."
 msgstr ""
 
 #, python-brace-format
@@ -129,9 +199,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Filter set \"{filter_set}\" created."
-msgstr ""
-
-msgid "Filter set not found."
 msgstr ""
 
 msgid "Filter value is required."
@@ -159,7 +226,16 @@ msgstr ""
 msgid "Add Alliance"
 msgstr ""
 
-msgid "Superuser"
+msgid "Administration"
+msgstr ""
+
+#, python-format
+msgid ""
+"Queued updates for %(count)d owner(s), %(skipped)d already queued or running."
+msgstr ""
+
+#, python-format
+msgid "Queued updates for %(count)d owner(s)."
 msgstr ""
 
 #, python-brace-format
@@ -177,6 +253,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Tax free group \"{name}\" created."
+msgstr ""
+
+msgid "Division"
 msgstr ""
 
 msgid "Corporation"
@@ -219,7 +298,7 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-msgid "Corporation Not Found"
+msgid "Corporation not found"
 msgstr ""
 
 msgid "Invalid form data."
@@ -246,29 +325,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{processed} of {total} payments successfully {action}."
-msgstr ""
-
-#, python-format
-msgid "Corporation with ID %(id)s not found"
-msgstr ""
-
-#, python-format
-msgid "Queued update for %(name)s"
-msgstr ""
-
-#, python-format
-msgid "Alliance with ID %(id)s not found"
-msgstr ""
-
-msgid "Invalid owner type specified."
-msgstr ""
-
-#, python-format
-msgid "Corporation %(name)s deleted successfully."
-msgstr ""
-
-#, python-format
-msgid "Alliance %(name)s deleted successfully."
 msgstr ""
 
 msgid "Master Wallet"
@@ -506,6 +562,24 @@ msgstr ""
 msgid "Contains"
 msgstr ""
 
+msgid "Disabled"
+msgstr ""
+
+msgid "Token Error"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "Incomplete"
+msgstr ""
+
+msgid "In Progress"
+msgstr ""
+
 msgid "Wallet Division Names"
 msgstr ""
 
@@ -527,42 +601,6 @@ msgstr ""
 msgid "Deadlines"
 msgstr ""
 
-msgid "Disabled"
-msgstr ""
-
-msgid "Token Error"
-msgstr ""
-
-msgid "Error"
-msgstr ""
-
-msgid "OK"
-msgstr ""
-
-msgid "Incomplete"
-msgstr ""
-
-msgid "In Progress"
-msgstr ""
-
-msgid "Update is disabled"
-msgstr ""
-
-msgid "One section has a token error during update"
-msgstr ""
-
-msgid "One or more sections have not been updated"
-msgstr ""
-
-msgid "Update is in progress"
-msgstr ""
-
-msgid "An error occurred during update"
-msgstr ""
-
-msgid "Updates completed successfully"
-msgstr ""
-
 msgid "Added to Tax System"
 msgstr ""
 
@@ -576,13 +614,4 @@ msgstr ""
 
 #, python-brace-format
 msgid "{alliance_name} successfully added/updated to Tax System"
-msgstr ""
-
-msgid "Administration"
-msgstr ""
-
-msgid "Administration permission required."
-msgstr ""
-
-msgid "Superuser permission required."
 msgstr ""

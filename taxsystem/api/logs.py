@@ -3,12 +3,13 @@ from ninja import NinjaAPI
 
 # Django
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext
 
 # AA TaxSystem
 from taxsystem.api.helpers import core
 from taxsystem.api.schema import (
     AdminHistorySchema,
+    ErrorSchema,
 )
 
 
@@ -19,7 +20,11 @@ class LogsApiEndpoints:
 
         @api.get(
             "owner/{owner_id}/view/admin-history/",
-            response={200: list[AdminHistorySchema], 403: dict, 404: dict},
+            response={
+                200: list[AdminHistorySchema],
+                403: ErrorSchema,
+                404: ErrorSchema,
+            },
             tags=self.tags,
         )
         def get_admin_history(request, owner_id: int):
@@ -36,10 +41,10 @@ class LogsApiEndpoints:
             owner, perms = core.get_manage_owner(request, owner_id)
 
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             logs = (
                 owner.admin_log_model.objects.filter(owner=owner)

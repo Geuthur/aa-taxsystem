@@ -16,6 +16,7 @@ from taxsystem.models.corporation import (
     CorporationPayments,
 )
 from taxsystem.models.helpers.textchoices import AccountStatus
+from taxsystem.tasks import _needs_payment_notification
 
 
 class TaxSystemMenuItem(MenuItemHook):
@@ -31,11 +32,15 @@ class TaxSystemMenuItem(MenuItemHook):
 
     def render(self, request: UserProfile):
         if GeneralManager.has_basic_access(request.user):
-            # Check if the User has any unpaid active accounts
+            # Check if the User has any unpaid active accounts that are not tax-free
             user_accounts = CorporationPaymentAccount.objects.filter(
                 user=request.user, status=AccountStatus.ACTIVE
             )
-            self.count = 1 if any(not acc.has_paid for acc in user_accounts) else 0
+            self.count = (
+                1
+                if any(_needs_payment_notification(acc) for acc in user_accounts)
+                else 0
+            )
 
             if GeneralManager.has_corporation_management_access(request.user):
                 # Get the count of open invoices for the Managing user
