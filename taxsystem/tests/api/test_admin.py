@@ -169,6 +169,25 @@ class TestAdminApiEndpoints(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
+    def test_switch_tax_account_should_404_error_when_account_not_found(self):
+        """Test 'api:switch_tax_account' answers 404 with an `error` body for an unknown account."""
+        # Test Data
+        url = reverse(
+            f"{API_URL}:switch_tax_account",
+            kwargs={"owner_id": self.audit.eve_id, "account_pk": 999999},
+        )
+        self.client.force_login(self.superuser)
+        data = {"new_status": "deactivated", "comment": "Unknown account."}
+
+        # Test Action
+        response = self.client.post(
+            path=url, data=json.dumps(data), content_type="application/json"
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(response.json(), {"error": "Account not found."})
+
     def test_update_tax_amount(self):
         """
         Test 'api:update_tax_amount' Endpoint.

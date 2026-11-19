@@ -5,6 +5,7 @@ from ninja import NinjaAPI
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Count
 from django.utils.text import format_lazy
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -56,10 +57,10 @@ class CorporationApiEndpoints:
             owner, perms = core.get_manage_owner(request, owner_id)
 
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             # Handle Alliance Members or Corporation Members
             if isinstance(owner, AllianceOwner):
@@ -184,7 +185,7 @@ class CorporationApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/member/{member_pk}/manage/delete-member/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
+            response={200: dict, 400: ErrorSchema, 403: ErrorSchema, 404: ErrorSchema},
             tags=self.tags,
         )
         def delete_member(
@@ -212,11 +213,11 @@ class CorporationApiEndpoints:
 
             # Check if owner exists
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # Check permissions
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             reason = payload.comment if payload else ""
 
@@ -236,5 +237,4 @@ class CorporationApiEndpoints:
                     comment=msg,
                 ).save()
                 return 200, {"success": True, "message": msg}
-            msg = _("Member is not marked as missing.")
-            return 400, {"success": False, "message": msg}
+            return 400, {"error": gettext("Member is not marked as missing.")}

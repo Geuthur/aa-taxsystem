@@ -5,6 +5,7 @@ from ninja import NinjaAPI
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils.text import format_lazy
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
@@ -52,11 +53,11 @@ class FilterApiEndpoints:
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             filters = owner.filter_model.objects.filter(
                 filter_set__pk=filterset_pk,
@@ -91,7 +92,7 @@ class FilterApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/filter/{filter_pk}/manage/delete-filter/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: ErrorSchema, 404: ErrorSchema},
             tags=self.tags,
         )
         def delete_filter(
@@ -119,19 +120,18 @@ class FilterApiEndpoints:
 
             # Check if owner exists
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # Check permissions
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             # Check if filter set exists
             filter_obj = owner.filter_model.objects.filter(
                 filter_set__owner=owner, pk=filter_pk
             ).first()
             if not filter_obj:
-                msg = _("Filter not found.")
-                return 404, {"success": False, "message": msg}
+                return 404, {"error": gettext("Filter not found.")}
 
             # Delete the filter
             filter_obj.delete()
@@ -177,10 +177,10 @@ class FilterApiEndpoints:
             owner, perms = core.get_manage_owner(request, owner_id)
 
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             filter_sets = owner.filterset_model.objects.filter(
                 owner=owner,
@@ -201,7 +201,7 @@ class FilterApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/filter-set/{filterset_pk}/manage/delete-filter/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: ErrorSchema, 404: ErrorSchema},
             tags=self.tags,
         )
         def delete_filter_set(
@@ -229,19 +229,18 @@ class FilterApiEndpoints:
 
             # Check if owner exists
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # Check permissions
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             # Check if filter set exists
             filter_set = owner.filterset_model.objects.filter(
                 owner=owner, pk=filterset_pk
             ).first()
             if not filter_set:
-                msg = _("Filter set not found.")
-                return 404, {"success": False, "message": msg}
+                return 404, {"error": gettext("Filter set not found.")}
 
             # Delete the filter set
             filter_set.delete()
@@ -267,7 +266,7 @@ class FilterApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/filter-set/{filterset_pk}/manage/switch-filter/",
-            response={200: dict, 403: dict, 404: dict},
+            response={200: dict, 403: ErrorSchema, 404: ErrorSchema},
             tags=self.tags,
         )
         def switch_filter_set(request: WSGIRequest, owner_id: int, filterset_pk: int):
@@ -289,19 +288,18 @@ class FilterApiEndpoints:
 
             # Check if owner exists
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # Check permissions
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             # Check if filter set exists
             filter_set = owner.filterset_model.objects.filter(
                 owner=owner, pk=filterset_pk
             ).first()
             if not filter_set:
-                msg = _("Filter set not found.")
-                return 404, {"success": False, "message": msg}
+                return 404, {"error": gettext("Filter set not found.")}
 
             # Toggle the filter set enabled state
             filter_set.enabled = not filter_set.enabled
@@ -343,18 +341,20 @@ class FilterApiEndpoints:
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             name = payload.name.strip()
             if not name:
-                return 400, {"error": _("Filter set name is required.")}
+                return 400, {"error": gettext("Filter set name is required.")}
 
             if owner.filterset_model.objects.filter(owner=owner, name=name).exists():
-                return 400, {"error": _("A filter set with this name already exists.")}
+                return 400, {
+                    "error": gettext("A filter set with this name already exists.")
+                }
 
             filter_set = owner.filterset_model.objects.create(
                 owner=owner,
@@ -394,21 +394,21 @@ class FilterApiEndpoints:
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             filter_set = owner.filterset_model.objects.filter(
                 owner=owner, pk=payload.filter_set_id
             ).first()
             if not filter_set:
-                return 404, {"error": _("Filter set not found.")}
+                return 404, {"error": gettext("Filter set not found.")}
 
             val = payload.value.strip()
             if not val:
-                return 400, {"error": _("Filter value is required.")}
+                return 400, {"error": gettext("Filter value is required.")}
 
             if owner.filter_model.objects.filter(
                 filter_set=filter_set,
@@ -417,7 +417,7 @@ class FilterApiEndpoints:
                 value=val,
             ).exists():
                 return 400, {
-                    "error": _("This filter already exists in the filter set.")
+                    "error": gettext("This filter already exists in the filter set.")
                 }
 
             filter_obj = owner.filter_model.objects.create(

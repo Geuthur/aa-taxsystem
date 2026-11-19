@@ -439,9 +439,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -451,9 +449,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -463,9 +459,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -530,9 +524,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -542,9 +534,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -665,9 +655,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -677,9 +665,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -729,9 +715,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -741,9 +725,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -753,9 +735,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -815,9 +795,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -827,9 +805,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -839,9 +815,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -901,9 +875,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -913,9 +885,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -925,9 +895,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1334,6 +1302,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
           }
         },
         "description": "Legacy route delegating to get_payments with scope='mine'.",
@@ -1387,9 +1365,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1399,9 +1375,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1529,9 +1503,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1541,9 +1513,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1553,9 +1523,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1624,9 +1592,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1636,9 +1602,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1648,9 +1612,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1708,7 +1670,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BulkPaymentActionResponse"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1797,9 +1759,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1809,9 +1769,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1821,9 +1779,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1899,9 +1855,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1911,9 +1865,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1923,9 +1875,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2001,9 +1951,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2013,9 +1961,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2025,9 +1971,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2103,9 +2047,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2115,9 +2057,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2127,9 +2067,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2198,9 +2136,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2210,9 +2146,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2342,9 +2276,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2354,9 +2286,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2494,9 +2424,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2506,9 +2434,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2584,9 +2510,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2596,9 +2520,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2872,9 +2794,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -2884,9 +2804,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }

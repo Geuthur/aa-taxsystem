@@ -44,6 +44,7 @@ Section Order:
 - [CHANGE] The Discord notification module moved to `taxsystem/thirdparty/discord.py` and matches the template building block (incl. webhook delivery); notifications behave as before.
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)
 - [CHANGE] Frontend uses `aa-geuthur-react` 1.5.0: owner cards, `OwnerPortrait`, design tokens, the i18next setup and the user settings hook come from the package instead of copies in the app. On the settings page the alliance badge is green, a section with a token error has a red dot and the glow of owners with an error is animated.
+- [CHANGE] Every error response of the API (4xx and 5xx) has the body `{"error": "<text>"}` (`ErrorSchema`) and every endpoint lists its 403 in the OpenAPI schema; the bodies of the formerly `{"success": false, "message": ...}` and `{"detail": ...}` errors change, status codes and success responses stay. The interface shows the reason of the API instead of a fixed text.
 
 ## [5.2.0] - 2026-11-13
 

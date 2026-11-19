@@ -14,11 +14,6 @@ class ErrorSchema(Schema):
 
     error: str
 
-    @field_validator("error", mode="before")
-    @classmethod
-    def coerce_error(cls, v):
-        return str(v)
-
 
 class MessageSchema(Schema):
     """Schema for simple success responses."""
