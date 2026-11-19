@@ -1,3 +1,6 @@
+// Third Party
+import { apiErrorMessage } from "aa-geuthur-react";
+
 // AA TaxSystem
 import { apiClient } from "@/Api/Api";
 import type { components } from "@/Api/OpenApi";
@@ -6,7 +9,7 @@ import { ProjectName } from "@/constants";
 export async function loadOverview(): Promise<components["schemas"]["OverviewSchema"]> {
   const { data, error } = await apiClient.GET(`/${ProjectName}/api/overview/`);
   if (error || !data) {
-    throw new Error("Failed to load overview");
+    throw new Error(apiErrorMessage(error, "Failed to load overview"));
   }
   return data;
 }
@@ -19,7 +22,7 @@ export async function loadDashboard(ownerId: number): Promise<components["schema
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load dashboard");
+    throw new Error(apiErrorMessage(error, "Failed to load dashboard"));
   }
   return data;
 }
@@ -34,7 +37,7 @@ export async function loadTaxAccounts(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load tax accounts");
+    throw new Error(apiErrorMessage(error, "Failed to load tax accounts"));
   }
   return data as unknown as components["schemas"]["PaymentSystemSchema"][];
 }
@@ -50,7 +53,7 @@ export async function switchTaxAccount(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to switch tax account");
+    throw new Error(apiErrorMessage(error, "Failed to switch tax account"));
   }
   return data as { success: boolean; message: string };
 }
@@ -67,7 +70,7 @@ export async function updateOwnerSettings(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to update owner settings");
+    throw new Error(apiErrorMessage(error, "Failed to update owner settings"));
   }
   return data as { success: boolean; message: string };
 }
@@ -84,7 +87,7 @@ export async function updateTaxAmount(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to update tax amount");
+    throw new Error(apiErrorMessage(error, "Failed to update tax amount"));
   }
   return data as { success: boolean; message: string };
 }
@@ -101,7 +104,7 @@ export async function updateTaxPeriod(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to update tax period");
+    throw new Error(apiErrorMessage(error, "Failed to update tax period"));
   }
   return data as { success: boolean; message: string };
 }
@@ -116,7 +119,7 @@ export async function loadMembers(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load members");
+    throw new Error(apiErrorMessage(error, "Failed to load members"));
   }
   return data as unknown as components["schemas"]["MembersSchema"][];
 }
@@ -134,7 +137,7 @@ export async function deleteMember(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to delete member");
+    throw new Error(apiErrorMessage(error, "Failed to delete member"));
   }
   return data as { success?: boolean; message?: string };
 }
@@ -160,7 +163,7 @@ export async function loadPayments(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load payments");
+    throw new Error(apiErrorMessage(error, "Failed to load payments"));
   }
   return data as unknown as components["schemas"]["PaymentCorporationSchema"][];
 }
@@ -175,7 +178,7 @@ export async function loadMyPayments(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load personal payments");
+    throw new Error(apiErrorMessage(error, "Failed to load personal payments"));
   }
   return data as unknown as components["schemas"]["PaymentSchema"][];
 }
@@ -191,7 +194,7 @@ export async function loadPaymentDetails(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load payment details");
+    throw new Error(apiErrorMessage(error, "Failed to load payment details"));
   }
   return data;
 }
@@ -210,7 +213,7 @@ export async function managePaymentAction(
     },
   );
   if (error || !data) {
-    throw new Error(`Failed to ${action} payment`);
+    throw new Error(apiErrorMessage(error, `Failed to ${action} payment`));
   }
   return data as { success: boolean; message: string };
 }
@@ -229,7 +232,7 @@ export async function manageBulkPaymentAction(
     },
   );
   if (error || !data) {
-    throw new Error(`Failed to bulk ${action} payments`);
+    throw new Error(apiErrorMessage(error, `Failed to bulk ${action} payments`));
   }
   return data;
 }
@@ -247,7 +250,7 @@ export async function approvePayment(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to approve payment");
+    throw new Error(apiErrorMessage(error, "Failed to approve payment"));
   }
   return data as { success: boolean; message: string };
 }
@@ -267,7 +270,7 @@ export async function rejectPayment(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to reject payment");
+    throw new Error(apiErrorMessage(error, "Failed to reject payment"));
   }
   return data as { success: boolean; message: string };
 }
@@ -285,7 +288,7 @@ export async function undoPayment(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to undo payment");
+    throw new Error(apiErrorMessage(error, "Failed to undo payment"));
   }
   return data as { success: boolean; message: string };
 }
@@ -303,7 +306,7 @@ export async function deletePayment(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to delete payment");
+    throw new Error(apiErrorMessage(error, "Failed to delete payment"));
   }
   return data as { success?: boolean; message?: string };
 }
@@ -318,7 +321,7 @@ export async function loadFilterSets(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load filter sets");
+    throw new Error(apiErrorMessage(error, "Failed to load filter sets"));
   }
   return data as unknown as components["schemas"]["FilterSetModelSchema"][];
 }
@@ -334,7 +337,7 @@ export async function loadFilters(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load filters");
+    throw new Error(apiErrorMessage(error, "Failed to load filters"));
   }
   return data as unknown as components["schemas"]["FilterModelSchema"][];
 }
@@ -352,7 +355,7 @@ export async function deleteFilter(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to delete filter");
+    throw new Error(apiErrorMessage(error, "Failed to delete filter"));
   }
   return data as { success?: boolean; message?: string };
 }
@@ -370,7 +373,7 @@ export async function deleteFilterSet(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to delete filter set");
+    throw new Error(apiErrorMessage(error, "Failed to delete filter set"));
   }
   return data as { success?: boolean; message?: string };
 }
@@ -386,7 +389,7 @@ export async function switchFilterSet(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to switch filter set");
+    throw new Error(apiErrorMessage(error, "Failed to switch filter set"));
   }
   return data as { success?: boolean; message?: string };
 }
@@ -401,7 +404,7 @@ export async function loadGroups(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load groups");
+    throw new Error(apiErrorMessage(error, "Failed to load groups"));
   }
   return data as unknown as components["schemas"]["GroupManagementSchema"][];
 }
@@ -419,7 +422,7 @@ export async function deleteGroup(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to delete group");
+    throw new Error(apiErrorMessage(error, "Failed to delete group"));
   }
   return data as { success?: boolean; message?: string };
 }
@@ -434,7 +437,7 @@ export async function loadAdminLogs(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load admin logs");
+    throw new Error(apiErrorMessage(error, "Failed to load admin logs"));
   }
   return data as unknown as components["schemas"]["AdminHistorySchema"][];
 }
@@ -450,7 +453,7 @@ export async function runAdminTasks(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to run admin tasks");
+    throw new Error(apiErrorMessage(error, "Failed to run admin tasks"));
   }
   return data;
 }
@@ -466,7 +469,7 @@ export async function loadMemberPayments(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load member payments");
+    throw new Error(apiErrorMessage(error, "Failed to load member payments"));
   }
   return data;
 }
@@ -483,8 +486,7 @@ export async function createFilterSet(
     },
   );
   if (error || !data) {
-    const msg = (error as { error?: string })?.error || "Failed to create filter set";
-    throw new Error(msg);
+    throw new Error(apiErrorMessage(error, "Failed to create filter set"));
   }
   return data;
 }
@@ -501,8 +503,7 @@ export async function createFilter(
     },
   );
   if (error || !data) {
-    const msg = (error as { error?: string })?.error || "Failed to create filter";
-    throw new Error(msg);
+    throw new Error(apiErrorMessage(error, "Failed to create filter"));
   }
   return data;
 }
@@ -517,7 +518,7 @@ export async function loadAvailableGroups(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to load available groups");
+    throw new Error(apiErrorMessage(error, "Failed to load available groups"));
   }
   return data;
 }
@@ -534,8 +535,7 @@ export async function createGroup(
     },
   );
   if (error || !data) {
-    const msg = (error as { error?: string })?.error || "Failed to create group";
-    throw new Error(msg);
+    throw new Error(apiErrorMessage(error, "Failed to create group"));
   }
   return data;
 }
@@ -545,7 +545,7 @@ export async function loadUserAccounts(): Promise<components["schemas"]["UserAcc
     `/${ProjectName}/api/user/accounts/`,
   );
   if (error || !data) {
-    throw new Error("Failed to load user tax accounts");
+    throw new Error(apiErrorMessage(error, "Failed to load user tax accounts"));
   }
   return data;
 }
@@ -563,7 +563,7 @@ export async function addCustomPayment(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to add custom payment");
+    throw new Error(apiErrorMessage(error, "Failed to add custom payment"));
   }
   return data as { success?: boolean; message?: string };
 }
@@ -575,7 +575,7 @@ export async function loadAdministrationOwners(): Promise<
     `/${ProjectName}/api/administration/owners/`,
   );
   if (error || !data) {
-    throw new Error("Failed to load administration owners");
+    throw new Error(apiErrorMessage(error, "Failed to load administration owners"));
   }
   return data;
 }
@@ -593,7 +593,7 @@ export async function triggerAdministrationOwnerUpdate(params: {
     },
   );
   if (error || !data) {
-    throw new Error("Failed to trigger update");
+    throw new Error(apiErrorMessage(error, "Failed to trigger update"));
   }
   return data;
 }
@@ -609,7 +609,7 @@ export async function deleteAdministrationOwner(params: {
     },
   );
   if (error || !data) {
-    throw new Error("Failed to delete owner");
+    throw new Error(apiErrorMessage(error, "Failed to delete owner"));
   }
   return data;
 }
@@ -625,7 +625,7 @@ export async function loadAdministrationOwnerInspect(params: {
     },
   );
   if (error || !data) {
-    throw new Error("Failed to inspect owner dashboard");
+    throw new Error(apiErrorMessage(error, "Failed to inspect owner dashboard"));
   }
   return data;
 }
@@ -642,7 +642,7 @@ export async function triggerOwnerUpdate(params: {
     },
   );
   if (error || !data) {
-    throw new Error("Failed to trigger update");
+    throw new Error(apiErrorMessage(error, "Failed to trigger update"));
   }
   return data;
 }
@@ -655,7 +655,7 @@ export async function deleteOwner(ownerId: number): Promise<components["schemas"
     },
   );
   if (error || !data) {
-    throw new Error("Failed to delete owner");
+    throw new Error(apiErrorMessage(error, "Failed to delete owner"));
   }
   return data;
 }
@@ -665,7 +665,7 @@ export async function loadSettingsOwners(): Promise<components["schemas"]["TaxOw
     `/${ProjectName}/api/settings/owners/`,
   );
   if (error || !data) {
-    throw new Error("Failed to load settings owners");
+    throw new Error(apiErrorMessage(error, "Failed to load settings owners"));
   }
   return data;
 }
@@ -680,7 +680,7 @@ export async function triggerUpdateAllTaxOwners(
     },
   );
   if (error || !data) {
-    throw new Error("Failed to trigger update all owners");
+    throw new Error(apiErrorMessage(error, "Failed to trigger update all owners"));
   }
   return data;
 }

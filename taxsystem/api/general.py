@@ -134,8 +134,6 @@ class ApiEndpoints:
         )
         def get_menu(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             # Owners that are not up to date; the count is the badge of the Settings link.
             owner_issues = sum(
@@ -191,8 +189,6 @@ class ApiEndpoints:
         )
         def get_user(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             main_character = getattr(
                 getattr(user, "profile", None), "main_character", None
@@ -228,9 +224,6 @@ class ApiEndpoints:
             summary="Get the settings of the current user",
         )
         def get_user_settings(request: WSGIRequest):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
             return schema.UserSettingsSchema(
                 disable_notifications=settings.disable_notifications
@@ -248,8 +241,6 @@ class ApiEndpoints:
         def update_user_settings(
             request: WSGIRequest, payload: schema.UserSettingsUpdateRequest
         ):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings, __ = UserSettings.objects.get_or_create(user=request.user)
             settings.disable_notifications = payload.disable_notifications
@@ -269,8 +260,6 @@ class ApiEndpoints:
         )
         def get_user_accounts(request: WSGIRequest):
             user = request.user
-            if not General.objects.has_basic_access(user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             accounts: list[schema.UserAccountSchema] = []
 
@@ -399,9 +388,6 @@ class ApiEndpoints:
             summary="Get settings update status for all manageable owners",
         )
         def get_settings_owners(request: WSGIRequest):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             owners_list: list[schema.TaxOwnerSettingSchema] = []
             for corp in (
                 CorporationOwner.objects.manage_to(request.user)
@@ -432,9 +418,6 @@ class ApiEndpoints:
             request: WSGIRequest,
             payload: schema.OwnerUpdateRequest | None = None,
         ):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             force_refresh = payload.force_refresh if payload else False
             count = 0
             skipped = 0

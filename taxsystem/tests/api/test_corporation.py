@@ -169,6 +169,30 @@ class TestCorporationApiEndpoints(AuthTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
+    def test_delete_member_should_400_error_when_member_not_missing(self):
+        """Test 'api:delete_member' answers 400 with an `error` body for a member that is not missing."""
+        # Test Data
+        member = MembersFactory(owner=self.audit, status="active")
+        url = reverse(
+            f"{API_URL}:delete_member",
+            kwargs={
+                "owner_id": self.user_character.corporation_id,
+                "member_pk": member.pk,
+            },
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps({"comment": "Not missing."}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(response.json(), {"error": "Member is not marked as missing."})
+
     def test_delete_member_should_200(self):
         """
         Test should return 200 OK when user has permissions.

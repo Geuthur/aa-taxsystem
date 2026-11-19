@@ -9,9 +9,9 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import format_lazy
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
@@ -98,8 +98,11 @@ def _execute_payment_action(
 
             if action == "approve":
                 if not (payment.is_pending or payment.is_needs_approval):
-                    msg = _("Payment is not pending or does not need approval.")
-                    return 400, {"success": True, "message": msg}
+                    return 400, {
+                        "error": gettext(
+                            "Payment is not pending or does not need approval."
+                        )
+                    }
 
                 payment.request_status = PaymentRequestStatus.APPROVED
                 payment.reviser = reviser_name
@@ -125,8 +128,11 @@ def _execute_payment_action(
 
             if action == "reject":
                 if not (payment.is_pending or payment.is_needs_approval):
-                    msg = _("Payment is not pending or does not need approval.")
-                    return 400, {"success": True, "message": msg}
+                    return 400, {
+                        "error": gettext(
+                            "Payment is not pending or does not need approval."
+                        )
+                    }
 
                 payment.request_status = PaymentRequestStatus.REJECTED
                 payment.reviser = reviser_name
@@ -152,8 +158,7 @@ def _execute_payment_action(
 
             if action == "undo":
                 if not (payment.is_approved or payment.is_rejected):
-                    msg = _("Payment is approved or rejected.")
-                    return 400, {"success": True, "message": msg}
+                    return 400, {"error": gettext("Payment is approved or rejected.")}
 
                 if not payment.is_rejected:
                     payment.account.deposit -= payment.amount
@@ -180,8 +185,9 @@ def _execute_payment_action(
 
             if action == "delete":
                 if payment.journal is not None:
-                    msg = _("ESI imported payments cannot be deleted")
-                    return 400, {"success": False, "message": msg}
+                    return 400, {
+                        "error": gettext("ESI imported payments cannot be deleted")
+                    }
 
                 pid = payment.pk
                 amount = intcomma(payment.amount)
@@ -213,13 +219,14 @@ def _execute_payment_action(
                 ).save()
                 return 200, {"success": True, "message": msg}
 
-            return 400, {"success": False, "message": f"Unknown action '{action}'."}
+            return 400, {
+                "error": gettext("Unknown action '{action}'.").format(action=action)
+            }
 
     except owner.payment_model.DoesNotExist:
-        return 404, {"error": _("Payment not Found.")}
+        return 404, {"error": gettext("Payment not Found.")}
     except IntegrityError:
-        msg = _("Transaction failed. Please try again.")
-        return 400, {"success": False, "message": msg}
+        return 400, {"error": gettext("Transaction failed. Please try again.")}
 
 
 class PaymentsApiEndpoints:
@@ -245,9 +252,9 @@ class PaymentsApiEndpoints:
         ):
             owner, perms = core.get_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": "Owner not Found."}
+                return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
-                return 403, {"error": "Permission Denied."}
+                return 403, {"error": gettext("Permission Denied.")}
 
             can_manage = core.get_manage_owner(request, owner_id)[1]
 
@@ -256,7 +263,7 @@ class PaymentsApiEndpoints:
                     request, character_id
                 )
                 if not char_perm:
-                    return 403, {"error": "Permission Denied."}
+                    return 403, {"error": gettext("Permission Denied.")}
                 payments = (
                     owner.payment_model.objects.filter(
                         Q(
@@ -310,6 +317,7 @@ class PaymentsApiEndpoints:
             response={
                 200: list[schema.PaymentCorporationSchema],
                 404: schema.ErrorSchema,
+                403: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -319,7 +327,11 @@ class PaymentsApiEndpoints:
 
         @api.get(
             "owner/{owner_id}/payment/{payment_pk}/view/details/",
-            response={200: schema.PaymentsDetailsResponse, 403: dict, 404: dict},
+            response={
+                200: schema.PaymentsDetailsResponse,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         # pylint: disable=too-many-locals
@@ -328,16 +340,19 @@ class PaymentsApiEndpoints:
 
             # pylint: disable=duplicate-code
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
-            payment = get_object_or_404(owner.payment_model, pk=payment_pk)
+            payment = owner.payment_model.objects.filter(pk=payment_pk).first()
+            if payment is None:
+                return 404, {"error": gettext("Payment not Found.")}
+
             perms = perms or core.get_character_permissions(
                 request, payment.character_id
             )
 
             # pylint: disable=duplicate-code
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             response_payment_histories: list[schema.PaymentHistorySchema] = []
             payments_history = owner.payment_history_model.objects.filter(
@@ -441,14 +456,19 @@ class PaymentsApiEndpoints:
         def get_member_payments(request: WSGIRequest, owner_id: int, character_id: int):
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Corporation not found")}
+                return 404, {"error": gettext("Corporation not found")}
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
             return get_payments(request, owner_id, character_id=character_id)
 
         @api.post(
             "owner/{owner_id}/account/{account_pk}/manage/add-payment/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
+            response={
+                200: dict,
+                400: schema.ErrorSchema,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
         )
         def add_payment(
@@ -475,18 +495,17 @@ class PaymentsApiEndpoints:
 
             # Check if owner exists
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
 
             # Check permissions
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             # Validate the payload (a reason is mandatory)
             amount = payload.amount
             comment = payload.comment.strip()
             if not comment:
-                msg = _("Invalid form data.")
-                return 400, {"success": False, "message": msg}
+                return 400, {"error": gettext("Invalid form data.")}
 
             # Begin transaction
             try:
@@ -535,12 +554,16 @@ class PaymentsApiEndpoints:
 
                 return 200, {"success": True, "message": msg}
             except IntegrityError:
-                msg = _("Transaction failed. Please try again.")
-                return 400, {"success": False, "message": msg}
+                return 400, {"error": gettext("Transaction failed. Please try again.")}
 
         @api.post(
             "owner/{owner_id}/payment/{payment_pk}/manage/action/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
+            response={
+                200: dict,
+                400: schema.ErrorSchema,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Manage payment actions (approve, reject, undo, delete)",
         )
@@ -553,9 +576,9 @@ class PaymentsApiEndpoints:
             """Manage payment actions via unified action endpoint."""
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
             return _execute_payment_action(
                 user=request.user,
                 owner=owner,
@@ -568,7 +591,7 @@ class PaymentsApiEndpoints:
             "owner/{owner_id}/manage/payments/bulk-action/",
             response={
                 200: schema.BulkPaymentActionResponse,
-                400: schema.BulkPaymentActionResponse,
+                400: schema.ErrorSchema,
                 403: schema.ErrorSchema,
                 404: schema.ErrorSchema,
             },
@@ -583,18 +606,13 @@ class PaymentsApiEndpoints:
             """Manage multiple payments in bulk."""
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
 
             payment_ids = payload.payment_ids
             if not payment_ids:
-                return 400, {
-                    "success": False,
-                    "processed_count": 0,
-                    "total_count": 0,
-                    "message": str(_("No payment IDs provided.")),
-                }
+                return 400, {"error": gettext("No payment IDs provided.")}
 
             processed = 0
             for payment_pk in payment_ids:
@@ -632,7 +650,12 @@ class PaymentsApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/payment/{payment_pk}/manage/approve-payment/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
+            response={
+                200: dict,
+                400: schema.ErrorSchema,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Approve payment (legacy wrapper)",
         )
@@ -645,9 +668,9 @@ class PaymentsApiEndpoints:
             """Legacy wrapper to approve a payment."""
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
             reason = payload.comment if payload else ""
             return _execute_payment_action(
                 user=request.user,
@@ -659,7 +682,12 @@ class PaymentsApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/payment/{payment_pk}/manage/undo-payment/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
+            response={
+                200: dict,
+                400: schema.ErrorSchema,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Undo payment (legacy wrapper)",
         )
@@ -672,9 +700,9 @@ class PaymentsApiEndpoints:
             """Legacy wrapper to undo a payment."""
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
             reason = payload.comment if payload else ""
             return _execute_payment_action(
                 user=request.user,
@@ -686,7 +714,12 @@ class PaymentsApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/payment/{payment_pk}/manage/delete-payment/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
+            response={
+                200: dict,
+                400: schema.ErrorSchema,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Delete payment (legacy wrapper)",
         )
@@ -699,9 +732,9 @@ class PaymentsApiEndpoints:
             """Legacy wrapper to delete a payment."""
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
             reason = (
                 payload.comment
                 if payload and payload.comment
@@ -717,7 +750,12 @@ class PaymentsApiEndpoints:
 
         @api.post(
             "owner/{owner_id}/payment/{payment_pk}/manage/reject-payment/",
-            response={200: dict, 400: dict, 403: dict, 404: dict},
+            response={
+                200: dict,
+                400: schema.ErrorSchema,
+                403: schema.ErrorSchema,
+                404: schema.ErrorSchema,
+            },
             tags=self.tags,
             summary="Reject payment (legacy wrapper)",
         )
@@ -730,9 +768,9 @@ class PaymentsApiEndpoints:
             """Legacy wrapper to reject a payment."""
             owner, perms = core.get_manage_owner(request, owner_id)
             if owner is None:
-                return 404, {"error": _("Owner not Found.")}
+                return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return 403, {"error": gettext("Permission Denied.")}
             reason = payload.comment if payload else ""
             return _execute_payment_action(
                 user=request.user,

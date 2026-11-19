@@ -128,6 +128,26 @@ class TestFilterApiEndpoints(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
+    def test_delete_filter_should_404_error_when_filter_not_found(self):
+        """Test 'api:delete_filter' answers 404 with an `error` body for an unknown filter."""
+        # Test Data
+        url = reverse(
+            f"{API_URL}:delete_filter",
+            kwargs={"owner_id": self.audit.eve_id, "filter_pk": 999999},
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps({"comment": "Unknown filter."}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(response.json(), {"error": "Filter not found."})
+
     def test_get_filter_set(self):
         """
         Test 'api:get_filter_set' Endpoint.
