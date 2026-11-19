@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 
 // Third Party
 import { BaseSectionHeader } from "aa-geuthur-react";
+import { OwnerPortrait } from "aa-geuthur-react";
 import { CreditCard, FileText, Settings, Shield, UserCheck } from "lucide-react";
 import { Badge, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { useOverview } from "@/Components/Overview/Hooks";
 import { OwnerTypeFilter } from "@/Components/Overview/OwnerTypeFilter";

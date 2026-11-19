@@ -9,13 +9,13 @@ import {
   ModalSize,
   formatCompactNumber,
 } from "aa-geuthur-react";
+import { OwnerPortrait } from "aa-geuthur-react";
 import { CheckCircle2, DollarSign, UserCheck, XCircle } from "lucide-react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
-import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { useAccountActions, useTaxAccounts } from "@/Components/OwnerManage/Hooks";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";

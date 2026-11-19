@@ -7,47 +7,13 @@ import { useCooldown, useFeedback, useOwnerCooldowns } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-// AA Tax System
 import {
   deleteOwner,
   loadSettingsOwners,
-  loadUserSettings,
   triggerOwnerUpdate,
   triggerUpdateAllTaxOwners,
-  updateUserSettings,
 } from "@/Api/ApiCalls";
 import { queryKeys } from "@/Api/query";
-import type { UserSettingsSchema } from "@/Api/schema";
-
-/** Loads the user settings and updates them optimistically. */
-export function useUserSettings() {
-  const queryClient = useQueryClient();
-
-  const query = useQuery({
-    queryKey: queryKeys.UserSettings,
-    queryFn: loadUserSettings,
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: updateUserSettings,
-    onMutate: async (settings) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.UserSettings });
-      const previous = queryClient.getQueryData<UserSettingsSchema>(queryKeys.UserSettings);
-      queryClient.setQueryData<UserSettingsSchema>(queryKeys.UserSettings, settings);
-      return { previous };
-    },
-    onError: (_error, _settings, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(queryKeys.UserSettings, context.previous);
-      }
-    },
-    onSuccess: (settings) => {
-      queryClient.setQueryData(queryKeys.UserSettings, settings);
-    },
-  });
-
-  return { ...query, updateMutation };
-}
 
 /** Loads the owners the user may manage. */
 export function useSettingsOwners() {

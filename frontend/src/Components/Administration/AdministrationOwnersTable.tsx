@@ -8,6 +8,7 @@ import {
   formatDate,
   renderTooltip,
 } from "aa-geuthur-react";
+import { OwnerPortrait } from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import { Eye, RefreshCw, Trash2 } from "lucide-react";
 import { Badge, Button, ButtonGroup, Dropdown, Spinner } from "react-bootstrap";
@@ -17,7 +18,6 @@ import { useTranslation } from "react-i18next";
 import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { AdministrationStatusBadge } from "@/Components/Administration/AdministrationStatusBadge";
-import { OwnerPortrait } from "@/Components/Base/OwnerPortrait";
 import styles from "@/Styles/modules/Administration.module.css";
 
 export interface AdministrationOwnersTableProps {

@@ -6,107 +6,29 @@
  */
 
 /* ═══ DESIGN TOKENS for AA ═══════════════════════════════════════════════════════ */
-:root {
-    --font-hud: 'Rajdhani', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
 
-    /* Default dark theme tokens */
-    --aa-body: rgb(24 24 27);
-    --aa-panel-bg: rgb(24 24 27);
+/*
+ * The shared tokens (--aa-*, --font-*) for the dark default and the light and dark
+ * themes come from aa-geuthur-react (tokens.css). Only the tokens the package does
+ * not ship are defined here; an app value that differs from the package goes here too.
+ */
+:root {
     --aa-panel-border: rgb(52 52 57);
-    --aa-panel-header-bg: rgb(39 39 42);
-    --aa-color-white: rgb(255 255 255);
-    --aa-color-black: rgb(0 0 0);
-    --aa-color-body: rgb(24 24 27);
-    --aa-color-body-dark: rgb(11 14 20);
-    --aa-color-grey: rgb(39 39 42);
-    --aa-color-grey-light: rgb(52 52 57);
-    --aa-color-white-light: rgb(202 195 195);
-    --aa-color-secondary: rgb(128 128 128);
-    --aa-color-emerald: rgb(16 185 129);
-    --aa-color-emerald-light: rgb(0 188 125);
-    --aa-color-emerald-dark: color-mix(in srgb, rgb(16 185 129) 60%, var(--aa-color-black));
-    --aa-color-amber: rgb(245 158 11);
-    --aa-color-amber-light: rgb(252 211 77);
-    --aa-color-amber-dark: color-mix(in srgb, rgb(245 158 11) 60%, var(--aa-color-black));
-    --aa-color-rose: rgb(244 63 94);
-    --aa-color-rose-light: rgb(253 164 175);
-    --aa-color-rose-dark: color-mix(in srgb, rgb(244 63 94) 60%, var(--aa-color-black));
-    --aa-color-red: rgb(204 17 48);
-    --aa-color-blue: rgb(37 99 235);
-    --aa-color-blue-light: rgb(59 130 246);
-    --aa-color-blue-dark: color-mix(in srgb, rgb(37 99 235) 60%, var(--aa-color-black));
-    --aa-text-white: var(--aa-color-white);
-    --aa-text-primary: rgb(202 195 195);
-    --aa-text-title: rgb(255 255 255);
-    --aa-text-secondary: rgb(128 128 128);
-    --aa-text-tertiary: rgb(161 161 170);
-    --aa-text-muted: rgb(113 113 122);
-    --aa-text-emerald-light: var(--aa-color-emerald-light);
-    --aa-font-size: .75rem;
-    --aa-font-size-xs: .625rem;
-    --aa-font-size-sm: .875rem;
-    --aa-font-size-lg: 1.25rem;
-    --aa-font-size-xl: 1.5rem;
-    --aa-font-weight-bold: 700;
-    --aa-border: rgb(24 24 27);
-    --aa-border-light: rgb(52 52 57);
-    --aa-border-rose: var(--aa-color-rose);
-    --aa-border-amber: var(--aa-color-amber);
-    --aa-border-solid: 1px solid var(--aa-panel-border, var(--aa-border-light));
-    --aa-border-radius: 12px;
     --aa-table-footer-bg: rgb(11 14 20);
-    --aa-shadow: 0 4px 6px rgb(0 0 0 / var(--aa-shadow-opacity));
-    --aa-shadow-dark: 0 1px 2px rgb(0 0 0 / var(--aa-shadow-opacity));
-    --aa-shadow-opacity: 0.1;
 }
 
 /* ═══ Flatly (Light Theme) Overrides ══════════════════════════════════════════════ */
 html[data-theme="flatly"],
 html[data-bs-theme="light"] {
-    --aa-body: var(--bs-body-bg, rgb(255 255 255));
-    --aa-panel-bg: var(--bs-card-bg, rgb(255 255 255));
     --aa-panel-border: var(--bs-border-color, rgb(222 226 230));
-    --aa-panel-header-bg: var(--bs-tertiary-bg, rgb(248 249 250));
-    --aa-color-body: var(--bs-body-bg, rgb(255 255 255));
-    --aa-color-body-dark: var(--bs-tertiary-bg, rgb(236 240 241));
-    --aa-color-grey: rgb(236 240 241);
-    --aa-color-grey-light: rgb(222 226 230);
-    --aa-color-white-light: rgb(44 62 80);
-    --aa-color-secondary: rgb(123 138 139);
-    --aa-text-primary: var(--bs-body-color, rgb(44 62 80));
-    --aa-text-title: var(--bs-heading-color, rgb(44 62 80));
-    --aa-text-secondary: rgb(123 138 139);
-    --aa-text-tertiary: rgb(73 80 87);
-    --aa-text-muted: rgb(149 165 166);
-    --aa-border: var(--bs-border-color, rgb(222 226 230));
-    --aa-border-light: var(--bs-border-color-subtle, rgb(236 240 241));
     --aa-table-footer-bg: var(--bs-tertiary-bg, rgb(236 240 241));
-    --aa-shadow-opacity: 0.05;
 }
 
 /* ═══ Darkly (Dark Theme) Overrides ══════════════════════════════════════════════ */
 html[data-theme="darkly"],
 html[data-bs-theme="dark"] {
-    --aa-body: rgb(24 24 27);
-    --aa-panel-bg: rgb(24 24 27);
     --aa-panel-border: rgb(52 52 57);
-    --aa-panel-header-bg: rgb(39 39 42);
-    --aa-color-body: rgb(24 24 27);
-    --aa-color-body-dark: rgb(11 14 20);
-    --aa-color-grey: rgb(39 39 42);
-    --aa-color-grey-light: rgb(52 52 57);
-    --aa-color-white-light: rgb(202 195 195);
-    --aa-color-secondary: rgb(128 128 128);
-    --aa-text-primary: rgb(202 195 195);
-    --aa-text-title: rgb(255 255 255);
-    --aa-text-secondary: rgb(128 128 128);
-    --aa-text-tertiary: rgb(161 161 170);
-    --aa-text-muted: rgb(113 113 122);
-    --aa-border: rgb(24 24 27);
-    --aa-border-light: rgb(52 52 57);
     --aa-table-footer-bg: rgb(11 14 20);
-    --aa-shadow-opacity: 0.1;
 }
 
 /* ═══ General ═══════════════════════════════════════════════════════════════ */
@@ -144,7 +66,13 @@ html[data-bs-theme="dark"] {
 
 /* ═══ LOADER ════════════════════════════════════════════════════════════════ */
 
+/* Layout included: the owner section of aa-geuthur-react renders the class without utilities. */
 .aa-loader-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1.5rem;
     background-color: var(--aa-panel-bg, var(--aa-body));
     border-radius: var(--aa-border-radius);
     border: var(--aa-border-solid);
@@ -344,35 +272,7 @@ html[data-bs-theme="dark"] {
     background-color: var(--aa-color-rose-light);
 }
 
-@keyframes aa-pending-ping {
-    75%,
-    100% {
-        transform: scale(2.6);
-        opacity: 0;
-    }
-}
-
-@keyframes aa-pending-glow {
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgb(245 158 11 / 25%);
-    }
-
-    50% {
-        box-shadow: 0 0 10px 2px rgb(245 158 11 / 50%);
-    }
-}
-
-@keyframes aa-danger-glow {
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgb(244 63 94 / 25%);
-    }
-
-    50% {
-        box-shadow: 0 0 10px 2px rgb(244 63 94 / 50%);
-    }
-}
+/* The keyframes aa-pending-ping, aa-pending-glow and aa-danger-glow come from aa-geuthur-react. */
 
 /* ═══ UTILITIES ═══════════════════════════════════════════════════════════════ */
 
