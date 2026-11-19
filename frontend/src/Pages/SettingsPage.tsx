@@ -2,18 +2,14 @@
 import React, { useMemo } from "react";
 
 // Third Party
+import { BaseOwnerSettingsSection, useUserSettings } from "aa-geuthur-react";
+import type { BaseOwner } from "aa-geuthur-react";
 import { BellOff, Settings2, Users } from "lucide-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import { BaseOwnerSettingsSection } from "@/Components/Base/OwnerSettings";
-import type { BaseOwner } from "@/Components/Base/OwnerSettings";
-import {
-  useSettingsOwnerActions,
-  useSettingsOwners,
-  useUserSettings,
-} from "@/Components/Settings/Hooks";
+import { useSettingsOwnerActions, useSettingsOwners } from "@/Components/Settings/Hooks";
 import styles from "@/Styles/modules/SettingsPage.module.css";
 
 export const SettingsPage: React.FC = () => {
@@ -53,7 +49,7 @@ export const SettingsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="aa-loader-container w-100 d-flex align-items-center justify-content-center p-4">
+      <div className="aa-loader-container">
         <span className="spinner-border" />
         <span>{t("Loading settings…")}</span>
       </div>
@@ -114,8 +110,11 @@ export const SettingsPage: React.FC = () => {
           </Card.Body>
         </Card>
 
-        {/* Modular BaseOwnerSettingsSection for Owners */}
+        {/* The class props keep the look the section had as a copy in this app. */}
         <BaseOwnerSettingsSection<BaseOwner>
+          bodyClassName="bg-secondary text-light"
+          cardClassName="bg-dark"
+          deleteModalBodyClassName="aa-panel"
           title={t("Owners Update Status")}
           description={t("ESI synchronization status of your linked corporations and alliances.")}
           icon={<Users size={20} aria-hidden="true" />}
