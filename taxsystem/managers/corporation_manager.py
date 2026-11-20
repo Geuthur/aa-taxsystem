@@ -207,6 +207,12 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
                     owner=owner,
                     user=profile.user,
                     status=account_status,
+                    # First Period is free
+                    last_paid=(
+                        timezone.now()
+                        if account_status == AccountStatus.ACTIVE
+                        else None
+                    ),
                 )
             )
 
@@ -271,6 +277,9 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
                     self._reset_account(tax_account)
                 elif tax_account.status == AccountStatus.INACTIVE:
                     tax_account.status = AccountStatus.ACTIVE
+                    if tax_account.last_paid is None:
+                        # First Period is free
+                        tax_account.last_paid = timezone.now()
                     tax_account.save()
                     logger.info(
                         "Activated Tax Account %s (main character is in corporation)",
@@ -310,7 +319,8 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         tax_account.status = AccountStatus.ACTIVE
         tax_account.notice = None
         tax_account.deposit = 0
-        tax_account.last_paid = None
+        # First Period is free
+        tax_account.last_paid = timezone.now()
         tax_account.save()
         logger.info(
             "Reset Tax Account %s",
@@ -332,7 +342,8 @@ class CorporationAccountManager(models.Manager["PaymentAccountContext"]):
         tax_account.status = AccountStatus.ACTIVE
         tax_account.notice = None
         tax_account.deposit = 0
-        tax_account.last_paid = None
+        # First Period is free
+        tax_account.last_paid = timezone.now()
         tax_account.save()
         logger.info(
             "Moved Tax Account %s to Corporation %s",

@@ -35,6 +35,7 @@ Section Order:
 ### Fixed
 
 - [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
+- [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
 - [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
 - [FIX] Security alerts for `minimatch` and `zod` in the dev dependencies (eslint 10.15, typescript-eslint 8.73, zod 4.6.7).
 

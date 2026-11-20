@@ -286,6 +286,33 @@ class TestCorporationManager(AuthTestCase):
         account.refresh_from_db()
         self.assertEqual(account.status, AccountStatus.ACTIVE)
         self.assertTrue(account.is_main)
+        self.assertIsNotNone(account.last_paid)
+        self.assertTrue(account.has_paid)
+
+    def test_new_member_should_start_with_a_free_first_period(self):
+        """
+        Test that a new member counts as paid before the first deadlines run.
+
+        Results:
+            - The new ACTIVE account has last_paid set, is paid and has a next due date.
+        """
+        # Test Data
+        user = UserMainFactory()
+        char = EveCharacterFactory(corporation=self.audit.eve_corporation)
+        add_character_to_user(user=user, character=char, is_main=True)
+
+        # Test Action
+        self.audit.update_tax_accounts(force_refresh=False)
+
+        # Expected Results
+        account = CorporationPaymentAccount.objects.get(owner=self.audit, user=user)
+        self.assertEqual(account.status, AccountStatus.ACTIVE)
+        self.assertIsNotNone(account.last_paid)
+        self.assertTrue(account.has_paid)
+        self.assertEqual(
+            account.next_due,
+            account.last_paid + timezone.timedelta(days=self.audit.tax_period),
+        )
 
     @patch(f"{MODULE_PATH}.logger")
     def test_update_tax_accounts_reset_a_returning_user(self, mock_logger):
@@ -313,6 +340,10 @@ class TestCorporationManager(AuthTestCase):
         self.assertEqual(tax_account.deposit, 0)
         self.assertEqual(tax_account.status, AccountStatus.ACTIVE)
         self.assertEqual(tax_account.owner, self.audit)
+        self.assertTrue(tax_account.has_paid)
+        self.assertGreater(
+            tax_account.last_paid, timezone.now() - timezone.timedelta(days=1)
+        )
         mock_logger.info.assert_any_call(
             "Reset Tax Account %s",
             tax_account.name,
