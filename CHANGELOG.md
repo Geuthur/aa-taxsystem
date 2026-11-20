@@ -39,6 +39,7 @@ Section Order:
 - [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
 - [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
 - [FIX] Alliance accounts now count for the menu badge (own unpaid account, open invoices for alliance managers) and only notified alliance accounts get a reminder timestamp.
+- [FIX] The account list of an owner no longer runs two extra database queries per account.
 - [FIX] Security alerts for `minimatch` and `zod` in the dev dependencies (eslint 10.15, typescript-eslint 8.73, zod 4.6.7).
 
 ### Changed
