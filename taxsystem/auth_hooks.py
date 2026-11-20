@@ -11,6 +11,7 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 # AA TaxSystem
 from taxsystem import app_settings, urls
 from taxsystem.managers.general import GeneralManager
+from taxsystem.models.alliance import AlliancePaymentAccount, AlliancePayments
 from taxsystem.models.corporation import (
     CorporationPaymentAccount,
     CorporationPayments,
@@ -33,21 +34,33 @@ class TaxSystemMenuItem(MenuItemHook):
     def render(self, request: UserProfile):
         if GeneralManager.has_basic_access(request.user):
             # Check if the User has any unpaid active accounts that are not tax-free
-            user_accounts = CorporationPaymentAccount.objects.filter(
-                user=request.user, status=AccountStatus.ACTIVE
-            )
+            user_accounts = [
+                *CorporationPaymentAccount.objects.filter(
+                    user=request.user, status=AccountStatus.ACTIVE
+                ),
+                *AlliancePaymentAccount.objects.filter(
+                    user=request.user, status=AccountStatus.ACTIVE
+                ),
+            ]
             self.count = (
                 1
                 if any(_needs_payment_notification(acc) for acc in user_accounts)
                 else 0
             )
 
+            # Get the count of open invoices for the Managing user
+            invoices = 0
             if GeneralManager.has_corporation_management_access(request.user):
-                # Get the count of open invoices for the Managing user
-                invoices = CorporationPayments.objects.get_visible_open_invoices(
-                    request.user
+                invoices += (
+                    CorporationPayments.objects.get_visible_open_invoices(request.user)
+                    or 0
                 )
-                self.count = invoices if invoices and invoices > 0 else self.count
+            if GeneralManager.has_alliance_management_access(request.user):
+                invoices += (
+                    AlliancePayments.objects.get_visible_open_invoices(request.user)
+                    or 0
+                )
+            self.count = invoices if invoices > 0 else self.count
             return MenuItemHook.render(self, request)
         return ""
 
