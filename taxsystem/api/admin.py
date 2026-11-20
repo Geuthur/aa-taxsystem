@@ -159,7 +159,10 @@ class AdminApiEndpoints:
                 )
                 .exclude(status=AccountStatus.MISSING)
                 .select_related(
-                    "user", "user__profile", "user__profile__main_character"
+                    "owner",
+                    "user",
+                    "user__profile",
+                    "user__profile__main_character",
                 )
                 .prefetch_related("user__character_ownerships__character")
             )

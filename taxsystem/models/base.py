@@ -168,11 +168,13 @@ class PaymentAccountBaseModel(models.Model):
         return self.get_status_display()
 
     def get_alt_ids(self) -> list[int]:
-        return list(
-            self.user.character_ownerships.all().values_list(
-                "character__character_id", flat=True
-            )
-        )
+        ownerships = self.user.character_ownerships.all()
+        # Use prefetched ownerships (with characters) if present, else one query
+        if "character_ownerships" in getattr(
+            self.user, "_prefetched_objects_cache", {}
+        ):
+            return [ownership.character.character_id for ownership in ownerships]
+        return list(ownerships.values_list("character__character_id", flat=True))
 
     @property
     def is_active(self) -> bool:

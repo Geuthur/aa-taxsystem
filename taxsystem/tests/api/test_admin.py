@@ -220,6 +220,46 @@ class TestAdminApiEndpoints(AuthTestCase):
         ]
         self.assertEqual(len(group_queries), 2)
 
+    def test_get_tax_accounts_should_not_query_per_account(self):
+        # Test Data
+        url = reverse(
+            f"{API_URL}:get_tax_accounts", kwargs={"owner_id": self.audit.eve_id}
+        )
+        self.client.force_login(self.superuser)
+        self._set_tax_amount()
+        CorporationTaxAccountFactory(
+            owner=self.audit,
+            user=UserMainFactory(),
+            status="active",
+            deposit=0,
+            last_paid=timezone.now(),
+        )
+        with CaptureQueriesContext(connection) as baseline:
+            self.client.get(url)
+        accounts = [
+            CorporationTaxAccountFactory(
+                owner=self.audit,
+                user=UserMainFactory(),
+                status="active",
+                deposit=0,
+                last_paid=timezone.now(),
+            )
+            for _ in range(4)
+        ]
+
+        # Test Action
+        with self.assertNumQueries(len(baseline.captured_queries)):
+            response = self.client.get(url)
+
+        # Expected Result
+        data = {row["account_id"]: row for row in response.json()}
+        self.assertEqual(len(data), 6)
+        for account in accounts:
+            main_id = account.user.profile.main_character.character_id
+            self.assertEqual(data[account.pk]["account"]["alt_ids"], [main_id])
+            self.assertTrue(data[account.pk]["has_paid"])
+            self.assertIsNotNone(data[account.pk]["next_due"])
+
     def test_get_dashboard_should_not_count_tax_free_group_member_as_unpaid(self):
         # Test Data
         self._create_tax_free_account("Tax Free Statistics Group")
