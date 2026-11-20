@@ -1,5 +1,9 @@
 """Tests for the TaxSystem menu item hook."""
 
+# Third Party
+from evesde_factory.allianceauth import EveCharacterFactory
+from evesde_factory.utils import add_character_to_user
+
 # Alliance Auth
 from allianceauth.groupmanagement.models import Group
 
@@ -63,6 +67,26 @@ class TestTaxSystemMenuItem(AuthTestCase):
         CorporationTaxAccountFactory(
             owner=self.audit, user=user, deposit=-1000, status="active"
         )
+
+        # Test Action
+        count = self._render_count(user)
+
+        # Expected Result
+        self.assertEqual(count, 0)
+
+    def test_should_not_count_new_member_before_deadlines_run(self):
+        """
+        Test that a new member gets no badge before the first deadlines run.
+
+        Results:
+            - The badge count is 0.
+        """
+        # Test Data
+        audit = CorporationOwnerFactory(user=UserMainFactory(), tax_amount=1000)
+        user = UserMainFactory()
+        char = EveCharacterFactory(corporation=audit.eve_corporation)
+        add_character_to_user(user=user, character=char, is_main=True)
+        audit.update_tax_accounts(force_refresh=False)
 
         # Test Action
         count = self._render_count(user)
