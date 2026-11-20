@@ -10,6 +10,8 @@ from aiopenapi3 import RequestError
 from celery import states
 from celery.exceptions import Retry
 from celery.result import EagerResult
+from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoFactory
+from evesde_factory.utils import add_character_to_user
 
 # Django
 from django.core.cache import cache
@@ -384,6 +386,40 @@ class TestTasks(AuthTestCase):
         mock_send.assert_called()
 
     @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_alliance_notification_should_only_stamp_notified_accounts(
+        self, mock_send
+    ):
+        """
+        Test that only notified alliance accounts get a last_notification timestamp.
+
+        Results:
+            - The unpaid account is notified and gets last_notification.
+            - The paid account is not notified and keeps last_notification None.
+        """
+        # Test Data
+        audit = AllianceOwnerFactory(user=self.user, tax_amount=1000)
+        unpaid = AllianceTaxAccountFactory(
+            owner=audit, user=self.user, deposit=-1000, status="active"
+        )
+        paid = AllianceTaxAccountFactory(
+            owner=audit,
+            user=UserMainFactory(),
+            deposit=1000,
+            status="active",
+            last_paid=timezone.now(),
+        )
+
+        # Test Action
+        _send_alliance_notification(owner_eve_id=audit.eve_alliance.alliance_id)
+
+        # Expected Result
+        mock_send.assert_called_once()
+        unpaid.refresh_from_db()
+        paid.refresh_from_db()
+        self.assertIsNotNone(unpaid.last_notification)
+        self.assertIsNone(paid.last_notification)
+
+    @patch(TASKS_PATH + ".send_user_notification")
     def test_send_corporation_notification_should_skip_tax_free_group_members(
         self, mock_send
     ):
@@ -444,6 +480,51 @@ class TestTasks(AuthTestCase):
         # Expected Result
         mock_send.assert_called_once()
         self.assertEqual(mock_send.call_args.kwargs["user_id"], self.user.pk)
+
+    @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_corporation_notification_should_skip_new_member(self, mock_send):
+        """
+        Test that a new member gets no corporation notification before the first deadlines run.
+
+        Results:
+            - No notification is sent.
+        """
+        # Test Data
+        audit = CorporationOwnerFactory(user=self.user, tax_amount=1000)
+        user = UserMainFactory()
+        char = EveCharacterFactory(corporation=audit.eve_corporation)
+        add_character_to_user(user=user, character=char, is_main=True)
+        audit.update_tax_accounts(force_refresh=False)
+
+        # Test Action
+        _send_corporation_notification(
+            owner_eve_id=audit.eve_corporation.corporation_id
+        )
+
+        # Expected Result
+        mock_send.assert_not_called()
+
+    @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_alliance_notification_should_skip_new_member(self, mock_send):
+        """
+        Test that a new member gets no alliance notification before the first deadlines run.
+
+        Results:
+            - No notification is sent.
+        """
+        # Test Data
+        audit = AllianceOwnerFactory(user=self.user, tax_amount=1000)
+        user = UserMainFactory()
+        corp_in_alliance = EveCorporationInfoFactory(alliance=audit.eve_alliance)
+        char = EveCharacterFactory(corporation=corp_in_alliance)
+        add_character_to_user(user=user, character=char, is_main=True)
+        audit.update_tax_accounts(force_refresh=False)
+
+        # Test Action
+        _send_alliance_notification(owner_eve_id=audit.eve_alliance.alliance_id)
+
+        # Expected Result
+        mock_send.assert_not_called()
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)

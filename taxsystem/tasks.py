@@ -369,14 +369,14 @@ def _send_alliance_notification(
                     embed_message=True,
                     level="warning",
                 )
-            account.last_notification = timezone.now()
-            account.save()
-            runs = runs + 1
-            logger.debug(
-                "Sent notification to user %s for alliance %s",
-                account.name,
-                account.owner.name,
-            )
+                account.last_notification = timezone.now()
+                account.save()
+                runs = runs + 1
+                logger.debug(
+                    "Sent notification to user %s for alliance %s",
+                    account.name,
+                    account.owner.name,
+                )
     logger.info("Sent %s notifications for alliance %s", runs, owner_name)
 
 

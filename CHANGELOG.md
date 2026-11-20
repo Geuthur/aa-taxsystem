@@ -68,6 +68,10 @@ Section Order:
 
 - [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
 
+- [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
+
+- [FIX] Alliance accounts now count for the menu badge (own unpaid account, open invoices for alliance managers) and only notified alliance accounts get a reminder timestamp.
+
 - [FIX] Security alerts for `minimatch` and `zod` in the dev dependencies (eslint 10.15, typescript-eslint 8.73, zod 4.6.7).
 
 ### Changed
@@ -77,6 +81,10 @@ Section Order:
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)
 - [CHANGE] Frontend uses `aa-geuthur-react` 1.5.0: owner cards, `OwnerPortrait`, design tokens, the i18next setup and the user settings hook come from the package instead of copies in the app. On the settings page the alliance badge is green, a section with a token error has a red dot and the glow of owners with an error is animated.
 - [CHANGE] Every error response of the API (4xx and 5xx) has the body `{"error": "<text>"}` (`ErrorSchema`) and every endpoint lists its 403 in the OpenAPI schema; the bodies of the formerly `{"success": false, "message": ...}` and `{"detail": ...}` errors change, status codes and success responses stay. The interface shows the reason of the API instead of a fixed text.
+
+### Removed
+
+- [REMOVED] Unused manager method `_move_tax_account_to_owner` (corporation and alliance).
 
 ## [5.2.0] - 2026-11-13
 

@@ -199,6 +199,12 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
                     owner=owner,
                     user=profile.user,
                     status=account_status,
+                    # First Period is free
+                    last_paid=(
+                        timezone.now()
+                        if account_status == AccountStatus.ACTIVE
+                        else None
+                    ),
                 )
             )
 
@@ -265,6 +271,9 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
                     self._reset_account(tax_account)
                 elif tax_account.status == AccountStatus.INACTIVE:
                     tax_account.status = AccountStatus.ACTIVE
+                    if tax_account.last_paid is None:
+                        # First Period is free
+                        tax_account.last_paid = timezone.now()
                     tax_account.save()
                     logger.info(
                         "Activated Tax Account %s (main character is in alliance)",
@@ -305,35 +314,12 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         tax_account.status = AccountStatus.ACTIVE
         tax_account.notice = None
         tax_account.deposit = 0
-        tax_account.last_paid = None
+        # First Period is free
+        tax_account.last_paid = timezone.now()
         tax_account.save()
         logger.info(
             "Reset Tax Account %s",
             tax_account.name,
-        )
-
-    # pylint: disable=duplicate-code
-    def _move_tax_account_to_owner(
-        self, tax_account: "PaymentAccountContext", owner: "OwnerContext"
-    ):
-        """
-        Move a tax account to another owner.
-        Resets account state.
-
-        Args:
-            tax_account (AlliancePaymentAccount): The tax account to move.
-            owner (AllianceOwner): The new owner of the tax account.
-        """
-        tax_account.owner = owner
-        tax_account.status = AccountStatus.ACTIVE
-        tax_account.notice = None
-        tax_account.deposit = 0
-        tax_account.last_paid = None
-        tax_account.save()
-        logger.info(
-            "Moved Tax Account %s to Alliance %s",
-            tax_account.name,
-            owner.eve_alliance.alliance_name,
         )
 
     # pylint: disable=duplicate-code
