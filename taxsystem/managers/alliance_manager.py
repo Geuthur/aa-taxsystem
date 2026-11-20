@@ -323,31 +323,6 @@ class AlliancePaymentAccountManager(models.Manager["PaymentAccountContext"]):
         )
 
     # pylint: disable=duplicate-code
-    def _move_tax_account_to_owner(
-        self, tax_account: "PaymentAccountContext", owner: "OwnerContext"
-    ):
-        """
-        Move a tax account to another owner.
-        Resets account state.
-
-        Args:
-            tax_account (AlliancePaymentAccount): The tax account to move.
-            owner (AllianceOwner): The new owner of the tax account.
-        """
-        tax_account.owner = owner
-        tax_account.status = AccountStatus.ACTIVE
-        tax_account.notice = None
-        tax_account.deposit = 0
-        # First Period is free
-        tax_account.last_paid = timezone.now()
-        tax_account.save()
-        logger.info(
-            "Moved Tax Account %s to Alliance %s",
-            tax_account.name,
-            owner.eve_alliance.alliance_name,
-        )
-
-    # pylint: disable=duplicate-code
     def _mark_missing_tax_account(self, tax_account: "PaymentAccountContext"):
         """
         Mark the tax account as missing (unsaved).
