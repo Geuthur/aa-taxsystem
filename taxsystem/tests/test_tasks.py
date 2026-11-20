@@ -386,6 +386,40 @@ class TestTasks(AuthTestCase):
         mock_send.assert_called()
 
     @patch(TASKS_PATH + ".send_user_notification")
+    def test_send_alliance_notification_should_only_stamp_notified_accounts(
+        self, mock_send
+    ):
+        """
+        Test that only notified alliance accounts get a last_notification timestamp.
+
+        Results:
+            - The unpaid account is notified and gets last_notification.
+            - The paid account is not notified and keeps last_notification None.
+        """
+        # Test Data
+        audit = AllianceOwnerFactory(user=self.user, tax_amount=1000)
+        unpaid = AllianceTaxAccountFactory(
+            owner=audit, user=self.user, deposit=-1000, status="active"
+        )
+        paid = AllianceTaxAccountFactory(
+            owner=audit,
+            user=UserMainFactory(),
+            deposit=1000,
+            status="active",
+            last_paid=timezone.now(),
+        )
+
+        # Test Action
+        _send_alliance_notification(owner_eve_id=audit.eve_alliance.alliance_id)
+
+        # Expected Result
+        mock_send.assert_called_once()
+        unpaid.refresh_from_db()
+        paid.refresh_from_db()
+        self.assertIsNotNone(unpaid.last_notification)
+        self.assertIsNone(paid.last_notification)
+
+    @patch(TASKS_PATH + ".send_user_notification")
     def test_send_corporation_notification_should_skip_tax_free_group_members(
         self, mock_send
     ):
