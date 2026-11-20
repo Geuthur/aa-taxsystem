@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
+from taxsystem.api.helpers.core import get_tax_free_user_ids
 from taxsystem.api.schema import (
     DashboardDivisionsSchema,
     DivisionSchema,
@@ -159,26 +160,24 @@ def get_tax_account_statistics(
     tax_accounts = owner.account_model.objects.filter(owner=owner)
     period = timezone.timedelta(days=owner.tax_period)
 
+    is_paid = Q(deposit__gte=F("owner__tax_amount")) | (
+        Q(last_paid__isnull=False)
+        & Q(deposit__gte=0)
+        & Q(last_paid__gte=timezone.now() - period)
+    )
+    is_active = Q(status=AccountStatus.ACTIVE)
+    # Members of a tax-free group owe nothing and are not counted as unpaid
+    is_tax_free = Q(user_id__in=get_tax_free_user_ids(owner))
+
     statistics = tax_accounts.exclude(status=AccountStatus.MISSING).aggregate(
         users=Count("id"),
-        active=Count("id", filter=Q(status=AccountStatus.ACTIVE)),
+        active=Count("id", filter=is_active),
         inactive=Count("id", filter=Q(status=AccountStatus.INACTIVE)),
         deactivated=Count("id", filter=Q(status=AccountStatus.DEACTIVATED)),
-        paid=Count(
-            "id",
-            filter=(
-                Q(deposit__gte=F("owner__tax_amount"))
-                | (
-                    Q(last_paid__isnull=False)
-                    & Q(deposit__gte=0)
-                    & Q(last_paid__gte=timezone.now() - period)
-                )
-            )
-            & Q(status=AccountStatus.ACTIVE),
-        ),
+        paid=Count("id", filter=is_paid & is_active),
+        unpaid=Count("id", filter=is_active & ~is_paid & ~is_tax_free),
     )
-    # Calculate unpaid count
-    unpaid = statistics["active"] - statistics["paid"]
+    unpaid = statistics["unpaid"]
 
     return TaxAccountStatisticsSchema(
         accounts=statistics["users"],

@@ -35,6 +35,7 @@ Section Order:
 ### Fixed
 
 - [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
+- [FIX] Accounts of tax-free group members are shown as "Tax-Free" instead of unpaid (account overview, account list of the owner) and no longer count as unpaid in the owner statistics.
 - [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
 - [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
 - [FIX] Alliance accounts now count for the menu badge (own unpaid account, open invoices for alliance managers) and only notified alliance accounts get a reminder timestamp.

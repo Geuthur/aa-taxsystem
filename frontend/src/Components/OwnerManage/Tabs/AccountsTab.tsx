@@ -19,7 +19,7 @@ import type { components } from "@/Api/OpenApi";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { useAccountActions, useTaxAccounts } from "@/Components/OwnerManage/Hooks";
 import { MemberPaymentsModal } from "@/Components/OwnerManage/Modals/MemberPaymentsModal";
-import { getAccountColumns } from "@/Components/Tables";
+import { getAccountColumns, isAccountUnpaid } from "@/Components/Tables";
 import { useTableSearchState } from "@/Hooks/useTaxsystemState";
 
 interface AccountsTabProps {
@@ -68,9 +68,9 @@ export function AccountsTab({ ownerId }: AccountsTabProps) {
     if (!accounts) return [];
     let list = accounts;
     if (paidFilter === "paid") {
-      list = list.filter((acc) => Boolean(acc.has_paid));
+      list = list.filter((acc) => !isAccountUnpaid(acc));
     } else if (paidFilter === "unpaid") {
-      list = list.filter((acc) => !acc.has_paid);
+      list = list.filter(isAccountUnpaid);
     }
     if (!search) return list;
     const q = search.toLowerCase();

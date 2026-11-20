@@ -9,11 +9,19 @@ from celery.result import EagerResult
 
 # Django
 from django.urls import reverse
+from django.utils import timezone
+
+# Alliance Auth
+from allianceauth.groupmanagement.models import Group
 
 # AA TaxSystem
 from taxsystem.models.general import UserSettings
 from taxsystem.tests import AuthTestCase
 from taxsystem.tests.testdata.factory import (
+    AllianceGroupFactory,
+    AllianceOwnerFactory,
+    AllianceTaxAccountFactory,
+    CorporationGroupFactory,
     CorporationOwnerFactory,
     CorporationTaxAccountFactory,
     UserMainFactory,
@@ -135,6 +143,60 @@ class TestGeneralApi(AuthTestCase):
         self.assertEqual(
             data[0]["owner_name"], corp_owner.eve_corporation.corporation_name
         )
+
+    def test_get_user_accounts_should_mark_tax_free_group_member(self):
+        # Test Data
+        group = Group.objects.create(name="Tax Free Overview Group")
+        group.user_set.add(self.user)
+        last_paid = timezone.now() - timezone.timedelta(days=400)
+        corp_owner = CorporationOwnerFactory(tax_amount=1000)
+        CorporationGroupFactory(owner=corp_owner, groups=[group])
+        CorporationTaxAccountFactory(
+            owner=corp_owner,
+            user=self.user,
+            name=self.user.username,
+            status="active",
+            deposit=0,
+            last_paid=last_paid,
+        )
+        alliance_owner = AllianceOwnerFactory(tax_amount=1000)
+        AllianceGroupFactory(owner=alliance_owner, groups=[group])
+        AllianceTaxAccountFactory(
+            owner=alliance_owner,
+            user=self.user,
+            name=self.user.username,
+            status="active",
+            deposit=0,
+            last_paid=last_paid,
+        )
+        # Same user, owner without tax-free group
+        CorporationTaxAccountFactory(
+            owner=CorporationOwnerFactory(tax_amount=1000),
+            user=self.user,
+            name=self.user.username,
+            status="active",
+            deposit=0,
+            last_paid=last_paid,
+        )
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.get(f"{self.api}/user/accounts/")
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        self.assertEqual(len(data), 3)
+        tax_free = [row for row in data if row["is_tax_free"]]
+        taxed = [row for row in data if not row["is_tax_free"]]
+        self.assertEqual(
+            sorted(row["owner_type"] for row in tax_free), ["alliance", "corporation"]
+        )
+        for row in tax_free:
+            self.assertIsNone(row["next_due"])
+        self.assertEqual(len(taxed), 1)
+        self.assertFalse(taxed[0]["has_paid"])
+        self.assertIsNotNone(taxed[0]["next_due"])
 
     def test_get_settings_should_return_user_settings(self):
         # Test Data

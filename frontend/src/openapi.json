@@ -3525,6 +3525,11 @@
             "title": "Has Paid",
             "type": "boolean"
           },
+          "is_tax_free": {
+            "default": false,
+            "title": "Is Tax Free",
+            "type": "boolean"
+          },
           "last_paid": {
             "anyOf": [
               {
@@ -4436,6 +4441,11 @@
           },
           "has_paid": {
             "title": "Has Paid",
+            "type": "boolean"
+          },
+          "is_tax_free": {
+            "default": false,
+            "title": "Is Tax Free",
             "type": "boolean"
           },
           "last_paid": {

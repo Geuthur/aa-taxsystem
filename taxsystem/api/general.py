@@ -284,6 +284,8 @@ class ApiEndpoints:
                 open_inv = owner.payment_model.objects.get_owner_open_invoices(
                     user=user, owner=owner
                 )
+                # Active member of a tax-free group: neither paid nor unpaid
+                tax_free = tax_account.is_active and tax_account.is_tax_free
 
                 accounts.append(
                     schema.UserAccountSchema(
@@ -304,6 +306,7 @@ class ApiEndpoints:
                         tax_amount=float(owner.tax_amount),
                         tax_period=owner.tax_period,
                         has_paid=tax_account.has_paid,
+                        is_tax_free=tax_free,
                         last_paid=(
                             tax_account.last_paid.strftime("%Y-%m-%d %H:%M:%S")
                             if tax_account.last_paid
@@ -311,7 +314,7 @@ class ApiEndpoints:
                         ),
                         next_due=(
                             tax_account.next_due.strftime("%Y-%m-%d %H:%M:%S")
-                            if tax_account.next_due
+                            if tax_account.next_due and not tax_free
                             else None
                         ),
                         joined=(
@@ -338,6 +341,8 @@ class ApiEndpoints:
                 open_inv = owner.payment_model.objects.get_owner_open_invoices(
                     user=user, owner=owner
                 )
+                # Active member of a tax-free group: neither paid nor unpaid
+                tax_free = tax_account.is_active and tax_account.is_tax_free
 
                 accounts.append(
                     schema.UserAccountSchema(
@@ -358,6 +363,7 @@ class ApiEndpoints:
                         tax_amount=float(owner.tax_amount),
                         tax_period=owner.tax_period,
                         has_paid=tax_account.has_paid,
+                        is_tax_free=tax_free,
                         last_paid=(
                             tax_account.last_paid.strftime("%Y-%m-%d %H:%M:%S")
                             if tax_account.last_paid
@@ -365,7 +371,7 @@ class ApiEndpoints:
                         ),
                         next_due=(
                             tax_account.next_due.strftime("%Y-%m-%d %H:%M:%S")
-                            if tax_account.next_due
+                            if tax_account.next_due and not tax_free
                             else None
                         ),
                         joined=None,
