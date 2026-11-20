@@ -36,6 +36,7 @@ const mockAccounts: UserAccount[] = [
     tax_amount: 10000000,
     tax_period: 30,
     has_paid: true,
+    is_tax_free: false,
     last_paid: "2026-10-01",
     next_due: "2026-10-31",
     joined: "2025-01-01",
@@ -60,6 +61,7 @@ const mockAccounts: UserAccount[] = [
     tax_amount: 20000000,
     tax_period: 30,
     has_paid: false,
+    is_tax_free: false,
     last_paid: null,
     next_due: "2026-09-15",
     joined: "2024-06-01",
@@ -121,6 +123,24 @@ describe("AccountOverviewPage", () => {
     expect(screen.getByText("Unpaid / Due")).toBeInTheDocument();
     expect(screen.getByText("VIP Member")).toBeInTheDocument();
     expect(screen.getByText("2 Open")).toBeInTheDocument();
+  });
+
+  it("should show a tax-free badge instead of unpaid for a tax-free account", async () => {
+    // Test Data
+    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue([
+      { ...mockAccounts[1], has_paid: false, is_tax_free: true, next_due: null },
+    ]);
+
+    // Test Action
+    renderPage();
+
+    // Expected Result
+    await waitFor(() => {
+      expect(screen.getByText("Alpha Alliance")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Tax-Free")).toBeInTheDocument();
+    expect(screen.queryByText("Unpaid / Due")).not.toBeInTheDocument();
+    expect(screen.queryByText("Paid")).not.toBeInTheDocument();
   });
 
   it("should filter accounts when search term is entered", async () => {

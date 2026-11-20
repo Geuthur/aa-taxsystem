@@ -199,6 +199,7 @@ class PaymentSystemSchema(Schema):
     status: str
     deposit: int
     has_paid: bool
+    is_tax_free: bool = False
     last_paid: datetime | None = None
     next_due: datetime | None = None
     is_active: bool
@@ -317,6 +318,7 @@ class UserAccountSchema(Schema):
     tax_amount: float
     tax_period: int
     has_paid: bool
+    is_tax_free: bool = False
     last_paid: str | None = None
     next_due: str | None = None
     joined: str | None = None

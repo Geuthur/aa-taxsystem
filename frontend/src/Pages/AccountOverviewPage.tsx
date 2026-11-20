@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 
 // Third Party
 import { BaseSectionHeader, allianceImageUrl, characterImageUrl, corporationImageUrl, formatCompactNumber, formatRelativeTime, OwnerPortrait } from "aa-geuthur-react";
-import { AlertCircle, ArrowRight, Calendar, CheckCircle, Clock, CreditCard, FileText, User, Wallet } from "lucide-react";
+import { AlertCircle, ArrowRight, Calendar, CheckCircle, Clock, CreditCard, FileText, ShieldCheck, User, Wallet } from "lucide-react";
 import { Badge, Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
@@ -129,7 +129,9 @@ export function AccountOverviewPage() {
                 ? characterImageUrl(account.character_id, 64)
                 : undefined);
 
-            const isPaid = account.has_paid;
+            // Members of a tax-free group owe nothing: neither paid nor unpaid
+            const isTaxFree = Boolean(account.is_tax_free);
+            const isPaid = account.has_paid || isTaxFree;
 
             return (
               <Col key={`${account.owner_type}-${account.owner_id}-${account.id}`} xs={12} lg={6}>
@@ -161,7 +163,12 @@ export function AccountOverviewPage() {
                       </div>
 
                       <div>
-                        {isPaid ? (
+                        {isTaxFree ? (
+                          <span className="aa-badge aa-badge-secondary d-inline-flex align-items-center gap-1">
+                            <ShieldCheck size={14} />
+                            {t("Tax-Free")}
+                          </span>
+                        ) : isPaid ? (
                           <span className="aa-badge aa-badge-success d-inline-flex align-items-center gap-1">
                             <CheckCircle size={14} />
                             {t("Paid")}

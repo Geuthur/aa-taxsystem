@@ -177,8 +177,12 @@ class AdminApiEndpoints:
                 .values_list("account_id", "count")
             )
 
+            tax_free_user_ids = core.get_tax_free_user_ids(owner)
+
             tax_accounts_list: list[PaymentSystemSchema] = []
             for account in tax_accounts:
+                # Active member of a tax-free group: neither paid nor unpaid
+                tax_free = account.is_active and account.user_id in tax_free_user_ids
                 # Build tax account data
                 tax_account_data = PaymentSystemSchema(
                     account_id=account.pk,
@@ -194,8 +198,9 @@ class AdminApiEndpoints:
                     status=account.get_payment_status(),
                     deposit=account.deposit,
                     has_paid=account.has_paid,
+                    is_tax_free=tax_free,
                     last_paid=account.last_paid,
-                    next_due=account.next_due,
+                    next_due=None if tax_free else account.next_due,
                     is_active=account.is_active,
                     open_invoices=open_invoices_map.get(account.pk, 0),
                 )

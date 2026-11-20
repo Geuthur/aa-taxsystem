@@ -2,13 +2,18 @@
 import { formatCompactNumber, formatDate, renderTooltip, OwnerPortrait } from "aa-geuthur-react";
 import type { BaseColumnDef } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
-import { CheckCircle2, DollarSign, History, RotateCcw, ToggleLeft, ToggleRight, XCircle } from "lucide-react";
+import { CheckCircle2, DollarSign, History, RotateCcw, ShieldCheck, ToggleLeft, ToggleRight, XCircle } from "lucide-react";
 import { Badge, Button, ButtonGroup } from "react-bootstrap";
 
 // AA TaxSystem
 import type { components } from "@/Api/OpenApi";
 
 export type AccountRow = components["schemas"]["PaymentSystemSchema"];
+
+/** An account is unpaid when it owes tax: members of a tax-free group never do. */
+export function isAccountUnpaid(account: AccountRow): boolean {
+  return !account.has_paid && !account.is_tax_free;
+}
 
 export interface AccountColumnsOptions {
   t: TFunction;
@@ -98,7 +103,15 @@ export function getAccountColumns({
       id: "has_paid",
       header: t("Paid"),
       accessorKey: "has_paid",
-      cell: ({ getValue }) => {
+      cell: ({ getValue, row }) => {
+        if (row.original.is_tax_free) {
+          return (
+            <Badge bg="secondary" className="d-inline-flex align-items-center gap-1">
+              <ShieldCheck size={12} />
+              {t("Tax-Free")}
+            </Badge>
+          );
+        }
         const isPaid = Boolean(getValue());
         return isPaid ? (
           <Badge bg="success" className="d-inline-flex align-items-center gap-1">

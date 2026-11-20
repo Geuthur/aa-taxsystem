@@ -1110,6 +1110,11 @@ export interface components {
             tax_period: number;
             /** Has Paid */
             has_paid: boolean;
+            /**
+             * Is Tax Free
+             * @default false
+             */
+            is_tax_free: boolean;
             /** Last Paid */
             last_paid?: string | null;
             /** Next Due */
@@ -1450,6 +1455,11 @@ export interface components {
             deposit: number;
             /** Has Paid */
             has_paid: boolean;
+            /**
+             * Is Tax Free
+             * @default false
+             */
+            is_tax_free: boolean;
             /** Last Paid */
             last_paid?: string | null;
             /** Next Due */
