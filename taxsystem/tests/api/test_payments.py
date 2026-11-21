@@ -874,3 +874,36 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertEqual(response.json(), {"error": "No payment IDs provided."})
+
+    def test_bulk_payment_action_should_403_without_manage_access(self):
+        """Test bulk payment action is denied for users without manage access and changes nothing."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_1 = CorporationJournalFactory(amount=1000)
+        payment_1 = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_1,
+            amount=journal_1.amount,
+            date=journal_1.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:manage_bulk_payment_action",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps({"payment_ids": [payment_1.pk], "action": "approve"}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        self.assertEqual(response.json(), {"error": "Permission Denied."})
+        payment_1.refresh_from_db()
+        self.assertEqual(payment_1.request_status, PaymentRequestStatus.PENDING)
