@@ -7,18 +7,12 @@ import { useUserData } from "aa-geuthur-react";
 
 // AA TaxSystem
 // AA Tax System
-import {
-  deleteAdministrationOwner,
-  loadAdministrationOwners,
-  runAdminTasks,
-  triggerAdministrationOwnerUpdate,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import { administrationQueryKeys, deleteAdministrationOwner, loadAdministrationOwners, runAdminTasks, triggerAdministrationOwnerUpdate } from "@/Api/calls/administration";
 
 /** Loads all owners of the Administration. */
 export function useAdministrationOwners() {
   return useQuery({
-    queryKey: queryKeys.AdministrationOwners,
+    queryKey: administrationQueryKeys.owners,
     queryFn: loadAdministrationOwners,
   });
 }
@@ -48,7 +42,7 @@ export function useAdministrationActions(onDeleted?: () => void) {
     setMessage(null);
   };
   const refreshOwners = () =>
-    queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
+    queryClient.invalidateQueries({ queryKey: administrationQueryKeys.owners });
 
   const globalTaskMutation = useMutation({
     mutationFn: (vars: Parameters<typeof runAdminTasks>[0]) => runAdminTasks(vars),

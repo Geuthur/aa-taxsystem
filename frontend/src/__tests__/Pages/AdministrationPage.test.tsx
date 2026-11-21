@@ -10,7 +10,8 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as administrationCalls from "@/Api/calls/administration";
+import * as dashboardCalls from "@/Api/calls/dashboard";
 import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import { AdministrationPage } from "@/Pages/AdministrationPage";
 
@@ -23,14 +24,25 @@ vi.mock("aa-geuthur-react", async (importOriginal) => {
 const userQuery = (user: { user_id: number; is_admin: boolean }) =>
   ({ data: { user }, isLoading: false, error: null }) as unknown as ReturnType<typeof useUserData>;
 
-vi.mock("@/Api/ApiCalls", () => ({
-  loadAdministrationOwners: vi.fn(),
-  runAdminTasks: vi.fn(),
-  triggerAdministrationOwnerUpdate: vi.fn(),
-  deleteAdministrationOwner: vi.fn(),
-  loadDashboard: vi.fn(),
-  updateOwnerSettings: vi.fn(),
-}));
+vi.mock("@/Api/calls/administration", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/administration")>();
+  return {
+    ...actual,
+    loadAdministrationOwners: vi.fn(),
+    runAdminTasks: vi.fn(),
+    triggerAdministrationOwnerUpdate: vi.fn(),
+    deleteAdministrationOwner: vi.fn(),
+  };
+});
+
+vi.mock("@/Api/calls/dashboard", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/dashboard")>();
+  return {
+    ...actual,
+    loadDashboard: vi.fn(),
+    updateOwnerSettings: vi.fn(),
+  };
+});
 
 const mockOwners: AdministrationTaxOwnerSchema[] = [
   {
@@ -127,9 +139,9 @@ const renderPage = (searchParams?: string) => {
 describe("AdministrationPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(ApiCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
+    vi.mocked(administrationCalls.loadAdministrationOwners).mockResolvedValue(mockOwners);
     vi.mocked(useUserData).mockReturnValue(userQuery({ user_id: 1, is_admin: true }));
-    vi.mocked(ApiCalls.loadDashboard).mockResolvedValue(mockDashboard as never);
+    vi.mocked(dashboardCalls.loadDashboard).mockResolvedValue(mockDashboard as never);
   });
 
   it("should render administration overview with metrics, task panel, and owners table", async () => {
@@ -152,7 +164,7 @@ describe("AdministrationPage", () => {
   it("should toggle global task panel and trigger update all tasks with force refresh switch", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.runAdminTasks).mockResolvedValue({
+    vi.mocked(administrationCalls.runAdminTasks).mockResolvedValue({
       message: "Queued Update All Taxsystem",
     });
     renderPage();
@@ -173,7 +185,7 @@ describe("AdministrationPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.runAdminTasks).toHaveBeenCalledWith({
+      expect(administrationCalls.runAdminTasks).toHaveBeenCalledWith({
         target: "all",
         force_refresh: true,
       });
@@ -223,7 +235,7 @@ describe("AdministrationPage", () => {
   it("should trigger update for a specific owner", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.triggerAdministrationOwnerUpdate).mockResolvedValue({
+    vi.mocked(administrationCalls.triggerAdministrationOwnerUpdate).mockResolvedValue({
       message: "Queued update for Alpha Mining Corp",
     });
     renderPage();
@@ -238,7 +250,7 @@ describe("AdministrationPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith({
+      expect(administrationCalls.triggerAdministrationOwnerUpdate).toHaveBeenCalledWith({
         ownerType: "corporation",
         ownerId: 101,
         payload: { force_refresh: false },
@@ -252,7 +264,7 @@ describe("AdministrationPage", () => {
   it("should open delete modal and confirm deletion of owner", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.deleteAdministrationOwner).mockResolvedValue({
+    vi.mocked(administrationCalls.deleteAdministrationOwner).mockResolvedValue({
       message: "Corporation Alpha Mining Corp deleted successfully.",
     });
     renderPage();
@@ -273,7 +285,7 @@ describe("AdministrationPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.deleteAdministrationOwner).toHaveBeenCalledWith({
+      expect(administrationCalls.deleteAdministrationOwner).toHaveBeenCalledWith({
         ownerType: "corporation",
         ownerId: 101,
       });

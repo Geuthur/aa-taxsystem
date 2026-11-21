@@ -7,18 +7,14 @@ import { useCooldown, useFeedback, useOwnerCooldowns } from "aa-geuthur-react";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
-import {
-  deleteOwner,
-  loadSettingsOwners,
-  triggerOwnerUpdate,
-  triggerUpdateAllTaxOwners,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import { administrationQueryKeys } from "@/Api/calls/administration";
+import { overviewQueryKeys } from "@/Api/calls/overview";
+import { deleteOwner, loadSettingsOwners, settingsQueryKeys, triggerOwnerUpdate, triggerUpdateAllTaxOwners } from "@/Api/calls/settings";
 
 /** Loads the owners the user may manage. */
 export function useSettingsOwners() {
   return useQuery({
-    queryKey: queryKeys.SettingsOwners,
+    queryKey: settingsQueryKeys.owners,
     queryFn: loadSettingsOwners,
   });
 }
@@ -36,9 +32,9 @@ export function useSettingsOwnerActions() {
   const [updatingOwnerId, setUpdatingOwnerId] = useState<number | null>(null);
 
   const invalidateQueries = () => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.SettingsOwners });
-    queryClient.invalidateQueries({ queryKey: queryKeys.Overview });
-    queryClient.invalidateQueries({ queryKey: queryKeys.AdministrationOwners });
+    queryClient.invalidateQueries({ queryKey: settingsQueryKeys.owners });
+    queryClient.invalidateQueries({ queryKey: overviewQueryKeys.overview });
+    queryClient.invalidateQueries({ queryKey: administrationQueryKeys.owners });
   };
 
   const updateAllMutation = useMutation({

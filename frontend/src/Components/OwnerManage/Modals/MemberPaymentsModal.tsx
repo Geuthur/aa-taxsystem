@@ -8,8 +8,11 @@ import { Image } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
+import { dashboardQueryKeys } from "@/Api/calls/dashboard";
+import { membersQueryKeys } from "@/Api/calls/members";
+import { paymentsQueryKeys } from "@/Api/calls/payments";
+import { taxAccountsQueryKeys } from "@/Api/calls/taxAccounts";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import { useMemberPayments } from "@/Components/OwnerManage/Hooks";
 import {
   PaymentActionButtons,
@@ -45,12 +48,12 @@ export function MemberPaymentsModal({
   const invalidateAll = () => {
     if (characterId) {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.MemberPayments(ownerId, characterId),
+        queryKey: membersQueryKeys.payments(ownerId, characterId),
       });
     }
-    queryClient.invalidateQueries({ queryKey: queryKeys.TaxAccounts(ownerId) });
-    queryClient.invalidateQueries({ queryKey: queryKeys.Payments(ownerId) });
-    queryClient.invalidateQueries({ queryKey: queryKeys.Dashboard(ownerId) });
+    queryClient.invalidateQueries({ queryKey: taxAccountsQueryKeys.accounts(ownerId) });
+    queryClient.invalidateQueries({ queryKey: paymentsQueryKeys.payments(ownerId) });
+    queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.dashboard(ownerId) });
   };
 
   const {

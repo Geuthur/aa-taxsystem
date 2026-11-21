@@ -3,13 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // AA TaxSystem
 // AA Tax System
-import { createGroup, deleteGroup, loadAvailableGroups, loadGroups } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import { createGroup, deleteGroup, groupsQueryKeys, loadAvailableGroups, loadGroups } from "@/Api/calls/groups";
 
 /** Loads the tax groups of an owner. */
 export function useGroups(ownerId: number) {
   return useQuery({
-    queryKey: queryKeys.Groups(ownerId),
+    queryKey: groupsQueryKeys.groups(ownerId),
     queryFn: () => loadGroups(ownerId),
   });
 }
@@ -17,7 +16,7 @@ export function useGroups(ownerId: number) {
 /** Loads the Alliance Auth groups that can be assigned; only runs while the create dialog is open. */
 export function useAvailableGroups(ownerId: number, enabled: boolean) {
   return useQuery({
-    queryKey: queryKeys.AvailableGroups(ownerId),
+    queryKey: groupsQueryKeys.available(ownerId),
     queryFn: () => loadAvailableGroups(ownerId),
     enabled,
   });
@@ -32,7 +31,7 @@ export function useGroupActions(
   callbacks: { onCreated?: () => void; onDeleted?: () => void } = {},
 ) {
   const queryClient = useQueryClient();
-  const refresh = () => queryClient.invalidateQueries({ queryKey: queryKeys.Groups(ownerId) });
+  const refresh = () => queryClient.invalidateQueries({ queryKey: groupsQueryKeys.groups(ownerId) });
 
   const createMutation = useMutation({
     mutationFn: ({ name, groupIds }: { name: string; groupIds: number[] }) =>
