@@ -554,6 +554,8 @@ class PaymentsApiEndpoints:
                     ).save()
 
                 return 200, {"success": True, "message": msg}
+            except owner.account_model.DoesNotExist:
+                return 404, {"error": gettext("Account not Found.")}
             except IntegrityError:
                 return 400, {"error": gettext("Transaction failed. Please try again.")}
 
