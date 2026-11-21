@@ -329,6 +329,29 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
+    def test_add_payment_should_404_error_when_account_unknown(self):
+        """Test 'api:add_payment' answers 404 with an `error` body for an unknown tax account."""
+        # Test Data
+        url = reverse(
+            f"{API_URL}:add_payment",
+            kwargs={
+                "owner_id": self.user_character.corporation_id,
+                "account_pk": 999999,
+            },
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps({"amount": 1000, "comment": "Unknown account."}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(response.json(), {"error": "Account not Found."})
+
     def test_approve_payment(self):
         """
         Test approving a payment via the payment action endpoint.

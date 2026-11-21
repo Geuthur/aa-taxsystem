@@ -221,7 +221,11 @@ class CorporationApiEndpoints:
 
             reason = payload.comment if payload else ""
 
-            member = Members.objects.get(owner=owner, pk=member_pk)
+            try:
+                member = Members.objects.get(owner=owner, pk=member_pk)
+            except Members.DoesNotExist:
+                return 404, {"error": gettext("Member not Found.")}
+
             if member.is_missing:
                 msg = format_lazy(
                     _("Member {member} deleted - {reason}"),
