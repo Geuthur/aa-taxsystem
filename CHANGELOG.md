@@ -57,6 +57,7 @@ Section Order:
 - [CHANGE] API endpoint `admin/tasks/run/` moved to `administration/tasks/run/`; the owner management endpoints moved from `api/admin.py` to `api/manage.py` (tag "Manage", paths unchanged).
 - Internal: The owner access helper of the API follows the template (`get_object_with_access` returns `(allowed, object)`, `get_owner(..., manage=True)` replaces `get_manage_owner`); responses stay the same.
 - Internal: The frontend API calls are split by area into `Api/calls/<area>.ts`, each with its own query keys, replacing `Api/ApiCalls.ts` and `Api/query.ts`.
+- Internal: ESLint enforces the import order React, third party, `@/`, styles (CSS imports via `@/` now belong to the `// Styles` group, as in the template).
 
 ### Removed
 

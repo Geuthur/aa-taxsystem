@@ -8,6 +8,8 @@ import { initI18n } from "aa-geuthur-react";
 // AA TaxSystem
 import { AppName, ProjectName } from "@/constants";
 import Routing from "@/Routing";
+
+// Styles
 import "@/Styles/index.css";
 
 export { AppName, ProjectName };

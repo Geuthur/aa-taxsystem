@@ -39,8 +39,7 @@ export default defineConfig([
             { heading: '// Third Party', pattern: '^@?\\w' },
 
             // 3. AA Example (Eigene Komponenten, Helpers, API)
-            { heading: `// AA ${ProjectName}`, pattern: '^@/' },
-            { heading: `// AA ${ProjectName}`, pattern: '^\\.(?!.*\\.s?css$)' },
+            { heading: `// AA ${ProjectName}`, pattern: '^@/(?!.*\\.s?css$)' },
 
             // 4. Stylesheets & CSS-Module
             { heading: '// Styles', pattern: '\\.s?css$' },
