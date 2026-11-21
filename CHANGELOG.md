@@ -45,6 +45,7 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] The update status of an owner is computed by the manager of its status model through `UpdateManagerMixin.get_status` (as in the template); an owner with token errors in several sections now shows "Token Error" instead of "Error".
 - [CHANGE] Every URL of the API requires `basic_access` (403 otherwise), and `add_corp` and `add_alliance` require it in addition to `create_access`.
 - [CHANGE] The Discord notification module moved to `taxsystem/thirdparty/discord.py` and matches the template building block (incl. webhook delivery); notifications behave as before.
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)

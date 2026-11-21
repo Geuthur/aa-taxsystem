@@ -16,7 +16,10 @@ from taxsystem.managers.alliance_manager import (
     AlliancePaymentAccountManager,
     AlliancePaymentManager,
 )
-from taxsystem.managers.owner_manager import AllianceOwnerManager
+from taxsystem.managers.owner_manager import (
+    AllianceOwnerManager,
+    AllianceUpdateStatusManager,
+)
 from taxsystem.models.base import (
     FilterBaseModel,
     FilterSetBaseModel,
@@ -34,7 +37,6 @@ from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     UpdateManagerMixin,
     UpdateSectionResult,
-    UpdateStatus,
     UpdateStatusBaseModel,
 )
 
@@ -51,6 +53,8 @@ class AllianceUpdateStatus(UpdateStatusBaseModel):
     section = models.CharField(
         max_length=32, choices=AllianceUpdateSection.choices, db_index=True
     )
+
+    objects: AllianceUpdateStatusManager = AllianceUpdateStatusManager()
 
     class Meta:
         default_permissions = ()
@@ -193,22 +197,6 @@ class AllianceOwner(UpdateManagerMixin, models.Model):
     def group_model(self):
         """Return the Group Model for this owner."""
         return AllianceGroup
-
-    @property
-    def get_status(self) -> UpdateStatus:
-        """Get the update status of this owner.
-
-        Returns:
-            UpdateStatus enum value representing the current status
-        """
-        # pylint: disable=duplicate-code
-        if self.active is False:
-            return UpdateStatus.DISABLED
-
-        # Use type(self) for dynamic QuerySet resolution
-        qs = type(self).objects.filter(pk=self.pk).annotate_total_update_status()
-        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
-        return UpdateStatus(total_update_status)
 
     @property
     def get_update_status(self) -> dict[str, str]:
