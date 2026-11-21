@@ -9,7 +9,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 # AA TaxSystem
-from taxsystem.api.helpers import core
+from taxsystem.api.helpers.owner import get_owner
 from taxsystem.api.schema import (
     ActionCommentRequest,
     CreateFilterRequest,
@@ -49,7 +49,7 @@ class FilterApiEndpoints:
                 list[FilterModelSchema]: A list of filter schema objects.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -116,7 +116,7 @@ class FilterApiEndpoints:
                 dict: A dictionary containing the success status and message.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
@@ -174,7 +174,7 @@ class FilterApiEndpoints:
                 list[FilterSetModelSchema]: A list of filter set schema objects.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
@@ -225,7 +225,7 @@ class FilterApiEndpoints:
                 dict: A dictionary containing the success status and message.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
@@ -284,7 +284,7 @@ class FilterApiEndpoints:
                 dict: A dictionary containing the success status and message.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
@@ -337,7 +337,7 @@ class FilterApiEndpoints:
             request: WSGIRequest, owner_id: int, payload: CreateFilterSetRequest
         ):
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -390,7 +390,7 @@ class FilterApiEndpoints:
             request: WSGIRequest, owner_id: int, payload: CreateFilterRequest
         ):
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:

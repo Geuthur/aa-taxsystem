@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext
 
 # AA TaxSystem
-from taxsystem.api.helpers import core
+from taxsystem.api.helpers.owner import get_owner
 from taxsystem.api.schema import (
     AdminHistorySchema,
     ErrorSchema,
@@ -38,7 +38,7 @@ class LogsApiEndpoints:
                 list[AdminHistorySchema]: A response object containing the list of admin logs.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}

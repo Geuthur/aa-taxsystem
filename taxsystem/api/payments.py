@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 # AA TaxSystem
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
+from taxsystem.api.helpers.owner import get_owner
 from taxsystem.helpers import lazy
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
@@ -250,13 +251,13 @@ class PaymentsApiEndpoints:
             scope: Literal["all", "mine"] = "all",
             character_id: int | None = None,
         ):
-            owner, perms = core.get_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id)
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
                 return 403, {"error": gettext("Permission Denied.")}
 
-            can_manage = core.get_manage_owner(request, owner_id)[1]
+            can_manage = get_owner(request, owner_id, manage=True)[0]
 
             if character_id is not None:
                 char_perm = can_manage or core.get_character_permissions(
@@ -336,7 +337,7 @@ class PaymentsApiEndpoints:
         )
         # pylint: disable=too-many-locals
         def get_payment_details(request, owner_id: int, payment_pk: int):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -390,7 +391,7 @@ class PaymentsApiEndpoints:
 
             raw_status = payment.request_status
             is_custom = payment.journal is None
-            can_manage = core.get_manage_owner(request, owner_id)[1]
+            can_manage = get_owner(request, owner_id, manage=True)[0]
 
             response_request_status = schema.RequestStatusSchema(
                 status=payment.get_request_status_display(),
@@ -454,7 +455,7 @@ class PaymentsApiEndpoints:
             summary="Get member payments (legacy wrapper)",
         )
         def get_member_payments(request: WSGIRequest, owner_id: int, character_id: int):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return 404, {"error": gettext("Corporation not found")}
             if perms is False:
@@ -491,7 +492,7 @@ class PaymentsApiEndpoints:
             Returns:
                 dict: A dictionary containing the success status and message.
             """
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
@@ -574,7 +575,7 @@ class PaymentsApiEndpoints:
             payload: schema.PaymentActionRequest,
         ):
             """Manage payment actions via unified action endpoint."""
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
@@ -604,7 +605,7 @@ class PaymentsApiEndpoints:
             payload: schema.BulkPaymentActionRequest,
         ):
             """Manage multiple payments in bulk."""
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
