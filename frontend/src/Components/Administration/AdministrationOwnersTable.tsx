@@ -18,6 +18,8 @@ import { useTranslation } from "react-i18next";
 import type { AdministrationTaxOwnerSchema } from "@/Api/schema";
 import { AdministrationErrorModal } from "@/Components/Administration/AdministrationErrorModal";
 import { AdministrationStatusBadge } from "@/Components/Administration/AdministrationStatusBadge";
+
+// Styles
 import styles from "@/Styles/modules/Administration.module.css";
 
 export interface AdministrationOwnersTableProps {
