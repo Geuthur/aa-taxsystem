@@ -6,7 +6,8 @@ from evesde_factory.allianceauth import EveCharacterFactory, EveCorporationInfoF
 from evesde_factory.utils import add_character_to_user
 
 # Django
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 # AA TaxSystem
@@ -585,3 +586,31 @@ class TestAllianceManager(AuthTestCase):
             self.audit.ts_alliance_payments.get(
                 journal__entry_id=error_journal.entry_id
             )
+
+    def test_update_payments_should_not_query_per_account(self):
+        """Test that reading the alt IDs does not need a query per tax account."""
+        # Test Data
+        AllianceTaxAccountFactory(
+            owner=self.audit, user=self.user, status=AccountStatus.ACTIVE
+        )
+        with CaptureQueriesContext(connection) as baseline:
+            AlliancePayments.objects._update_or_create_objs(self.audit)
+        accounts = [
+            AllianceTaxAccountFactory(
+                owner=self.audit, user=UserMainFactory(), status=AccountStatus.ACTIVE
+            )
+            for _ in range(4)
+        ]
+
+        # Test Action
+        with self.assertNumQueries(len(baseline.captured_queries)):
+            AlliancePayments.objects._update_or_create_objs(self.audit)
+
+        # Expected Result
+        self.assertEqual(
+            sorted(account.get_alt_ids()[0] for account in accounts),
+            sorted(
+                account.user.profile.main_character.character_id for account in accounts
+            ),
+        )
+        self.assertFalse(self.audit.ts_alliance_payments.exists())

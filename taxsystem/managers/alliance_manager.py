@@ -503,7 +503,10 @@ class AlliancePaymentManager(models.Manager["PaymentsContext"]):
             owner.name,
         )
 
-        tax_accounts = PaymentAccount.objects.filter(owner=owner)
+        # Prefetch the ownerships so get_alt_ids() needs no query per account
+        tax_accounts = PaymentAccount.objects.filter(owner=owner).prefetch_related(
+            "user__character_ownerships__character"
+        )
 
         if not tax_accounts:
             return ("No Payment Users for %s", owner.name)
