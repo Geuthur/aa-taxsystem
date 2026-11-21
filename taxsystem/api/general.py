@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 # AA TaxSystem
 from taxsystem import __title__, tasks
 from taxsystem.api import schema
-from taxsystem.helpers import lazy
+from taxsystem.helpers import eveonline
 from taxsystem.models.alliance import (
     AllianceOwner,
     AlliancePaymentAccount,
@@ -40,7 +40,7 @@ def _build_tax_owner_setting_schema(
         owner_id = owner.eve_corporation.corporation_id
         name = owner.eve_corporation.corporation_name
         ticker = getattr(owner.eve_corporation, "ticker", None)
-        icon = lazy.get_corporation_logo_url(owner_id, size=64)
+        icon = eveonline.get_corporation_logo_url(owner_id, size=64)
         owner_type = "corporation"
         sections_enum = CorporationUpdateSection
         status_model = CorporationUpdateStatus
@@ -48,7 +48,7 @@ def _build_tax_owner_setting_schema(
         owner_id = owner.eve_alliance.alliance_id
         name = owner.eve_alliance.alliance_name
         ticker = getattr(owner.eve_alliance, "ticker", None)
-        icon = lazy.get_alliance_logo_url(owner_id, size=64)
+        icon = eveonline.get_alliance_logo_url(owner_id, size=64)
         owner_type = "alliance"
         sections_enum = AllianceUpdateSection
         status_model = AllianceUpdateStatus
@@ -207,7 +207,7 @@ class ApiEndpoints:
                 corporation_name=main_character.corporation_name,
                 alliance_id=main_character.alliance_id,
                 alliance_name=main_character.alliance_name,
-                portrait=lazy.get_character_portrait_url(
+                portrait=eveonline.get_character_portrait_url(
                     character_id=main_character.character_id,
                     size=64,
                 ),
@@ -267,7 +267,9 @@ class ApiEndpoints:
             char_id = main_char.character_id if main_char else None
             char_name = main_char.character_name if main_char else None
             portrait = (
-                lazy.get_character_portrait_url(char_id, size=64) if char_id else None
+                eveonline.get_character_portrait_url(char_id, size=64)
+                if char_id
+                else None
             )
 
             # Fetch Corporation Accounts for this user
@@ -294,7 +296,7 @@ class ApiEndpoints:
                         owner_id=owner.eve_corporation.corporation_id,
                         owner_name=owner.eve_corporation.corporation_name,
                         owner_type="corporation",
-                        owner_logo=lazy.get_corporation_logo_url(
+                        owner_logo=eveonline.get_corporation_logo_url(
                             owner.eve_corporation.corporation_id, size=64
                         ),
                         character_id=char_id,
@@ -351,7 +353,7 @@ class ApiEndpoints:
                         owner_id=owner.eve_alliance.alliance_id,
                         owner_name=owner.eve_alliance.alliance_name,
                         owner_type="alliance",
-                        owner_logo=lazy.get_alliance_logo_url(
+                        owner_logo=eveonline.get_alliance_logo_url(
                             owner.eve_alliance.alliance_id, size=64
                         ),
                         character_id=char_id,

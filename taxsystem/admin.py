@@ -59,7 +59,7 @@ class CorporationOwnerAdmin(admin.ModelAdmin):
         eve_id = obj.eve_corporation.corporation_id
         return format_html(
             '<img src="{}" class="img-circle">',
-            eveimageserver._eve_entity_image_url("corporation", eve_id, 32),
+            eveimageserver.corporation_logo_url(eve_id, 32),
         )
 
     @admin.display(
@@ -163,7 +163,7 @@ class AllianceOwnerAdmin(admin.ModelAdmin):
         eve_id = obj.eve_alliance.alliance_id
         return format_html(
             '<img src="{}" class="img-circle">',
-            eveimageserver._eve_entity_image_url("alliance", eve_id, 32),
+            eveimageserver.alliance_logo_url(eve_id, 32),
         )
 
     @admin.display(description="Alliance ID", ordering="eve_alliance__alliance_id")

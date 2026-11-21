@@ -29,7 +29,7 @@ from taxsystem.api.schema import (
     PaymentSystemSchema,
     UpdateStatusSchema,
 )
-from taxsystem.helpers import lazy
+from taxsystem.helpers import eveonline
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import (
     CorporationOwner,
@@ -193,7 +193,7 @@ class ManageApiEndpoints:
                     account=AccountSchema(
                         character_id=account.user.profile.main_character.character_id,
                         character_name=account.user.profile.main_character.character_name,
-                        character_portrait=lazy.get_character_portrait_url(
+                        character_portrait=eveonline.get_character_portrait_url(
                             account.user.profile.main_character.character_id,
                             size=32,
                         ),

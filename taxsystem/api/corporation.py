@@ -19,7 +19,7 @@ from taxsystem.api.schema import (
     ErrorSchema,
     MembersSchema,
 )
-from taxsystem.helpers import lazy
+from taxsystem.helpers import eveonline
 from taxsystem.models.alliance import (
     AllianceOwner,
 )
@@ -155,7 +155,7 @@ class CorporationApiEndpoints:
                                 CharacterSchema(
                                     character_id=o.character.character_id,
                                     character_name=o.character.character_name,
-                                    character_portrait=lazy.get_character_portrait_url(
+                                    character_portrait=eveonline.get_character_portrait_url(
                                         o.character.character_id, size=32
                                     ),
                                     corporation_id=o.character.corporation_id,
@@ -168,7 +168,7 @@ class CorporationApiEndpoints:
                     character=CharacterSchema(
                         character_id=member.character_id,
                         character_name=member.character_name,
-                        character_portrait=lazy.get_character_portrait_url(
+                        character_portrait=eveonline.get_character_portrait_url(
                             member.character_id, size=32
                         ),
                     ),
