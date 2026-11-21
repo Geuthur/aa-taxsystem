@@ -197,7 +197,7 @@ export interface paths {
          *     Returns:
          *         DashboardResponse: A response object containing the dashboard information.
          */
-        get: operations["taxsystem_api_admin_get_dashboard"];
+        get: operations["taxsystem_api_manage_get_dashboard"];
         put?: never;
         post?: never;
         delete?: never;
@@ -223,7 +223,7 @@ export interface paths {
          *     Returns:
          *         PaymentSystemResponse: A response object containing the list of tax accounts.
          */
-        get: operations["taxsystem_api_admin_get_tax_accounts"];
+        get: operations["taxsystem_api_manage_get_tax_accounts"];
         put?: never;
         post?: never;
         delete?: never;
@@ -255,7 +255,7 @@ export interface paths {
          *     Returns:
          *         dict: A dictionary containing the success status and message.
          */
-        post: operations["taxsystem_api_admin_switch_tax_account"];
+        post: operations["taxsystem_api_manage_switch_tax_account"];
         delete?: never;
         options?: never;
         head?: never;
@@ -275,24 +275,7 @@ export interface paths {
          * Update Owner Settings
          * @description Handle a request to update owner settings (tax amount and/or tax period).
          */
-        post: operations["taxsystem_api_admin_update_owner_settings"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/taxsystem/api/admin/tasks/run/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Queue update tasks for taxsystem */
-        post: operations["taxsystem_api_admin_run_update_tasks"];
+        post: operations["taxsystem_api_manage_update_owner_settings"];
         delete?: never;
         options?: never;
         head?: never;
@@ -309,7 +292,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Trigger manual update for a corporation or alliance owner */
-        post: operations["taxsystem_api_admin_trigger_owner_update"];
+        post: operations["taxsystem_api_manage_trigger_owner_update"];
         delete?: never;
         options?: never;
         head?: never;
@@ -327,7 +310,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a corporation or alliance owner */
-        delete: operations["taxsystem_api_admin_delete_owner"];
+        delete: operations["taxsystem_api_manage_delete_owner"];
         options?: never;
         head?: never;
         patch?: never;
@@ -850,6 +833,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/taxsystem/api/administration/tasks/run/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Queue update tasks for taxsystem */
+        post: operations["taxsystem_api_administration_run_update_tasks"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1359,24 +1359,6 @@ export interface components {
             /** Tax Period */
             tax_period?: number | null;
         };
-        /**
-         * AdminUpdateRequest
-         * @description Request to trigger background update tasks.
-         */
-        AdminUpdateRequest: {
-            /**
-             * Target
-             * @enum {string}
-             */
-            target: "all" | "corporation" | "alliance";
-            /** Eve Id */
-            eve_id?: number | null;
-            /**
-             * Force Refresh
-             * @default false
-             */
-            force_refresh: boolean;
-        };
         /** PaymentCorporationSchema */
         PaymentCorporationSchema: {
             /** Payment Id */
@@ -1701,6 +1683,24 @@ export interface components {
         };
         /** AdministrationTaxOwnerUpdateRequest */
         AdministrationTaxOwnerUpdateRequest: {
+            /**
+             * Force Refresh
+             * @default false
+             */
+            force_refresh: boolean;
+        };
+        /**
+         * AdminUpdateRequest
+         * @description Request to trigger background update tasks.
+         */
+        AdminUpdateRequest: {
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "all" | "corporation" | "alliance";
+            /** Eve Id */
+            eve_id?: number | null;
             /**
              * Force Refresh
              * @default false
@@ -2052,7 +2052,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_admin_get_dashboard: {
+    taxsystem_api_manage_get_dashboard: {
         parameters: {
             query?: never;
             header?: never;
@@ -2092,7 +2092,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_admin_get_tax_accounts: {
+    taxsystem_api_manage_get_tax_accounts: {
         parameters: {
             query?: never;
             header?: never;
@@ -2132,7 +2132,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_admin_switch_tax_account: {
+    taxsystem_api_manage_switch_tax_account: {
         parameters: {
             query?: never;
             header?: never;
@@ -2175,7 +2175,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_admin_update_owner_settings: {
+    taxsystem_api_manage_update_owner_settings: {
         parameters: {
             query?: never;
             header?: never;
@@ -2230,49 +2230,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_admin_run_update_tasks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdminUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageSchema"];
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorSchema"];
-                };
-            };
-        };
-    };
-    taxsystem_api_admin_trigger_owner_update: {
+    taxsystem_api_manage_trigger_owner_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -2316,7 +2274,7 @@ export interface operations {
             };
         };
     };
-    taxsystem_api_admin_delete_owner: {
+    taxsystem_api_manage_delete_owner: {
         parameters: {
             query?: never;
             header?: never;
@@ -3444,6 +3402,48 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    taxsystem_api_administration_run_update_tasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSchema"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

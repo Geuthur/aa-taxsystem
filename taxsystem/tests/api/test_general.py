@@ -236,7 +236,7 @@ class TestGeneralApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps(payload),
             content_type="application/json",
         )
@@ -252,7 +252,7 @@ class TestGeneralApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps(payload),
             content_type="application/json",
         )

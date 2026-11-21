@@ -401,7 +401,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": False}),
             content_type="application/json",
         )
@@ -417,7 +417,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": True}),
             content_type="application/json",
         )
@@ -433,7 +433,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": False}),
             content_type="application/json",
         )
@@ -450,7 +450,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": False}),
             content_type="application/json",
         )
@@ -471,7 +471,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps(
                 {
                     "target": "corporation",
@@ -497,7 +497,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "corporation", "force_refresh": False}),
             content_type="application/json",
         )
@@ -507,6 +507,82 @@ class TestAdministrationApi(AuthTestCase):
         self.assertEqual(
             response.json()["message"],
             f"Queued Update All Taxsystem Corporations, {skipped} already queued or running",
+        )
+
+    def _run_tasks(self, payload: dict):
+        self.client.force_login(self.superuser)
+        return self.client.post(
+            f"{self.api}/administration/tasks/run/",
+            data=json.dumps({"force_refresh": False, **payload}),
+            content_type="application/json",
+        )
+
+    def test_run_update_tasks_should_400_for_unknown_corporation(self):
+        # Test Action
+        response = self._run_tasks({"target": "corporation", "eve_id": 999999})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(
+            response.json(), {"error": "Corporation with ID 999999 not found"}
+        )
+
+    @patch(f"{TASKS_PATH}.update_alliance.apply_async")
+    def test_run_update_tasks_should_queue_one_alliance(self, mock_task):
+        # Test Action
+        response = self._run_tasks(
+            {"target": "alliance", "eve_id": self.alliance_owner.eve_id}
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(
+            response.json()["message"],
+            f"Queued Update for Alliance: {self.alliance_owner.name}",
+        )
+        self.assertEqual(
+            mock_task.call_args.kwargs["args"],
+            [self.alliance_owner.eve_alliance.alliance_id],
+        )
+
+    def test_run_update_tasks_should_400_for_unknown_alliance(self):
+        # Test Action
+        response = self._run_tasks({"target": "alliance", "eve_id": 999999})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(
+            response.json(), {"error": "Alliance with ID 999999 not found"}
+        )
+
+    @patch(f"{TASKS_PATH}.update_alliance.apply_async")
+    def test_run_update_tasks_should_queue_all_alliances(self, mock_task):
+        # Test Data
+        active = AllianceOwner.objects.filter(active=True).count()
+
+        # Test Action
+        response = self._run_tasks({"target": "alliance"})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(
+            response.json()["message"], "Queued Update All Taxsystem Alliances"
+        )
+        self.assertEqual(mock_task.call_count, active)
+
+    @patch(f"{TASKS_PATH}.update_alliance.apply_async", return_value=SKIPPED_RESULT)
+    def test_run_update_tasks_should_count_skipped_alliances(self, mock_task):
+        # Test Data
+        skipped = AllianceOwner.objects.filter(active=True).count()
+
+        # Test Action
+        response = self._run_tasks({"target": "alliance"})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(
+            response.json()["message"],
+            f"Queued Update All Taxsystem Alliances, {skipped} already queued or running",
         )
 
     @patch(f"{TASKS_PATH}.update_corporation.apply_async", return_value=SKIPPED_RESULT)

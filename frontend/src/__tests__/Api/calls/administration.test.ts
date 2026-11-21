@@ -50,6 +50,28 @@ describe('administration API calls', () => {
             );
         });
     });
+
+    describe('runAdminTasks', () => {
+        it('calls the administration endpoint and returns the data', async () => {
+            // Test Data
+            const response = { message: 'Queued Update All Taxsystem' };
+            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
+                data: response,
+                error: undefined,
+                response: new Response(),
+            } as never);
+
+            // Test Action
+            const result = await runAdminTasks({ target: 'all', force_refresh: false } as never);
+
+            // Expected Result
+            expect(result).toEqual(response);
+            expect(apiClient.POST).toHaveBeenCalledWith(
+                '/taxsystem/api/administration/tasks/run/',
+                { body: { target: 'all', force_refresh: false } },
+            );
+        });
+    });
 });
 
 type Method = 'DELETE' | 'GET' | 'POST';
