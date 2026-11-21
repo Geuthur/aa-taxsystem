@@ -80,7 +80,7 @@ class TestGetStatus(NoSocketsTestCase):
 
 
 class TestUpdateStatusManager(NoSocketsTestCase):
-    def test_get_status_should_return_worst_status_of_the_owners(self):
+    def test_get_status_should_return_status_of_the_filtered_owner(self):
         # Test Data
         ok_owner = CorporationOwnerFactory()
         error_owner = CorporationOwnerFactory()
@@ -98,7 +98,8 @@ class TestUpdateStatusManager(NoSocketsTestCase):
             UpdateStatus.OK,
         )
         self.assertEqual(
-            CorporationUpdateStatus.objects.get_status(), UpdateStatus.ERROR
+            CorporationUpdateStatus.objects.filter(owner=error_owner).get_status(),
+            UpdateStatus.ERROR,
         )
 
     def test_get_status_should_be_incomplete_without_rows(self):
