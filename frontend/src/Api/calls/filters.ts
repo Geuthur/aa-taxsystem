@@ -112,19 +112,3 @@ export async function deleteFilterSet(
   }
   return data as { success?: boolean; message?: string };
 }
-
-export async function switchFilterSet(
-  ownerId: number,
-  filtersetPk: number,
-): Promise<{ success?: boolean; message?: string }> {
-  const { data, error } = await apiClient.POST(
-    `/${ProjectName}/api/owner/{owner_id}/filter-set/{filterset_pk}/manage/switch-filter/`,
-    {
-      params: { path: { owner_id: ownerId, filterset_pk: filtersetPk } },
-    },
-  );
-  if (error || !data) {
-    throw new Error(apiErrorMessage(error, "Failed to switch filter set"));
-  }
-  return data as { success?: boolean; message?: string };
-}

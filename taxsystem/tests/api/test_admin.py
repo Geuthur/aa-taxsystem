@@ -382,9 +382,9 @@ class TestAdminApiEndpoints(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertEqual(response.json(), {"error": "Account not found."})
 
-    def test_update_tax_amount(self):
+    def test_update_owner_settings_should_change_tax_amount(self):
         """
-        Test 'api:update_tax_amount' Endpoint.
+        Test changing only the tax amount via 'api:update_owner_settings'.
 
         # Test Scenarios:
             1. Tax Amount is updated successfully.
@@ -392,7 +392,7 @@ class TestAdminApiEndpoints(AuthTestCase):
         """
         # Test Data
         url = reverse(
-            f"{API_URL}:update_tax_amount",
+            f"{API_URL}:update_owner_settings",
             kwargs={"owner_id": self.audit.eve_id},
         )
         self.client.force_login(self.superuser)
@@ -413,7 +413,7 @@ class TestAdminApiEndpoints(AuthTestCase):
 
         # Test Scenario 2: Permission Denied
         url = reverse(
-            f"{API_URL}:update_tax_amount",
+            f"{API_URL}:update_owner_settings",
             kwargs={"owner_id": self.audit.eve_id},
         )
         self.client.force_login(self.user)
@@ -429,9 +429,9 @@ class TestAdminApiEndpoints(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
-    def test_update_tax_period(self):
+    def test_update_owner_settings_should_change_tax_period(self):
         """
-        Test 'api:update_tax_period' Endpoint.
+        Test changing only the tax period via 'api:update_owner_settings'.
 
         # Test Scenarios:
             1. Tax Period is updated successfully.
@@ -439,7 +439,7 @@ class TestAdminApiEndpoints(AuthTestCase):
         """
         # Test Data
         url = reverse(
-            f"{API_URL}:update_tax_period",
+            f"{API_URL}:update_owner_settings",
             kwargs={"owner_id": self.audit.eve_id},
         )
         self.client.force_login(self.superuser)
@@ -460,7 +460,7 @@ class TestAdminApiEndpoints(AuthTestCase):
 
         # Test Scenario 2: Permission Denied
         url = reverse(
-            f"{API_URL}:update_tax_period",
+            f"{API_URL}:update_owner_settings",
             kwargs={"owner_id": self.audit.eve_id},
         )
         self.client.force_login(self.user)

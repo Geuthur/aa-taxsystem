@@ -7,8 +7,6 @@ import {
     dashboardQueryKeys,
     loadDashboard,
     updateOwnerSettings,
-    updateTaxAmount,
-    updateTaxPeriod,
 } from '@/Api/calls/dashboard';
 
 describe('dashboardQueryKeys', () => {
@@ -51,8 +49,6 @@ type Method = 'GET' | 'POST';
 const calls: [string, Method, () => Promise<unknown>, string][] = [
     ['loadDashboard', 'GET', () => loadDashboard(1), 'Failed to load dashboard'],
     ['updateOwnerSettings', 'POST', () => updateOwnerSettings(1, {}), 'Failed to update owner settings'],
-    ['updateTaxAmount', 'POST', () => updateTaxAmount(1, 10), 'Failed to update tax amount'],
-    ['updateTaxPeriod', 'POST', () => updateTaxPeriod(1, 30), 'Failed to update tax period'],
 ];
 
 const failWith = (method: Method, error: unknown) =>

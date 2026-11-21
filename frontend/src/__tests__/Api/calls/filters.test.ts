@@ -11,7 +11,6 @@ import {
     filtersQueryKeys,
     loadFilters,
     loadFilterSets,
-    switchFilterSet,
 } from '@/Api/calls/filters';
 
 describe('filtersQueryKeys', () => {
@@ -57,7 +56,6 @@ const calls: [string, Method, () => Promise<unknown>, string][] = [
     ['loadFilters', 'GET', () => loadFilters(1, 2), 'Failed to load filters'],
     ['deleteFilter', 'POST', () => deleteFilter(1, 2), 'Failed to delete filter'],
     ['deleteFilterSet', 'POST', () => deleteFilterSet(1, 2), 'Failed to delete filter set'],
-    ['switchFilterSet', 'POST', () => switchFilterSet(1, 2), 'Failed to switch filter set'],
     ['createFilterSet', 'POST', () => createFilterSet(1, {} as never), 'Failed to create filter set'],
     ['createFilter', 'POST', () => createFilter(1, {} as never), 'Failed to create filter'],
 ];

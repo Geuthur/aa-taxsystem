@@ -21,10 +21,6 @@ vi.mock("@/Api/calls/payments", async (importOriginal) => {
     ...actual,
     loadPayments: vi.fn(),
     loadPaymentDetails: vi.fn(),
-    acceptPayment: vi.fn(),
-    rejectPayment: vi.fn(),
-    undoPayment: vi.fn(),
-    deletePayment: vi.fn(),
     managePaymentAction: vi.fn(),
     manageBulkPaymentAction: vi.fn(),
   };

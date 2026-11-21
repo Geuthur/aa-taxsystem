@@ -6,7 +6,6 @@ import { apiClient } from '@/Api/Api';
 import {
     administrationQueryKeys,
     deleteAdministrationOwner,
-    loadAdministrationOwnerInspect,
     loadAdministrationOwners,
     runAdminTasks,
     triggerAdministrationOwnerUpdate,
@@ -15,7 +14,6 @@ import {
 describe('administrationQueryKeys', () => {
     it('provides the query keys of the area', () => {
         expect(administrationQueryKeys.owners).toEqual(['AdministrationOwners']);
-        expect(administrationQueryKeys.ownerInspect('alliance', 10)).toEqual(['AdministrationOwnerInspect', 'alliance', 10]);
     });
 });
 
@@ -24,24 +22,31 @@ describe('administration API calls', () => {
         vi.restoreAllMocks();
     });
 
-    describe('loadAdministrationOwnerInspect', () => {
+    describe('triggerAdministrationOwnerUpdate', () => {
         it('calls the endpoint with its parameters and returns the data', async () => {
             // Test Data
-            const response = { success: true };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
+            const response = { success: true, message: 'Update queued' };
+            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
                 data: response,
                 error: undefined,
                 response: new Response(),
             } as never);
 
             // Test Action
-            const result = await loadAdministrationOwnerInspect({ ownerType: 'alliance', ownerId: 99 });
+            const result = await triggerAdministrationOwnerUpdate({
+                ownerType: 'alliance',
+                ownerId: 99,
+                payload: { force_refresh: true },
+            });
 
             // Expected Result
             expect(result).toEqual(response);
-            expect(apiClient.GET).toHaveBeenCalledWith(
-                '/taxsystem/api/administration/owners/{owner_type}/{owner_id}/inspect/',
-                { params: { path: { owner_type: 'alliance', owner_id: 99 } } },
+            expect(apiClient.POST).toHaveBeenCalledWith(
+                '/taxsystem/api/administration/owners/{owner_type}/{owner_id}/update/',
+                {
+                    params: { path: { owner_type: 'alliance', owner_id: 99 } },
+                    body: { force_refresh: true },
+                },
             );
         });
     });
@@ -55,7 +60,6 @@ const calls: [string, Method, () => Promise<unknown>, string][] = [
     ['loadAdministrationOwners', 'GET', () => loadAdministrationOwners(), 'Failed to load administration owners'],
     ['triggerAdministrationOwnerUpdate', 'POST', () => triggerAdministrationOwnerUpdate({ ownerType: "corporation", ownerId: 1 }), 'Failed to trigger update'],
     ['deleteAdministrationOwner', 'DELETE', () => deleteAdministrationOwner({ ownerType: "corporation", ownerId: 1 }), 'Failed to delete owner'],
-    ['loadAdministrationOwnerInspect', 'GET', () => loadAdministrationOwnerInspect({ ownerType: "corporation", ownerId: 1 }), 'Failed to inspect owner dashboard'],
 ];
 
 const failWith = (method: Method, error: unknown) =>

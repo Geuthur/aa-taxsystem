@@ -350,50 +350,6 @@ class AdminApiEndpoints:
             return 200, {"success": True, "message": msg}
 
         @api.post(
-            "owner/{owner_id}/manage/update-tax/",
-            response={
-                200: dict,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-                400: schema.ErrorSchema,
-            },
-            tags=self.tags,
-        )
-        def update_tax_amount(
-            request: WSGIRequest,
-            owner_id: int,
-            payload: schema.UpdateTaxAmountRequest,
-        ):
-            """Legacy wrapper delegating to update_owner_settings."""
-            return update_owner_settings(
-                request,
-                owner_id,
-                schema.UpdateOwnerSettingsRequest(tax_amount=payload.tax_amount),
-            )
-
-        @api.post(
-            "owner/{owner_id}/manage/update-period/",
-            response={
-                200: dict,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-                400: schema.ErrorSchema,
-            },
-            tags=self.tags,
-        )
-        def update_tax_period(
-            request: WSGIRequest,
-            owner_id: int,
-            payload: schema.UpdateTaxPeriodRequest,
-        ):
-            """Legacy wrapper delegating to update_owner_settings."""
-            return update_owner_settings(
-                request,
-                owner_id,
-                schema.UpdateOwnerSettingsRequest(tax_period=payload.tax_period),
-            )
-
-        @api.post(
             "admin/tasks/run/",
             response={
                 HTTPStatus.OK: schema.MessageSchema,

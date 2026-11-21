@@ -40,37 +40,3 @@ export async function updateOwnerSettings(
   }
   return data as { success: boolean; message: string };
 }
-
-export async function updateTaxAmount(
-  ownerId: number,
-  taxAmount: number,
-): Promise<{ success: boolean; message: string }> {
-  const { data, error } = await apiClient.POST(
-    `/${ProjectName}/api/owner/{owner_id}/manage/update-tax/`,
-    {
-      params: { path: { owner_id: ownerId } },
-      body: { tax_amount: taxAmount },
-    },
-  );
-  if (error || !data) {
-    throw new Error(apiErrorMessage(error, "Failed to update tax amount"));
-  }
-  return data as { success: boolean; message: string };
-}
-
-export async function updateTaxPeriod(
-  ownerId: number,
-  taxPeriod: number,
-): Promise<{ success: boolean; message: string }> {
-  const { data, error } = await apiClient.POST(
-    `/${ProjectName}/api/owner/{owner_id}/manage/update-period/`,
-    {
-      params: { path: { owner_id: ownerId } },
-      body: { tax_period: taxPeriod },
-    },
-  );
-  if (error || !data) {
-    throw new Error(apiErrorMessage(error, "Failed to update tax period"));
-  }
-  return data as { success: boolean; message: string };
-}

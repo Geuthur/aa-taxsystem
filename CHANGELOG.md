@@ -55,6 +55,7 @@ Section Order:
 ### Removed
 
 - [REMOVED] Unused manager method `_move_tax_account_to_owner` (corporation and alliance).
+- [REMOVED] Legacy API endpoints `manage/update-tax/`, `manage/update-period/` (use `manage/settings/`) and `approve-payment/`, `reject-payment/`, `undo-payment/`, `delete-payment/` (use `manage/action/`), plus unused frontend API calls.
 
 ## [5.2.0] - 2026-11-13
 
