@@ -61,7 +61,7 @@ export async function runAdminTasks(
   payload: components["schemas"]["AdminUpdateRequest"],
 ): Promise<components["schemas"]["MessageSchema"]> {
   const { data, error } = await apiClient.POST(
-    `/${ProjectName}/api/admin/tasks/run/`,
+    `/${ProjectName}/api/administration/tasks/run/`,
     {
       body: payload,
     },

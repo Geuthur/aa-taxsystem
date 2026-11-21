@@ -401,7 +401,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": False}),
             content_type="application/json",
         )
@@ -417,7 +417,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": True}),
             content_type="application/json",
         )
@@ -433,7 +433,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": False}),
             content_type="application/json",
         )
@@ -450,7 +450,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "all", "force_refresh": False}),
             content_type="application/json",
         )
@@ -471,7 +471,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps(
                 {
                     "target": "corporation",
@@ -497,7 +497,7 @@ class TestAdministrationApi(AuthTestCase):
 
         # Test Action
         response = self.client.post(
-            f"{self.api}/admin/tasks/run/",
+            f"{self.api}/administration/tasks/run/",
             data=json.dumps({"target": "corporation", "force_refresh": False}),
             content_type="application/json",
         )

@@ -50,6 +50,7 @@ Section Order:
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)
 - [CHANGE] Frontend uses `aa-geuthur-react` 1.5.0: owner cards, `OwnerPortrait`, design tokens, the i18next setup and the user settings hook come from the package instead of copies in the app. On the settings page the alliance badge is green, a section with a token error has a red dot and the glow of owners with an error is animated.
 - [CHANGE] Every error response of the API (4xx and 5xx) has the body `{"error": "<text>"}` (`ErrorSchema`) and every endpoint lists its 403 in the OpenAPI schema; the bodies of the formerly `{"success": false, "message": ...}` and `{"detail": ...}` errors change, status codes and success responses stay. The interface shows the reason of the API instead of a fixed text.
+- [CHANGE] API endpoint `admin/tasks/run/` moved to `administration/tasks/run/`; the owner management endpoints moved from `api/admin.py` to `api/manage.py` (tag "Manage", paths unchanged).
 - Internal: The owner access helper of the API follows the template (`get_object_with_access` returns `(allowed, object)`, `get_owner(..., manage=True)` replaces `get_manage_owner`); responses stay the same.
 - Internal: The frontend API calls are split by area into `Api/calls/<area>.ts`, each with its own query keys, replacing `Api/ApiCalls.ts` and `Api/query.ts`.
 

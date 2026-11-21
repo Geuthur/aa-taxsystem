@@ -495,7 +495,7 @@
     },
     "/taxsystem/api/corporation/{owner_id}/view/dashboard/": {
       "get": {
-        "operationId": "taxsystem_api_admin_get_dashboard",
+        "operationId": "taxsystem_api_manage_get_dashboard",
         "summary": "Get Dashboard",
         "parameters": [
           {
@@ -542,7 +542,7 @@
         },
         "description": "This Endpoint retrieves the dashboard information for a specific corporation.\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    corporation_id (int): The ID of the corporation whose dashboard information is to be retrieved.\nReturns:\n    DashboardResponse: A response object containing the dashboard information.",
         "tags": [
-          "Admin"
+          "Manage"
         ],
         "security": [
           {
@@ -553,7 +553,7 @@
     },
     "/taxsystem/api/owner/{owner_id}/manage/tax-accounts/": {
       "get": {
-        "operationId": "taxsystem_api_admin_get_tax_accounts",
+        "operationId": "taxsystem_api_manage_get_tax_accounts",
         "summary": "Get Tax Accounts",
         "parameters": [
           {
@@ -604,7 +604,7 @@
         },
         "description": "This Endpoint retrieves the tax accounts associated with a specific owner.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose tax accounts are to be retrieved.\nReturns:\n    PaymentSystemResponse: A response object containing the list of tax accounts.",
         "tags": [
-          "Admin"
+          "Manage"
         ],
         "security": [
           {
@@ -615,7 +615,7 @@
     },
     "/taxsystem/api/owner/{owner_id}/account/{account_pk}/manage/switch-account/": {
       "post": {
-        "operationId": "taxsystem_api_admin_switch_tax_account",
+        "operationId": "taxsystem_api_manage_switch_tax_account",
         "summary": "Switch Tax Account",
         "parameters": [
           {
@@ -673,7 +673,7 @@
         },
         "description": "Handle an Request to Switch a Tax Account\n\nThis Endpoint switches a tax account from an associated owner.\nIt validates the request, checks permissions, and switches the his state to the according tax account.\n\nArgs:\n    request (WSGIRequest): The HTTP request object.\n    owner_id (int): The ID of the owner whose filter set is to be retrieved.\n    account_pk (int): The ID of the tax account to be switched.\nReturns:\n    dict: A dictionary containing the success status and message.",
         "tags": [
-          "Admin"
+          "Manage"
         ],
         "security": [
           {
@@ -684,7 +684,7 @@
     },
     "/taxsystem/api/owner/{owner_id}/manage/settings/": {
       "post": {
-        "operationId": "taxsystem_api_admin_update_owner_settings",
+        "operationId": "taxsystem_api_manage_update_owner_settings",
         "summary": "Update Owner Settings",
         "parameters": [
           {
@@ -743,7 +743,7 @@
         },
         "description": "Handle a request to update owner settings (tax amount and/or tax period).",
         "tags": [
-          "Admin"
+          "Manage"
         ],
         "requestBody": {
           "content": {
@@ -762,66 +762,9 @@
         ]
       }
     },
-    "/taxsystem/api/admin/tasks/run/": {
-      "post": {
-        "operationId": "taxsystem_api_admin_run_update_tasks",
-        "summary": "Queue update tasks for taxsystem",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageSchema"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorSchema"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminUpdateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "security": [
-          {
-            "SessionAuth": []
-          }
-        ]
-      }
-    },
     "/taxsystem/api/owner/{owner_id}/update/": {
       "post": {
-        "operationId": "taxsystem_api_admin_trigger_owner_update",
+        "operationId": "taxsystem_api_manage_trigger_owner_update",
         "summary": "Trigger manual update for a corporation or alliance owner",
         "parameters": [
           {
@@ -867,7 +810,7 @@
           }
         },
         "tags": [
-          "Admin"
+          "Manage"
         ],
         "requestBody": {
           "content": {
@@ -895,7 +838,7 @@
     },
     "/taxsystem/api/owner/{owner_id}/": {
       "delete": {
-        "operationId": "taxsystem_api_admin_delete_owner",
+        "operationId": "taxsystem_api_manage_delete_owner",
         "summary": "Delete a corporation or alliance owner",
         "parameters": [
           {
@@ -941,7 +884,7 @@
           }
         },
         "tags": [
-          "Admin"
+          "Manage"
         ],
         "security": [
           {
@@ -2710,6 +2653,63 @@
           }
         ]
       }
+    },
+    "/taxsystem/api/administration/tasks/run/": {
+      "post": {
+        "operationId": "taxsystem_api_administration_run_update_tasks",
+        "summary": "Queue update tasks for taxsystem",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -3976,41 +3976,6 @@
         "title": "UpdateOwnerSettingsRequest",
         "type": "object"
       },
-      "AdminUpdateRequest": {
-        "description": "Request to trigger background update tasks.",
-        "properties": {
-          "target": {
-            "enum": [
-              "all",
-              "corporation",
-              "alliance"
-            ],
-            "title": "Target",
-            "type": "string"
-          },
-          "eve_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Eve Id"
-          },
-          "force_refresh": {
-            "default": false,
-            "title": "Force Refresh",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "target"
-        ],
-        "title": "AdminUpdateRequest",
-        "type": "object"
-      },
       "PaymentCorporationSchema": {
         "properties": {
           "payment_id": {
@@ -4783,6 +4748,41 @@
           }
         },
         "title": "AdministrationTaxOwnerUpdateRequest",
+        "type": "object"
+      },
+      "AdminUpdateRequest": {
+        "description": "Request to trigger background update tasks.",
+        "properties": {
+          "target": {
+            "enum": [
+              "all",
+              "corporation",
+              "alliance"
+            ],
+            "title": "Target",
+            "type": "string"
+          },
+          "eve_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eve Id"
+          },
+          "force_refresh": {
+            "default": false,
+            "title": "Force Refresh",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "title": "AdminUpdateRequest",
         "type": "object"
       }
     },

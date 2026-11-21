@@ -32,7 +32,7 @@ MODULE_PATH = "taxsystem.api.helpers."
 API_URL = "taxsystem:api"
 
 
-class TestAdminApiEndpoints(AuthTestCase):
+class TestManageApiEndpoints(AuthTestCase):
     """Test Admin API Endpoints."""
 
     @classmethod
