@@ -514,7 +514,10 @@ class PaymentsManager(models.Manager["PaymentsContext"]):
             owner.name,
         )
 
-        tax_accounts = PaymentAccount.objects.filter(owner=owner)
+        # Prefetch the ownerships so get_alt_ids() needs no query per account
+        tax_accounts = PaymentAccount.objects.filter(owner=owner).prefetch_related(
+            "user__character_ownerships__character"
+        )
 
         if not tax_accounts:
             return ("No Payment Users for %s", owner.name)
@@ -744,7 +747,11 @@ class MembersManager(models.Manager["MembersContext"]):
         auth_accounts = UserProfile.objects.filter(
             main_character__isnull=False,
             main_character__corporation_id=owner.eve_corporation.corporation_id,
-        ).prefetch_related("user__profile__main_character")
+        ).select_related("main_character")
+        # Prefetch the ownerships so the alts need no query per account
+        auth_accounts = auth_accounts.prefetch_related(
+            "user__character_ownerships__character"
+        )
 
         members = self.filter(owner=owner)
 
@@ -754,11 +761,10 @@ class MembersManager(models.Manager["MembersContext"]):
 
         for account in auth_accounts:
             # Get all alts for the user
-            alts = set(
-                account.user.character_ownerships.all().values_list(
-                    "character__character_id", flat=True
-                )
-            )
+            alts = {
+                ownership.character.character_id
+                for ownership in account.user.character_ownerships.all()
+            }
             main = account.main_character
 
             # Change the status of members if they are alts
