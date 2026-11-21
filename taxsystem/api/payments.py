@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
 from taxsystem.api.helpers.owner import get_owner
-from taxsystem.helpers import lazy
+from taxsystem.helpers import eveonline
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     ActionType,
@@ -29,7 +29,9 @@ from taxsystem.models.helpers.textchoices import (
 
 
 def _serialize_payment(payment, can_manage: bool) -> schema.PaymentCorporationSchema:
-    character_portrait = lazy.get_character_portrait_url(payment.character_id, size=32)
+    character_portrait = eveonline.get_character_portrait_url(
+        payment.character_id, size=32
+    )
     raw_status = payment.request_status
     is_custom = payment.journal is None
     can_approve = can_manage and raw_status in [
@@ -380,7 +382,7 @@ class PaymentsApiEndpoints:
                 character=schema.CharacterSchema(
                     character_id=payment.character_id,
                     character_name=payment.account.name,
-                    character_portrait=lazy.get_character_portrait_url(
+                    character_portrait=eveonline.get_character_portrait_url(
                         payment.character_id, size=32
                     ),
                     corporation_id=payment.account.owner.pk,

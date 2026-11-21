@@ -46,6 +46,7 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] The image helpers moved from `helpers/lazy.py` to `helpers/eveonline.py` (template state), and the admin logos use the public Alliance Auth image functions; display unchanged.
 - [CHANGE] The update status of an owner is computed by the manager of its status model through `UpdateManagerMixin.get_status` (as in the template); an owner with token errors in several sections now shows "Token Error" instead of "Error".
 - [CHANGE] Every URL of the API requires `basic_access` (403 otherwise), and `add_corp` and `add_alliance` require it in addition to `create_access`.
 - [CHANGE] The Discord notification module moved to `taxsystem/thirdparty/discord.py` and matches the template building block (incl. webhook delivery); notifications behave as before.

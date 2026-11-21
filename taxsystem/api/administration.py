@@ -15,7 +15,7 @@ from taxsystem import tasks
 from taxsystem.api import schema
 from taxsystem.api.helpers.statistics import create_dashboard_common_data
 from taxsystem.api.manage import DashboardResponse
-from taxsystem.helpers import lazy
+from taxsystem.helpers import eveonline
 from taxsystem.models.alliance import AllianceOwner, AllianceUpdateStatus
 from taxsystem.models.corporation import (
     CorporationOwner,
@@ -91,7 +91,7 @@ class AdministrationApiEndpoints:
                         owner_id=corp.eve_id,
                         owner_type="corporation",
                         name=corp.name,
-                        icon=lazy.get_corporation_logo_url(corp.eve_id, size=64),
+                        icon=eveonline.get_corporation_logo_url(corp.eve_id, size=64),
                         ticker=ticker,
                         status=str(corp.get_status),
                         is_active=bool(corp.active),
@@ -141,7 +141,7 @@ class AdministrationApiEndpoints:
                         owner_id=ally.eve_id,
                         owner_type="alliance",
                         name=ally.name,
-                        icon=lazy.get_alliance_logo_url(ally.eve_id, size=64),
+                        icon=eveonline.get_alliance_logo_url(ally.eve_id, size=64),
                         ticker=ticker,
                         status=str(ally.get_status),
                         is_active=bool(ally.active),
