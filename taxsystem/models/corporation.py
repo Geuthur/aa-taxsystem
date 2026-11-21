@@ -25,6 +25,7 @@ from taxsystem.managers.corporation_manager import (
 )
 from taxsystem.managers.owner_manager import (
     CorporationOwnerManager,
+    CorporationUpdateStatusManager,
 )
 from taxsystem.models.base import (
     FilterBaseModel,
@@ -42,7 +43,6 @@ from taxsystem.models.helpers.update_manager import (
     CorporationUpdateSection,
     UpdateManagerMixin,
     UpdateSectionResult,
-    UpdateStatus,
     UpdateStatusBaseModel,
 )
 from taxsystem.models.wallet import (
@@ -63,6 +63,8 @@ class CorporationUpdateStatus(UpdateStatusBaseModel):
     section = models.CharField(
         max_length=32, choices=CorporationUpdateSection.choices, db_index=True
     )
+
+    objects: CorporationUpdateStatusManager = CorporationUpdateStatusManager()
 
     class Meta:
         default_permissions = ()
@@ -272,21 +274,6 @@ class CorporationOwner(UpdateManagerMixin, models.Model):
     def eve_id(self) -> int:
         """Return the Eve Corporation ID."""
         return self.eve_corporation.corporation_id
-
-    @property
-    def get_status(self) -> UpdateStatus:
-        """Get the update status of this owner.
-
-        Returns:
-            UpdateStatus enum value representing the current status
-        """
-        if self.active is False:
-            return UpdateStatus.DISABLED
-
-        # Use type(self) for dynamic QuerySet resolution
-        qs = type(self).objects.filter(pk=self.pk).annotate_total_update_status()
-        total_update_status = list(qs.values_list("total_update_status", flat=True))[0]
-        return UpdateStatus(total_update_status)
 
     @property
     def get_update_status(self) -> dict[str, str]:

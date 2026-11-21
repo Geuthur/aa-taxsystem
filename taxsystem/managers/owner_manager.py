@@ -10,6 +10,7 @@ from taxsystem.managers.general import GeneralManager
 from taxsystem.models.helpers.update_manager import (
     AllianceUpdateSection,
     CorporationUpdateSection,
+    UpdateSection,
     UpdateStatus,
 )
 from taxsystem.providers import logger
@@ -73,83 +74,6 @@ class CorporationOwnerQuerySet(models.QuerySet["CorporationOwner"]):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
-    def annotate_total_update_status_user(self, user):
-        """Get the total update status for the given user."""
-        char = user.profile.main_character
-        assert char
-
-        query = models.Q(character__character_ownership__user=user)
-
-        return self.filter(query).annotate_total_update_status()
-
-    def annotate_total_update_status(self):
-        """Get the total update status."""
-        sections = CorporationUpdateSection.get_sections()
-        num_sections_total = len(sections)
-        qs = (
-            self.annotate(
-                num_sections_total=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(ts_corporation_update_status__section__in=sections),
-                )
-            )
-            .annotate(
-                num_sections_ok=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(
-                        ts_corporation_update_status__section__in=sections,
-                        ts_corporation_update_status__is_success=True,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_failed=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(
-                        ts_corporation_update_status__section__in=sections,
-                        ts_corporation_update_status__is_success=False,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_token_error=Count(
-                    "ts_corporation_update_status",
-                    filter=Q(
-                        ts_corporation_update_status__section__in=sections,
-                        ts_corporation_update_status__has_token_error=True,
-                    ),
-                )
-            )
-            # pylint: disable=no-member
-            .annotate(
-                total_update_status=Case(
-                    When(
-                        active=False,
-                        then=Value(UpdateStatus.DISABLED),
-                    ),
-                    When(
-                        num_sections_token_error=1,
-                        then=Value(UpdateStatus.TOKEN_ERROR),
-                    ),
-                    When(
-                        num_sections_failed__gt=0,
-                        then=Value(UpdateStatus.ERROR),
-                    ),
-                    When(
-                        num_sections_ok=num_sections_total,
-                        then=Value(UpdateStatus.OK),
-                    ),
-                    When(
-                        num_sections_total__lt=num_sections_total,
-                        then=Value(UpdateStatus.INCOMPLETE),
-                    ),
-                    default=Value(UpdateStatus.IN_PROGRESS),
-                )
-            )
-        )
-
-        return qs
-
 
 class CorporationOwnerManager(models.Manager["CorporationOwner"]):
     def get_queryset(self):
@@ -160,9 +84,6 @@ class CorporationOwnerManager(models.Manager["CorporationOwner"]):
 
     def manage_to(self, user):
         return self.get_queryset().manage_to(user)
-
-    def annotate_total_update_status(self):
-        return self.get_queryset().annotate_total_update_status()
 
 
 class AllianceOwnerQuerySet(models.QuerySet["AllianceOwner"]):
@@ -218,75 +139,6 @@ class AllianceOwnerQuerySet(models.QuerySet["AllianceOwner"]):
             logger.debug("User %s has no main character. Nothing visible.", user)
             return self.none()
 
-    # pylint: disable=duplicate-code
-    def annotate_total_update_status(self):
-        """Get the total update status."""
-        sections = AllianceUpdateSection.get_sections()
-        num_sections_total = len(sections)
-        qs = (
-            self.annotate(
-                num_sections_total=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(ts_alliance_update_status__section__in=sections),
-                )
-            )
-            .annotate(
-                num_sections_ok=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(
-                        ts_alliance_update_status__section__in=sections,
-                        ts_alliance_update_status__is_success=True,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_failed=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(
-                        ts_alliance_update_status__section__in=sections,
-                        ts_alliance_update_status__is_success=False,
-                    ),
-                )
-            )
-            .annotate(
-                num_sections_token_error=Count(
-                    "ts_alliance_update_status",
-                    filter=Q(
-                        ts_alliance_update_status__section__in=sections,
-                        ts_alliance_update_status__has_token_error=True,
-                    ),
-                )
-            )
-            # pylint: disable=no-member
-            .annotate(
-                total_update_status=Case(
-                    When(
-                        active=False,
-                        then=Value(UpdateStatus.DISABLED),
-                    ),
-                    When(
-                        num_sections_token_error=1,
-                        then=Value(UpdateStatus.TOKEN_ERROR),
-                    ),
-                    When(
-                        num_sections_failed__gt=0,
-                        then=Value(UpdateStatus.ERROR),
-                    ),
-                    When(
-                        num_sections_ok=num_sections_total,
-                        then=Value(UpdateStatus.OK),
-                    ),
-                    When(
-                        num_sections_total__lt=num_sections_total,
-                        then=Value(UpdateStatus.INCOMPLETE),
-                    ),
-                    default=Value(UpdateStatus.IN_PROGRESS),
-                )
-            )
-        )
-
-        return qs
-
 
 class AllianceOwnerManager(models.Manager["AllianceOwner"]):
     def get_queryset(self):
@@ -298,5 +150,101 @@ class AllianceOwnerManager(models.Manager["AllianceOwner"]):
     def manage_to(self, user):
         return self.get_queryset().manage_to(user)
 
+
+class UpdateStatusQuerySet(models.QuerySet):
+    """
+    QuerySet of an update status model (one row per owner and section).
+
+    Subclasses set `update_section_class` to the sections of their owner.
+    """
+
+    update_section_class: type[UpdateSection]
+
+    def get_status(self) -> UpdateStatus:
+        """Return the current aggregate update status."""
+        total_update_status = (
+            self.annotate_total_update_status()
+            .values_list("total_update_status", flat=True)
+            .order_by("total_update_status")
+            .first()
+        )
+
+        if total_update_status is None:
+            return UpdateStatus.INCOMPLETE
+        return UpdateStatus(total_update_status)
+
     def annotate_total_update_status(self):
+        """Annotate one aggregate status per owner over all sections."""
+        sections = self.update_section_class.get_sections()
+        total_sections = len(sections)
+        qs = (
+            self.values("owner_id", "owner__active")
+            .annotate(num_sections_found=Count("pk", filter=Q(section__in=sections)))
+            .annotate(
+                num_sections_ok=Count(
+                    "pk", filter=Q(section__in=sections, is_success=True)
+                )
+            )
+            .annotate(
+                num_sections_failed=Count(
+                    "pk", filter=Q(section__in=sections, is_success=False)
+                )
+            )
+            .annotate(
+                num_sections_token_error=Count(
+                    "pk", filter=Q(section__in=sections, has_token_error=True)
+                )
+            )
+            # pylint: disable=no-member
+            .annotate(
+                total_update_status=Case(
+                    When(owner__active=False, then=Value(UpdateStatus.DISABLED)),
+                    When(
+                        num_sections_token_error__gt=0,
+                        then=Value(UpdateStatus.TOKEN_ERROR),
+                    ),
+                    When(num_sections_failed__gt=0, then=Value(UpdateStatus.ERROR)),
+                    When(num_sections_ok=total_sections, then=Value(UpdateStatus.OK)),
+                    When(
+                        num_sections_found__lt=total_sections,
+                        then=Value(UpdateStatus.INCOMPLETE),
+                    ),
+                    default=Value(UpdateStatus.IN_PROGRESS),
+                )
+            )
+        )
+
+        return qs
+
+
+class CorporationUpdateStatusQuerySet(UpdateStatusQuerySet):
+    update_section_class = CorporationUpdateSection
+
+
+class AllianceUpdateStatusQuerySet(UpdateStatusQuerySet):
+    update_section_class = AllianceUpdateSection
+
+
+class UpdateStatusManager(models.Manager):
+    """Manager of an update status model; `queryset_class` sets the sections."""
+
+    queryset_class: type[UpdateStatusQuerySet]
+
+    def get_queryset(self):
+        return self.queryset_class(model=self.model, using=self._db)
+
+    def get_status(self) -> UpdateStatus:
+        """Return the current aggregate update status."""
+        return self.get_queryset().get_status()
+
+    def annotate_total_update_status(self):
+        """Annotate one aggregate status per owner over all sections."""
         return self.get_queryset().annotate_total_update_status()
+
+
+class CorporationUpdateStatusManager(UpdateStatusManager):
+    queryset_class = CorporationUpdateStatusQuerySet
+
+
+class AllianceUpdateStatusManager(UpdateStatusManager):
+    queryset_class = AllianceUpdateStatusQuerySet
