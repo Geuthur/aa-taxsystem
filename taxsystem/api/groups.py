@@ -13,7 +13,7 @@ from allianceauth.groupmanagement.models import Group
 
 # AA TaxSystem
 from taxsystem.api import schema
-from taxsystem.api.helpers import core
+from taxsystem.api.helpers.owner import get_owner
 from taxsystem.models.helpers.textchoices import (
     ActionType,
     AdminActions,
@@ -36,7 +36,7 @@ class GroupsApiEndpoints:
         )
         def get_groups(request: WSGIRequest, owner_id: int):
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
@@ -89,7 +89,7 @@ class GroupsApiEndpoints:
                 404: An error message if the group does not exist.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -133,7 +133,7 @@ class GroupsApiEndpoints:
         )
         def get_available_groups(request: WSGIRequest, owner_id: int):
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -160,7 +160,7 @@ class GroupsApiEndpoints:
             request: WSGIRequest, owner_id: int, payload: schema.CreateGroupRequest
         ):
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:

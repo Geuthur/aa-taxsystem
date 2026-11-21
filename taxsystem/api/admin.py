@@ -16,6 +16,7 @@ from django.utils.translation import gettext as _
 from taxsystem import tasks
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
+from taxsystem.api.helpers.owner import get_owner
 from taxsystem.api.helpers.statistics import (
     StatisticsResponse,
     create_dashboard_common_data,
@@ -78,7 +79,7 @@ class AdminApiEndpoints:
                 DashboardResponse: A response object containing the dashboard information.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": _("Owner not Found.")}
@@ -143,7 +144,7 @@ class AdminApiEndpoints:
                 PaymentSystemResponse: A response object containing the list of tax accounts.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": _("Owner not Found.")}
@@ -230,7 +231,7 @@ class AdminApiEndpoints:
                 dict: A dictionary containing the success status and message.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
@@ -292,7 +293,7 @@ class AdminApiEndpoints:
             Handle a request to update owner settings (tax amount and/or tax period).
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -480,7 +481,7 @@ class AdminApiEndpoints:
             owner_id: int,
             payload: schema.OwnerUpdateRequest | None = None,
         ):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
             if perms is False:
@@ -522,7 +523,7 @@ class AdminApiEndpoints:
             summary="Delete a corporation or alliance owner",
         )
         def delete_owner(request: WSGIRequest, owner_id: int):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
             if perms is False:

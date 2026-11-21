@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.authentication.models import CharacterOwnership
 
 # AA TaxSystem
-from taxsystem.api.helpers import core
+from taxsystem.api.helpers.owner import get_owner
 from taxsystem.api.schema import (
     ActionCommentRequest,
     CharacterSchema,
@@ -54,7 +54,7 @@ class CorporationApiEndpoints:
                 MembersResponse: A response object containing the list of members.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
@@ -209,7 +209,7 @@ class CorporationApiEndpoints:
                 dict: A dictionary containing the success status and message.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
