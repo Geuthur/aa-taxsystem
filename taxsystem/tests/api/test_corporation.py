@@ -193,6 +193,29 @@ class TestCorporationApiEndpoints(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertEqual(response.json(), {"error": "Member is not marked as missing."})
 
+    def test_delete_member_should_404_error_when_member_unknown(self):
+        """Test 'api:delete_member' answers 404 with an `error` body for an unknown member."""
+        # Test Data
+        url = reverse(
+            f"{API_URL}:delete_member",
+            kwargs={
+                "owner_id": self.user_character.corporation_id,
+                "member_pk": 999999,
+            },
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps({"comment": "Already deleted."}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(response.json(), {"error": "Member not Found."})
+
     def test_delete_member_should_200(self):
         """
         Test should return 200 OK when user has permissions.
