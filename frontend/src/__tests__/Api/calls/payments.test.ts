@@ -4,16 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // AA TaxSystem
 import { apiClient } from '@/Api/Api';
 import {
-    approvePayment,
-    deletePayment,
     loadMyPayments,
     loadPaymentDetails,
     loadPayments,
     manageBulkPaymentAction,
     managePaymentAction,
     paymentsQueryKeys,
-    rejectPayment,
-    undoPayment,
 } from '@/Api/calls/payments';
 
 describe('paymentsQueryKeys', () => {
@@ -29,41 +25,6 @@ describe('payments API calls', () => {
         vi.restoreAllMocks();
     });
 
-    describe('deletePayment', () => {
-        it('calls delete-payment with comment body and returns success', async () => {
-            // Test Data
-            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
-                data: { success: true, message: 'Payment deleted' },
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            // Test Action
-            const result = await deletePayment(10, 42, 'Removed duplicate');
-
-            // Expected Result
-            expect(result).toEqual({ success: true, message: 'Payment deleted' });
-            expect(apiClient.POST).toHaveBeenCalledWith(
-                '/taxsystem/api/owner/{owner_id}/payment/{payment_pk}/manage/delete-payment/',
-                {
-                    params: { path: { owner_id: 10, payment_pk: 42 } },
-                    body: { comment: 'Removed duplicate' },
-                },
-            );
-        });
-
-        it('throws error when POST fails or returns no data', async () => {
-            // Test Data
-            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
-                data: undefined,
-                error: { status: 400 },
-                response: new Response(),
-            } as never);
-
-            // Test Action & Expected Result
-            await expect(deletePayment(10, 42)).rejects.toThrow('Failed to delete payment');
-        });
-    });
     describe('manageBulkPaymentAction', () => {
         it('calls POST endpoint with owner_id and bulk payload', async () => {
             // Test Data
@@ -122,10 +83,6 @@ const calls: [string, Method, () => Promise<unknown>, string][] = [
     ['loadPaymentDetails', 'GET', () => loadPaymentDetails(1, 2), 'Failed to load payment details'],
     ['managePaymentAction', 'POST', () => managePaymentAction(1, 2, "approve"), 'Failed to approve payment'],
     ['manageBulkPaymentAction', 'POST', () => manageBulkPaymentAction(1, [2], "reject"), 'Failed to bulk reject payments'],
-    ['approvePayment', 'POST', () => approvePayment(1, 2), 'Failed to approve payment'],
-    ['rejectPayment', 'POST', () => rejectPayment(1, 2), 'Failed to reject payment'],
-    ['undoPayment', 'POST', () => undoPayment(1, 2), 'Failed to undo payment'],
-    ['deletePayment', 'POST', () => deletePayment(1, 2), 'Failed to delete payment'],
 ];
 
 const failWith = (method: Method, error: unknown) =>
