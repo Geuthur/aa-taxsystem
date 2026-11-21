@@ -9,7 +9,7 @@ import { useUserSettings } from "aa-geuthur-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as settingsCalls from "@/Api/calls/settings";
 import type { TaxOwnerSettingSchema } from "@/Api/schema";
 import { SettingsPage } from "@/Pages/SettingsPage";
 
@@ -19,12 +19,16 @@ vi.mock("aa-geuthur-react", async (importOriginal) => {
   return { ...actual, useUserSettings: vi.fn() };
 });
 
-vi.mock("@/Api/ApiCalls", () => ({
-  loadSettingsOwners: vi.fn(),
-  triggerUpdateAllTaxOwners: vi.fn(),
-  triggerOwnerUpdate: vi.fn(),
-  deleteOwner: vi.fn(),
-}));
+vi.mock("@/Api/calls/settings", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/settings")>();
+  return {
+    ...actual,
+    loadSettingsOwners: vi.fn(),
+    triggerUpdateAllTaxOwners: vi.fn(),
+    triggerOwnerUpdate: vi.fn(),
+    deleteOwner: vi.fn(),
+  };
+});
 
 const mockOwners: TaxOwnerSettingSchema[] = [
   {
@@ -87,7 +91,7 @@ describe("SettingsPage", () => {
   it("should load the saved global notification preference", async () => {
     // Test Data
     mockSettings({ data: { disable_notifications: true } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValueOnce([]);
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValueOnce([]);
 
     // Test Action
     renderPage();
@@ -102,7 +106,7 @@ describe("SettingsPage", () => {
     // Test Data
     const user = userEvent.setup();
     mockSettings({ data: { disable_notifications: false } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue([]);
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue([]);
 
     // Test Action
     renderPage();
@@ -115,7 +119,7 @@ describe("SettingsPage", () => {
   it("should show the loader while the settings load", () => {
     // Test Data
     mockSettings({ isLoading: true });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue([]);
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue([]);
 
     // Test Action
     renderPage();
@@ -128,7 +132,7 @@ describe("SettingsPage", () => {
   it("should show an error when the settings cannot be loaded", () => {
     // Test Data
     mockSettings({ isError: true });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue([]);
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue([]);
 
     // Test Action
     renderPage();
@@ -140,7 +144,7 @@ describe("SettingsPage", () => {
   it("should tell the user when saving failed", () => {
     // Test Data
     mockSettings({ data: { disable_notifications: false } }, { isError: true });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue([]);
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue([]);
 
     // Test Action
     renderPage();
@@ -155,7 +159,7 @@ describe("SettingsPage", () => {
     // Test Data
     const user = userEvent.setup();
     mockSettings({ data: { disable_notifications: false } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     const { container } = renderPage();
@@ -172,7 +176,7 @@ describe("SettingsPage", () => {
   it("should render owners update status list", async () => {
     // Test Data
     mockSettings({ data: { disable_notifications: false } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
 
     // Test Action
     renderPage();
@@ -189,8 +193,8 @@ describe("SettingsPage", () => {
     // Test Data
     const user = userEvent.setup();
     mockSettings({ data: { disable_notifications: false } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.triggerUpdateAllTaxOwners).mockResolvedValue({
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
+    vi.mocked(settingsCalls.triggerUpdateAllTaxOwners).mockResolvedValue({
       message: "Queued update for all owners.",
     });
 
@@ -201,7 +205,7 @@ describe("SettingsPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerUpdateAllTaxOwners).toHaveBeenCalledWith(false);
+      expect(settingsCalls.triggerUpdateAllTaxOwners).toHaveBeenCalledWith(false);
     });
     expect(await screen.findByText("Queued update for all owners.")).toBeInTheDocument();
   });
@@ -210,8 +214,8 @@ describe("SettingsPage", () => {
     // Test Data
     const user = userEvent.setup();
     mockSettings({ data: { disable_notifications: false } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.triggerOwnerUpdate).mockResolvedValue({
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
+    vi.mocked(settingsCalls.triggerOwnerUpdate).mockResolvedValue({
       message: "Queued update for Acme Corp.",
     });
 
@@ -222,7 +226,7 @@ describe("SettingsPage", () => {
 
     // Expected Result
     await waitFor(() => {
-      expect(ApiCalls.triggerOwnerUpdate).toHaveBeenCalledWith({
+      expect(settingsCalls.triggerOwnerUpdate).toHaveBeenCalledWith({
         ownerId: 1001,
         forceRefresh: false,
       });
@@ -234,8 +238,8 @@ describe("SettingsPage", () => {
     // Test Data
     const user = userEvent.setup();
     mockSettings({ data: { disable_notifications: false } });
-    vi.mocked(ApiCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
-    vi.mocked(ApiCalls.deleteOwner).mockResolvedValue({
+    vi.mocked(settingsCalls.loadSettingsOwners).mockResolvedValue(mockOwners);
+    vi.mocked(settingsCalls.deleteOwner).mockResolvedValue({
       message: "Corporation Acme Corp deleted successfully.",
     });
 
@@ -250,7 +254,7 @@ describe("SettingsPage", () => {
     await user.click(confirmBtn);
 
     await waitFor(() => {
-      expect(ApiCalls.deleteOwner).toHaveBeenCalledWith(1001);
+      expect(settingsCalls.deleteOwner).toHaveBeenCalledWith(1001);
     });
     expect(await screen.findByText("Corporation Acme Corp deleted successfully.")).toBeInTheDocument();
   });

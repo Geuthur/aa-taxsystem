@@ -3,13 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // AA TaxSystem
 // AA Tax System
-import { loadDashboard, updateOwnerSettings } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import { dashboardQueryKeys, loadDashboard, updateOwnerSettings } from "@/Api/calls/dashboard";
 
 /** Loads the dashboard of an owner (disabled until an owner is set). */
 export function useDashboard(ownerId: number) {
   return useQuery({
-    queryKey: queryKeys.Dashboard(ownerId),
+    queryKey: dashboardQueryKeys.dashboard(ownerId),
     queryFn: () => loadDashboard(ownerId),
     enabled: ownerId > 0,
   });
@@ -22,7 +21,7 @@ export function useUpdateOwnerSettings(ownerId: number) {
     mutationFn: (settings: { tax_amount?: number; tax_period?: number }) =>
       updateOwnerSettings(ownerId, settings),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Dashboard(ownerId) });
+      queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.dashboard(ownerId) });
     },
   });
 }

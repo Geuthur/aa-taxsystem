@@ -3,13 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // AA TaxSystem
 // AA Tax System
-import { addCustomPayment, loadTaxAccounts, switchTaxAccount } from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import { paymentsQueryKeys } from "@/Api/calls/payments";
+import { addCustomPayment, loadTaxAccounts, switchTaxAccount, taxAccountsQueryKeys } from "@/Api/calls/taxAccounts";
 
 /** Loads the tax accounts of an owner. */
 export function useTaxAccounts(ownerId: number) {
   return useQuery({
-    queryKey: queryKeys.TaxAccounts(ownerId),
+    queryKey: taxAccountsQueryKeys.accounts(ownerId),
     queryFn: () => loadTaxAccounts(ownerId),
   });
 }
@@ -27,7 +27,7 @@ export function useAccountActions(
   const switchMutation = useMutation({
     mutationFn: ({ accountPk }: { accountPk: number }) => switchTaxAccount(ownerId, accountPk),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.TaxAccounts(ownerId) });
+      queryClient.invalidateQueries({ queryKey: taxAccountsQueryKeys.accounts(ownerId) });
       callbacks.onSwitched?.();
     },
   });
@@ -43,8 +43,8 @@ export function useAccountActions(
       comment: string;
     }) => addCustomPayment(ownerId, accountPk, { amount, comment: comment.trim() }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.TaxAccounts(ownerId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.Payments(ownerId) });
+      queryClient.invalidateQueries({ queryKey: taxAccountsQueryKeys.accounts(ownerId) });
+      queryClient.invalidateQueries({ queryKey: paymentsQueryKeys.payments(ownerId) });
       callbacks.onPaymentAdded?.();
     },
   });

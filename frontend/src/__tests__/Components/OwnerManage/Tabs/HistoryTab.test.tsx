@@ -7,15 +7,19 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as historyCalls from "@/Api/calls/history";
 import type { components } from "@/Api/OpenApi";
 import { HistoryTab } from "@/Components/OwnerManage/Tabs/HistoryTab";
 
 type AdminLogRow = components["schemas"]["AdminHistorySchema"];
 
-vi.mock("@/Api/ApiCalls", () => ({
-  loadAdminLogs: vi.fn(),
-}));
+vi.mock("@/Api/calls/history", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/history")>();
+  return {
+    ...actual,
+    loadAdminLogs: vi.fn(),
+  };
+});
 
 const mockLogs: AdminLogRow[] = [
   {
@@ -67,7 +71,7 @@ describe("HistoryTab", () => {
 
   it("should render action badges with correct variant colors: green for added, yellow for changed, red for deleted", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadAdminLogs).mockResolvedValue(mockLogs);
+    vi.mocked(historyCalls.loadAdminLogs).mockResolvedValue(mockLogs);
 
     // Test Action
     renderComponent();

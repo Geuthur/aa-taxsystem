@@ -9,15 +9,19 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as userAccountsCalls from "@/Api/calls/userAccounts";
 import type { components } from "@/Api/OpenApi";
 import { AccountOverviewPage } from "@/Pages/AccountOverviewPage";
 
 type UserAccount = components["schemas"]["UserAccountSchema"];
 
-vi.mock("@/Api/ApiCalls", () => ({
-  loadUserAccounts: vi.fn(),
-}));
+vi.mock("@/Api/calls/userAccounts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/userAccounts")>();
+  return {
+    ...actual,
+    loadUserAccounts: vi.fn(),
+  };
+});
 
 const mockAccounts: UserAccount[] = [
   {
@@ -97,7 +101,7 @@ describe("AccountOverviewPage", () => {
 
   it("should show loading spinner initially", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserAccounts).mockReturnValue(new Promise(() => {}));
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockReturnValue(new Promise(() => {}));
 
     // Test Action
     renderPage();
@@ -108,7 +112,7 @@ describe("AccountOverviewPage", () => {
 
   it("should render account cards with status badges and metrics", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -127,7 +131,7 @@ describe("AccountOverviewPage", () => {
 
   it("should show a tax-free badge instead of unpaid for a tax-free account", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue([
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue([
       { ...mockAccounts[1], has_paid: false, is_tax_free: true, next_due: null },
     ]);
 
@@ -146,7 +150,7 @@ describe("AccountOverviewPage", () => {
   it("should filter accounts when search term is entered", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -165,7 +169,7 @@ describe("AccountOverviewPage", () => {
   it("should filter accounts when owner type filter button is clicked", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -184,7 +188,7 @@ describe("AccountOverviewPage", () => {
   it("should display empty state when no accounts match query", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -202,7 +206,7 @@ describe("AccountOverviewPage", () => {
 
   it("should show error alert on api failure", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserAccounts).mockRejectedValue(new Error("Network Error"));
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockRejectedValue(new Error("Network Error"));
 
     // Test Action
     renderPage();

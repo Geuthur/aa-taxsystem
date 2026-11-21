@@ -11,8 +11,8 @@ import { Badge, Button, Card, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA TaxSystem
+import { paymentsQueryKeys } from "@/Api/calls/payments";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import { SearchInput } from "@/Components/Base/SearchInput";
 import { PaymentsFilter } from "@/Components/Buttons/PaymentsFilter";
 import {
@@ -73,7 +73,7 @@ export function PaymentsPage() {
   } = usePaymentActions({
     ownerId: numericOwnerId,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.Payments(numericOwnerId) });
+      queryClient.invalidateQueries({ queryKey: paymentsQueryKeys.payments(numericOwnerId) });
       setRowSelection({});
     },
   });
