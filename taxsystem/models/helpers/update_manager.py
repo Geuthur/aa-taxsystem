@@ -576,3 +576,24 @@ class UpdateManagerMixin:
     def get_sections_to_update(self, force_refresh: bool = False) -> list[str]:
         """Shortcut to get sections needing update via the update_manager."""
         return self.update_manager.get_sections_to_update(force_refresh=force_refresh)
+
+    @property
+    def get_status(self) -> UpdateStatus:
+        """
+        Get the current aggregate update status of this owner.
+
+        Needs `annotate_total_update_status()` on the manager of `update_status_model`
+        (see `managers/owner_manager.py`). An inactive owner is `DISABLED`.
+        """
+        if getattr(self, "active", True) is False:
+            return UpdateStatus.DISABLED
+
+        qs = (
+            self.update_status_model.objects.filter(owner=self)
+            .annotate_total_update_status()
+            .order_by("total_update_status")
+        )
+        status_val = qs.values_list("total_update_status", flat=True).first()
+        if status_val is None:
+            return UpdateStatus.INCOMPLETE
+        return UpdateStatus(status_val)

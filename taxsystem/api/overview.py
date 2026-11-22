@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 
 # AA TaxSystem
 from taxsystem.api import schema
-from taxsystem.helpers import lazy
+from taxsystem.helpers import eveonline
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import CorporationOwner
 
@@ -52,7 +52,7 @@ class ApiEndpoints:
                         name=corporation.eve_corporation.corporation_name,
                         type="corporation",
                         type_display=_("Corporation"),
-                        portrait_url=lazy.get_corporation_logo_url(
+                        portrait_url=eveonline.get_corporation_logo_url(
                             corporation.eve_corporation.corporation_id,
                             size=64,
                         ),
@@ -86,7 +86,7 @@ class ApiEndpoints:
                         name=alliance.eve_alliance.alliance_name,
                         type="alliance",
                         type_display=_("Alliance"),
-                        portrait_url=lazy.get_alliance_logo_url(
+                        portrait_url=eveonline.get_alliance_logo_url(
                             alliance.eve_alliance.alliance_id,
                             size=64,
                         ),

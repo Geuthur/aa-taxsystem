@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 
 // AA TaxSystem
-import { manageBulkPaymentAction, managePaymentAction } from "@/Api/ApiCalls";
+import { manageBulkPaymentAction, managePaymentAction } from "@/Api/calls/payments";
 import type { components } from "@/Api/OpenApi";
 
 export type BasePaymentRow =

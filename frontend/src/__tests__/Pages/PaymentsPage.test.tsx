@@ -9,22 +9,22 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as paymentsCalls from "@/Api/calls/payments";
 import type { components } from "@/Api/OpenApi";
 import { PaymentsPage } from "@/Pages/PaymentsPage";
 
 type PaymentRow = components["schemas"]["PaymentCorporationSchema"];
 
-vi.mock("@/Api/ApiCalls", () => ({
-  loadPayments: vi.fn(),
-  loadPaymentDetails: vi.fn(),
-  acceptPayment: vi.fn(),
-  rejectPayment: vi.fn(),
-  undoPayment: vi.fn(),
-  deletePayment: vi.fn(),
-  managePaymentAction: vi.fn(),
-  manageBulkPaymentAction: vi.fn(),
-}));
+vi.mock("@/Api/calls/payments", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/payments")>();
+  return {
+    ...actual,
+    loadPayments: vi.fn(),
+    loadPaymentDetails: vi.fn(),
+    managePaymentAction: vi.fn(),
+    manageBulkPaymentAction: vi.fn(),
+  };
+});
 
 const mockPayments: PaymentRow[] = [
   {
@@ -130,7 +130,7 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
 
   it("should show Accept and Reject for pending payment, but not Undo", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadPayments).mockResolvedValue(mockPayments);
+    vi.mocked(paymentsCalls.loadPayments).mockResolvedValue(mockPayments);
 
     // Test Action
     renderPage();
@@ -148,7 +148,7 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
 
   it("should show Undo for approved payment, but not Accept or Reject", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadPayments).mockResolvedValue(mockPayments);
+    vi.mocked(paymentsCalls.loadPayments).mockResolvedValue(mockPayments);
 
     // Test Action
     renderPage();
@@ -166,7 +166,7 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
 
   it("should NOT show Delete button for ESI payments", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadPayments).mockResolvedValue(mockPayments);
+    vi.mocked(paymentsCalls.loadPayments).mockResolvedValue(mockPayments);
 
     // Test Action
     renderPage();
@@ -186,7 +186,7 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
   it("should show Delete button for Custom payments and open confirmation modal", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadPayments).mockResolvedValue(mockPayments);
+    vi.mocked(paymentsCalls.loadPayments).mockResolvedValue(mockPayments);
 
     // Test Action
     renderPage();
@@ -210,8 +210,8 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
   it("should show bulk actions toolbar when rows are selected and execute bulk approve", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadPayments).mockResolvedValue(mockPayments);
-    vi.mocked(ApiCalls.manageBulkPaymentAction).mockResolvedValue({
+    vi.mocked(paymentsCalls.loadPayments).mockResolvedValue(mockPayments);
+    vi.mocked(paymentsCalls.manageBulkPaymentAction).mockResolvedValue({
       success: true,
       message: "2 payments processed successfully",
       processed_count: 2,
@@ -243,7 +243,7 @@ describe("PaymentsPage - Action Visibility and Permissions", () => {
     await user.click(approveBtn);
 
     // Expected Result - bulk approve API called with [101, 103]
-    expect(ApiCalls.manageBulkPaymentAction).toHaveBeenCalledWith(
+    expect(paymentsCalls.manageBulkPaymentAction).toHaveBeenCalledWith(
       10,
       [101, 103],
       "approve",

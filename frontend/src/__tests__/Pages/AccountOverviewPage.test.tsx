@@ -9,15 +9,19 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as userAccountsCalls from "@/Api/calls/userAccounts";
 import type { components } from "@/Api/OpenApi";
 import { AccountOverviewPage } from "@/Pages/AccountOverviewPage";
 
 type UserAccount = components["schemas"]["UserAccountSchema"];
 
-vi.mock("@/Api/ApiCalls", () => ({
-  loadUserAccounts: vi.fn(),
-}));
+vi.mock("@/Api/calls/userAccounts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/userAccounts")>();
+  return {
+    ...actual,
+    loadUserAccounts: vi.fn(),
+  };
+});
 
 const mockAccounts: UserAccount[] = [
   {
@@ -36,6 +40,7 @@ const mockAccounts: UserAccount[] = [
     tax_amount: 10000000,
     tax_period: 30,
     has_paid: true,
+    is_tax_free: false,
     last_paid: "2026-10-01",
     next_due: "2026-10-31",
     joined: "2025-01-01",
@@ -60,6 +65,7 @@ const mockAccounts: UserAccount[] = [
     tax_amount: 20000000,
     tax_period: 30,
     has_paid: false,
+    is_tax_free: false,
     last_paid: null,
     next_due: "2026-09-15",
     joined: "2024-06-01",
@@ -95,7 +101,7 @@ describe("AccountOverviewPage", () => {
 
   it("should show loading spinner initially", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserAccounts).mockReturnValue(new Promise(() => {}));
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockReturnValue(new Promise(() => {}));
 
     // Test Action
     renderPage();
@@ -106,7 +112,7 @@ describe("AccountOverviewPage", () => {
 
   it("should render account cards with status badges and metrics", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -123,10 +129,28 @@ describe("AccountOverviewPage", () => {
     expect(screen.getByText("2 Open")).toBeInTheDocument();
   });
 
+  it("should show a tax-free badge instead of unpaid for a tax-free account", async () => {
+    // Test Data
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue([
+      { ...mockAccounts[1], has_paid: false, is_tax_free: true, next_due: null },
+    ]);
+
+    // Test Action
+    renderPage();
+
+    // Expected Result
+    await waitFor(() => {
+      expect(screen.getByText("Alpha Alliance")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Tax-Free")).toBeInTheDocument();
+    expect(screen.queryByText("Unpaid / Due")).not.toBeInTheDocument();
+    expect(screen.queryByText("Paid")).not.toBeInTheDocument();
+  });
+
   it("should filter accounts when search term is entered", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -145,7 +169,7 @@ describe("AccountOverviewPage", () => {
   it("should filter accounts when owner type filter button is clicked", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -164,7 +188,7 @@ describe("AccountOverviewPage", () => {
   it("should display empty state when no accounts match query", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(ApiCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockResolvedValue(mockAccounts);
 
     // Test Action
     renderPage();
@@ -182,7 +206,7 @@ describe("AccountOverviewPage", () => {
 
   it("should show error alert on api failure", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadUserAccounts).mockRejectedValue(new Error("Network Error"));
+    vi.mocked(userAccountsCalls.loadUserAccounts).mockRejectedValue(new Error("Network Error"));
 
     // Test Action
     renderPage();

@@ -170,10 +170,6 @@ class MembersSchema(Schema):
     alts: list[CharacterSchema] = []
 
 
-class DeletePaymentRequest(Schema):
-    comment: str = "Deleted via TaxSystem"
-
-
 class PaymentSchema(Schema):
     payment_id: int
     amount: int
@@ -199,6 +195,7 @@ class PaymentSystemSchema(Schema):
     status: str
     deposit: int
     has_paid: bool
+    is_tax_free: bool = False
     last_paid: datetime | None = None
     next_due: datetime | None = None
     is_active: bool
@@ -317,6 +314,7 @@ class UserAccountSchema(Schema):
     tax_amount: float
     tax_period: int
     has_paid: bool
+    is_tax_free: bool = False
     last_paid: str | None = None
     next_due: str | None = None
     joined: str | None = None
@@ -351,14 +349,6 @@ class BulkPaymentActionResponse(Schema):
 class UpdateOwnerSettingsRequest(Schema):
     tax_amount: float | None = None
     tax_period: int | None = None
-
-
-class UpdateTaxAmountRequest(Schema):
-    tax_amount: float
-
-
-class UpdateTaxPeriodRequest(Schema):
-    tax_period: int
 
 
 class AdministrationTaxOwnerSchema(Schema):

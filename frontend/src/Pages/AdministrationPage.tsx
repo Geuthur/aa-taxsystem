@@ -28,6 +28,8 @@ import {
   useAdministrationOwners,
   useIsAdmin,
 } from "@/Components/Administration/Hooks";
+
+// Styles
 import styles from "@/Styles/modules/Administration.module.css";
 
 type TypeFilter = "all" | "corporation" | "alliance" | "issues";

@@ -9,14 +9,14 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as overviewCalls from "@/Api/calls/overview";
 import type { components } from "@/Api/OpenApi";
 import { OverviewPage } from "@/Pages/OverviewPage";
 
 type OverviewSchema = components["schemas"]["OverviewSchema"];
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
+vi.mock("@/Api/calls/overview", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/overview")>();
   return {
     ...actual,
     loadOverview: vi.fn(),
@@ -75,7 +75,7 @@ describe("OverviewPage in aa-taxsystem", () => {
 
   it("renders overview cards for corporations and alliances", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadOverview).mockResolvedValue(mockOverview);
+    vi.mocked(overviewCalls.loadOverview).mockResolvedValue(mockOverview);
 
     // Test Action
     renderPage();
@@ -88,7 +88,7 @@ describe("OverviewPage in aa-taxsystem", () => {
 
   it("filters owners using search input", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadOverview).mockResolvedValue(mockOverview);
+    vi.mocked(overviewCalls.loadOverview).mockResolvedValue(mockOverview);
     const user = userEvent.setup();
 
     // Test Action
@@ -104,7 +104,7 @@ describe("OverviewPage in aa-taxsystem", () => {
 
   it("renders pulsing indicator on Manage button when owner has errors", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadOverview).mockResolvedValue(mockOverview);
+    vi.mocked(overviewCalls.loadOverview).mockResolvedValue(mockOverview);
 
     // Test Action
     renderPage();

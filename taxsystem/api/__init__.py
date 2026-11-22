@@ -10,13 +10,13 @@ from django.conf import settings
 
 # AA TaxSystem
 from taxsystem.api import (
-    admin,
     administration,
     corporation,
     filters,
     general,
     groups,
     logs,
+    manage,
     overview,
     payments,
 )
@@ -36,7 +36,7 @@ def setup(ninja_api):
     general.ApiEndpoints(ninja_api)
     overview.ApiEndpoints(ninja_api)
     corporation.CorporationApiEndpoints(ninja_api)
-    admin.AdminApiEndpoints(ninja_api)
+    manage.ManageApiEndpoints(ninja_api)
     payments.PaymentsApiEndpoints(ninja_api)
     logs.LogsApiEndpoints(ninja_api)
     filters.FilterApiEndpoints(ninja_api)

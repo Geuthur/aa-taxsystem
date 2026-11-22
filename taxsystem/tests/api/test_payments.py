@@ -329,9 +329,32 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
 
+    def test_add_payment_should_404_error_when_account_unknown(self):
+        """Test 'api:add_payment' answers 404 with an `error` body for an unknown tax account."""
+        # Test Data
+        url = reverse(
+            f"{API_URL}:add_payment",
+            kwargs={
+                "owner_id": self.user_character.corporation_id,
+                "account_pk": 999999,
+            },
+        )
+        self.client.force_login(self.superuser)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps({"amount": 1000, "comment": "Unknown account."}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertEqual(response.json(), {"error": "Account not Found."})
+
     def test_approve_payment(self):
         """
-        Test approve payment endpoint.
+        Test approving a payment via the payment action endpoint.
 
         # Test Szenarios:
             1. Payment is approved successfully.
@@ -356,12 +379,13 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         )
 
         url = reverse(
-            f"{API_URL}:approve_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
         )
         self.client.force_login(self.superuser)
 
         data = {
+            "action": "approve",
             "comment": "Approving payment via API test.",
         }
 
@@ -379,7 +403,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
         # Test Data for Permission Denied
         url = reverse(
-            f"{API_URL}:approve_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
         )
         self.client.force_login(self.user)
@@ -396,7 +420,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
     def test_undo_payment(self):
         """
-        Test undo payment endpoint.
+        Test undoing a payment via the payment action endpoint.
 
         # Test Szenarios:
             1. Rejected Payment is undone successfully (should not change deposit).
@@ -431,12 +455,13 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         )
 
         url = reverse(
-            f"{API_URL}:undo_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": reject_payment.pk},
         )
         self.client.force_login(self.superuser)
 
         data = {
+            "action": "undo",
             "comment": "Undoing payment via API test.",
         }
 
@@ -468,12 +493,13 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         )
 
         url = reverse(
-            f"{API_URL}:undo_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": approved_payment.pk},
         )
         self.client.force_login(self.superuser)
 
         data = {
+            "action": "undo",
             "comment": "Undoing payment via API test.",
         }
 
@@ -495,7 +521,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
         # Test Data for Permission Denied
         url = reverse(
-            f"{API_URL}:undo_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": approved_payment.pk},
         )
         self.client.force_login(self.user)
@@ -512,7 +538,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
     def test_delete_payment(self):
         """
-        Test delete payment endpoint.
+        Test deleting a payment via the payment action endpoint.
 
         # Test Szenarios:
             1. Custom Payment is deleted successfully.
@@ -548,12 +574,13 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         )
 
         url = reverse(
-            f"{API_URL}:delete_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": custom_payment.pk},
         )
         self.client.force_login(self.superuser)
 
         data = {
+            "action": "delete",
             "comment": "Deleting payment via API test.",
         }
 
@@ -574,7 +601,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
         # Test Data for Permission Denied
         url = reverse(
-            f"{API_URL}:delete_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.user)
@@ -591,12 +618,13 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
         # Test Data for Payments that cannot be deleted
         url = reverse(
-            f"{API_URL}:delete_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.superuser)
 
         data = {
+            "action": "delete",
             "comment": "Deleting payment via API test.",
         }
 
@@ -612,7 +640,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
     def test_reject_payment(self):
         """
-        Test reject payment endpoint.
+        Test rejecting a payment via the payment action endpoint.
 
         # Test Szenarios:
             1. Payment is rejected successfully.
@@ -637,12 +665,13 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         )
 
         url = reverse(
-            f"{API_URL}:reject_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.superuser)
 
         data = {
+            "action": "reject",
             "comment": "Rejecting payment via API test.",
         }
 
@@ -663,7 +692,7 @@ class TestPaymentsApiEndpoints(AuthTestCase):
 
         # Test Data for Permission Denied
         url = reverse(
-            f"{API_URL}:reject_payment",
+            f"{API_URL}:manage_payment_action",
             kwargs={"owner_id": corporation_id, "payment_pk": pending_payment.pk},
         )
         self.client.force_login(self.user)
@@ -677,90 +706,6 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         result = "Permission Denied."
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.json().get("error"), result)
-
-    def test_approve_payment_should_succeed_with_empty_body(self):
-        """Test approving payment without a request body succeeds."""
-        # Test Data
-        corporation_id = self.user_character.corporation_id
-        journal_entry = CorporationJournalFactory(amount=1000)
-        payment = CorporationPaymentsFactory(
-            name=self.user_character.character_name,
-            owner=self.audit,
-            account=self.account,
-            journal=journal_entry,
-            amount=journal_entry.amount,
-            date=journal_entry.date,
-            request_status=PaymentRequestStatus.PENDING,
-        )
-        url = reverse(
-            f"{API_URL}:approve_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
-        )
-        self.client.force_login(self.superuser)
-
-        # Test Action
-        response = self.client.post(path=url)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        payment.refresh_from_db()
-        self.assertEqual(payment.request_status, PaymentRequestStatus.APPROVED)
-
-    def test_undo_payment_should_succeed_with_empty_body(self):
-        """Test undoing payment without a request body succeeds."""
-        # Test Data
-        corporation_id = self.user_character.corporation_id
-        journal_entry = CorporationJournalFactory(amount=1000)
-        payment = CorporationPaymentsFactory(
-            name=self.user_character.character_name,
-            owner=self.audit,
-            account=self.account,
-            journal=journal_entry,
-            amount=journal_entry.amount,
-            date=journal_entry.date,
-            request_status=PaymentRequestStatus.APPROVED,
-        )
-        url = reverse(
-            f"{API_URL}:undo_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
-        )
-        self.client.force_login(self.superuser)
-
-        # Test Action
-        response = self.client.post(path=url)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        payment.refresh_from_db()
-        self.assertEqual(payment.request_status, PaymentRequestStatus.PENDING)
-
-    def test_reject_payment_should_succeed_with_empty_body(self):
-        """Test rejecting payment without a request body succeeds."""
-        # Test Data
-        corporation_id = self.user_character.corporation_id
-        journal_entry = CorporationJournalFactory(amount=1000)
-        payment = CorporationPaymentsFactory(
-            name=self.user_character.character_name,
-            owner=self.audit,
-            account=self.account,
-            journal=journal_entry,
-            amount=journal_entry.amount,
-            date=journal_entry.date,
-            request_status=PaymentRequestStatus.PENDING,
-        )
-        url = reverse(
-            f"{API_URL}:reject_payment",
-            kwargs={"owner_id": corporation_id, "payment_pk": payment.pk},
-        )
-        self.client.force_login(self.superuser)
-
-        # Test Action
-        response = self.client.post(path=url)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        payment.refresh_from_db()
-        self.assertEqual(payment.request_status, PaymentRequestStatus.REJECTED)
 
     def test_manage_payment_action_should_approve(self):
         """Test unified manage_payment_action endpoint approves pending payment."""
@@ -952,3 +897,36 @@ class TestPaymentsApiEndpoints(AuthTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertEqual(response.json(), {"error": "No payment IDs provided."})
+
+    def test_bulk_payment_action_should_403_without_manage_access(self):
+        """Test bulk payment action is denied for users without manage access and changes nothing."""
+        # Test Data
+        corporation_id = self.user_character.corporation_id
+        journal_1 = CorporationJournalFactory(amount=1000)
+        payment_1 = CorporationPaymentsFactory(
+            name=self.user_character.character_name,
+            owner=self.audit,
+            account=self.account,
+            journal=journal_1,
+            amount=journal_1.amount,
+            date=journal_1.date,
+            request_status=PaymentRequestStatus.PENDING,
+        )
+        url = reverse(
+            f"{API_URL}:manage_bulk_payment_action",
+            kwargs={"owner_id": corporation_id},
+        )
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.post(
+            path=url,
+            data=json.dumps({"payment_ids": [payment_1.pk], "action": "approve"}),
+            content_type="application/json",
+        )
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        self.assertEqual(response.json(), {"error": "Permission Denied."})
+        payment_1.refresh_from_db()
+        self.assertEqual(payment_1.request_status, PaymentRequestStatus.PENDING)

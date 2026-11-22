@@ -16,6 +16,7 @@ from django.utils.translation import gettext as _
 from taxsystem import tasks
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
+from taxsystem.api.helpers.owner import get_owner
 from taxsystem.api.helpers.statistics import (
     StatisticsResponse,
     create_dashboard_common_data,
@@ -28,7 +29,7 @@ from taxsystem.api.schema import (
     PaymentSystemSchema,
     UpdateStatusSchema,
 )
-from taxsystem.helpers import lazy
+from taxsystem.helpers import eveonline
 from taxsystem.models.alliance import AllianceOwner
 from taxsystem.models.corporation import (
     CorporationOwner,
@@ -53,8 +54,8 @@ class DashboardResponse(Schema):
     activity: float
 
 
-class AdminApiEndpoints:
-    tags = ["Admin"]
+class ManageApiEndpoints:
+    tags = ["Manage"]
 
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
@@ -78,7 +79,7 @@ class AdminApiEndpoints:
                 DashboardResponse: A response object containing the dashboard information.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": _("Owner not Found.")}
@@ -143,7 +144,7 @@ class AdminApiEndpoints:
                 PaymentSystemResponse: A response object containing the list of tax accounts.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             if owner is None:
                 return 404, {"error": _("Owner not Found.")}
@@ -159,7 +160,10 @@ class AdminApiEndpoints:
                 )
                 .exclude(status=AccountStatus.MISSING)
                 .select_related(
-                    "user", "user__profile", "user__profile__main_character"
+                    "owner",
+                    "user",
+                    "user__profile",
+                    "user__profile__main_character",
                 )
                 .prefetch_related("user__character_ownerships__character")
             )
@@ -177,15 +181,19 @@ class AdminApiEndpoints:
                 .values_list("account_id", "count")
             )
 
+            tax_free_user_ids = core.get_tax_free_user_ids(owner)
+
             tax_accounts_list: list[PaymentSystemSchema] = []
             for account in tax_accounts:
+                # Active member of a tax-free group: neither paid nor unpaid
+                tax_free = account.is_active and account.user_id in tax_free_user_ids
                 # Build tax account data
                 tax_account_data = PaymentSystemSchema(
                     account_id=account.pk,
                     account=AccountSchema(
                         character_id=account.user.profile.main_character.character_id,
                         character_name=account.user.profile.main_character.character_name,
-                        character_portrait=lazy.get_character_portrait_url(
+                        character_portrait=eveonline.get_character_portrait_url(
                             account.user.profile.main_character.character_id,
                             size=32,
                         ),
@@ -194,8 +202,9 @@ class AdminApiEndpoints:
                     status=account.get_payment_status(),
                     deposit=account.deposit,
                     has_paid=account.has_paid,
+                    is_tax_free=tax_free,
                     last_paid=account.last_paid,
-                    next_due=account.next_due,
+                    next_due=None if tax_free else account.next_due,
                     is_active=account.is_active,
                     open_invoices=open_invoices_map.get(account.pk, 0),
                 )
@@ -222,7 +231,7 @@ class AdminApiEndpoints:
                 dict: A dictionary containing the success status and message.
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
@@ -284,7 +293,7 @@ class AdminApiEndpoints:
             Handle a request to update owner settings (tax amount and/or tax period).
             """
             # pylint: disable=duplicate-code
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -342,166 +351,6 @@ class AdminApiEndpoints:
             return 200, {"success": True, "message": msg}
 
         @api.post(
-            "owner/{owner_id}/manage/update-tax/",
-            response={
-                200: dict,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-                400: schema.ErrorSchema,
-            },
-            tags=self.tags,
-        )
-        def update_tax_amount(
-            request: WSGIRequest,
-            owner_id: int,
-            payload: schema.UpdateTaxAmountRequest,
-        ):
-            """Legacy wrapper delegating to update_owner_settings."""
-            return update_owner_settings(
-                request,
-                owner_id,
-                schema.UpdateOwnerSettingsRequest(tax_amount=payload.tax_amount),
-            )
-
-        @api.post(
-            "owner/{owner_id}/manage/update-period/",
-            response={
-                200: dict,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-                400: schema.ErrorSchema,
-            },
-            tags=self.tags,
-        )
-        def update_tax_period(
-            request: WSGIRequest,
-            owner_id: int,
-            payload: schema.UpdateTaxPeriodRequest,
-        ):
-            """Legacy wrapper delegating to update_owner_settings."""
-            return update_owner_settings(
-                request,
-                owner_id,
-                schema.UpdateOwnerSettingsRequest(tax_period=payload.tax_period),
-            )
-
-        @api.post(
-            "admin/tasks/run/",
-            response={
-                HTTPStatus.OK: schema.MessageSchema,
-                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
-                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
-            },
-            tags=self.tags,
-            summary="Queue update tasks for taxsystem",
-        )
-        # pylint: disable=too-many-return-statements
-        def run_update_tasks(request: WSGIRequest, payload: schema.AdminUpdateRequest):
-            if not request.user.is_superuser:
-                return HTTPStatus.FORBIDDEN, {
-                    "error": _("Superuser permission required.")
-                }
-
-            force_refresh = payload.force_refresh
-            target = payload.target
-            eve_id = payload.eve_id
-
-            if target == "all":
-                result = tasks.update_all_taxsytem.apply_async(
-                    kwargs={"force_refresh": force_refresh},
-                    priority=7,
-                    once={"graceful": True},
-                )
-                message = (
-                    _("Update All Taxsystem is already queued or running")
-                    if tasks.is_task_skipped(result)
-                    else _("Queued Update All Taxsystem")
-                )
-                return HTTPStatus.OK, {"message": message}
-
-            if target == "corporation":
-                if eve_id:
-                    try:
-                        corp = CorporationOwner.objects.get(
-                            eve_corporation__corporation_id=eve_id
-                        )
-                    except CorporationOwner.DoesNotExist:
-                        return HTTPStatus.BAD_REQUEST, {
-                            "error": _("Corporation with ID %s not found") % eve_id
-                        }
-                    result = tasks.update_corporation.apply_async(
-                        args=[corp.eve_id],
-                        kwargs={"force_refresh": force_refresh},
-                        priority=7,
-                    )
-                    message = (
-                        _("Update for Corporation: %s is already queued or running")
-                        if tasks.is_task_skipped(result)
-                        else _("Queued Update for Corporation: %s")
-                    )
-                    return HTTPStatus.OK, {"message": message % corp.name}
-
-                skipped = 0
-                for corporation in CorporationOwner.objects.filter(active=True):
-                    result = tasks.update_corporation.apply_async(
-                        args=[corporation.eve_id],
-                        kwargs={"force_refresh": force_refresh},
-                        priority=7,
-                    )
-                    skipped += tasks.is_task_skipped(result)
-                message = (
-                    _(
-                        "Queued Update All Taxsystem Corporations, %(skipped)d already queued or running"
-                    )
-                    % {"skipped": skipped}
-                    if skipped
-                    else _("Queued Update All Taxsystem Corporations")
-                )
-                return HTTPStatus.OK, {"message": message}
-
-            if target == "alliance":
-                if eve_id:
-                    try:
-                        ally = AllianceOwner.objects.get(
-                            eve_alliance__alliance_id=eve_id
-                        )
-                    except AllianceOwner.DoesNotExist:
-                        return HTTPStatus.BAD_REQUEST, {
-                            "error": _("Alliance with ID %s not found") % eve_id
-                        }
-                    result = tasks.update_alliance.apply_async(
-                        args=[ally.eve_alliance.alliance_id],
-                        kwargs={"force_refresh": force_refresh},
-                        priority=7,
-                    )
-                    message = (
-                        _("Update for Alliance: %s is already queued or running")
-                        if tasks.is_task_skipped(result)
-                        else _("Queued Update for Alliance: %s")
-                    )
-                    return HTTPStatus.OK, {"message": message % ally.name}
-
-                skipped = 0
-                for alliance in AllianceOwner.objects.filter(active=True):
-                    result = tasks.update_alliance.apply_async(
-                        args=[alliance.eve_alliance.alliance_id],
-                        kwargs={"force_refresh": force_refresh},
-                        priority=7,
-                    )
-                    skipped += tasks.is_task_skipped(result)
-                message = (
-                    _(
-                        "Queued Update All Taxsystem Alliances, %(skipped)d already queued or running"
-                    )
-                    % {"skipped": skipped}
-                    if skipped
-                    else _("Queued Update All Taxsystem Alliances")
-                )
-                return HTTPStatus.OK, {"message": message}
-
-            return HTTPStatus.BAD_REQUEST, {"error": _("Invalid target specified.")}
-
-        @api.post(
             "owner/{int:owner_id}/update/",
             response={
                 HTTPStatus.OK: schema.MessageSchema,
@@ -516,7 +365,7 @@ class AdminApiEndpoints:
             owner_id: int,
             payload: schema.OwnerUpdateRequest | None = None,
         ):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
             if perms is False:
@@ -558,7 +407,7 @@ class AdminApiEndpoints:
             summary="Delete a corporation or alliance owner",
         )
         def delete_owner(request: WSGIRequest, owner_id: int):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return HTTPStatus.NOT_FOUND, {"error": _("Owner not Found.")}
             if perms is False:

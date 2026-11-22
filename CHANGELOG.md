@@ -28,11 +28,7 @@ Section Order:
 
 <!-- Your changes go here -->
 
-- [ADD] Reusable frontend components `OwnerPortrait` and `SearchInput`, replacing several inline copies.
-
 - [ADD] Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) for the tox environment `allianceauth-development` and `make tox-tests-development`, with separate test settings in `testauth/settings/development/`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14.
-
-- [ADD] Frontend hooks per area (`Components/<Area>/Hooks`) that hold the queries and mutations of the Administration, Settings, Payments, Overview, Account Overview, Owner Management and menu views, plus the shared hooks `useFeedback`, `useCooldown` and `useUserData`.
 
 > [!WARNING]
 >
@@ -41,50 +37,39 @@ Section Order:
 ### Fixed
 
 - [FIX] Compatibility with Alliance Auth 6 (pre-release) and Django 6: the `eveonline` migration dependencies of `0001_initial`, `0001_init_v3` and `0010_create_alliance_corporation` now point to `0019_v5squash` (Alliance Auth 6 removed the older `eveonline` migrations, `0019_v5squash` exists in Alliance Auth 5 as well), and `AccountStatus.html()` passes its values to `format_html` as arguments (Django 6 no longer accepts `format_html` without arguments). Works with Alliance Auth 5 and 6.
-
-- [FIX] Members of a tax-free group no longer get the outstanding payment notification (Discord and Auth).
-
-- [FIX] Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` and `testauth/settings/development/local.py` give each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis were returned instead of the pook responses. Redis stays the cache backend because Alliance Auth needs `django_redis`.
-
-- [FIX] The Django admin action "Force update selected corporations/alliances" showed a success message even when celery_once skipped every selected owner and no update was started. It now shows a warning ("No force update started. … skipped, an update is already queued or running.") in that case. With at least one started update the success message and the note on skipped owners are unchanged.
-
-- [FIX] Manual updates reported "Queued …" even when celery_once skipped them because an update for the same owner was already queued or running. The new helper `is_task_skipped()` in `tasks.py` detects the skipped call (celery_once returns an `EagerResult` with state `REJECTED` instead of queueing). The update endpoints `POST admin/tasks/run/`, `POST owner/{owner_id}/update/`, `POST administration/owners/{owner_type}/{owner_id}/update/` and `POST settings/owners/update-all/` now answer "… is already queued or running" or report the number of skipped owners; status code and response schema are unchanged. The Django admin action "Force update selected corporations/alliances" reports skipped owners as well, and its message is now translatable (it used an f-string inside `gettext`). `admin/tasks/run/` with target `all` queues `update_all_taxsytem` with `once={"graceful": True}`, so a second click while it is queued no longer fails with `AlreadyQueued` (HTTP 500).
-
-- [FIX] The per-owner lock of the owner tasks never worked: `TASK_DEFAULTS_ONCE_OWNER` set `once` (keys `owner_eve_id`, graceful) but not `base=QueueOnce`, so celery_once ignored it and the same task could be queued several times for the same owner. `TASK_DEFAULTS_ONCE_OWNER` and `TASK_DEFAULTS_BIND_ONCE_OWNER` now build on `TASK_DEFAULTS_ONCE` and `TASK_DEFAULTS_BIND_ONCE` as in the `aa-example` template. A second `apply_async` for an owner whose task is still queued or running is skipped silently; this also applies to manual updates from the admin pages and the API. Other owners are not affected. Retries through `self.retry` and the direct calls of the section tasks inside `update_corporation` and `update_alliance` bypass the lock as before.
-
-- [FIX] ESI outages and limits never retried the corporation update tasks: no task used `retry_task_on_esi_error`, and the `UpdateManager` turned every ESI error except `TokenError` into an update status. `update_corporation` and the ESI section tasks `update_corp_division_names`, `update_corp_divisions`, `update_corp_wallet` and `update_corp_members` are now bound and run inside `retry_task_on_esi_error`. `_handle_update_exception` raises the errors the task retries on (`ESIErrorLimitException`, `ESIBucketLimitException`, `HTTPServerError` 502/503/504, `RequestError`, `DownTimeError`), checked by the new `is_retryable_esi_error()` in `providers.py`. `execute_section` records them as a failed run of the section before raising, so the section shows the error and stays stale until the retry succeeds. Other errors (e.g. HTTP 500 or 404) still end in the update status only. Alliance tasks and the corporation sections payments, tax accounts and deadlines make no ESI calls and are unchanged.
-
-- [FIX] Real Weblate translations lost when the bundled-translations switch emptied all non-English values (Weblate could no longer rebase its branch). The translated frontend strings from the Weblate branch (30 to 43 per language, one more for German) are merged into `frontend/i18n/<lng>/translation.json`; new `cs` and `sk` files were added. The Django `.po` files already contained everything and are unchanged.
-
-- [FIX] Tests no longer fail between 11:00 and 11:15 UTC. The daily ESI downtime check can be disabled with the `DISABLE_DAILY_DOWNTIME_CHECK` setting, which the test settings now set.
-
-- [FIX] Section headers, card headers and filter button groups overflowing the container on small screens; headers now wrap and the filter buttons scroll horizontally.
-
-- Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
-
-- [FIX] The pulsing menu and tab badges scaled up and down with their number. Only the glow around the badge pulses now.
-
+- [FIX] React Query no longer retries 403, 404 and other 4xx answers three times, so the error shows at once instead of after about seven seconds (`createQueryClient` of `aa-geuthur-react` 1.7.0).
 - [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
-
-- [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
-
+- [FIX] Accounts of tax-free group members are shown as "Tax-Free" instead of unpaid (account overview, account list of the owner) and no longer count as unpaid in the owner statistics.
 - [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
-
+- [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
+- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) no longer fails the task; only the type of the error is logged.
+- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) is no longer retried, because it is rejected before any request is sent; a network error or a rejected response is still retried.
 - [FIX] Alliance accounts now count for the menu badge (own unpaid account, open invoices for alliance managers) and only notified alliance accounts get a reminder timestamp.
-
+- [FIX] The account list of an owner no longer runs two extra database queries per account.
+- [FIX] The payments and members update tasks no longer run an extra database query per account to read its characters.
+- [FIX] Deleting an unknown member or adding a custom payment to an unknown account now answers 404 instead of a server error (500).
 - [FIX] Security alerts for `minimatch` and `zod` in the dev dependencies (eslint 10.15, typescript-eslint 8.73, zod 4.6.7).
 
 ### Changed
 
+- [CHANGE] The image helpers moved from `helpers/lazy.py` to `helpers/eveonline.py` (template state), and the admin logos use the public Alliance Auth image functions; display unchanged.
+- [CHANGE] The update status of an owner is computed by the manager of its status model through `UpdateManagerMixin.get_status` (as in the template); an owner with token errors in several sections now shows "Token Error" instead of "Error".
 - [CHANGE] Every URL of the API requires `basic_access` (403 otherwise), and `add_corp` and `add_alliance` require it in addition to `create_access`.
 - [CHANGE] The Discord notification module moved to `taxsystem/thirdparty/discord.py` and matches the template building block (incl. webhook delivery); notifications behave as before.
+- [CHANGE] i18next 27, react-i18next 18 (`aa-geuthur-react` `^1.8.0`) and stylelint 18 (pre-commit hook with `--config-basedir`). A plural form left empty in a language (e.g. `_few` in pl, ru, uk) now shows that language's `_other` form instead of English.
 - [CHANGE] The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed without visual change (hex colors as equivalent `rgb()`)
 - [CHANGE] Frontend uses `aa-geuthur-react` 1.5.0: owner cards, `OwnerPortrait`, design tokens, the i18next setup and the user settings hook come from the package instead of copies in the app. On the settings page the alliance badge is green, a section with a token error has a red dot and the glow of owners with an error is animated.
 - [CHANGE] Every error response of the API (4xx and 5xx) has the body `{"error": "<text>"}` (`ErrorSchema`) and every endpoint lists its 403 in the OpenAPI schema; the bodies of the formerly `{"success": false, "message": ...}` and `{"detail": ...}` errors change, status codes and success responses stay. The interface shows the reason of the API instead of a fixed text.
+- [CHANGE] API endpoint `admin/tasks/run/` moved to `administration/tasks/run/`; the owner management endpoints moved from `api/admin.py` to `api/manage.py` (tag "Manage", paths unchanged).
+- Internal: The owner access helper of the API follows the template (`get_object_with_access` returns `(allowed, object)`, `get_owner(..., manage=True)` replaces `get_manage_owner`); responses stay the same.
+- Internal: The frontend API calls are split by area into `Api/calls/<area>.ts`, each with its own query keys, replacing `Api/ApiCalls.ts` and `Api/query.ts`.
+- Internal: ESLint enforces the import order React, third party, `@/`, styles (CSS imports via `@/` now belong to the `// Styles` group, as in the template).
+- [CHANGE] Node 26 in CI and pre-commit, npm packages updated (minor and patch, `jsdom` 31, `@testing-library/jest-dom` 8); `stylelint`, `TypeScript`, `i18next` and `react-i18next` stay on their major version.
 
 ### Removed
 
 - [REMOVED] Unused manager method `_move_tax_account_to_owner` (corporation and alliance).
+- [REMOVED] Legacy API endpoints `manage/update-tax/`, `manage/update-period/` (use `manage/settings/`) and `approve-payment/`, `reject-payment/`, `undo-payment/`, `delete-payment/` (use `manage/action/`), plus unused frontend API calls.
 
 ## [5.2.0] - 2026-11-13
 

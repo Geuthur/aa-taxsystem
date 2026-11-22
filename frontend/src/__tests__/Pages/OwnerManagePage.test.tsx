@@ -8,14 +8,21 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA TaxSystem
-import * as ApiCalls from "@/Api/ApiCalls";
+import * as dashboardCalls from "@/Api/calls/dashboard";
 import OwnerManagePage from "@/Pages/OwnerManagePage";
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
+vi.mock("@/Api/calls/dashboard", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/dashboard")>();
   return {
     ...actual,
     loadDashboard: vi.fn(),
+  };
+});
+
+vi.mock("@/Api/calls/settings", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/Api/calls/settings")>();
+  return {
+    ...actual,
     triggerOwnerUpdate: vi.fn(),
     deleteOwner: vi.fn(),
   };
@@ -82,7 +89,7 @@ describe("OwnerManagePage", () => {
 
   it("renders SYNCHRONIZED when update status is successful", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadDashboard).mockResolvedValue(mockDashboardSuccess as never);
+    vi.mocked(dashboardCalls.loadDashboard).mockResolvedValue(mockDashboardSuccess as never);
 
     // Test Action
     renderComponent();
@@ -95,7 +102,7 @@ describe("OwnerManagePage", () => {
 
   it("renders SYNC ERROR badge when update status has errors", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadDashboard).mockResolvedValue(mockDashboardError as never);
+    vi.mocked(dashboardCalls.loadDashboard).mockResolvedValue(mockDashboardError as never);
 
     // Test Action
     renderComponent();
@@ -111,7 +118,7 @@ describe("OwnerManagePage", () => {
 
   it("does not render Update or Delete buttons in header (moved to Settings)", async () => {
     // Test Data
-    vi.mocked(ApiCalls.loadDashboard).mockResolvedValue(mockDashboardSuccess as never);
+    vi.mocked(dashboardCalls.loadDashboard).mockResolvedValue(mockDashboardSuccess as never);
 
     // Test Action
     renderComponent();

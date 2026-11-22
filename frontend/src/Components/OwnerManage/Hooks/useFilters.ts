@@ -3,20 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // AA TaxSystem
 // AA Tax System
-import {
-  createFilter,
-  createFilterSet,
-  deleteFilter,
-  deleteFilterSet,
-  loadFilterSets,
-  loadFilters,
-} from "@/Api/ApiCalls";
-import { queryKeys } from "@/Api/query";
+import { createFilter, createFilterSet, deleteFilter, deleteFilterSet, filtersQueryKeys, loadFilters, loadFilterSets } from "@/Api/calls/filters";
 
 /** Loads the filter sets of an owner. */
 export function useFilterSets(ownerId: number) {
   return useQuery({
-    queryKey: queryKeys.FilterSets(ownerId),
+    queryKey: filtersQueryKeys.filterSets(ownerId),
     queryFn: () => loadFilterSets(ownerId),
   });
 }
@@ -24,7 +16,7 @@ export function useFilterSets(ownerId: number) {
 /** Loads the filters of a filter set; stays disabled until a set is selected. */
 export function useFilters(ownerId: number, filterSetId: number | null) {
   return useQuery({
-    queryKey: queryKeys.Filters(ownerId, filterSetId ?? undefined),
+    queryKey: filtersQueryKeys.filters(ownerId, filterSetId ?? undefined),
     queryFn: () => (filterSetId ? loadFilters(ownerId, filterSetId) : Promise.resolve([])),
     enabled: filterSetId !== null,
   });
@@ -51,7 +43,7 @@ export function useFilterActions(
     mutationFn: ({ name, description }: { name: string; description: string }) =>
       createFilterSet(ownerId, { name: name.trim(), description: description.trim() }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.FilterSets(ownerId) });
+      queryClient.invalidateQueries({ queryKey: filtersQueryKeys.filterSets(ownerId) });
       callbacks.onSetCreated?.();
     },
   });
@@ -78,7 +70,7 @@ export function useFilterActions(
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.Filters(ownerId, variables.filterSetId ?? undefined),
+        queryKey: filtersQueryKeys.filters(ownerId, variables.filterSetId ?? undefined),
       });
       callbacks.onFilterCreated?.();
     },
@@ -87,7 +79,7 @@ export function useFilterActions(
   const deleteSetMutation = useMutation({
     mutationFn: (filtersetPk: number) => deleteFilterSet(ownerId, filtersetPk),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.FilterSets(ownerId) });
+      queryClient.invalidateQueries({ queryKey: filtersQueryKeys.filterSets(ownerId) });
       callbacks.onSetDeleted?.();
     },
   });
@@ -96,7 +88,7 @@ export function useFilterActions(
     mutationFn: (filterPk: number) => deleteFilter(ownerId, filterPk),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.Filters(ownerId, activeSetId ?? undefined),
+        queryKey: filtersQueryKeys.filters(ownerId, activeSetId ?? undefined),
       });
       callbacks.onFilterDeleted?.();
     },

@@ -49,8 +49,11 @@ class TestCorporationOwnerAdmin(AuthTestCase):
         # given/when
         result = self.admin._entity_pic(self.corporation_owner)
         # then
-        self.assertIn("<img src=", result)
-        self.assertIn('class="img-circle"', result)
+        corporation_id = self.corporation_owner.eve_corporation.corporation_id
+        self.assertHTMLEqual(
+            result,
+            f'<img src="https://images.evetech.net/corporations/{corporation_id}/logo?size=32" class="img-circle">',
+        )
 
     def test_corporation_id_display(self):
         """Test _eve_corporation__corporation_id method"""
@@ -184,6 +187,17 @@ class TestAllianceOwnerAdmin(AuthTestCase):
         request.user = self.user
         request._messages = Mock()
         return request
+
+    def test_entity_pic_display(self):
+        """Test _entity_pic method returns the alliance logo as HTML"""
+        # given/when
+        result = self.admin._entity_pic(self.alliance_owner)
+        # then
+        alliance_id = self.alliance_owner.eve_alliance.alliance_id
+        self.assertHTMLEqual(
+            result,
+            f'<img src="https://images.evetech.net/alliances/{alliance_id}/logo?size=32" class="img-circle">',
+        )
 
     @patch("taxsystem.admin.update_alliance")
     def test_force_update_action(self, mock_update):

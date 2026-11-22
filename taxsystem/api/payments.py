@@ -17,7 +17,8 @@ from django.utils.translation import gettext_lazy as _
 # AA TaxSystem
 from taxsystem.api import schema
 from taxsystem.api.helpers import core
-from taxsystem.helpers import lazy
+from taxsystem.api.helpers.owner import get_owner
+from taxsystem.helpers import eveonline
 from taxsystem.models.helpers.textchoices import (
     AccountStatus,
     ActionType,
@@ -28,7 +29,9 @@ from taxsystem.models.helpers.textchoices import (
 
 
 def _serialize_payment(payment, can_manage: bool) -> schema.PaymentCorporationSchema:
-    character_portrait = lazy.get_character_portrait_url(payment.character_id, size=32)
+    character_portrait = eveonline.get_character_portrait_url(
+        payment.character_id, size=32
+    )
     raw_status = payment.request_status
     is_custom = payment.journal is None
     can_approve = can_manage and raw_status in [
@@ -250,13 +253,13 @@ class PaymentsApiEndpoints:
             scope: Literal["all", "mine"] = "all",
             character_id: int | None = None,
         ):
-            owner, perms = core.get_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id)
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
                 return 403, {"error": gettext("Permission Denied.")}
 
-            can_manage = core.get_manage_owner(request, owner_id)[1]
+            can_manage = get_owner(request, owner_id, manage=True)[0]
 
             if character_id is not None:
                 char_perm = can_manage or core.get_character_permissions(
@@ -336,7 +339,7 @@ class PaymentsApiEndpoints:
         )
         # pylint: disable=too-many-locals
         def get_payment_details(request, owner_id: int, payment_pk: int):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # pylint: disable=duplicate-code
             if owner is None:
@@ -379,7 +382,7 @@ class PaymentsApiEndpoints:
                 character=schema.CharacterSchema(
                     character_id=payment.character_id,
                     character_name=payment.account.name,
-                    character_portrait=lazy.get_character_portrait_url(
+                    character_portrait=eveonline.get_character_portrait_url(
                         payment.character_id, size=32
                     ),
                     corporation_id=payment.account.owner.pk,
@@ -390,7 +393,7 @@ class PaymentsApiEndpoints:
 
             raw_status = payment.request_status
             is_custom = payment.journal is None
-            can_manage = core.get_manage_owner(request, owner_id)[1]
+            can_manage = get_owner(request, owner_id, manage=True)[0]
 
             response_request_status = schema.RequestStatusSchema(
                 status=payment.get_request_status_display(),
@@ -454,7 +457,7 @@ class PaymentsApiEndpoints:
             summary="Get member payments (legacy wrapper)",
         )
         def get_member_payments(request: WSGIRequest, owner_id: int, character_id: int):
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return 404, {"error": gettext("Corporation not found")}
             if perms is False:
@@ -491,7 +494,7 @@ class PaymentsApiEndpoints:
             Returns:
                 dict: A dictionary containing the success status and message.
             """
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
 
             # Check if owner exists
             if owner is None:
@@ -553,6 +556,8 @@ class PaymentsApiEndpoints:
                     ).save()
 
                 return 200, {"success": True, "message": msg}
+            except owner.account_model.DoesNotExist:
+                return 404, {"error": gettext("Account not Found.")}
             except IntegrityError:
                 return 400, {"error": gettext("Transaction failed. Please try again.")}
 
@@ -574,7 +579,7 @@ class PaymentsApiEndpoints:
             payload: schema.PaymentActionRequest,
         ):
             """Manage payment actions via unified action endpoint."""
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
@@ -604,7 +609,7 @@ class PaymentsApiEndpoints:
             payload: schema.BulkPaymentActionRequest,
         ):
             """Manage multiple payments in bulk."""
-            owner, perms = core.get_manage_owner(request, owner_id)
+            perms, owner = get_owner(request, owner_id, manage=True)
             if owner is None:
                 return 404, {"error": gettext("Owner not Found.")}
             if perms is False:
@@ -647,135 +652,3 @@ class PaymentsApiEndpoints:
                 "total_count": len(payment_ids),
                 "message": str(msg),
             }
-
-        @api.post(
-            "owner/{owner_id}/payment/{payment_pk}/manage/approve-payment/",
-            response={
-                200: dict,
-                400: schema.ErrorSchema,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-            },
-            tags=self.tags,
-            summary="Approve payment (legacy wrapper)",
-        )
-        def approve_payment(
-            request: WSGIRequest,
-            owner_id: int,
-            payment_pk: int,
-            payload: schema.ActionCommentRequest = schema.ActionCommentRequest(),
-        ):
-            """Legacy wrapper to approve a payment."""
-            owner, perms = core.get_manage_owner(request, owner_id)
-            if owner is None:
-                return 404, {"error": gettext("Owner not Found.")}
-            if perms is False:
-                return 403, {"error": gettext("Permission Denied.")}
-            reason = payload.comment if payload else ""
-            return _execute_payment_action(
-                user=request.user,
-                owner=owner,
-                payment_pk=payment_pk,
-                action="approve",
-                comment=reason,
-            )
-
-        @api.post(
-            "owner/{owner_id}/payment/{payment_pk}/manage/undo-payment/",
-            response={
-                200: dict,
-                400: schema.ErrorSchema,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-            },
-            tags=self.tags,
-            summary="Undo payment (legacy wrapper)",
-        )
-        def undo_payment(
-            request: WSGIRequest,
-            owner_id: int,
-            payment_pk: int,
-            payload: schema.ActionCommentRequest = schema.ActionCommentRequest(),
-        ):
-            """Legacy wrapper to undo a payment."""
-            owner, perms = core.get_manage_owner(request, owner_id)
-            if owner is None:
-                return 404, {"error": gettext("Owner not Found.")}
-            if perms is False:
-                return 403, {"error": gettext("Permission Denied.")}
-            reason = payload.comment if payload else ""
-            return _execute_payment_action(
-                user=request.user,
-                owner=owner,
-                payment_pk=payment_pk,
-                action="undo",
-                comment=reason,
-            )
-
-        @api.post(
-            "owner/{owner_id}/payment/{payment_pk}/manage/delete-payment/",
-            response={
-                200: dict,
-                400: schema.ErrorSchema,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-            },
-            tags=self.tags,
-            summary="Delete payment (legacy wrapper)",
-        )
-        def delete_payment(
-            request: WSGIRequest,
-            owner_id: int,
-            payment_pk: int,
-            payload: schema.DeletePaymentRequest = schema.DeletePaymentRequest(),
-        ):
-            """Legacy wrapper to delete a payment."""
-            owner, perms = core.get_manage_owner(request, owner_id)
-            if owner is None:
-                return 404, {"error": gettext("Owner not Found.")}
-            if perms is False:
-                return 403, {"error": gettext("Permission Denied.")}
-            reason = (
-                payload.comment
-                if payload and payload.comment
-                else "Deleted via TaxSystem"
-            )
-            return _execute_payment_action(
-                user=request.user,
-                owner=owner,
-                payment_pk=payment_pk,
-                action="delete",
-                comment=reason,
-            )
-
-        @api.post(
-            "owner/{owner_id}/payment/{payment_pk}/manage/reject-payment/",
-            response={
-                200: dict,
-                400: schema.ErrorSchema,
-                403: schema.ErrorSchema,
-                404: schema.ErrorSchema,
-            },
-            tags=self.tags,
-            summary="Reject payment (legacy wrapper)",
-        )
-        def reject_payment(
-            request: WSGIRequest,
-            owner_id: int,
-            payment_pk: int,
-            payload: schema.ActionCommentRequest = schema.ActionCommentRequest(),
-        ):
-            """Legacy wrapper to reject a payment."""
-            owner, perms = core.get_manage_owner(request, owner_id)
-            if owner is None:
-                return 404, {"error": gettext("Owner not Found.")}
-            if perms is False:
-                return 403, {"error": gettext("Permission Denied.")}
-            reason = payload.comment if payload else ""
-            return _execute_payment_action(
-                user=request.user,
-                owner=owner,
-                payment_pk=payment_pk,
-                action="reject",
-                comment=reason,
-            )
