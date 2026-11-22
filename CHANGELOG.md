@@ -40,6 +40,7 @@ Section Order:
 - [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
 - [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
 - [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) no longer fails the task; only the type of the error is logged.
+- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) is no longer retried, because it is rejected before any request is sent; a network error or a rejected response is still retried.
 - [FIX] Alliance accounts now count for the menu badge (own unpaid account, open invoices for alliance managers) and only notified alliance accounts get a reminder timestamp.
 - [FIX] The account list of an owner no longer runs two extra database queries per account.
 - [FIX] The payments and members update tasks no longer run an extra database query per account to read its characters.
