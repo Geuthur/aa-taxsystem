@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Tax System\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-11-19 16:22+0000\n"
-"PO-Revision-Date: 2026-10-25 10:29+0000\n"
+"PO-Revision-Date: 2026-11-23 12:03+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "taxsystem/de/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 2026.11.2\n"
 
 msgid "last update run"
 msgstr "Letztes Update ausgeführt"
@@ -29,15 +29,19 @@ msgstr "Update erzwingen für ausgewählte Corporations"
 msgid ""
 "%(skipped)d corporation(s) skipped, an update is already queued or running."
 msgstr ""
+"%(skipped)d Corporation(s) übersprungen, eine Aktualisierung ist bereits "
+"eingereiht oder läuft."
 
 msgid "No force update started."
-msgstr ""
+msgstr "Keine erzwungene Aktualisierung gestartet."
 
 #, python-format
 msgid ""
 "Started force update for %(count)d corporation(s). Updates will run in the "
 "background."
 msgstr ""
+"Erzwungene Aktualisierung für %(count)d Corporation(s) gestartet. Die "
+"Aktualisierungen laufen im Hintergrund."
 
 msgid "Force update selected alliances"
 msgstr "Ausgewählte Allianzen zwangsweise aktualisieren"
@@ -46,15 +50,19 @@ msgstr "Ausgewählte Allianzen zwangsweise aktualisieren"
 msgid ""
 "%(skipped)d alliance(s) skipped, an update is already queued or running."
 msgstr ""
+"%(skipped)d Allianz(en) übersprungen, eine Aktualisierung ist bereits "
+"eingereiht oder läuft."
 
 #, python-format
 msgid ""
 "Started force update for %(count)d alliance(s). Updates will run in the "
 "background."
 msgstr ""
+"Erzwungene Aktualisierung für %(count)d Allianz(en) gestartet. Die "
+"Aktualisierungen laufen im Hintergrund."
 
 msgid "Owner not Found."
-msgstr "Inhaber nicht gefunden."
+msgstr "Eigentümer nicht gefunden."
 
 msgid "Permission Denied."
 msgstr "Zugriff verweigert."
@@ -85,6 +93,8 @@ msgstr "Superuser-Berechtigung erforderlich."
 
 msgid "Update All Taxsystem is already queued or running"
 msgstr ""
+"Die Aktualisierung des gesamten Steuersystems ist bereits eingereiht oder "
+"läuft"
 
 msgid "Queued Update All Taxsystem"
 msgstr "In der Warteschlange: Alle Steuersysteme aktualisieren"
@@ -95,7 +105,7 @@ msgstr "Corporation mit ID %s nicht gefunden"
 
 #, python-format
 msgid "Update for Corporation: %s is already queued or running"
-msgstr ""
+msgstr "Die Aktualisierung für Corporation %s ist bereits eingereiht oder läuft"
 
 #, python-format
 msgid "Queued Update for Corporation: %s"
@@ -106,6 +116,8 @@ msgid ""
 "Queued Update All Taxsystem Corporations, %(skipped)d already queued or "
 "running"
 msgstr ""
+"Aktualisierung aller Steuersystem-Corporations eingereiht, %(skipped)d "
+"bereits eingereiht oder laufend"
 
 msgid "Queued Update All Taxsystem Corporations"
 msgstr ""
@@ -117,7 +129,7 @@ msgstr "Allianz mit ID %s nicht gefunden"
 
 #, python-format
 msgid "Update for Alliance: %s is already queued or running"
-msgstr ""
+msgstr "Die Aktualisierung für Allianz %s ist bereits eingereiht oder läuft"
 
 #, python-format
 msgid "Queued Update for Alliance: %s"
@@ -127,6 +139,8 @@ msgstr "Aktualisierung für Allianz in Warteschlange: %s"
 msgid ""
 "Queued Update All Taxsystem Alliances, %(skipped)d already queued or running"
 msgstr ""
+"Aktualisierung aller Steuersystem-Allianzen eingereiht, %(skipped)d bereits "
+"eingereiht oder laufend"
 
 msgid "Queued Update All Taxsystem Alliances"
 msgstr "In der Warteschlange: Alle Allianzen des Steuersystems aktualisieren"
@@ -136,11 +150,11 @@ msgstr "Ungültiges Ziel angegeben."
 
 #, python-format
 msgid "Update for %(name)s is already queued or running"
-msgstr ""
+msgstr "Die Aktualisierung für %(name)s ist bereits eingereiht oder läuft"
 
 #, python-format
 msgid "Queued update for %(name)s"
-msgstr "Update für %(name)s eingereiht"
+msgstr "Aktualisierung für %(name)s eingereiht"
 
 #, python-format
 msgid "Corporation %(name)s deleted successfully."
@@ -151,7 +165,7 @@ msgid "Alliance %(name)s deleted successfully."
 msgstr "Allianz %(name)s erfolgreich gelöscht."
 
 msgid "Administration permission required."
-msgstr "Administrationsberechtigung erforderlich."
+msgstr "Verwaltungsberechtigung erforderlich."
 
 #, python-format
 msgid "Corporation with ID %(id)s not found"
@@ -165,7 +179,7 @@ msgid "Invalid owner type specified."
 msgstr "Ungültiger Eigentümertyp angegeben."
 
 msgid "Permission Denied"
-msgstr ""
+msgstr "Zugriff verweigert"
 
 #, python-brace-format
 msgid "Member {member} deleted - {reason}"
@@ -234,10 +248,12 @@ msgstr "Verwaltung"
 msgid ""
 "Queued updates for %(count)d owner(s), %(skipped)d already queued or running."
 msgstr ""
+"Aktualisierungen für %(count)d Eigentümer eingereiht, %(skipped)d bereits "
+"eingereiht oder laufend."
 
 #, python-format
 msgid "Queued updates for %(count)d owner(s)."
-msgstr ""
+msgstr "Aktualisierungen für %(count)d Eigentümer eingereiht."
 
 #, python-brace-format
 msgid "{group_obj} deleted - Reason: {reason}"
@@ -302,7 +318,7 @@ msgid "System"
 msgstr "System"
 
 msgid "Corporation not found"
-msgstr ""
+msgstr "Corporation nicht gefunden"
 
 msgid "Invalid form data."
 msgstr "Ungültige Formulardaten."
@@ -340,7 +356,7 @@ msgid "The corporation that owns this alliance tax system."
 msgstr "Die Corporation, das dieses Allianzsteuersystem besitzt."
 
 msgid "Designates whether this alliance owner is active."
-msgstr "Gibt an, ob dieser Allianzinhaber aktiv ist."
+msgstr "Gibt an, ob dieser Allianz-Eigentümer aktiv ist."
 
 msgid "Tax Amount in ISK that is set for the alliance. Max 16 Digits"
 msgstr "Für die Allianz festgelegter Steuerbetrag in ISK. Maximal 16 Stellen"
@@ -357,7 +373,7 @@ msgstr ""
 "Steuerzahlung überfällig ist oder das Guthaben unter Null gefallen ist."
 
 msgid "Owner of this payment"
-msgstr "Inhaber dieser Zahlung"
+msgstr "Eigentümer dieser Zahlung"
 
 msgid "Payment"
 msgstr "Zahlung"
@@ -372,10 +388,10 @@ msgid "New Status of the action"
 msgstr "Neuer Status der Aktion"
 
 msgid "Owner"
-msgstr "Inhaber"
+msgstr "Eigentümer"
 
 msgid "Owner that the action was performed on"
-msgstr "Inhaber, an dem die Aktion durchgeführt wurde"
+msgstr "Eigentümer, an dem die Aktion durchgeführt wurde"
 
 msgid "Type"
 msgstr "Typ"
@@ -441,7 +457,7 @@ msgid "Comment of the action"
 msgstr "Kommentar der Aktion"
 
 msgid "Designates whether this corporation owner is active."
-msgstr "Gibt an, ob dieser Corporation Inhaber aktiv ist."
+msgstr "Gibt an, ob dieser Corporation-Eigentümer aktiv ist."
 
 msgid "Tax Amount in ISK that is set for the corporation. Max 16 Digits"
 msgstr ""
@@ -576,7 +592,7 @@ msgid "Disabled"
 msgstr "Deaktiviert"
 
 msgid "Token Error"
-msgstr "token Fehler"
+msgstr "Token-Fehler"
 
 msgid "Error"
 msgstr "Fehler"
