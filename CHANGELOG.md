@@ -28,6 +28,8 @@ Section Order:
 
 <!-- Your changes go here -->
 
+## [5.3.0] - 2026-11-24
+
 > [!WARNING]
 >
 > Basic access is only granted by `basic_access`. Users with higher permissions (`create_access`, `manage_*`, `admin_access`) but without `basic_access` lose access to the API and to the pages to add a corporation or alliance. Grant `basic_access` to these users or groups.
@@ -39,8 +41,7 @@ Section Order:
 - [FIX] Accounts of tax-free group members are shown as "Tax-Free" instead of unpaid (account overview, account list of the owner) and no longer count as unpaid in the owner statistics.
 - [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
 - [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
-- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) no longer fails the task; only the type of the error is logged.
-- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) is no longer retried, because it is rejected before any request is sent; a network error or a rejected response is still retried.
+- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) no longer fails the task and is not retried; only the type of the error is logged. Network errors are still retried.
 - [FIX] Alliance accounts now count for the menu badge (own unpaid account, open invoices for alliance managers) and only notified alliance accounts get a reminder timestamp.
 - [FIX] The account list of an owner no longer runs two extra database queries per account.
 - [FIX] The payments and members update tasks no longer run an extra database query per account to read its characters.
@@ -1215,5 +1216,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.7]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.6...v5.0.7 "v5.0.7"
 [5.1.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.7...v5.1.0 "v5.1.0"
 [5.2.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.1.0...v5.2.0 "v5.2.0"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.2.0...HEAD "In Development"
+[5.3.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.2.0...v5.3.0 "v5.3.0"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.3.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
