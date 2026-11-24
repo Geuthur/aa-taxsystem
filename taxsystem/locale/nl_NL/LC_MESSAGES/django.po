@@ -6,8 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Tax System\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 16:22+0000\n"
+"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
+"taxsystem/\n"
+"POT-Creation-Date: 2026-11-24 10:18+0100\n"
 "PO-Revision-Date: 2026-11-23 08:53+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: Dutch <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -53,34 +54,37 @@ msgid ""
 "background."
 msgstr ""
 
-msgid "Owner not Found."
-msgstr ""
-
-msgid "Permission Denied."
-msgstr ""
-
-msgid "Account not found."
-msgstr ""
-
-#, python-brace-format
-msgid "{account} switched to {status}"
-msgstr ""
-
-msgid "Please enter a valid number"
-msgstr ""
-
-#, python-brace-format
-msgid "Tax Amount from {owner} changed to {value}"
-msgstr ""
-
-#, python-brace-format
-msgid "Tax Period from {owner} changed to {value}"
-msgstr ""
-
-msgid "No settings provided to update."
+msgid "Administration permission required."
 msgstr ""
 
 msgid "Superuser permission required."
+msgstr ""
+
+#, python-format
+msgid "Corporation with ID %(id)s not found"
+msgstr ""
+
+#, python-format
+msgid "Update for %(name)s is already queued or running"
+msgstr ""
+
+#, python-format
+msgid "Queued update for %(name)s"
+msgstr ""
+
+#, python-format
+msgid "Alliance with ID %(id)s not found"
+msgstr ""
+
+msgid "Invalid owner type specified."
+msgstr ""
+
+#, python-format
+msgid "Corporation %(name)s deleted successfully."
+msgstr ""
+
+#, python-format
+msgid "Alliance %(name)s deleted successfully."
 msgstr ""
 
 msgid "Update All Taxsystem is already queued or running"
@@ -133,37 +137,16 @@ msgstr ""
 msgid "Invalid target specified."
 msgstr ""
 
-#, python-format
-msgid "Update for %(name)s is already queued or running"
-msgstr ""
-
-#, python-format
-msgid "Queued update for %(name)s"
-msgstr ""
-
-#, python-format
-msgid "Corporation %(name)s deleted successfully."
-msgstr ""
-
-#, python-format
-msgid "Alliance %(name)s deleted successfully."
-msgstr ""
-
-msgid "Administration permission required."
-msgstr ""
-
-#, python-format
-msgid "Corporation with ID %(id)s not found"
-msgstr ""
-
-#, python-format
-msgid "Alliance with ID %(id)s not found"
-msgstr ""
-
-msgid "Invalid owner type specified."
-msgstr ""
-
 msgid "Permission Denied"
+msgstr ""
+
+msgid "Owner not Found."
+msgstr ""
+
+msgid "Permission Denied."
+msgstr ""
+
+msgid "Member not Found."
 msgstr ""
 
 #, python-brace-format
@@ -255,7 +238,25 @@ msgstr ""
 msgid "Tax free group \"{name}\" created."
 msgstr ""
 
-msgid "Division"
+msgid "Account not found."
+msgstr ""
+
+#, python-brace-format
+msgid "{account} switched to {status}"
+msgstr ""
+
+msgid "Please enter a valid number"
+msgstr ""
+
+#, python-brace-format
+msgid "Tax Amount from {owner} changed to {value}"
+msgstr ""
+
+#, python-brace-format
+msgid "Tax Period from {owner} changed to {value}"
+msgstr ""
+
+msgid "No settings provided to update."
 msgstr ""
 
 msgid "Corporation"
@@ -289,6 +290,10 @@ msgstr ""
 msgid "Payment ID: {pid} - Amount: {amount} - Name: {name} deleted - {reason}"
 msgstr ""
 
+#, python-brace-format
+msgid "Unknown action '{action}'."
+msgstr ""
+
 msgid "Payment not Found."
 msgstr ""
 
@@ -306,6 +311,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Custom Payment Added: {comment}"
+msgstr ""
+
+msgid "Account not Found."
 msgstr ""
 
 msgid "No payment IDs provided."
