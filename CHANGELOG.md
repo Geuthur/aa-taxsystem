@@ -29,6 +29,9 @@ Section Order:
 <!-- Your changes go here -->
 
 - [ADD] Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) for the tox environment `allianceauth-development` and `make tox-tests-development`, with separate test settings in `testauth/settings/development/`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14.
+- [FIX] Compatibility with Alliance Auth 6 (pre-release) and Django 6: the `eveonline` migration dependencies of `0001_initial`, `0001_init_v3` and `0010_create_alliance_corporation` now point to `0019_v5squash` (Alliance Auth 6 removed the older `eveonline` migrations, `0019_v5squash` exists in Alliance Auth 5 as well), and `AccountStatus.html()` passes its values to `format_html` as arguments (Django 6 no longer accepts `format_html` without arguments). Works with Alliance Auth 5 and 6.
+
+## [5.3.0] - 2026-11-24
 
 > [!WARNING]
 >
@@ -36,14 +39,12 @@ Section Order:
 
 ### Fixed
 
-- [FIX] Compatibility with Alliance Auth 6 (pre-release) and Django 6: the `eveonline` migration dependencies of `0001_initial`, `0001_init_v3` and `0010_create_alliance_corporation` now point to `0019_v5squash` (Alliance Auth 6 removed the older `eveonline` migrations, `0019_v5squash` exists in Alliance Auth 5 as well), and `AccountStatus.html()` passes its values to `format_html` as arguments (Django 6 no longer accepts `format_html` without arguments). Works with Alliance Auth 5 and 6.
 - [FIX] React Query no longer retries 403, 404 and other 4xx answers three times, so the error shows at once instead of after about seven seconds (`createQueryClient` of `aa-geuthur-react` 1.7.0).
 - [FIX] The menu badge no longer counts members of a tax-free group as unpaid.
 - [FIX] Accounts of tax-free group members are shown as "Tax-Free" instead of unpaid (account overview, account list of the owner) and no longer count as unpaid in the owner statistics.
 - [FIX] New, returning or newly activated members start with their free first period right away and are no longer shown as unpaid (menu badge, account overview, payment reminder) until the daily deadlines run.
 - [FIX] The Discord webhook URL (with its token) is no longer logged or raised when a webhook notification fails.
-- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) no longer fails the task; only the type of the error is logged.
-- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) is no longer retried, because it is rejected before any request is sent; a network error or a rejected response is still retried.
+- [FIX] A Discord webhook message that `dhooks_lite` rejects (e.g. content over 2000 characters) no longer fails the task and is not retried; only the type of the error is logged. Network errors are still retried.
 - [FIX] Alliance accounts now count for the menu badge (own unpaid account, open invoices for alliance managers) and only notified alliance accounts get a reminder timestamp.
 - [FIX] The account list of an owner no longer runs two extra database queries per account.
 - [FIX] The payments and members update tasks no longer run an extra database query per account to read its characters.
@@ -70,6 +71,7 @@ Section Order:
 
 - [REMOVED] Unused manager method `_move_tax_account_to_owner` (corporation and alliance).
 - [REMOVED] Legacy API endpoints `manage/update-tax/`, `manage/update-period/` (use `manage/settings/`) and `approve-payment/`, `reject-payment/`, `undo-payment/`, `delete-payment/` (use `manage/action/`), plus unused frontend API calls.
+- [REMOVED] Unused German keys from the English translation file.
 
 ## [5.2.0] - 2026-11-13
 
@@ -1217,5 +1219,6 @@ python manage.py taxsystem_migrate_payments
 [5.0.7]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.6...v5.0.7 "v5.0.7"
 [5.1.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.0.7...v5.1.0 "v5.1.0"
 [5.2.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.1.0...v5.2.0 "v5.2.0"
-[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.2.0...HEAD "In Development"
+[5.3.0]: https://github.com/Geuthur/aa-taxsystem/compare/v5.2.0...v5.3.0 "v5.3.0"
+[in development]: https://github.com/Geuthur/aa-taxsystem/compare/v5.3.0...HEAD "In Development"
 [report any issues]: https://github.com/Geuthur/aa-taxsystem/issues "report any issues"
